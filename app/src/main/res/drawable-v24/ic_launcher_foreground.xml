@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 Codepunk, LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:aapt="http://schemas.android.com/aapt"
+        android:width="108dp"
+        android:height="108dp"
+        android:viewportWidth="108"
+        android:viewportHeight="108">
+
+    <path
+        android:pathData="M29 56.3l17.6 -17.6 14.5 14.5 9.84 -17.8 63 63 -31.4 31.4z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="78.5885"
+                android:endY="90.9159"
+                android:startX="48.7653"
+                android:startY="61.0927"
+                android:type="linear">
+                <item
+                    android:color="#30000000"
+                    android:offset="0.0" />
+                <item
+                    android:color="#00000000"
+                    android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <path
+        android:pathData="M44.3 37.8c-0.878 -0.0128 -1.72 0.33 -2.35 0.952l-13 13c-1.27 1.27 -1.27 3.33 0 4.6l13 13c1.27 1.27 3.33 1.27 4.6 0 1.27 -1.27 1.27 -3.33 0 -4.6l-10.7 -10.7 10.7 -10.7c1.27 -1.27 1.27 -3.33 0 -4.6C45.952 38.154 45.14 37.813 44.3 37.8Z"
+        android:fillColor="@color/colorIconForeground" />
+
+    <path
+        android:pathData="M66.3 35.5c-0.246 0.248 -0.451 0.533 -0.607 0.846l-0.002 -0.0013 -0.831 1.66c-0.379 -0.143 -0.781 -0.214 -1.19 -0.209 -0.845 0.0124 -1.65 0.354 -2.25 0.952 -1.27 1.27 -1.27 3.33 0 4.6l0.511 0.511 -14.1 28.2 0.002 0.0013c-0.626 1.25 -0.381 2.76 0.607 3.75 1.27 1.27 3.33 1.27 4.6 0 0.246 -0.248 0.451 -0.533 0.607 -0.846l0.002 0.0013 13.2 -26.3 5.35 5.35 -10.7 10.7c-1.27 1.27 -1.27 3.33 0 4.6 1.27 1.27 3.33 1.27 4.6 0l13 -13c1.27 -1.27 1.27 -3.33 0 -4.6l-9.18 -9.18 1.66 -3.32 -0.002 -0.0013c0.626 -1.25 0.381 -2.76 -0.607 -3.75 -0.621 -0.621 -1.47 -0.964 -2.33 -0.952 -0.862 0.0127 -1.67 0.354 -2.27 0.952z"
+        android:fillColor="@color/colorIconForeground" />
+
+</vector>
