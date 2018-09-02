@@ -41,7 +41,10 @@ object AppInjector {
      * automatic dependency injection.
      */
     fun register(application: CodepunkApp) {
-        DaggerAppComponent.builder().application(application).build().inject(application)
+        DaggerAppComponent.builder()
+            .application(application)
+            .build()
+            .inject(application)
         application.registerActivityLifecycleCallbacks(InjectionActivityLifecycleCallbacks)
     }
 

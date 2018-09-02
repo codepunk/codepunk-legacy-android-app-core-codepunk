@@ -16,24 +16,24 @@
 
 package com.codepunk.codepunk.di
 
-import com.codepunk.codepunk.ui.main.MainActivity
+import com.codepunk.codepunk.ui.main.MainFragment
 import dagger.Module
 import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
 
 /**
- * The [Module] used for dependency injection into [MainActivity].
+ * The [Module] used for dependency injection into [MainFragment].
  */
 @Module
-abstract class MainActivityModule {
+abstract class MainFragmentModule {
 
     // region Methods
 
     /**
-     * Generates an [AndroidInjector] for [MainActivity].
+     * Generates an [AndroidInjector] for [MainFragment].
      */
-    @ContributesAndroidInjector(modules = [MainFragmentModule::class])
-    abstract fun contributeMainActivityInjector(): MainActivity
+    @ContributesAndroidInjector
+    abstract fun contributesMainFragmentInjector(): MainFragment
 
     // endregion Methods
 

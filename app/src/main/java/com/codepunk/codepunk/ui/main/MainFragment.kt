@@ -63,8 +63,18 @@ class MainFragment : Fragment(), Injectable {
             inflater,
             R.layout.fragment_main,
             container,
-            false)
+            false
+        )
         return binding.root
+    }
+
+    /**
+     * Updates the view.
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.text1.text =
+                getString(R.string.dependency_injection_message, app::class.java.simpleName)
     }
 
     // endregion Lifecycle methods
