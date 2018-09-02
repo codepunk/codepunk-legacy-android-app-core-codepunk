@@ -46,6 +46,7 @@ versions.android_gradle_plugin = "3.2.0-rc02"
 versions.android_testing_support_library = "1.1.0-alpha4"
 versions.app_compat = "1.0.0-rc01"
 versions.constraint_layout = "1.1.2"
+versions.dagger = "2.15"
 versions.espresso = "3.1.0-alpha4"
 versions.junit = "4.12"
 versions.kotlin = "1.2.60"
@@ -62,6 +63,13 @@ deps.androidx = androidx
 def atsl = [:]
 atsl.runner = "com.android.support.test:runner:${versions.android_testing_support_library}"
 deps.atsl = atsl
+
+def dagger = [:]
+dagger.android = "com.google.dagger:dagger-android:${versions.dagger}"
+dagger.android_support = "com.google.dagger:dagger-android-support:${versions.dagger}"
+dagger.android_support_compiler = "com.google.dagger:dagger-android-processor:${versions.dagger}"
+dagger.compiler = "com.google.dagger:dagger-compiler:${versions.dagger}"
+deps.dagger = dagger
 
 def kotlin = [:]
 kotlin.plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"

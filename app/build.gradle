@@ -59,6 +59,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation rootProject.deps.androidx.app_compat
     implementation rootProject.deps.androidx.constraint_layout
+    implementation rootProject.deps.dagger.android
+    implementation rootProject.deps.dagger.android_support
     implementation rootProject.deps.kotlin.stdlib
     implementation rootProject.deps.lifecycle.runtime
     implementation rootProject.deps.lifecycle.extensions
@@ -66,9 +68,10 @@ dependencies {
     implementation rootProject.deps.navigation.fragment_ktx
     implementation rootProject.deps.navigation.ui_ktx
 
-    implementation 'com.android.support:appcompat-v7:28.0.0-rc02'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation rootProject.deps.junit
+
+    kapt rootProject.deps.dagger.android_support_compiler
+    kapt rootProject.deps.dagger.compiler
 
     androidTestImplementation rootProject.deps.atsl.runner
     androidTestImplementation rootProject.deps.espresso.core

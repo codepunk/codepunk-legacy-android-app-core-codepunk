@@ -16,6 +16,50 @@
 
 package com.codepunk.codepunk
 
+import android.app.Activity
 import android.app.Application
+import com.codepunk.codepunk.di.AppInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasActivityInjector
+import javax.inject.Inject
 
-class CodepunkApp : Application()
+/**
+ * The main Codepunk [Application].
+ */
+class CodepunkApp : Application(), HasActivityInjector {
+
+    // region Properties
+
+    /**
+     * The [DispatchingAndroidInjector] that this application will use for dependency
+     * injection.
+     */
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+
+    // endregion Properties
+
+    // region Lifecycle methods
+
+    /**
+     * Sets up dependency injection for the application.
+     */
+    override fun onCreate() {
+        super.onCreate()
+        AppInjector.register(this)
+    }
+
+    // endregion Lifecycle methods
+
+    // region Implemented methods
+
+    /**
+     * Supplies a [DispatchingAndroidInjector] for dependency injection into [Activity] instances.
+     *
+     * Implementation of [HasActivityInjector].
+     */
+    override fun activityInjector() = dispatchingAndroidInjector
+
+    // endregion Implemented methods
+
+}

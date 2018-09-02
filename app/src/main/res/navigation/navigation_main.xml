@@ -15,9 +15,16 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="app_name">Codepunk</string>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/navigation_main"
+            app:startDestination="@id/main_fragment">
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-</resources>
+    <fragment
+        android:id="@+id/main_fragment"
+        android:name="com.codepunk.codepunk.ui.main.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" />
+
+</navigation>

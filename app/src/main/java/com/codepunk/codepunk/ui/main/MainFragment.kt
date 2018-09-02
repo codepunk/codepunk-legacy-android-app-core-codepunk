@@ -16,31 +16,30 @@
 
 package com.codepunk.codepunk.ui.main
 
-import android.app.Activity
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import com.codepunk.codepunk.CodepunkApp
+
 import com.codepunk.codepunk.R
+import com.codepunk.codepunk.databinding.FragmentMainBinding
 import com.codepunk.codepunk.di.Injectable
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
 
 /**
- * The main [Activity] for the Codepunk app.
+ * A simple [Fragment] subclass.
  */
-class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable {
+class MainFragment : Fragment(), Injectable {
 
     // region Properties
 
     /**
-     * The [DispatchingAndroidInjector] that this activity will use for dependency
-     * injection into managed [Fragment] instances.
+     * The binding for this fragment.
      */
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    private lateinit var binding: FragmentMainBinding
 
     /**
      * This is just a dependency injection test.
@@ -53,24 +52,21 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
     // region Lifecycle methods
 
     /**
-     * Sets the content view for the activity.
+     * Inflates the view.
      */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_main,
+            container,
+            false)
+        return binding.root
     }
 
     // endregion Lifecycle methods
-
-    // region Implemented methods
-
-    /**
-     * Supplies an [AndroidInjector] for dependency injection into [Fragment] instances.
-     *
-     * Implementation of [HasSupportFragmentInjector].
-     */
-    override fun supportFragmentInjector() = dispatchingAndroidInjector
-
-    // endregion Implemented methods
 
 }
