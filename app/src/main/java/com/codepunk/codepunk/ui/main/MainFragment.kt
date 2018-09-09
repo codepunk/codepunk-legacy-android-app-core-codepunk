@@ -16,23 +16,25 @@
 
 package com.codepunk.codepunk.ui.main
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import com.codepunk.codepunk.CodepunkApp
-
 import com.codepunk.codepunk.R
 import com.codepunk.codepunk.databinding.FragmentMainBinding
-import com.codepunk.codepunk.di.Injectable
+import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
  */
-class MainFragment : Fragment(), Injectable {
+class MainFragment : Fragment() {
 
     // region Properties
 
@@ -47,9 +49,23 @@ class MainFragment : Fragment(), Injectable {
     @Inject
     lateinit var app: CodepunkApp // TODO TEMP
 
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences // TODO TEMP
+
     // endregion Properties
 
     // region Lifecycle methods
+
+    /**
+     * Injects dependencies into this fragment.
+     */
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     /**
      * Inflates the view.
@@ -75,6 +91,7 @@ class MainFragment : Fragment(), Injectable {
         super.onViewCreated(view, savedInstanceState)
         binding.text1.text =
                 getString(R.string.dependency_injection_message, app::class.java.simpleName)
+        Log.d("MainFragment", "app=$app, sharedPreferences=$sharedPreferences")
     }
 
     // endregion Lifecycle methods

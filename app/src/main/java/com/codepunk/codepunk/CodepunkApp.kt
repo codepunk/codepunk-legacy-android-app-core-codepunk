@@ -18,7 +18,7 @@ package com.codepunk.codepunk
 
 import android.app.Activity
 import android.app.Application
-import com.codepunk.codepunk.di.AppInjector
+import com.codepunk.codepunk.di.DaggerAppComponent
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import javax.inject.Inject
@@ -46,7 +46,10 @@ class CodepunkApp : Application(), HasActivityInjector {
      */
     override fun onCreate() {
         super.onCreate()
-        AppInjector.register(this)
+        DaggerAppComponent.builder()
+            .application(this)
+            .build()
+            .inject(this)
     }
 
     // endregion Lifecycle methods

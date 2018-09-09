@@ -16,10 +16,31 @@
 
 package com.codepunk.codepunk.di
 
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
+import com.codepunk.codepunk.CodepunkApp
 import dagger.Module
+import dagger.Provides
+import javax.inject.Singleton
 
 /**
  * A dependency injection [Module] for injecting application-level dependencies.
  */
 @Module
-class AppModule
+object AppModule {
+
+    // region Methods
+
+    /**
+     * Provides the default [SharedPreferences] for the app.
+     */
+    @Singleton
+    @Provides
+    @JvmStatic
+    fun providesSharedPreferences(app: CodepunkApp): SharedPreferences {
+        return PreferenceManager.getDefaultSharedPreferences(app)
+    }
+
+    // endregion Methods
+
+}

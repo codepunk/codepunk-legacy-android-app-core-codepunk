@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.codepunk.codepunk.CodepunkApp
 import com.codepunk.codepunk.R
-import com.codepunk.codepunk.di.Injectable
+import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -31,7 +31,7 @@ import javax.inject.Inject
 /**
  * The main [Activity] for the Codepunk app.
  */
-class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable {
+class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     // region Properties
 
@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, Injectable
      * Sets the content view for the activity.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }

@@ -25,7 +25,7 @@ import dagger.android.ContributesAndroidInjector
  * The [Module] used for dependency injection into [MainActivity].
  */
 @Module
-abstract class MainActivityModule {
+abstract class ActivityBuilderModule {
 
     // region Methods
 
