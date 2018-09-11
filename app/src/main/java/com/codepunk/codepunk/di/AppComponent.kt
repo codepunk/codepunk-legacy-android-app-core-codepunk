@@ -20,7 +20,6 @@ import com.codepunk.codepunk.CodepunkApp
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
-import dagger.android.AndroidInjector
 import javax.inject.Singleton
 
 /**
@@ -33,7 +32,16 @@ import javax.inject.Singleton
         AppModule::class,
         ActivityBuilderModule::class]
 )
-interface AppComponent: AndroidInjector<CodepunkApp> {
+interface AppComponent {
+
+    // region Methods
+
+    /**
+     * Injects dependencies into the application.
+     */
+    fun inject(application: CodepunkApp)
+
+    // endregion Methods
 
     // region Nested/inner classes
 

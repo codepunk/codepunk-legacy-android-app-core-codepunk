@@ -19,6 +19,7 @@ package com.codepunk.codepunk
 import android.app.Activity
 import android.app.Application
 import com.codepunk.codepunk.di.DaggerAppComponent
+import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import javax.inject.Inject
@@ -61,7 +62,7 @@ class CodepunkApp : Application(), HasActivityInjector {
      *
      * Implementation of [HasActivityInjector].
      */
-    override fun activityInjector() = dispatchingAndroidInjector
+    override fun activityInjector(): AndroidInjector<Activity> = dispatchingAndroidInjector
 
     // endregion Implemented methods
 

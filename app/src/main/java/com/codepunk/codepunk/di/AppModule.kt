@@ -34,9 +34,9 @@ object AppModule {
     /**
      * Provides the default [SharedPreferences] for the app.
      */
-    @Singleton
-    @Provides
     @JvmStatic
+    @Provides
+    @Singleton
     fun providesSharedPreferences(app: CodepunkApp): SharedPreferences {
         return PreferenceManager.getDefaultSharedPreferences(app)
     }
