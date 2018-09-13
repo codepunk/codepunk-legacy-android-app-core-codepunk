@@ -22,13 +22,13 @@ package com.codepunk.codepunk.di
  */
 interface HasMainActivityComponentBuilder {
 
-    // region Properties
+    // region Methods
 
     /**
      * Returns an instance of [MainActivityComponent.Builder].
      */
-    var mainActivityComponentBuilder: MainActivityComponent.Builder
+    fun mainActivityComponentBuilder(): MainActivityComponent.Builder
 
-    // endregion Properties
+    // endregion Methods
 
 }

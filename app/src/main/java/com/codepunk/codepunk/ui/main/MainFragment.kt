@@ -88,7 +88,7 @@ class MainFragment : Fragment() {
     override fun onAttach(context: Context?) {
         try {
             mainFragmentComponent = (context as HasMainFragmentComponentBuilder)
-                .mainFragmentComponentBuilder
+                .mainFragmentComponentBuilder()
                 .fragment(this)
                 .build()
             mainFragmentComponent.inject(this)

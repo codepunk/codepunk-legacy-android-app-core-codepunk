@@ -31,17 +31,6 @@ import javax.inject.Inject
 @ActivityScope
 class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
 
-    // region Implemented properties
-
-    /**
-     * Implementation of [HasMainFragmentComponentBuilder]. A [MainFragmentComponent.Builder]
-     * used to create instances of [MainFragmentComponent].
-     */
-    @Inject
-    override lateinit var mainFragmentComponentBuilder: MainFragmentComponent.Builder
-
-    // endregion Implemented properties
-
     // region Properties
 
     /**
@@ -85,7 +74,7 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             mainActivityComponent = (applicationContext as HasMainActivityComponentBuilder)
-                .mainActivityComponentBuilder
+                .mainActivityComponentBuilder()
                 .activity(this)
                 .build()
             mainActivityComponent.inject(this)
@@ -102,5 +91,17 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
     }
 
     // endregion Lifecycle methods
+
+    // region Implemented methods
+
+    /**
+     * Implementation of [HasMainFragmentComponentBuilder]. Returns a
+     * [MainFragmentComponent.Builder] used to create instances of [MainFragmentComponent].
+     */
+    override fun mainFragmentComponentBuilder(): MainFragmentComponent.Builder =
+            mainActivityComponent.mainFragmentComponentBuilder()
+
+    // endregion Implemented methods
+
 
 }

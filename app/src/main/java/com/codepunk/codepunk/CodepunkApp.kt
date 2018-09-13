@@ -28,17 +28,6 @@ import javax.inject.Singleton
 @Suppress("unused")
 class CodepunkApp : Application(), HasMainActivityComponentBuilder {
 
-    // region Implemented properties
-
-    /**
-     * Implementation of [HasMainActivityComponentBuilder]. A [MainActivityComponent.Builder]
-     * used to create instances of [MainActivityComponent].
-     */
-    @Inject
-    override lateinit var mainActivityComponentBuilder: MainActivityComponent.Builder
-
-    // endregion Implemented properties
-
     // region Properties
 
     /**
@@ -84,5 +73,17 @@ class CodepunkApp : Application(), HasMainActivityComponentBuilder {
     }
 
     // endregion Lifecycle methods
+
+    // region Implemented methods
+
+    /**
+     * Implementation of [HasMainActivityComponentBuilder]. Returns a
+     * [MainActivityComponent.Builder] used to create instances of [MainActivityComponent].
+     */
+    override fun mainActivityComponentBuilder(): MainActivityComponent.Builder =
+        appComponent.mainActivityComponentBuilder()
+
+    // endregion Implemented methods
+
 
 }
