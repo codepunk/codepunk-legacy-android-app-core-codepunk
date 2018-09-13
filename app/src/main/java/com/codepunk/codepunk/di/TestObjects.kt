@@ -31,7 +31,6 @@ class ApplicationTestObject {
 /**
  * A class for testing a directly-injected/created object.
  */
-@Singleton
 class SingletonInjectedTestObject @Inject constructor() {
 
     val text: String = "SingletonInjectedTestObject!"

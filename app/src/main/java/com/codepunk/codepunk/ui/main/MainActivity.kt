@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
     /**
      * This is just a dependency injection test.
      */
+    @ActivityScope // This scope doesn't seem to matter, we always get a new instance.
     @Inject
     lateinit var singletonInjectedTestObject: SingletonInjectedTestObject // TODO TEMP
 

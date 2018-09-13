@@ -20,6 +20,7 @@ import android.app.Application
 import android.util.Log
 import com.codepunk.codepunk.di.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * The main Codepunk [Application].
@@ -55,8 +56,16 @@ class CodepunkApp : Application(), HasMainActivityComponentBuilder {
     /**
      * This is just a dependency injection test.
      */
+    @Singleton // This scope doesn't seem to matter, we always get a new instance.
     @Inject
     lateinit var singletonInjectedTestObject: SingletonInjectedTestObject
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Singleton // This scope doesn't seem to matter, we always get a new instance.
+    @Inject
+    lateinit var anotherSingletonInjectedTestObject: SingletonInjectedTestObject
 
     // endregion Properties
 
