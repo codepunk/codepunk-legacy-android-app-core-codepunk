@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
      * [MainFragmentComponent.Builder] used to create instances of [MainFragmentComponent].
      */
     override fun mainFragmentComponentBuilder(): MainFragmentComponent.Builder =
-            mainActivityComponent.mainFragmentComponentBuilder()
+        mainActivityComponent.mainFragmentComponentBuilder()
 
     // endregion Implemented methods
 
