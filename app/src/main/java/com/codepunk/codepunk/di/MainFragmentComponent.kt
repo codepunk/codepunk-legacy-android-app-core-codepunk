@@ -16,54 +16,47 @@
 
 package com.codepunk.codepunk.di
 
-import com.codepunk.codepunk.CodepunkApp
+import com.codepunk.codepunk.ui.main.MainActivity
+import com.codepunk.codepunk.ui.main.MainFragment
 import dagger.BindsInstance
-import dagger.Component
-import javax.inject.Singleton
+import dagger.Subcomponent
 
 /**
- * [Component] for dependency injection into the application.
+ * A [Subcomponent] used for dependency injection into [MainActivity].
  */
-@Singleton
-@Component(modules = [AppModule::class])
-interface AppComponent {
+@FragmentScope
+@Subcomponent(modules = [MainFragmentModule::class])
+interface MainFragmentComponent {
 
     // region Methods
 
     /**
-     * Injects dependencies into the application (i.e. an [instance] of [CodepunkApp]).
+     * Injects dependencies into an instance of [MainFragment].
      */
-    fun inject(instance: CodepunkApp)
-
-    /**
-     * Returns a new [MainActivityComponent.Builder] for building new
-     * [MainActivityComponent] instances.
-     */
-    fun mainActivityComponentBuilder(): MainActivityComponent.Builder
+    fun inject(instance: MainFragment)
 
     // endregion Methods
 
     // region Nested/inner classes
 
     /**
-     * Helper class for creating an instance of [AppComponent].
+     * Helper class for creating an instance of [MainFragmentComponent].
      */
-    @Singleton
-    @Component.Builder
+    @Subcomponent.Builder
     interface Builder {
 
         // region Methods
 
         /**
-         * Binds an [instance] of [CodepunkApp] to the component.
+         * Binds an [instance] of [MainFragment] to the subcomponent.
          */
         @BindsInstance
-        fun application(instance: CodepunkApp): Builder
+        fun fragment(instance: MainFragment): Builder
 
         /**
-         * Builds an instance of [AppComponent].
+         * Builds the main activity subcomponent.
          */
-        fun build(): AppComponent
+        fun build(): MainFragmentComponent
 
         // endregion Methods
 

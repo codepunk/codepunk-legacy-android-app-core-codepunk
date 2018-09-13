@@ -16,26 +16,14 @@
 
 package com.codepunk.codepunk.di
 
-import com.codepunk.codepunk.ui.main.MainFragment
-import dagger.Module
-import dagger.Provides
+import android.app.Activity
+import javax.inject.Scope
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
- * A [Module] for injecting dependencies into [MainFragment].
+ * A [Scope] used for retaining single instances of injected dependencies throughout an [Activity]
+ * lifecycle.
  */
-@Module
-object MainFragmentModule {
-
-    // region Methods
-
-    /**
-     * Provides an instance of [FragmentTestObject] for dependency injection.
-     */
-    @JvmStatic
-    @Provides
-    @FragmentScope
-    fun providesFragmentTestObject(): FragmentTestObject = FragmentTestObject()
-
-    // endregion Methods
-
-}
+@Scope
+@Retention(RUNTIME)
+annotation class ActivityScope

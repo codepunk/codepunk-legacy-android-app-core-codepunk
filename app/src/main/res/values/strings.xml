@@ -19,5 +19,5 @@
     <string name="app_name">Codepunk</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="dependency_injection_message">Application class: %1$s</string>
+    <string name="dependency_injection_message">Dependency injection: %1$s</string>
 </resources>

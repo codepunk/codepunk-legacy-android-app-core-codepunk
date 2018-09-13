@@ -16,26 +16,36 @@
 
 package com.codepunk.codepunk.di
 
-import com.codepunk.codepunk.ui.main.MainFragment
-import dagger.Module
-import dagger.Provides
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * A [Module] for injecting dependencies into [MainFragment].
- */
-@Module
-object MainFragmentModule {
+class ApplicationTestObject {
 
-    // region Methods
+    val text: String = "ApplicationTestObject!"
 
-    /**
-     * Provides an instance of [FragmentTestObject] for dependency injection.
-     */
-    @JvmStatic
-    @Provides
-    @FragmentScope
-    fun providesFragmentTestObject(): FragmentTestObject = FragmentTestObject()
+}
 
-    // endregion Methods
+@Singleton
+class ApplicationInjectedTestObject @Inject constructor() {
+
+    val text: String = "ApplicationInjectedTestObject!"
+
+}
+
+class ActivityTestObject {
+
+    val text: String = "ActivityTestObject!"
+
+}
+
+class FragmentTestObject {
+
+    val text: String = "FragmentTestObject!"
+
+}
+
+class NonScopedTestObject {
+
+    val text: String = "NonScopedTestObject!"
 
 }

@@ -19,16 +19,14 @@ package com.codepunk.codepunk.ui.main
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import com.codepunk.codepunk.CodepunkApp
 import com.codepunk.codepunk.R
 import com.codepunk.codepunk.databinding.FragmentMainBinding
-import dagger.android.support.AndroidSupportInjection
+import com.codepunk.codepunk.di.*
 import javax.inject.Inject
 
 /**
@@ -39,21 +37,49 @@ class MainFragment : Fragment() {
     // region Properties
 
     /**
-     * The binding for this fragment.
+     *
      */
-    private lateinit var binding: FragmentMainBinding
+    private val mainActivity by lazy { context as MainActivity }
 
     /**
-     * This is just a dependency injection test.
+     * A [MainFragmentComponent] instance used to inject dependencies into this fragment.
      */
-    @Inject
-    lateinit var app: CodepunkApp // TODO TEMP
+    private lateinit var mainFragmentComponent: MainFragmentComponent
 
     /**
      * This is just a dependency injection test.
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var applicationTestObject: ApplicationTestObject // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var applicationInjectedTestObject: ApplicationInjectedTestObject // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var activityTestObject: ActivityTestObject // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var fragmentTestObject: FragmentTestObject // TODO TEMP
+
+    /**
+     * The binding for this fragment.
+     */
+    private lateinit var binding: FragmentMainBinding
 
     // endregion Properties
 
@@ -63,7 +89,20 @@ class MainFragment : Fragment() {
      * Injects dependencies into this fragment.
      */
     override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
+        try {
+            mainFragmentComponent = (context as HasMainFragmentComponentBuilder)
+                .mainFragmentComponentBuilder
+                .fragment(this)
+                .build()
+            mainFragmentComponent.inject(this)
+        } catch (e: ClassCastException) {
+            throw IllegalStateException(
+                "Parent activity of ${MainFragment::class.java.simpleName} must implement " +
+                        HasMainFragmentComponentBuilder::class.java.simpleName,
+                e
+            )
+        }
+
         super.onAttach(context)
     }
 
@@ -89,9 +128,8 @@ class MainFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.text1.text =
-                getString(R.string.dependency_injection_message, app::class.java.simpleName)
-        Log.d("MainFragment", "app=$app, sharedPreferences=$sharedPreferences")
+        val text = fragmentTestObject.text
+        binding.text1.text = getString(R.string.dependency_injection_message, text)
     }
 
     // endregion Lifecycle methods

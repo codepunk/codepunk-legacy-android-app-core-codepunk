@@ -16,27 +16,47 @@
 
 package com.codepunk.codepunk
 
-import android.app.Activity
 import android.app.Application
-import com.codepunk.codepunk.di.DaggerAppComponent
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
+import android.util.Log
+import com.codepunk.codepunk.di.*
 import javax.inject.Inject
 
 /**
  * The main Codepunk [Application].
  */
-class CodepunkApp : Application(), HasActivityInjector {
+@Suppress("unused")
+class CodepunkApp : Application(), HasMainActivityComponentBuilder {
+
+    // region Implemented properties
+
+    /**
+     * Implementation of [HasMainActivityComponentBuilder]. A [MainActivityComponent.Builder]
+     * used to create instances of [MainActivityComponent].
+     */
+    @Inject
+    override lateinit var mainActivityComponentBuilder: MainActivityComponent.Builder
+
+    // endregion Implemented properties
 
     // region Properties
 
     /**
-     * The [DispatchingAndroidInjector] that this application will use for dependency
-     * injection.
+     * An [AppComponent] instance used to inject dependencies into this application.
+     */
+    @Suppress("weakerAccess")
+    lateinit var appComponent: AppComponent
+
+    /**
+     * This is just a dependency injection test.
      */
     @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+    lateinit var applicationTestObject: ApplicationTestObject
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var applicationInjectedTestObject: ApplicationInjectedTestObject
 
     // endregion Properties
 
@@ -47,23 +67,13 @@ class CodepunkApp : Application(), HasActivityInjector {
      */
     override fun onCreate() {
         super.onCreate()
-        DaggerAppComponent.builder()
+        appComponent = DaggerAppComponent.builder()
             .application(this)
             .build()
-            .inject(this)
+        appComponent.inject(this)
+        Log.d("CodepunkApp", "onCreate")
     }
 
     // endregion Lifecycle methods
-
-    // region Implemented methods
-
-    /**
-     * Supplies a [DispatchingAndroidInjector] for dependency injection into [Activity] instances.
-     *
-     * Implementation of [HasActivityInjector].
-     */
-    override fun activityInjector(): AndroidInjector<Activity> = dispatchingAndroidInjector
-
-    // endregion Implemented methods
 
 }

@@ -17,36 +17,60 @@
 package com.codepunk.codepunk.ui.main
 
 import android.app.Activity
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import com.codepunk.codepunk.CodepunkApp
 import com.codepunk.codepunk.R
-import dagger.android.AndroidInjection
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
+import com.codepunk.codepunk.di.*
 import javax.inject.Inject
 
 /**
  * The main [Activity] for the Codepunk app.
  */
-class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
+@ActivityScope
+class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
+
+    // region Implemented properties
+
+    /**
+     * Implementation of [HasMainFragmentComponentBuilder]. A [MainFragmentComponent.Builder]
+     * used to create instances of [MainFragmentComponent].
+     */
+    @Inject
+    override lateinit var mainFragmentComponentBuilder: MainFragmentComponent.Builder
+
+    // endregion Implemented properties
 
     // region Properties
 
     /**
-     * The [DispatchingAndroidInjector] that this activity will use for dependency
-     * injection into managed [Fragment] instances.
+     * A [MainActivityComponent] instance used to inject dependencies into this activity.
      */
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    lateinit var mainActivityComponent: MainActivityComponent
 
     /**
      * This is just a dependency injection test.
      */
     @Inject
-    lateinit var app: CodepunkApp // TODO TEMP
+    lateinit var sharedPreferences: SharedPreferences // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var applicationTestObject: ApplicationTestObject // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var applicationInjectedTestObject: ApplicationInjectedTestObject // TODO TEMP
+
+    /**
+     * This is just a dependency injection test.
+     */
+    @Inject
+    lateinit var activityTestObject: ActivityTestObject // TODO TEMP
 
     // endregion Properties
 
@@ -56,22 +80,24 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
      * Sets the content view for the activity.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
+        try {
+            mainActivityComponent = (applicationContext as HasMainActivityComponentBuilder)
+                .mainActivityComponentBuilder
+                .activity(this)
+                .build()
+            mainActivityComponent.inject(this)
+        } catch (e: ClassCastException) {
+            throw IllegalStateException(
+                "Application ${applicationContext::class.java.simpleName} must implement " +
+                        HasMainActivityComponentBuilder::class.java.simpleName,
+                e
+            )
+        }
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }
 
     // endregion Lifecycle methods
-
-    // region Implemented methods
-
-    /**
-     * Supplies an [AndroidInjector] for dependency injection into [Fragment] instances.
-     *
-     * Implementation of [HasSupportFragmentInjector].
-     */
-    override fun supportFragmentInjector() = dispatchingAndroidInjector
-
-    // endregion Implemented methods
 
 }

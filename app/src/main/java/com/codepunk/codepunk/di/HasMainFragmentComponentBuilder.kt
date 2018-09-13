@@ -16,26 +16,16 @@
 
 package com.codepunk.codepunk.di
 
-import com.codepunk.codepunk.ui.main.MainFragment
-import dagger.Module
-import dagger.Provides
-
 /**
- * A [Module] for injecting dependencies into [MainFragment].
+ * An interface that ensures that an instance of a class will provide an instance of
+ * [MainFragmentComponent.Builder].
  */
-@Module
-object MainFragmentModule {
+interface HasMainFragmentComponentBuilder {
 
-    // region Methods
+    // region Properties
 
-    /**
-     * Provides an instance of [FragmentTestObject] for dependency injection.
-     */
-    @JvmStatic
-    @Provides
-    @FragmentScope
-    fun providesFragmentTestObject(): FragmentTestObject = FragmentTestObject()
+    var mainFragmentComponentBuilder: MainFragmentComponent.Builder
 
-    // endregion Methods
+    // endregion Properties
 
 }

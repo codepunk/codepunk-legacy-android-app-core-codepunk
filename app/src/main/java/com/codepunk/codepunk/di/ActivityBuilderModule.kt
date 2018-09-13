@@ -18,13 +18,17 @@ package com.codepunk.codepunk.di
 
 import com.codepunk.codepunk.ui.main.MainActivity
 import dagger.Module
+
+/*
+import dagger.android.ActivityKey
 import dagger.android.AndroidInjector
-import dagger.android.ContributesAndroidInjector
+import dagger.multibindings.IntoMap
+*/
 
 /**
  * The [Module] used for dependency injection into [MainActivity].
  */
-@Module
+@Module(subcomponents = [MainActivityComponent::class])
 abstract class ActivityBuilderModule {
 
     // region Methods
@@ -32,8 +36,18 @@ abstract class ActivityBuilderModule {
     /**
      * Generates an [AndroidInjector] for [MainActivity].
      */
-    @ContributesAndroidInjector(modules = [MainFragmentModule::class])
+    /*
+    @ContributesAndroidInjector //(modules = [MainFragmentModule::class])
     abstract fun contributeMainActivityInjector(): MainActivity
+    */
+
+    /*
+    @Suppress("unused")
+    @Binds
+    @IntoMap
+    @ActivityKey(MainActivity::class)
+    abstract fun bindAndroidInjectorFactory(builder: MainActivityComponent.Builder): AndroidInjector.Factory<out Activity>
+    */
 
     // endregion Methods
 
