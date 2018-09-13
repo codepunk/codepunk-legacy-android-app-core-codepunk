@@ -17,13 +17,15 @@
 package com.codepunk.codepunk.di
 
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A class for testing an application-level dependency injection.
  */
 class ApplicationTestObject {
 
+    /**
+     * Sample text for this class.
+     */
     val text: String = "ApplicationTestObject!"
 
 }
@@ -33,6 +35,9 @@ class ApplicationTestObject {
  */
 class SingletonInjectedTestObject @Inject constructor() {
 
+    /**
+     * Sample text for this class.
+     */
     val text: String = "SingletonInjectedTestObject!"
 
 }
@@ -43,6 +48,9 @@ class SingletonInjectedTestObject @Inject constructor() {
 @ActivityScope
 class ActivityTestObject {
 
+    /**
+     * Sample text for this class.
+     */
     val text: String = "ActivityTestObject!"
 
 }
@@ -53,6 +61,9 @@ class ActivityTestObject {
 @FragmentScope
 class FragmentTestObject {
 
+    /**
+     * Sample text for this class.
+     */
     val text: String = "FragmentTestObject!"
 
 }
@@ -63,6 +74,9 @@ class FragmentTestObject {
 @Suppress("unused")
 class NonScopedTestObject {
 
+    /**
+     * Sample text for this class.
+     */
     val text: String = "NonScopedTestObject!"
 
 }
