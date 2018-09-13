@@ -56,7 +56,7 @@ class CodepunkApp : Application(), HasMainActivityComponentBuilder {
      * This is just a dependency injection test.
      */
     @Inject
-    lateinit var applicationInjectedTestObject: ApplicationInjectedTestObject
+    lateinit var singletonInjectedTestObject: SingletonInjectedTestObject
 
     // endregion Properties
 

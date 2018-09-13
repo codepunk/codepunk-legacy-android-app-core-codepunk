@@ -24,6 +24,9 @@ interface HasMainActivityComponentBuilder {
 
     // region Properties
 
+    /**
+     * Returns an instance of [MainActivityComponent.Builder].
+     */
     var mainActivityComponentBuilder: MainActivityComponent.Builder
 
     // endregion Properties

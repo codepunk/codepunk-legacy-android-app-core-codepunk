@@ -24,6 +24,9 @@ interface HasMainFragmentComponentBuilder {
 
     // region Properties
 
+    /**
+     * Returns an instance of [MainFragmentComponent.Builder].
+     */
     var mainFragmentComponentBuilder: MainFragmentComponent.Builder
 
     // endregion Properties

@@ -32,14 +32,10 @@ import javax.inject.Inject
 /**
  * A simple [Fragment] subclass.
  */
+@Suppress("unused")
 class MainFragment : Fragment() {
 
     // region Properties
-
-    /**
-     *
-     */
-    private val mainActivity by lazy { context as MainActivity }
 
     /**
      * A [MainFragmentComponent] instance used to inject dependencies into this fragment.
@@ -62,7 +58,7 @@ class MainFragment : Fragment() {
      * This is just a dependency injection test.
      */
     @Inject
-    lateinit var applicationInjectedTestObject: ApplicationInjectedTestObject // TODO TEMP
+    lateinit var singletonInjectedTestObject: SingletonInjectedTestObject // TODO TEMP
 
     /**
      * This is just a dependency injection test.

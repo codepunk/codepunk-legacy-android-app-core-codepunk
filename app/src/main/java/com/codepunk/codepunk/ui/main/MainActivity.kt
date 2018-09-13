@@ -27,6 +27,7 @@ import javax.inject.Inject
 /**
  * The main [Activity] for the Codepunk app.
  */
+@Suppress("unused")
 @ActivityScope
 class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
 
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
     /**
      * A [MainActivityComponent] instance used to inject dependencies into this activity.
      */
+    @Suppress("weakerAccess")
     lateinit var mainActivityComponent: MainActivityComponent
 
     /**
@@ -64,7 +66,7 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
      * This is just a dependency injection test.
      */
     @Inject
-    lateinit var applicationInjectedTestObject: ApplicationInjectedTestObject // TODO TEMP
+    lateinit var singletonInjectedTestObject: SingletonInjectedTestObject // TODO TEMP
 
     /**
      * This is just a dependency injection test.

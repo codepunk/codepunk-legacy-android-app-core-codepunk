@@ -19,31 +19,49 @@ package com.codepunk.codepunk.di
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * A class for testing an application-level dependency injection.
+ */
 class ApplicationTestObject {
 
     val text: String = "ApplicationTestObject!"
 
 }
 
+/**
+ * A class for testing a directly-injected/created object.
+ */
 @Singleton
-class ApplicationInjectedTestObject @Inject constructor() {
+class SingletonInjectedTestObject @Inject constructor() {
 
-    val text: String = "ApplicationInjectedTestObject!"
+    val text: String = "SingletonInjectedTestObject!"
 
 }
 
+/**
+ * A class for testing an activity-level dependency injection.
+ */
+@ActivityScope
 class ActivityTestObject {
 
     val text: String = "ActivityTestObject!"
 
 }
 
+/**
+ * A class for testing a fragment-level dependency injection.
+ */
+@FragmentScope
 class FragmentTestObject {
 
     val text: String = "FragmentTestObject!"
 
 }
 
+/**
+ * A class for testing a non-scoped dependency injection.
+ */
+@Suppress("unused")
 class NonScopedTestObject {
 
     val text: String = "NonScopedTestObject!"
