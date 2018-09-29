@@ -26,8 +26,6 @@ import android.app.Activity
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 
-
-
 /**
  * The main Codepunk [Application].
  */
@@ -41,12 +39,6 @@ class CodepunkApp : Application(), HasActivityInjector {
      */
     @Inject
     lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
-
-    /**
-     * An [AppComponent] instance used to inject dependencies into this application.
-     */
-//    @Suppress("weakerAccess")
-//    lateinit var appComponent: AppComponent
 
     /**
      * This is just a dependency injection test.
@@ -78,8 +70,7 @@ class CodepunkApp : Application(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
         DaggerAppComponent.builder()
-            .application(this)
-            .build()
+            .create(this)
             .inject(this)
         Log.d("CodepunkApp", "onCreate")
     }

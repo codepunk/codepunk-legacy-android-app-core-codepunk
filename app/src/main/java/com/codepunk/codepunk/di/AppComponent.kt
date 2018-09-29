@@ -17,8 +17,8 @@
 package com.codepunk.codepunk.di
 
 import com.codepunk.codepunk.CodepunkApp
-import dagger.BindsInstance
 import dagger.Component
+import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
@@ -30,16 +30,7 @@ import javax.inject.Singleton
     AndroidSupportInjectionModule::class,
     AppModule::class,
     ActivityBuilderModule::class])
-interface AppComponent {
-
-    // region Methods
-
-    /**
-     * Injects dependencies into the application (i.e. an [instance] of [CodepunkApp]).
-     */
-    fun inject(instance: CodepunkApp)
-
-    // endregion Methods
+interface AppComponent : AndroidInjector<CodepunkApp> {
 
     // region Nested/inner classes
 
@@ -48,24 +39,7 @@ interface AppComponent {
      */
     @Singleton
     @Component.Builder
-    interface Builder {
-
-        // region Methods
-
-        /**
-         * Binds an [instance] of [CodepunkApp] to the component.
-         */
-        @BindsInstance
-        fun application(instance: CodepunkApp): Builder
-
-        /**
-         * Builds an instance of [AppComponent].
-         */
-        fun build(): AppComponent
-
-        // endregion Methods
-
-    }
+    abstract class Builder : AndroidInjector.Builder<CodepunkApp>()
 
     // endregion Nested/inner classes
 
