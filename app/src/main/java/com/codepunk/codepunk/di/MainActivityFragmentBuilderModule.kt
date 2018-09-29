@@ -16,18 +16,25 @@
 
 package com.codepunk.codepunk.di
 
+import com.codepunk.codepunk.ui.main.MainActivity
+import com.codepunk.codepunk.ui.main.MainFragment
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+
 /**
- * An interface that ensures that an instance of a class will provide an instance of
- * [MainActivityComponent.Builder].
+ * The [Module] used for dependency injection into fragments used in [MainActivity].
  */
-interface HasMainActivityComponentBuilder {
+@Module(subcomponents = [MainFragmentComponent::class])
+abstract class MainActivityFragmentBuilderModule {
 
     // region Methods
 
     /**
-     * Returns an instance of [MainActivityComponent.Builder].
+     * Generates an AndroidInjector for [MainFragment].
      */
-    fun mainActivityComponentBuilder(): MainActivityComponent.Builder
+    @FragmentScope
+    @ContributesAndroidInjector(modules = [MainFragmentModule::class])
+    abstract fun contributeMainFragmentInjector(): MainFragment
 
     // endregion Methods
 

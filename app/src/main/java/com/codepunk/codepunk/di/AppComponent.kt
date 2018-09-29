@@ -19,13 +19,17 @@ package com.codepunk.codepunk.di
 import com.codepunk.codepunk.CodepunkApp
 import dagger.BindsInstance
 import dagger.Component
+import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 /**
  * [Component] for dependency injection into the application.
  */
 @Singleton
-@Component(modules = [AppModule::class])
+@Component(modules = [
+    AndroidSupportInjectionModule::class,
+    AppModule::class,
+    ActivityBuilderModule::class])
 interface AppComponent {
 
     // region Methods
@@ -34,12 +38,6 @@ interface AppComponent {
      * Injects dependencies into the application (i.e. an [instance] of [CodepunkApp]).
      */
     fun inject(instance: CodepunkApp)
-
-    /**
-     * Returns a new [MainActivityComponent.Builder] for building new
-     * [MainActivityComponent] instances.
-     */
-    fun mainActivityComponentBuilder(): MainActivityComponent.Builder
 
     // endregion Methods
 

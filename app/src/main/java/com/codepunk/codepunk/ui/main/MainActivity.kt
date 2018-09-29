@@ -20,8 +20,13 @@ import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.codepunk.codepunk.R
 import com.codepunk.codepunk.di.*
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
 
 /**
@@ -29,9 +34,15 @@ import javax.inject.Inject
  */
 @Suppress("unused")
 @ActivityScope
-class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
+class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     // region Properties
+
+    /**
+     * Performs dependency injection on fragments.
+     */
+    @Inject
+    lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     /**
      * A [MainActivityComponent] instance used to inject dependencies into this activity.
@@ -72,20 +83,7 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
      * Sets the content view for the activity.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        try {
-            mainActivityComponent = (applicationContext as HasMainActivityComponentBuilder)
-                .mainActivityComponentBuilder()
-                .activity(this)
-                .build()
-            mainActivityComponent.inject(this)
-        } catch (e: ClassCastException) {
-            throw IllegalStateException(
-                "Application ${applicationContext::class.java.simpleName} must implement " +
-                        HasMainActivityComponentBuilder::class.java.simpleName,
-                e
-            )
-        }
-
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }
@@ -95,13 +93,12 @@ class MainActivity : AppCompatActivity(), HasMainFragmentComponentBuilder {
     // region Implemented methods
 
     /**
-     * Implementation of [HasMainFragmentComponentBuilder]. Returns a
-     * [MainFragmentComponent.Builder] used to create instances of [MainFragmentComponent].
+     * Implementation of [HasSupportFragmentInjector]. Returns a
+     * [DispatchingAndroidInjector] that injects dependencies into fragments.
      */
-    override fun mainFragmentComponentBuilder(): MainFragmentComponent.Builder =
-        mainActivityComponent.mainFragmentComponentBuilder()
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> =
+        fragmentDispatchingAndroidInjector
 
     // endregion Implemented methods
-
 
 }

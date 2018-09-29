@@ -19,22 +19,34 @@ package com.codepunk.codepunk
 import android.app.Application
 import android.util.Log
 import com.codepunk.codepunk.di.*
+import dagger.android.HasActivityInjector
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.app.Activity
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+
+
 
 /**
  * The main Codepunk [Application].
  */
 @Suppress("unused")
-class CodepunkApp : Application(), HasMainActivityComponentBuilder {
+class CodepunkApp : Application(), HasActivityInjector {
 
     // region Properties
 
     /**
+     * Performs dependency injection on activities.
+     */
+    @Inject
+    lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+
+    /**
      * An [AppComponent] instance used to inject dependencies into this application.
      */
-    @Suppress("weakerAccess")
-    lateinit var appComponent: AppComponent
+//    @Suppress("weakerAccess")
+//    lateinit var appComponent: AppComponent
 
     /**
      * This is just a dependency injection test.
@@ -65,10 +77,10 @@ class CodepunkApp : Application(), HasMainActivityComponentBuilder {
      */
     override fun onCreate() {
         super.onCreate()
-        appComponent = DaggerAppComponent.builder()
+        DaggerAppComponent.builder()
             .application(this)
             .build()
-        appComponent.inject(this)
+            .inject(this)
         Log.d("CodepunkApp", "onCreate")
     }
 
@@ -77,13 +89,11 @@ class CodepunkApp : Application(), HasMainActivityComponentBuilder {
     // region Implemented methods
 
     /**
-     * Implementation of [HasMainActivityComponentBuilder]. Returns a
-     * [MainActivityComponent.Builder] used to create instances of [MainActivityComponent].
+     * Implementation of [HasActivityInjector]. Returns a
+     * [DispatchingAndroidInjector] that injects dependencies into activities.
      */
-    override fun mainActivityComponentBuilder(): MainActivityComponent.Builder =
-        appComponent.mainActivityComponentBuilder()
+    override fun activityInjector(): AndroidInjector<Activity> = activityDispatchingAndroidInjector
 
     // endregion Implemented methods
-
 
 }

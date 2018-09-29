@@ -18,24 +18,15 @@ package com.codepunk.codepunk.di
 
 import com.codepunk.codepunk.ui.main.MainActivity
 import com.codepunk.codepunk.ui.main.MainFragment
-import dagger.BindsInstance
 import dagger.Subcomponent
+import dagger.android.AndroidInjector
 
 /**
  * A [Subcomponent] used for dependency injection into [MainActivity].
  */
 @FragmentScope
 @Subcomponent(modules = [MainFragmentModule::class])
-interface MainFragmentComponent {
-
-    // region Methods
-
-    /**
-     * Injects dependencies into an instance of [MainFragment].
-     */
-    fun inject(instance: MainFragment)
-
-    // endregion Methods
+interface MainFragmentComponent : AndroidInjector<MainFragment> {
 
     // region Nested/inner classes
 
@@ -43,24 +34,8 @@ interface MainFragmentComponent {
      * Helper class for creating an instance of [MainFragmentComponent].
      */
     @Subcomponent.Builder
-    interface Builder {
-
-        // region Methods
-
-        /**
-         * Binds an [instance] of [MainFragment] to the subcomponent.
-         */
-        @BindsInstance
-        fun fragment(instance: MainFragment): Builder
-
-        /**
-         * Builds the main activity subcomponent.
-         */
-        fun build(): MainFragmentComponent
-
-        // endregion Methods
-
-    }
+    @Suppress("unused")
+    abstract class Builder : AndroidInjector.Builder<MainFragment>()
 
     // endregion Nested/inner classes
 

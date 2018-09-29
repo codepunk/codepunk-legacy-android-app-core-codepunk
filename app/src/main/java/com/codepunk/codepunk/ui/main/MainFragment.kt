@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment
 import com.codepunk.codepunk.R
 import com.codepunk.codepunk.databinding.FragmentMainBinding
 import com.codepunk.codepunk.di.*
+import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 /**
@@ -86,6 +87,7 @@ class MainFragment : Fragment() {
      * Injects dependencies into this fragment.
      */
     override fun onAttach(context: Context?) {
+        /*
         try {
             mainFragmentComponent = (context as HasMainFragmentComponentBuilder)
                 .mainFragmentComponentBuilder()
@@ -99,7 +101,9 @@ class MainFragment : Fragment() {
                 e
             )
         }
+        */
 
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
 

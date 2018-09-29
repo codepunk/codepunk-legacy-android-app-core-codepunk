@@ -18,12 +18,11 @@ package com.codepunk.codepunk.di
 
 import android.app.Activity
 import javax.inject.Scope
-import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
  * A [Scope] used for retaining single instances of injected dependencies throughout an [Activity]
  * lifecycle.
  */
 @Scope
-@Retention(RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class ActivityScope

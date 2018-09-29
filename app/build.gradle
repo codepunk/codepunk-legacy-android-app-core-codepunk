@@ -60,8 +60,8 @@ dependencies {
     implementation rootProject.deps.androidx.app_compat
     implementation rootProject.deps.androidx.constraint_layout
     implementation rootProject.deps.dagger.dagger
-//    implementation rootProject.deps.dagger.android
-//    implementation rootProject.deps.dagger.android_support
+    implementation rootProject.deps.dagger.android
+    implementation rootProject.deps.dagger.android_support
     implementation rootProject.deps.kotlin.stdlib
     implementation rootProject.deps.lifecycle.runtime
     implementation rootProject.deps.lifecycle.extensions
@@ -71,7 +71,7 @@ dependencies {
 
     testImplementation rootProject.deps.junit
 
-//    kapt rootProject.deps.dagger.android_support_compiler
+    kapt rootProject.deps.dagger.android_support_compiler
     kapt rootProject.deps.dagger.compiler
 
     androidTestImplementation rootProject.deps.atsl.runner
