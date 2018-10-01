@@ -14,28 +14,15 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.di.scope
 
-import com.codepunk.codepunk.ui.main.MainActivity
-import dagger.Module
-import dagger.Provides
+import android.app.Activity
+import javax.inject.Scope
 
 /**
- * A [Module] for injecting dependencies into [MainActivity].
+ * A [Scope] used for retaining single instances of injected dependencies throughout an [Activity]
+ * lifecycle.
  */
-@Module(subcomponents = [MainFragmentComponent::class])
-object MainActivityModule {
-
-    // region Methods
-
-    /**
-     * Provides an instance of [ActivityTestObject] for dependency injection.
-     */
-    @JvmStatic
-    @Provides
-    @ActivityScope
-    fun providesActivityTestObject(): ActivityTestObject = ActivityTestObject()
-
-    // endregion Methods
-
-}
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ActivityScope

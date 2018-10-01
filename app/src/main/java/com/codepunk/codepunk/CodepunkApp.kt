@@ -16,15 +16,14 @@
 
 package com.codepunk.codepunk
 
+import android.app.Activity
 import android.app.Application
 import android.util.Log
-import com.codepunk.codepunk.di.*
-import dagger.android.HasActivityInjector
-import javax.inject.Inject
-import javax.inject.Singleton
-import android.app.Activity
+import com.codepunk.codepunk.di.component.DaggerAppComponent
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasActivityInjector
+import javax.inject.Inject
 
 /**
  * The main Codepunk [Application].
@@ -40,32 +39,12 @@ class CodepunkApp : Application(), HasActivityInjector {
     @Inject
     lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
 
-    /**
-     * This is just a dependency injection test.
-     */
-    @Inject
-    lateinit var applicationTestObject: ApplicationTestObject
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @Singleton // This scope doesn't seem to matter, we always get a new instance.
-    @Inject
-    lateinit var singletonInjectedTestObject: SingletonInjectedTestObject
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @Singleton // This scope doesn't seem to matter, we always get a new instance.
-    @Inject
-    lateinit var anotherSingletonInjectedTestObject: SingletonInjectedTestObject
-
     // endregion Properties
 
     // region Lifecycle methods
 
     /**
-     * Sets up dependency injection for the application.
+     * Performs dependency injection for the application.
      */
     override fun onCreate() {
         super.onCreate()

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.di.component
 
+import com.codepunk.codepunk.di.module.MainActivityModule
+import com.codepunk.codepunk.di.scope.ActivityScope
 import com.codepunk.codepunk.ui.main.MainActivity
 import dagger.Subcomponent
 import dagger.android.AndroidInjector

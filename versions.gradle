@@ -35,7 +35,6 @@
 
 /**
  * TODO Still to add:
- * dokka
  * retrofit
  * room
  */
@@ -43,9 +42,11 @@
 def versions = [:]
 versions.android_gradle_plugin = "3.3.0-alpha12"
 versions.android_testing_support_library = "1.1.0-alpha4"
+versions.androidx_legacy = "1.0.0-beta01"
 versions.app_compat = "1.0.0-rc01"
 versions.constraint_layout = "1.1.2"
 versions.dagger = "2.15"
+versions.dokka = "0.9.17"
 versions.espresso = "3.1.0-alpha4"
 versions.junit = "4.12"
 versions.kotlin = "1.2.60"
@@ -57,6 +58,7 @@ ext.deps = [:]
 def androidx = [:]
 androidx.app_compat = "androidx.appcompat:appcompat:${versions.app_compat}"
 androidx.constraint_layout = "androidx.constraintlayout:constraintlayout:${versions.constraint_layout}"
+androidx.legacy = "androidx.legacy:legacy-support-v4:${versions.androidx_legacy}"
 deps.androidx = androidx
 
 def atsl = [:]
@@ -71,14 +73,18 @@ dagger.compiler = "com.google.dagger:dagger-compiler:${versions.dagger}"
 dagger.dagger = "com.google.dagger:dagger:${versions.dagger}"
 deps.dagger = dagger
 
-def kotlin = [:]
-kotlin.plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
-deps.kotlin = kotlin
+def dokka = [:]
+dokka.plugin = "org.jetbrains.dokka:dokka-android-gradle-plugin:${versions.dokka}"
+deps.dokka = dokka
 
 def espresso = [:]
 espresso.core = "com.android.support.test.espresso:espresso-core:${versions.espresso}"
 deps.espresso = espresso
+
+def kotlin = [:]
+kotlin.plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
+deps.kotlin = kotlin
 
 def lifecycle = [:]
 lifecycle.runtime = "android.arch.lifecycle:runtime:${versions.lifecycle}"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.di.scope
 
 import androidx.fragment.app.Fragment
 import javax.inject.Scope

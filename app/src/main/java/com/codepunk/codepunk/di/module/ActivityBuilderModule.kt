@@ -14,27 +14,31 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.di.module
 
+import com.codepunk.codepunk.di.scope.ActivityScope
+import com.codepunk.codepunk.di.component.MainActivityComponent
 import com.codepunk.codepunk.ui.main.MainActivity
-import com.codepunk.codepunk.ui.main.MainFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 /**
- * The [Module] used for dependency injection into fragments used in [MainActivity].
+ * The [Module] used for dependency injection into all activities in the app.
  */
-@Module(subcomponents = [MainFragmentComponent::class])
-abstract class MainActivityFragmentBuilderModule {
+@Suppress("unused")
+@Module(subcomponents = [MainActivityComponent::class])
+abstract class ActivityBuilderModule {
 
     // region Methods
 
     /**
-     * Generates an AndroidInjector for [MainFragment].
+     * Generates an AndroidInjector for [MainActivity].
      */
-    @FragmentScope
-    @ContributesAndroidInjector(modules = [MainFragmentModule::class])
-    abstract fun contributeMainFragmentInjector(): MainFragment
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [
+        MainActivityModule::class,
+        MainActivityFragmentBuilderModule::class])
+    abstract fun contributeMainActivityInjector(): MainActivity
 
     // endregion Methods
 

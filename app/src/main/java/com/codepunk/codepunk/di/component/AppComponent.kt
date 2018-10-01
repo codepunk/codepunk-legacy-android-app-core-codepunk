@@ -14,28 +14,34 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.di.component
 
-import com.codepunk.codepunk.ui.main.MainActivity
-import com.codepunk.codepunk.ui.main.MainFragment
-import dagger.Subcomponent
+import com.codepunk.codepunk.CodepunkApp
+import com.codepunk.codepunk.di.module.ActivityBuilderModule
+import com.codepunk.codepunk.di.module.AppModule
+import dagger.Component
 import dagger.android.AndroidInjector
+import dagger.android.support.AndroidSupportInjectionModule
+import javax.inject.Singleton
 
 /**
- * A [Subcomponent] used for dependency injection into [MainActivity].
+ * A [Component] for dependency injection into the application.
  */
-@FragmentScope
-@Subcomponent(modules = [MainFragmentModule::class])
-interface MainFragmentComponent : AndroidInjector<MainFragment> {
+@Singleton
+@Component(modules = [
+    AndroidSupportInjectionModule::class,
+    AppModule::class,
+    ActivityBuilderModule::class])
+interface AppComponent : AndroidInjector<CodepunkApp> {
 
     // region Nested/inner classes
 
     /**
-     * Helper class for creating an instance of [MainFragmentComponent].
+     * Helper class for creating an instance of [AppComponent].
      */
-    @Subcomponent.Builder
-    @Suppress("unused")
-    abstract class Builder : AndroidInjector.Builder<MainFragment>()
+    @Singleton
+    @Component.Builder
+    abstract class Builder : AndroidInjector.Builder<CodepunkApp>()
 
     // endregion Nested/inner classes
 

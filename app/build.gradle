@@ -19,6 +19,7 @@ apply plugin: "androidx.navigation.safeargs"
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.jetbrains.dokka-android'
 
 android {
     compileSdkVersion rootProject.build_versions.target_sdk
@@ -53,12 +54,19 @@ android {
     dataBinding {
         enabled = true
     }
+
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/javadoc"
+        includeNonPublic = true
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation rootProject.deps.androidx.app_compat
     implementation rootProject.deps.androidx.constraint_layout
+    implementation rootProject.deps.androidx.legacy
     implementation rootProject.deps.dagger.dagger
     implementation rootProject.deps.dagger.android
     implementation rootProject.deps.dagger.android_support

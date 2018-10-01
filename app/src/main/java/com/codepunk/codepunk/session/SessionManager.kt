@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.session
 
-import com.codepunk.codepunk.ui.main.MainFragment
-import dagger.Module
-import dagger.Provides
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * A [Module] for injecting dependencies into [MainFragment].
+ * Class that manages any currently-logged in user session.
  */
-@Module
-object MainFragmentModule {
+@Singleton
+class SessionManager @Inject constructor() {
 
-    // region Methods
-
-    /**
-     * Provides an instance of [FragmentTestObject] for dependency injection.
-     */
-    @JvmStatic
-    @Provides
-    @FragmentScope
-    fun providesFragmentTestObject(): FragmentTestObject = FragmentTestObject()
-
-    // endregion Methods
+    var session: Session? = null
 
 }

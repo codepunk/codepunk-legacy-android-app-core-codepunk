@@ -26,7 +26,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.codepunk.codepunk.R
 import com.codepunk.codepunk.databinding.FragmentMainBinding
-import com.codepunk.codepunk.di.*
+import com.codepunk.codepunk.di.component.MainFragmentComponent
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -48,31 +48,6 @@ class MainFragment : Fragment() {
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences // TODO TEMP
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @Inject
-    lateinit var applicationTestObject: ApplicationTestObject // TODO TEMP
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @ActivityScope // This scope doesn't seem to matter, we always get a new instance.
-    @Inject
-    lateinit var singletonInjectedTestObject: SingletonInjectedTestObject // TODO TEMP
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @Inject
-    lateinit var activityTestObject: ActivityTestObject // TODO TEMP
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @Inject
-    lateinit var fragmentTestObject: FragmentTestObject // TODO TEMP
 
     /**
      * The binding for this fragment.
@@ -129,7 +104,7 @@ class MainFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val text = fragmentTestObject.text
+        val text = "[Unknown]"
         binding.text1.text = getString(R.string.dependency_injection_message, text)
     }
 

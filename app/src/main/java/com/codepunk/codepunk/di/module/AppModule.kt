@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.codepunk.codepunk.di
+package com.codepunk.codepunk.di.module
 
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.codepunk.codepunk.CodepunkApp
+import com.codepunk.codepunk.di.component.MainActivityComponent
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -39,14 +40,6 @@ object AppModule {
     @Singleton
     fun providesSharedPreferences(app: CodepunkApp): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(app)
-
-    /**
-     * Provides an instance of [ApplicationTestObject] for dependency injection.
-     */
-    @JvmStatic
-    @Provides
-    @Singleton
-    fun providesApplicationTestObject(): ApplicationTestObject = ApplicationTestObject()
 
     // endregion Methods
 

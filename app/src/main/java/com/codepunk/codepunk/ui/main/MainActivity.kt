@@ -22,7 +22,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.codepunk.codepunk.R
-import com.codepunk.codepunk.di.*
+import com.codepunk.codepunk.di.component.MainActivityComponent
+import com.codepunk.codepunk.di.scope.ActivityScope
+import com.codepunk.codepunk.session.SessionManager
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -57,23 +59,10 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
     lateinit var sharedPreferences: SharedPreferences // TODO TEMP
 
     /**
-     * This is just a dependency injection test.
+     * The [SessionManager] instance that manages any currently-logged in user session.
      */
     @Inject
-    lateinit var applicationTestObject: ApplicationTestObject // TODO TEMP
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @ActivityScope // This scope doesn't seem to matter, we always get a new instance.
-    @Inject
-    lateinit var singletonInjectedTestObject: SingletonInjectedTestObject // TODO TEMP
-
-    /**
-     * This is just a dependency injection test.
-     */
-    @Inject
-    lateinit var activityTestObject: ActivityTestObject // TODO TEMP
+    lateinit var sessionManager: SessionManager
 
     // endregion Properties
 
