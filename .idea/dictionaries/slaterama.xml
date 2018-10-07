@@ -6,6 +6,7 @@
       <w>deps</w>
       <w>dokka</w>
       <w>kapt</w>
+      <w>moshi</w>
       <w>subcomponent</w>
     </words>
   </dictionary>

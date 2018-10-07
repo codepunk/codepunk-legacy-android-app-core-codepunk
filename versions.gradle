@@ -1,3 +1,5 @@
+import com.sun.xml.internal.fastinfoset.util.StringArray
+
 /*
  * Copyright (C) 2018 The Android Open Source Project
  * Modifications Copyright (C) 2018 Codepunk, LLC
@@ -40,7 +42,7 @@
  */
 
 def versions = [:]
-versions.android_gradle_plugin = "3.3.0-alpha12"
+versions.android_gradle_plugin = "3.3.0-alpha13"
 versions.android_testing_support_library = "1.1.0-alpha4"
 versions.androidx_legacy = "1.0.0-beta01"
 versions.app_compat = "1.0.0-rc01"
@@ -50,8 +52,9 @@ versions.dokka = "0.9.17"
 versions.espresso = "3.1.0-alpha4"
 versions.junit = "4.12"
 versions.kotlin = "1.2.60"
-versions.lifecycle = "2.0.0-rc01"
+versions.lifecycle = "2.0.0"
 versions.navigation = "1.0.0-alpha05"
+versions.retrofit = "2.4.0"
 
 ext.deps = [:]
 
@@ -87,10 +90,10 @@ kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
 deps.kotlin = kotlin
 
 def lifecycle = [:]
-lifecycle.runtime = "android.arch.lifecycle:runtime:${versions.lifecycle}"
-lifecycle.extensions = "android.arch.lifecycle:extensions:${versions.lifecycle}"
-lifecycle.java8 = "android.arch.lifecycle:common-java8:${versions.lifecycle}"
-lifecycle.compiler = "android.arch.lifecycle:compiler:${versions.lifecycle}"
+lifecycle.extensions = "androidx.lifecycle:lifecycle-extensions:${versions.lifecycle}"
+lifecycle.java8 = "androidx.lifecycle:lifecycle-common-java8:${versions.lifecycle}"
+lifecycle.compiler = "androidx.lifecycle:lifecycle-compiler:${versions.lifecycle}"
+lifecycle.testing = "androidx.arch.core:core-testing:${versions.lifecycle}"
 deps.lifecycle = lifecycle
 
 def navigation = [:]
@@ -100,18 +103,23 @@ navigation.testing_ktx = "android.arch.navigation:navigation-testing-ktx:${versi
 navigation.ui_ktx = "android.arch.navigation:navigation-ui-ktx:${versions.navigation}"
 deps.navigation = navigation
 
+def retrofit = [:]
+retrofit.runtime = "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+retrofit.moshi = "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
+retrofit.mock = "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
+deps.retrofit = retrofit
+
 deps.android_gradle_plugin = "com.android.tools.build:gradle:${versions.android_gradle_plugin}"
 deps.junit = "junit:junit:${versions.junit}"
 
 def build_versions = [:]
 build_versions.min_sdk = 14
 build_versions.target_sdk = 28
-build_versions.build_tools = "28.0.2"
+build_versions.build_tools = "28.0.3"
 ext.build_versions = build_versions
 
 static def addRepos(RepositoryHandler handler) {
     handler.google()
     handler.jcenter()
 }
-
 ext.addRepos = this.&addRepos

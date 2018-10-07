@@ -15,22 +15,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="app_name">Codepunk</string>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.codepunk.core.ui.account.AccountActivity">
 
-    <string name="app_account">Account</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="dependency_injection_message">Dependency injection: %1$s</string>
-
-    <!-- region Environments -->
-
-    <string name="environment_development">Development</string>
-
-    <string name="environment_local">Local</string>
-
-    <string name="environment_production">Production</string>
-
-    <!-- endregion Environments -->
-
-</resources>
+</androidx.constraintlayout.widget.ConstraintLayout>

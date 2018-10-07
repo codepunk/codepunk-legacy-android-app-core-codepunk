@@ -26,7 +26,7 @@ android {
     buildToolsVersion rootProject.build_versions.build_tools
 
     defaultConfig {
-        applicationId "com.codepunk.codepunk"
+        applicationId "com.codepunk.core"
         minSdkVersion rootProject.build_versions.min_sdk
         targetSdkVersion rootProject.build_versions.target_sdk
         versionCode 1
@@ -38,11 +38,73 @@ android {
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-DEBUG"
+
+            ext.defaultRemoteEnvironment = "LOCAL"
+
         }
 
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            ext.defaultRemoteEnvironment = "PRODUCTION"
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def environmentClass = "com.codepunk.core.data.remote.Environment"
+        variant.buildConfigField(
+                environmentClass,
+                "DEFAULT_REMOTE_ENVIRONMENT",
+                "${environmentClass}.valueOf(\"${variant.buildType.ext.defaultRemoteEnvironment}\")")
+        variant.resValue(
+                "string",
+                "default_remote_environment",
+                variant.buildType.ext.defaultRemoteEnvironment)
+
+        /*
+         * Generate a set of preference keys that are accessible both as string resources
+         * and as BuildConfig constants.
+         */
+        def prefKeys = [
+                "PREF_KEY_CURRENT_ACCOUNT"
+        ]
+        prefKeys.each { key ->
+            def buildConfigValue = "\"${variant.applicationId}.$key\""
+            variant.buildConfigField("String", key, buildConfigValue)
+
+            def resourceName = key.toLowerCase(Locale.US)
+            def resourceValue = "${variant.applicationId}.$key"
+            variant.resValue("string", resourceName, resourceValue)
+        }
+
+        /*
+         * Generate a set of intent actions that are accessible both as string resources
+         * and as BuildConfig constants.
+         */
+        def intentActions = [
+                "ACCOUNT",
+                "MAIN"
+        ]
+        intentActions.each { action ->
+            def buildConfigName = "ACTION_$action"
+            def buildConfigValue = "\"${variant.applicationId}.action.$action\""
+            variant.buildConfigField("String", buildConfigName, buildConfigValue)
+
+            def resourceName = "intent_action_${action.toLowerCase(Locale.US)}"
+            def resourceValue = "${variant.applicationId}.action.$action"
+            variant.resValue("string", resourceName, resourceValue)
+        }
+
+        /*
+         * Generate a set of unique bundle keys that are accessible as BuildConfig constants.
+         */
+        def bundleKeys = [
+        ]
+        bundleKeys.each { key ->
+            def buildConfigName = "KEY_$key"
+            def buildConfigValue = "\"${variant.applicationId}.$key\""
+            variant.buildConfigField("String", buildConfigName, buildConfigValue)
         }
     }
 
@@ -71,11 +133,12 @@ dependencies {
     implementation rootProject.deps.dagger.android
     implementation rootProject.deps.dagger.android_support
     implementation rootProject.deps.kotlin.stdlib
-    implementation rootProject.deps.lifecycle.runtime
     implementation rootProject.deps.lifecycle.extensions
     implementation rootProject.deps.lifecycle.java8
     implementation rootProject.deps.navigation.fragment_ktx
     implementation rootProject.deps.navigation.ui_ktx
+    implementation rootProject.deps.retrofit.runtime
+    implementation rootProject.deps.retrofit.moshi
 
     testImplementation rootProject.deps.junit
 
@@ -84,4 +147,5 @@ dependencies {
 
     androidTestImplementation rootProject.deps.atsl.runner
     androidTestImplementation rootProject.deps.espresso.core
+    androidTestImplementation rootProject.deps.lifecycle.testing
 }

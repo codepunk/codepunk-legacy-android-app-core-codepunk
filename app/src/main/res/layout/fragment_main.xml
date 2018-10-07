@@ -22,7 +22,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.codepunk.codepunk.ui.main.MainFragment">
+        tools:context="com.codepunk.core.ui.main.MainFragment">
 
         <TextView
             android:id="@android:id/text1"
