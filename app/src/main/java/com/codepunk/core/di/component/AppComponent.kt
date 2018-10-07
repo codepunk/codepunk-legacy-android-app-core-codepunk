@@ -17,7 +17,7 @@
 package com.codepunk.core.di.component
 
 import com.codepunk.core.CodepunkApp
-import com.codepunk.core.di.module.AndroidBuildersModule
+import com.codepunk.core.di.module.ActivityBuildersModule
 import com.codepunk.core.di.module.AppModule
 import com.codepunk.core.di.module.NetModule
 import com.codepunk.core.di.module.ViewModelModule
@@ -35,7 +35,7 @@ import javax.inject.Singleton
     AppModule::class,
     NetModule::class,
     ViewModelModule::class,
-    AndroidBuildersModule::class])
+    ActivityBuildersModule::class])
 interface AppComponent : AndroidInjector<CodepunkApp> {
 
     // region Nested/inner classes

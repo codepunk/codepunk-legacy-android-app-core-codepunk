@@ -16,14 +16,13 @@
 
 package com.codepunk.core.di.module
 
-import com.codepunk.core.di.component.MainFragmentComponent
 import com.codepunk.core.ui.main.MainActivity
 import dagger.Module
 
 /**
  * A [Module] for injecting dependencies into [MainActivity].
  */
-@Module(subcomponents = [MainFragmentComponent::class])
+@Module
 abstract class MainActivityModule {
 
     // region Methods

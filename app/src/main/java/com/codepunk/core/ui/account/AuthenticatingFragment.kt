@@ -17,6 +17,7 @@
 package com.codepunk.core.ui.account
 
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -25,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.codepunk.core.R
+import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 /**
@@ -37,6 +39,11 @@ class AuthenticatingFragment : Fragment() {
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences
+
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

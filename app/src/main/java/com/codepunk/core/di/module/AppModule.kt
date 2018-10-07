@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.codepunk.core.CodepunkApp
-import com.codepunk.core.di.component.MainActivityComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
 import dagger.Module
 import dagger.Provides
@@ -30,7 +29,7 @@ import javax.inject.Singleton
 /**
  * A [Module] for injecting application-level dependencies.
  */
-@Module(subcomponents = [MainActivityComponent::class])
+@Module
 object AppModule {
 
     // region Methods

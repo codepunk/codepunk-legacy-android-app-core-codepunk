@@ -28,7 +28,6 @@ import androidx.fragment.app.Fragment
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
-import com.codepunk.core.di.component.MainFragmentComponent
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -39,11 +38,6 @@ import javax.inject.Inject
 class MainFragment : Fragment() {
 
     // region Properties
-
-    /**
-     * A [MainFragmentComponent] instance used to inject dependencies into this fragment.
-     */
-    private lateinit var mainFragmentComponent: MainFragmentComponent
 
     /**
      * The application [SharedPreferences].
