@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 Codepunk, LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+
+    <aapt:attr name="android:drawable">
+
+        <vector
+            android:width="72dp"
+            android:height="24dp"
+            android:viewportWidth="144"
+            android:viewportHeight="48">
+
+            <group
+                android:name="dot1"
+                android:pivotX="24"
+                android:pivotY="24"
+                android:scaleX="0"
+                android:scaleY="0">
+                <path
+                    android:name="dot2_path"
+                    android:fillColor="#FFF"
+                    android:pathData="M24,24m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
+            </group>
+
+            <group
+                android:name="dot2"
+                android:pivotX="72"
+                android:pivotY="24"
+                android:scaleX="0"
+                android:scaleY="0">
+                <path
+                    android:name="dot1_path"
+                    android:fillColor="#FFF"
+                    android:pathData="M72,24m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
+            </group>
+
+            <group
+                android:name="dot3"
+                android:pivotX="120"
+                android:pivotY="24"
+                android:scaleX="0"
+                android:scaleY="0">
+                <path
+                    android:name="dot3_path"
+                    android:fillColor="#FFF"
+                    android:pathData="M120,24m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
+            </group>
+
+        </vector>
+
+    </aapt:attr>
+
+    <target android:name="dot1">
+
+        <aapt:attr name="android:animation">
+
+            <set
+                android:ordering="together">
+
+                <objectAnimator
+                    android:duration="@android:integer/config_longAnimTime"
+                    android:propertyName="scaleX"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:repeatMode="reverse"
+                    android:repeatCount="infinite" />
+
+                <objectAnimator
+                    android:duration="@android:integer/config_longAnimTime"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:repeatMode="reverse"
+                    android:repeatCount="infinite" />
+
+            </set>
+
+        </aapt:attr>
+
+    </target>
+
+    <target android:name="dot2">
+
+        <aapt:attr name="android:animation">
+
+            <set
+                android:ordering="together">
+
+                <objectAnimator
+                    android:duration="@android:integer/config_longAnimTime"
+                    android:propertyName="scaleX"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:startOffset="175"
+                    android:repeatMode="reverse"
+                    android:repeatCount="infinite" />
+
+                <objectAnimator
+                    android:duration="@android:integer/config_longAnimTime"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:startOffset="175"
+                    android:repeatMode="reverse"
+                    android:repeatCount="infinite" />
+
+            </set>
+
+        </aapt:attr>
+
+    </target>
+
+    <target android:name="dot3">
+
+        <aapt:attr name="android:animation">
+
+            <set
+                android:ordering="together">
+
+                <objectAnimator
+                    android:duration="@android:integer/config_longAnimTime"
+                    android:propertyName="scaleX"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:startOffset="350"
+                    android:repeatMode="reverse"
+                    android:repeatCount="infinite" />
+
+                <objectAnimator
+                    android:duration="@android:integer/config_longAnimTime"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:startOffset="350"
+                    android:repeatMode="reverse"
+                    android:repeatCount="infinite" />
+
+            </set>
+
+        </aapt:attr>
+
+    </target>
+
+</animated-vector>

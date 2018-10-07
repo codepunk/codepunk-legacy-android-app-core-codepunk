@@ -16,12 +16,14 @@
   -->
 
 <resources>
+
+    <!-- region Application -->
+
     <string name="app_name">Codepunk</string>
 
     <string name="app_account">Account</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="dependency_injection_message">Dependency injection: %1$s</string>
+    <!-- endregion Application -->
 
     <!-- region Environments -->
 
@@ -32,5 +34,27 @@
     <string name="environment_production">Production</string>
 
     <!-- endregion Environments -->
+
+    <!-- region Accounts -->
+
+    <string name="account_label_authenticating">Authenticating…</string>
+
+    <string name="account_label_authentication_options">Options</string>
+
+    <string name="account_label_create_account">Create account</string>
+
+    <string name="account_label_forgot_password">Forgot password</string>
+
+    <string name="account_label_log_in">Log in</string>
+
+    <!-- endregion Accounts -->
+
+    <!-- region Temporary -->
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="dependency_injection_message">Dependency injection: %1$s</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- endregion Temporary -->
 
 </resources>

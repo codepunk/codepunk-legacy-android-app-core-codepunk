@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 Codepunk, LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/navigation_account"
+            app:startDestination="@id/fragment_authenticating">
+
+    <fragment
+        android:id="@+id/fragment_authenticating"
+        android:name="com.codepunk.core.ui.account.AuthenticatingFragment"
+        android:label="@string/account_label_authenticating"
+        tools:layout="@layout/fragment_authenticating">
+
+        <action
+            android:id="@+id/authenticating_to_authentication_options"
+            app:destination="@id/fragment_authentication_options" />
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/fragment_authentication_options"
+        android:name="com.codepunk.core.ui.account.AuthenticationOptionsFragment"
+        android:label="@string/account_label_authentication_options"
+        tools:layout="@layout/fragment_authentication_options">
+
+        <action
+            android:id="@+id/authentication_options_to_create_account"
+            app:destination="@id/fragment_create_account" />
+
+        <action
+            android:id="@+id/authentication_options_to_log_in"
+            app:destination="@id/fragment_log_in" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_create_account"
+        android:name="com.codepunk.core.ui.account.CreateAccountFragment"
+        android:label="@string/account_label_create_account"
+        tools:layout="@layout/fragment_create_account">
+
+        <action
+            android:id="@+id/create_account_to_log_in"
+            app:destination="@id/fragment_log_in" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_forgot_password"
+        android:name="com.codepunk.core.ui.account.ForgotPasswordFragment"
+        android:label="@string/account_label_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
+
+    <fragment
+        android:id="@+id/fragment_log_in"
+        android:name="com.codepunk.core.ui.account.LogInFragment"
+        android:label="@string/account_label_log_in"
+        tools:layout="@layout/fragment_log_in">
+
+        <action
+            android:id="@+id/log_in_to_create_account"
+            app:destination="@id/fragment_create_account" />
+
+        <action
+            android:id="@+id/log_in_to_forgot_password"
+            app:destination="@id/fragment_forgot_password" />
+
+    </fragment>
+
+</navigation>

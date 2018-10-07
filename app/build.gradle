@@ -126,6 +126,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation rootProject.deps.android.animated_vector_drawable
     implementation rootProject.deps.androidx.app_compat
     implementation rootProject.deps.androidx.constraint_layout
     implementation rootProject.deps.androidx.legacy

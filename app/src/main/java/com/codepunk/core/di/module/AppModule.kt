@@ -30,12 +30,7 @@ import javax.inject.Singleton
 /**
  * A [Module] for injecting application-level dependencies.
  */
-@Module(
-    includes = [
-        NetModule::class,
-        ViewModelModule::class
-    ],
-    subcomponents = [MainActivityComponent::class])
+@Module(subcomponents = [MainActivityComponent::class])
 object AppModule {
 
     // region Methods

@@ -28,7 +28,7 @@ import dagger.android.ContributesAndroidInjector
  */
 @Suppress("unused")
 @Module(subcomponents = [MainActivityComponent::class])
-abstract class ActivityBuilderModule {
+abstract class AndroidBuildersModule {
 
     // region Methods
 

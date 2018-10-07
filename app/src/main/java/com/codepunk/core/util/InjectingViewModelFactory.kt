@@ -30,6 +30,8 @@ class InjectingViewModelFactory @Inject constructor(
     private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 
+    // region Inherited methods
+
     /**
      * Creates [ViewModel] instances based on the supplied [modelClass].
      */
@@ -44,5 +46,7 @@ class InjectingViewModelFactory @Inject constructor(
             throw RuntimeException(e)
         }
     }
+
+    // endregion Inherited methods
 
 }

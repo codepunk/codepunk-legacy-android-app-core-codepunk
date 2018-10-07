@@ -31,7 +31,7 @@ import dagger.multibindings.IntoMap
  */
 @Suppress("UNUSED")
 @Module
-abstract class ViewModelModule {
+interface ViewModelModule {
 
     /**
      * Binds an instance of [AccountViewModel] to this [Module] for dependency injection.
@@ -39,13 +39,14 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(AccountViewModel::class)
-    abstract fun bindRepoViewModel(repoViewModel: AccountViewModel): ViewModel
+    fun bindRepoViewModel(repoViewModel: AccountViewModel): ViewModel
 
     /**
      * Binds an instance of [InjectingViewModelFactory] to this [Module] for dependency injection.
      */
-    // TODO Should this be @Singleton? Why or why not?
+    // TODO Should this be @Singleton? Why or why not? Probably not because we WANT this factory
+    // to be created separately for each Activity etc.?
     @Binds
-    abstract fun bindViewModelFactory(factory: InjectingViewModelFactory): ViewModelProvider.Factory
+    fun bindViewModelFactory(factory: InjectingViewModelFactory): ViewModelProvider.Factory
 
 }

@@ -53,12 +53,6 @@ class AccountActivity :
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
-     * The application [SharedPreferences].
-     */
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
-
-    /**
      * An instance of [AccountViewModel] for managing account-related data.
      */
     private val accountViewModel: AccountViewModel by lazy {

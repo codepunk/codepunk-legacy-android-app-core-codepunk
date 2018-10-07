@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.di.module
+package com.codepunk.core.session
 
-import com.codepunk.core.di.component.MainFragmentComponent
-import com.codepunk.core.ui.main.MainActivity
-import dagger.Module
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
 
-/**
- * A [Module] for injecting dependencies into [MainActivity].
- */
-@Module(subcomponents = [MainFragmentComponent::class])
-abstract class MainActivityModule {
+class AuthenticationService : Service() {
 
-    // region Methods
-
-    // endregion Methods
-
+    override fun onBind(intent: Intent): IBinder {
+        TODO("Return the communication channel to the service.")
+    }
 }

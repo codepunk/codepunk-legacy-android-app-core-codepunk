@@ -88,9 +88,7 @@ class MainActivity :
                 // TODO I might be able to use SessionManager for this
                 if (!sharedPreferences.contains(PREF_KEY_CURRENT_ACCOUNT)) {
                     startActivityForResult(
-                        Intent(BuildConfig.ACTION_ACCOUNT).apply {
-                            addCategory(Intent.CATEGORY_DEFAULT)
-                        },
+                        Intent(BuildConfig.ACTION_ACCOUNT),
                         ACCOUNT_REQUIRED_REQUEST_CODE
                     )
                 }

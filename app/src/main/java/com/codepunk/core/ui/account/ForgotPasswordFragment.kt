@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.di.module
+package com.codepunk.core.ui.account
 
-import com.codepunk.core.di.component.MainFragmentComponent
-import com.codepunk.core.ui.main.MainActivity
-import dagger.Module
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+import com.codepunk.core.R
 
 /**
- * A [Module] for injecting dependencies into [MainActivity].
+ * A simple [Fragment] subclass. TODO
  */
-@Module(subcomponents = [MainFragmentComponent::class])
-abstract class MainActivityModule {
+class ForgotPasswordFragment : Fragment() {
 
-    // region Methods
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_forgot_password, container, false)
+    }
 
-    // endregion Methods
 
 }
