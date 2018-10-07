@@ -16,8 +16,11 @@
 
 package com.codepunk.core.di.module
 
+import com.codepunk.core.di.scope.FragmentScope
 import com.codepunk.core.ui.main.MainActivity
+import com.codepunk.core.ui.main.MainFragment
 import dagger.Module
+import dagger.android.ContributesAndroidInjector
 
 /**
  * A [Module] for injecting dependencies into [MainActivity].
@@ -27,6 +30,29 @@ abstract class MainActivityModule {
 
     // region Methods
 
+    /**
+     * Contributes an AndroidInjector to [MainFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector(modules = [MainFragmentModule::class])
+    abstract fun contributeMainFragmentInjector(): MainFragment
+
     // endregion Methods
+
+    // region Companion object
+
+    @Module
+    companion object {
+
+        /*
+        @JvmStatic
+        @Provides
+        @ActivityScope
+        fun providesSomething(): String = "Hello"
+        */
+
+    }
+
+    // endregion Companion object
 
 }

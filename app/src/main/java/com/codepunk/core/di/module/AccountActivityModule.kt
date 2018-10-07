@@ -16,17 +16,73 @@
 
 package com.codepunk.core.di.module
 
-import com.codepunk.core.ui.account.AccountActivity
+import com.codepunk.core.di.scope.FragmentScope
+import com.codepunk.core.ui.account.*
 import dagger.Module
+import dagger.android.ContributesAndroidInjector
 
 /**
  * A [Module] for injecting dependencies into [AccountActivity].
  */
 @Module
-object AccountActivityModule {
+abstract class AccountActivityModule {
 
     // region Methods
 
+    /**
+     * Contributes an AndroidInjector to [AuthenticatingFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector /*(modules = [AuthenticatingFragmentModule::class])*/
+    abstract fun contributeAuthenticatingFragmentInjector(): AuthenticatingFragment
+
+    /**
+     * Contributes an AndroidInjector to [AuthenticationOptionsFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector /*(modules = [AuthenticationOptionsFragmentModule::class])*/
+    abstract fun contributeAuthenticationOptionsFragmentInjector(): AuthenticationOptionsFragment
+
+    /**
+     * Contributes an AndroidInjector to [CreateAccountFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector /*(modules = [CreateAccountFragmentModule::class])*/
+    abstract fun contributeCreateAccountFragmentInjector(): CreateAccountFragment
+
+    /**
+     * Contributes an AndroidInjector to [ForgotPasswordFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector /*(modules = [ForgotPasswordFragmentModule::class])*/
+    abstract fun contributeForgotPasswordFragmentInjector(): ForgotPasswordFragment
+
+    /**
+     * Contributes an AndroidInjector to [LogInFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector /*(modules = [LogInFragmentModule::class])*/
+    abstract fun contributeLogInFragmentInjector(): LogInFragment
+
     // endregion Methods
+
+    // region Companion object
+
+    @Module
+    companion object {
+
+        // region Methods
+
+        /*
+        @JvmStatic
+        @Provides
+        @ActivityScope
+        fun providesSomething(): String = "Hello"
+        */
+
+        // endregion Methods
+    }
+
+    // endregion Companion object
 
 }

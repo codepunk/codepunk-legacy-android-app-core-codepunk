@@ -34,17 +34,29 @@ import javax.inject.Inject
  */
 class AuthenticatingFragment : Fragment() {
 
+    // region Properties
+
     /**
      * The application [SharedPreferences].
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences
 
+    // endregion Properties
+
+    // region Lifecycle methods
+
+    /**
+     * Injects dependencies into this fragment.
+     */
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
 
+    /**
+     * Creates the view.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,5 +65,6 @@ class AuthenticatingFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_authenticating, container, false)
     }
 
+    // endregion Lifecycle methods
 
 }

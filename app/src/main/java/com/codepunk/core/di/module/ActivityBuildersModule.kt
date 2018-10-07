@@ -35,20 +35,14 @@ interface ActivityBuildersModule {
      * Contributes an AndroidInjector to [MainActivity].
      */
     @ActivityScope
-    @ContributesAndroidInjector(modules = [
-        MainActivityModule::class,
-        MainActivityFragmentBuilderModule::class
-    ])
+    @ContributesAndroidInjector(modules = [MainActivityModule::class])
     fun contributeMainActivityInjector(): MainActivity
 
     /**
      * Contributes an AndroidInjector to [AccountActivity].
      */
     @ActivityScope
-    @ContributesAndroidInjector(modules = [
-        AccountActivityModule::class,
-        AccountActivityFragmentBuildersModule::class
-    ])
+    @ContributesAndroidInjector(modules = [AccountActivityModule::class])
     fun contributeAccountActivityInjector(): AccountActivity
 
     // endregion Methods
