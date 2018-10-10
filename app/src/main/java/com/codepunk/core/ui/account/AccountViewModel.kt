@@ -17,9 +17,12 @@
 package com.codepunk.core.ui.account
 
 import android.content.SharedPreferences
-import androidx.lifecycle.*
-import com.codepunk.core.data.repository.OperationStatus
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import com.codepunk.core.data.model.User
+import com.codepunk.core.data.repository.OperationStatus
 import com.codepunk.core.data.repository.UserRepository
 import javax.inject.Inject
 
@@ -46,27 +49,18 @@ class AccountViewModel @Inject constructor(
     /**
      * A [LiveData] that will serve as the trigger to attempt to authenticate the user.
      */
-    private val attemptAuthenticate = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val attemptAuthenticate = MutableLiveData<Boolean>()
 
     /**
      * The [LiveData] that will hold the result of user authentication.
      */
     val userOperation: LiveData<OperationStatus<User, User>> = Transformations
-        .switchMap(attemptAuthenticate) { attempt ->
-            when (attempt) {
+        .switchMap(attemptAuthenticate) {
+            when (it) {
                 true -> userRepository.authenticate()
                 else -> null
             }
         }
-
-    /**
-     * TODO: Temporary. Maybe make this a mediator that starts off as null but I add a source
-     * as needed?
-     */
-    @Suppress("UNUSED")
-    val userOperation2 = MediatorLiveData<OperationStatus<User, User>>()
 
     // endregion Properties
 

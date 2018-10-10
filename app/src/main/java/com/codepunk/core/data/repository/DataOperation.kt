@@ -26,7 +26,7 @@ import java.util.concurrent.Executor
  * sealed class and sets it to a [MutableLiveData] instance.
  */
 abstract class DataOperation<Params, Progress, Result> :
-    AsyncTask<Params, Progress, Result?>() {
+    AsyncTask<Params, Progress?, Result?>() {
 
     // region Properties
 
@@ -45,11 +45,11 @@ abstract class DataOperation<Params, Progress, Result> :
     // region Constructors
 
     /**
-     * Sets liveData value to PendingState by default. Most observers will choose to ignore this
+     * Sets liveData value to PendingStatus by default. Most observers will choose to ignore this
      * state.
      */
     init {
-        liveData.value = PendingState()
+        liveData.value = PendingStatus()
     }
 
     // endregion Constructors
@@ -58,32 +58,32 @@ abstract class DataOperation<Params, Progress, Result> :
 
     /**
      * Publishes progress without any data. This will initialize the value in [liveData] to
-     * an empty [RunningState] instance.
+     * an empty [RunningStatus] instance.
      */
     override fun onPreExecute() {
         publishProgress()
     }
 
     /**
-     * Updates [liveData] with a [RunningState] instance describing this task's progress.
+     * Updates [liveData] with a [RunningStatus] instance describing this task's progress.
      */
-    override fun onProgressUpdate(vararg values: Progress) {
-        liveData.value = RunningState(values)
+    override fun onProgressUpdate(vararg values: Progress?) {
+        liveData.value = RunningStatus(values)
     }
 
     /**
-     * Updates [liveData] with a [FinishedState] instance describing the result of this task.
+     * Updates [liveData] with a [FinishedStatus] instance describing the result of this task.
      */
     override fun onPostExecute(result: Result?) {
-        liveData.value = FinishedState(result)
+        liveData.value = FinishedStatus(result)
     }
 
     /**
-     * Updates [liveData] with a [CancelledState] instance describing the reason(s) the task
+     * Updates [liveData] with a [CancelledStatus] instance describing the reason(s) the task
      * failed or was cancelled.
      */
     override fun onCancelled(result: Result?) {
-        liveData.value = CancelledState(result, e)
+        liveData.value = CancelledStatus(result, e)
     }
 
     // endregion Inherited methods

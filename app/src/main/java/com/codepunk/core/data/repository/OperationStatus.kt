@@ -16,6 +16,8 @@
 
 package com.codepunk.core.data.repository
 
+import java.util.*
+
 /**
  * A sealed class representing the possible published results from a [DataOperation].
  */
@@ -25,25 +27,52 @@ sealed class OperationStatus<Progress, Result>
 /**
  * A [OperationStatus] representing a pending task (i.e. a task that has not been executed yet).
  */
-class PendingState<Progress, Result> : OperationStatus<Progress, Result>()
+class PendingStatus<Progress, Result> : OperationStatus<Progress, Result>()
 
 /**
  * A [OperationStatus] representing a running task (i.e. a task that is running).
  */
-class RunningState<Progress, Result>(
+data class RunningStatus<Progress, Result>(
 
     /**
      * The values indicating progress of the task.
      */
     val progress: Array<out Progress?>
 
-) : OperationStatus<Progress, Result>()
+) : OperationStatus<Progress, Result>() {
+
+    // region Inherited methods
+
+    /**
+     * Ensures equality of [progress] in testing for equality.
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as RunningStatus<*, *>
+
+        if (!Arrays.equals(progress, other.progress)) return false
+
+        return true
+    }
+
+    /**
+     * Includes [progress] in the computation of the hash code.
+     */
+    override fun hashCode(): Int {
+        return Arrays.hashCode(progress)
+    }
+
+    // endregion Inherited methods
+
+}
 
 /**
  * A [OperationStatus] representing a finished task (i.e. a task that has finished without being
  * cancelled).
  */
-class FinishedState<Progress, Result>(
+data class FinishedStatus<Progress, Result>(
 
     /**
      * The result of the operation computed by the task.
@@ -56,7 +85,7 @@ class FinishedState<Progress, Result>(
  * A [OperationStatus] representing a cancelled task (i.e. a task that was cancelled or experienced
  * some other sort of error during execution).
  */
-class CancelledState<Progress, Result>(
+data class CancelledStatus<Progress, Result>(
 
     /**
      * The result, if any, computed by the task. Can be null.
