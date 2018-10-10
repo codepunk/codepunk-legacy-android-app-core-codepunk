@@ -16,21 +16,21 @@
 
 package com.codepunk.core.data
 
-import com.codepunk.core.data.repository.LiveDataTask
+import com.codepunk.core.data.repository.DataOperation
 
 /**
- * A sealed class representing the possible published results from a [LiveDataTask].
+ * A sealed class representing the possible published results from a [DataOperation].
  */
 @Suppress("UNUSED")
-sealed class PublishedState<Progress, Result>
+sealed class TaskStatus<Progress, Result>
 
 /**
- * A [PublishedState] representing a pending task (i.e. a task that has not been executed yet).
+ * A [TaskStatus] representing a pending task (i.e. a task that has not been executed yet).
  */
-class PendingState<Progress, Result> : PublishedState<Progress, Result>()
+class PendingState<Progress, Result> : TaskStatus<Progress, Result>()
 
 /**
- * A [PublishedState] representing a running task (i.e. a task that is running).
+ * A [TaskStatus] representing a running task (i.e. a task that is running).
  */
 class RunningState<Progress, Result>(
 
@@ -39,10 +39,10 @@ class RunningState<Progress, Result>(
      */
     val progress: Array<out Progress>? = null
 
-) : PublishedState<Progress, Result>()
+) : TaskStatus<Progress, Result>()
 
 /**
- * A [PublishedState] representing a finished task (i.e. a task that has finished without being
+ * A [TaskStatus] representing a finished task (i.e. a task that has finished without being
  * cancelled).
  */
 class FinishedState<Progress, Result>(
@@ -52,10 +52,10 @@ class FinishedState<Progress, Result>(
      */
     val result: Result? = null
 
-) : PublishedState<Progress, Result>()
+) : TaskStatus<Progress, Result>()
 
 /**
- * A [PublishedState] representing a cancelled task (i.e. a task that was cancelled or experienced
+ * A [TaskStatus] representing a cancelled task (i.e. a task that was cancelled or experienced
  * some other sort of error during execution).
  */
 class CancelledState<Progress, Result>(
@@ -70,4 +70,4 @@ class CancelledState<Progress, Result>(
      */
     val e: Exception? = null
 
-) : PublishedState<Progress, Result>()
+) : TaskStatus<Progress, Result>()

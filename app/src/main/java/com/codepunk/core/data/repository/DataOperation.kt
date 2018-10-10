@@ -20,25 +20,42 @@ import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.codepunk.core.data.*
+import java.util.concurrent.Executor
 
 /**
- * An implementation of [AsyncTask] that wraps [Progress] and [Result] in a [PublishedState]
+ * An implementation of [AsyncTask] that wraps [Progress] and [Result] in a [TaskStatus]
  * sealed class and sets it to a [MutableLiveData] instance.
  */
-abstract class LiveDataTask<Params, Progress, Result> :
+abstract class DataOperation<Params, Progress, Result> :
     AsyncTask<Params, Progress, Result>() {
+
+    // region Properties
 
     /**
      * A [LiveData] that will contain progress, results, or exceptions related to this task.
      */
-    private val liveData = MutableLiveData<PublishedState<Progress, Result>>().apply {
-        value = PendingState()
-    }
+    private val liveData = MutableLiveData<TaskStatus<Progress, Result>>()
 
     /**
      * Any exceptions that were encountered while executing this task.
      */
     protected var e: Exception? = null
+
+    // endregion Properties
+
+    // region Constructors
+
+    /**
+     * Sets liveData value to PendingState by default. Most observers will choose to ignore this
+     * state.
+     */
+    init {
+        liveData.value = PendingState()
+    }
+
+    // endregion Constructors
+
+    // region Inherited methods
 
     /**
      * Publishes progress without any data. This will initialize the value in [liveData] to
@@ -70,9 +87,34 @@ abstract class LiveDataTask<Params, Progress, Result> :
         liveData.value = CancelledState(result, e)
     }
 
+    // endregion Inherited methods
+
+    // region Methods
+
     /**
      * Returns the current state of this task wrapped in a [LiveData] instance.
      */
-    fun asLiveData(): LiveData<PublishedState<Progress, Result>> = liveData
+    fun asLiveData(): LiveData<TaskStatus<Progress, Result>> = liveData
+
+    /**
+     * Executes this operation with [params] and returns [liveData] for observation.
+     */
+    fun compute(vararg params: Params): LiveData<TaskStatus<Progress, Result>> {
+        execute(*params)
+        return liveData
+    }
+
+    /**
+     * Executes this operation on [exec] with [params] and returns [liveData] for observation.
+     */
+    fun computeOnExecutor(
+        exec: Executor,
+        vararg params: Params
+    ): LiveData<TaskStatus<Progress, Result>> {
+        executeOnExecutor(exec)
+        return liveData
+    }
+
+    // endregion Methods
 
 }

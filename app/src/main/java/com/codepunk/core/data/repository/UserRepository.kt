@@ -18,7 +18,7 @@ package com.codepunk.core.data.repository
 
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
-import com.codepunk.core.data.PublishedState
+import com.codepunk.core.data.TaskStatus
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.remote.AuthorizationInterceptor
 import com.codepunk.core.data.remote.UserWebservice
@@ -33,9 +33,9 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
 
     /**
-     * An instance of [AuthenticateTask] for performing authentication.
+     * An instance of [AuthenticateOperation] for performing authentication.
      */
-    private val authenticateTask: AuthenticateTask
+    private val authenticateOperation: AuthenticateOperation
 
 ) {
 
@@ -45,19 +45,17 @@ class UserRepository @Inject constructor(
      * Attempts to authenticate using the current account if one exists.
      * TODO Use AccountManager to get current account
      */
-    fun authenticate(): LiveData<PublishedState<User, User?>> =
-        authenticateTask.apply {
-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-        }.asLiveData()
+    fun authenticate(): LiveData<TaskStatus<User, User?>> =
+        authenticateOperation.computeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
     // endregion Methods
 
     // region Nested/inner classes
 
     /**
-     * A [LiveDataTask] charged with authenticating the user.
+     * A [DataOperation] charged with authenticating the user.
      */
-    class AuthenticateTask @Inject constructor(
+    class AuthenticateOperation @Inject constructor(
 
         /**
          * the singleton [AuthorizationInterceptor] instance. This is needed (perhaps
@@ -70,7 +68,7 @@ class UserRepository @Inject constructor(
          */
         private val userWebservice: UserWebservice
 
-    ) : LiveDataTask<Void, User, User?>() {
+    ) : DataOperation<Void, User, User?>() {
 
         // TODO NEXT !!! AppExecutors, inject them here, use executeOnExecutor
 
