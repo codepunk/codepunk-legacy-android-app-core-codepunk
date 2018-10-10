@@ -35,7 +35,7 @@ class RunningState<Progress, Result>(
     /**
      * The values indicating progress of the task.
      */
-    val progress: Array<out Progress>? = null
+    val progress: Array<out Progress?>
 
 ) : OperationStatus<Progress, Result>()
 

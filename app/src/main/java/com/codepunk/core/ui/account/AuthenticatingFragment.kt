@@ -126,9 +126,9 @@ class AuthenticatingFragment : Fragment() {
         accountViewModel.userOperation.observe(this, Observer { state ->
             Log.d("AuthenticatingFragment", "Observe: state=$state")
             binding.text1.text = when (state) {
-                is RunningState<User, User?> -> "Loading…"
-                is FinishedState<User, User?> -> "Hello, ${state.result?.name ?: "User"}!"
-                is CancelledState<User, User?> -> "Error: ${state.e?.message})"
+                is RunningState<User, User> -> "Loading…"
+                is FinishedState<User, User> -> "Hello, ${state.result?.name ?: "User"}!"
+                is CancelledState<User, User> -> "Error: ${state.e?.message})"
                 else -> ""
             }
         })

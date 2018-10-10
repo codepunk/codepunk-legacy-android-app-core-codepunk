@@ -44,7 +44,7 @@ class UserRepository @Inject constructor(
      * Attempts to authenticate using the current account if one exists.
      * TODO Use AccountManager to get current account
      */
-    fun authenticate(): LiveData<OperationStatus<User, User?>> =
+    fun authenticate(): LiveData<OperationStatus<User, User>> =
         authenticateOperation.computeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
     // endregion Methods
@@ -67,7 +67,7 @@ class UserRepository @Inject constructor(
          */
         private val userWebservice: UserWebservice
 
-    ) : DataOperation<Void, User, User?>() {
+    ) : DataOperation<Void, User, User>() {
 
         // TODO NEXT !!! AppExecutors, inject them here, use executeOnExecutor
 

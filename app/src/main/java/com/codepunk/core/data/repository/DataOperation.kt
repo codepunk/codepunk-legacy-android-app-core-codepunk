@@ -26,7 +26,7 @@ import java.util.concurrent.Executor
  * sealed class and sets it to a [MutableLiveData] instance.
  */
 abstract class DataOperation<Params, Progress, Result> :
-    AsyncTask<Params, Progress, Result>() {
+    AsyncTask<Params, Progress, Result?>() {
 
     // region Properties
 
@@ -74,7 +74,7 @@ abstract class DataOperation<Params, Progress, Result> :
     /**
      * Updates [liveData] with a [FinishedState] instance describing the result of this task.
      */
-    override fun onPostExecute(result: Result) {
+    override fun onPostExecute(result: Result?) {
         liveData.value = FinishedState(result)
     }
 
@@ -82,7 +82,7 @@ abstract class DataOperation<Params, Progress, Result> :
      * Updates [liveData] with a [CancelledState] instance describing the reason(s) the task
      * failed or was cancelled.
      */
-    override fun onCancelled(result: Result) {
+    override fun onCancelled(result: Result?) {
         liveData.value = CancelledState(result, e)
     }
 

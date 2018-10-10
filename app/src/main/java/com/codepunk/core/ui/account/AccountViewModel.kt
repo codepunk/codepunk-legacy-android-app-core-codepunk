@@ -53,7 +53,7 @@ class AccountViewModel @Inject constructor(
     /**
      * The [LiveData] that will hold the result of user authentication.
      */
-    val userOperation: LiveData<OperationStatus<User, User?>> = Transformations
+    val userOperation: LiveData<OperationStatus<User, User>> = Transformations
         .switchMap(attemptAuthenticate) { attempt ->
             when (attempt) {
                 true -> userRepository.authenticate()
