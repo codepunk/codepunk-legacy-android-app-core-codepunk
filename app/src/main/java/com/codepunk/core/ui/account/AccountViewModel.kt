@@ -18,7 +18,7 @@ package com.codepunk.core.ui.account
 
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.codepunk.core.data.TaskStatus
+import com.codepunk.core.data.repository.OperationStatus
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.repository.UserRepository
 import javax.inject.Inject
@@ -53,7 +53,7 @@ class AccountViewModel @Inject constructor(
     /**
      * The [LiveData] that will hold the result of user authentication.
      */
-    val userOperation: LiveData<TaskStatus<User, User?>> = Transformations
+    val userOperation: LiveData<OperationStatus<User, User?>> = Transformations
         .switchMap(attemptAuthenticate) { attempt ->
             when (attempt) {
                 true -> userRepository.authenticate()
@@ -66,7 +66,7 @@ class AccountViewModel @Inject constructor(
      * as needed?
      */
     @Suppress("UNUSED")
-    val userOperation2 = MediatorLiveData<TaskStatus<User, User>>()
+    val userOperation2 = MediatorLiveData<OperationStatus<User, User>>()
 
     // endregion Properties
 

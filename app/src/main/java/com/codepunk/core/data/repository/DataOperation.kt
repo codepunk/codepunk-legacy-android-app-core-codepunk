@@ -19,11 +19,10 @@ package com.codepunk.core.data.repository
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.codepunk.core.data.*
 import java.util.concurrent.Executor
 
 /**
- * An implementation of [AsyncTask] that wraps [Progress] and [Result] in a [TaskStatus]
+ * An implementation of [AsyncTask] that wraps [Progress] and [Result] in a [OperationStatus]
  * sealed class and sets it to a [MutableLiveData] instance.
  */
 abstract class DataOperation<Params, Progress, Result> :
@@ -34,7 +33,7 @@ abstract class DataOperation<Params, Progress, Result> :
     /**
      * A [LiveData] that will contain progress, results, or exceptions related to this task.
      */
-    private val liveData = MutableLiveData<TaskStatus<Progress, Result>>()
+    private val liveData = MutableLiveData<OperationStatus<Progress, Result>>()
 
     /**
      * Any exceptions that were encountered while executing this task.
@@ -94,12 +93,13 @@ abstract class DataOperation<Params, Progress, Result> :
     /**
      * Returns the current state of this task wrapped in a [LiveData] instance.
      */
-    fun asLiveData(): LiveData<TaskStatus<Progress, Result>> = liveData
+    fun asLiveData(): LiveData<OperationStatus<Progress, Result>> = liveData
 
     /**
      * Executes this operation with [params] and returns [liveData] for observation.
      */
-    fun compute(vararg params: Params): LiveData<TaskStatus<Progress, Result>> {
+    @Suppress("UNUSED")
+    fun compute(vararg params: Params): LiveData<OperationStatus<Progress, Result>> {
         execute(*params)
         return liveData
     }
@@ -110,8 +110,8 @@ abstract class DataOperation<Params, Progress, Result> :
     fun computeOnExecutor(
         exec: Executor,
         vararg params: Params
-    ): LiveData<TaskStatus<Progress, Result>> {
-        executeOnExecutor(exec)
+    ): LiveData<OperationStatus<Progress, Result>> {
+        executeOnExecutor(exec, *params)
         return liveData
     }
 

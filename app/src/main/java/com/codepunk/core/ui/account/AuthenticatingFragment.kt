@@ -32,9 +32,9 @@ import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig.KEY_FIRST_TIME
 
 import com.codepunk.core.R
-import com.codepunk.core.data.CancelledState
-import com.codepunk.core.data.FinishedState
-import com.codepunk.core.data.RunningState
+import com.codepunk.core.data.repository.CancelledState
+import com.codepunk.core.data.repository.FinishedState
+import com.codepunk.core.data.repository.RunningState
 import com.codepunk.core.data.model.User
 import com.codepunk.core.databinding.FragmentAuthenticatingBinding
 import dagger.android.support.AndroidSupportInjection

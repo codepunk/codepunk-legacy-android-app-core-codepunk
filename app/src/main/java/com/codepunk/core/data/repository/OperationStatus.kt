@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data
-
-import com.codepunk.core.data.repository.DataOperation
+package com.codepunk.core.data.repository
 
 /**
  * A sealed class representing the possible published results from a [DataOperation].
  */
 @Suppress("UNUSED")
-sealed class TaskStatus<Progress, Result>
+sealed class OperationStatus<Progress, Result>
 
 /**
- * A [TaskStatus] representing a pending task (i.e. a task that has not been executed yet).
+ * A [OperationStatus] representing a pending task (i.e. a task that has not been executed yet).
  */
-class PendingState<Progress, Result> : TaskStatus<Progress, Result>()
+class PendingState<Progress, Result> : OperationStatus<Progress, Result>()
 
 /**
- * A [TaskStatus] representing a running task (i.e. a task that is running).
+ * A [OperationStatus] representing a running task (i.e. a task that is running).
  */
 class RunningState<Progress, Result>(
 
@@ -39,10 +37,10 @@ class RunningState<Progress, Result>(
      */
     val progress: Array<out Progress>? = null
 
-) : TaskStatus<Progress, Result>()
+) : OperationStatus<Progress, Result>()
 
 /**
- * A [TaskStatus] representing a finished task (i.e. a task that has finished without being
+ * A [OperationStatus] representing a finished task (i.e. a task that has finished without being
  * cancelled).
  */
 class FinishedState<Progress, Result>(
@@ -52,10 +50,10 @@ class FinishedState<Progress, Result>(
      */
     val result: Result? = null
 
-) : TaskStatus<Progress, Result>()
+) : OperationStatus<Progress, Result>()
 
 /**
- * A [TaskStatus] representing a cancelled task (i.e. a task that was cancelled or experienced
+ * A [OperationStatus] representing a cancelled task (i.e. a task that was cancelled or experienced
  * some other sort of error during execution).
  */
 class CancelledState<Progress, Result>(
@@ -70,4 +68,4 @@ class CancelledState<Progress, Result>(
      */
     val e: Exception? = null
 
-) : TaskStatus<Progress, Result>()
+) : OperationStatus<Progress, Result>()

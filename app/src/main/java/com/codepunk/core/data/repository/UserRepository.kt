@@ -18,7 +18,6 @@ package com.codepunk.core.data.repository
 
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
-import com.codepunk.core.data.TaskStatus
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.remote.AuthorizationInterceptor
 import com.codepunk.core.data.remote.UserWebservice
@@ -45,7 +44,7 @@ class UserRepository @Inject constructor(
      * Attempts to authenticate using the current account if one exists.
      * TODO Use AccountManager to get current account
      */
-    fun authenticate(): LiveData<TaskStatus<User, User?>> =
+    fun authenticate(): LiveData<OperationStatus<User, User?>> =
         authenticateOperation.computeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
     // endregion Methods
