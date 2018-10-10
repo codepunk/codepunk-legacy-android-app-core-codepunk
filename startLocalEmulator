@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/Users/slaterama/Library/Android/sdk/emulator/emulator -avd Pixel_2_API_28_Rooted_ -writable-system

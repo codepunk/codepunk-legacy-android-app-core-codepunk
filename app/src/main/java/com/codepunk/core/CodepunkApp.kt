@@ -18,7 +18,6 @@ package com.codepunk.core
 
 import android.app.Activity
 import android.app.Application
-import android.util.Log
 import com.codepunk.core.di.component.DaggerAppComponent
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -51,7 +50,6 @@ class CodepunkApp : Application(), HasActivityInjector {
         DaggerAppComponent.builder()
             .create(this)
             .inject(this)
-        Log.d("CodepunkApp", "onCreate")
     }
 
     // endregion Lifecycle methods

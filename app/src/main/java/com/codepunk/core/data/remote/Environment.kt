@@ -32,6 +32,8 @@ enum class Environment(
 
 ) {
 
+    // region Values
+
     /**
      * The production API environment.
      */
@@ -46,5 +48,7 @@ enum class Environment(
      * The local API environment.
      */
     LOCAL(R.string.environment_local)
+
+    // endregion Values
 
 }
