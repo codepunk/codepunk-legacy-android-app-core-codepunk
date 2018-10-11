@@ -22,7 +22,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.data.model.User
-import com.codepunk.core.data.repository.OperationStatus
+import com.codepunk.core.data.repository.DataUpdate
 import com.codepunk.core.data.repository.UserRepository
 import javax.inject.Inject
 
@@ -54,7 +54,7 @@ class AccountViewModel @Inject constructor(
     /**
      * The [LiveData] that will hold the result of user authentication.
      */
-    val userOperation: LiveData<OperationStatus<User, User>> = Transformations
+    val userTask: LiveData<DataUpdate<User, User>> = Transformations
         .switchMap(attemptAuthenticate) {
             when (it) {
                 true -> userRepository.authenticate()

@@ -22,10 +22,10 @@ import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executor
 
 /**
- * An implementation of [AsyncTask] that wraps [Progress] and [Result] in a [OperationStatus]
+ * An implementation of [AsyncTask] that wraps [Progress] and [Result] in a [DataUpdate]
  * sealed class and sets it to a [MutableLiveData] instance.
  */
-abstract class DataOperation<Params, Progress, Result> :
+abstract class DataTask<Params, Progress, Result> :
     AsyncTask<Params, Progress?, Result?>() {
 
     // region Properties
@@ -33,7 +33,7 @@ abstract class DataOperation<Params, Progress, Result> :
     /**
      * A [LiveData] that will contain progress, results, or exceptions related to this task.
      */
-    private val liveData = MutableLiveData<OperationStatus<Progress, Result>>()
+    private val liveData = MutableLiveData<DataUpdate<Progress, Result>>()
 
     /**
      * Any exceptions that were encountered while executing this task.
@@ -45,11 +45,11 @@ abstract class DataOperation<Params, Progress, Result> :
     // region Constructors
 
     /**
-     * Sets liveData value to PendingStatus by default. Most observers will choose to ignore this
+     * Sets liveData value to PendingUpdate by default. Most observers will choose to ignore this
      * state.
      */
     init {
-        liveData.value = PendingStatus()
+        liveData.value = PendingUpdate()
     }
 
     // endregion Constructors
@@ -58,32 +58,32 @@ abstract class DataOperation<Params, Progress, Result> :
 
     /**
      * Publishes progress without any data. This will initialize the value in [liveData] to
-     * an empty [RunningStatus] instance.
+     * an empty [LoadingUpdate] instance.
      */
     override fun onPreExecute() {
         publishProgress()
     }
 
     /**
-     * Updates [liveData] with a [RunningStatus] instance describing this task's progress.
+     * Updates [liveData] with a [LoadingUpdate] instance describing this task's progress.
      */
     override fun onProgressUpdate(vararg values: Progress?) {
-        liveData.value = RunningStatus(values)
+        liveData.value = LoadingUpdate(values)
     }
 
     /**
-     * Updates [liveData] with a [FinishedStatus] instance describing the result of this task.
+     * Updates [liveData] with a [SuccessUpdate] instance describing the result of this task.
      */
     override fun onPostExecute(result: Result?) {
-        liveData.value = FinishedStatus(result)
+        liveData.value = SuccessUpdate(result)
     }
 
     /**
-     * Updates [liveData] with a [CancelledStatus] instance describing the reason(s) the task
+     * Updates [liveData] with a [FailureUpdate] instance describing the reason(s) the task
      * failed or was cancelled.
      */
     override fun onCancelled(result: Result?) {
-        liveData.value = CancelledStatus(result, e)
+        liveData.value = FailureUpdate(result, e)
     }
 
     // endregion Inherited methods
@@ -93,13 +93,13 @@ abstract class DataOperation<Params, Progress, Result> :
     /**
      * Returns the current state of this task wrapped in a [LiveData] instance.
      */
-    fun asLiveData(): LiveData<OperationStatus<Progress, Result>> = liveData
+    fun asLiveData(): LiveData<DataUpdate<Progress, Result>> = liveData
 
     /**
      * Executes this operation with [params] and returns [liveData] for observation.
      */
     @Suppress("UNUSED")
-    fun compute(vararg params: Params): LiveData<OperationStatus<Progress, Result>> {
+    fun fetch(vararg params: Params): LiveData<DataUpdate<Progress, Result>> {
         execute(*params)
         return liveData
     }
@@ -107,10 +107,10 @@ abstract class DataOperation<Params, Progress, Result> :
     /**
      * Executes this operation on [exec] with [params] and returns [liveData] for observation.
      */
-    fun computeOnExecutor(
+    fun fetchOnExecutor(
         exec: Executor,
         vararg params: Params
-    ): LiveData<OperationStatus<Progress, Result>> {
+    ): LiveData<DataUpdate<Progress, Result>> {
         executeOnExecutor(exec, *params)
         return liveData
     }

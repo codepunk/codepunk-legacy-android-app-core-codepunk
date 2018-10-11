@@ -16,6 +16,7 @@
 
 package com.codepunk.core.data.model
 
+import com.codepunk.core.data.remote.BooleanInt
 import com.squareup.moshi.Json
 import java.util.*
 
@@ -46,7 +47,8 @@ data class User(
      * Whether the user is active.
      */
     @field:Json(name = "active")
-    val active: Int,
+    @field:BooleanInt
+    val active: Boolean,
 
     /**
      * The date the user was created.

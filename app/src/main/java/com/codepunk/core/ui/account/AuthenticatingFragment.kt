@@ -32,9 +32,9 @@ import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig.KEY_FIRST_TIME
 
 import com.codepunk.core.R
-import com.codepunk.core.data.repository.CancelledStatus
-import com.codepunk.core.data.repository.FinishedStatus
-import com.codepunk.core.data.repository.RunningStatus
+import com.codepunk.core.data.repository.FailureUpdate
+import com.codepunk.core.data.repository.SuccessUpdate
+import com.codepunk.core.data.repository.LoadingUpdate
 import com.codepunk.core.data.model.User
 import com.codepunk.core.databinding.FragmentAuthenticatingBinding
 import dagger.android.support.AndroidSupportInjection
@@ -123,12 +123,12 @@ class AuthenticatingFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        accountViewModel.userOperation.observe(this, Observer { status ->
+        accountViewModel.userTask.observe(this, Observer { status ->
             Log.d("AuthenticatingFragment", "Observe: state=$status")
             binding.text1.text = when (status) {
-                is RunningStatus<User, User> -> "Loading…"
-                is FinishedStatus<User, User> -> "Hello, ${status.result?.name ?: "User"}!"
-                is CancelledStatus<User, User> -> "Error: ${status.e?.message})"
+                is LoadingUpdate<User, User> -> "Loading…"
+                is SuccessUpdate<User, User> -> "Hello, ${status.result?.name ?: "User"}!"
+                is FailureUpdate<User, User> -> "Error: ${status.e?.message})"
                 else -> ""
             }
         })

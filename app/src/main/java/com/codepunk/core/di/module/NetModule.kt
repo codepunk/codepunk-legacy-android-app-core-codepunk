@@ -100,8 +100,10 @@ class NetModule {
     @Provides
     @Singleton
     fun providesMoshi(
+        booleanIntAdapter: BooleanIntAdapter,
         dateJsonAdapter: DateJsonAdapter
     ): Moshi = Moshi.Builder()
+        .add(booleanIntAdapter)
         .add(Date::class.java, dateJsonAdapter)
         .build()
 

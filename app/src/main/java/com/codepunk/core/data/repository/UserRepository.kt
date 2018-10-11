@@ -16,6 +16,7 @@
 
 package com.codepunk.core.data.repository
 
+import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.model.User
@@ -31,6 +32,7 @@ private const val TEMP_ACCESS_TOKEN: String =
 /**
  * A repository for accessing and manipulating user-related data.
  */
+@SuppressLint("StaticFieldLeak")
 @Singleton
 class UserRepository @Inject constructor(
 
@@ -38,7 +40,7 @@ class UserRepository @Inject constructor(
      * the singleton [AuthorizationInterceptor] instance. This is needed (perhaps
      * temporarily) so we can set the access token for API calls that require it.
      */
-    private val authorizationInterceptor: AuthorizationInterceptor,
+    authorizationInterceptor: AuthorizationInterceptor,
 
     /**
      * An instance of [UserWebservice] for making user-related API calls.
@@ -47,74 +49,45 @@ class UserRepository @Inject constructor(
 
 ) {
 
+    // region Constructors
+
+    /**
+     * Sets the access token for api calls that require it.
+     */
+    init {
+        // TODO TEMP How to get token into interceptor and/or retrofit calls?
+        authorizationInterceptor.accessToken = TEMP_ACCESS_TOKEN
+    }
+
+    // endregion Constructors
+
     // region Methods
 
     /**
      * Attempts to authenticate using the current account if one exists.
      * TODO Use AccountManager to get current account
-     * TODO Maybe inject an AuthenticateOperation factory instead of creating them here?
-     * AuthenticateOperation is an internal class so maybe it's ok to instantiate it?
      */
-    fun authenticate(): LiveData<OperationStatus<User, User>> =
-        AuthenticateOperation(
-            authorizationInterceptor,
-            userWebservice
-        ).computeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-
-    // endregion Methods
-
-    // region Nested/inner classes
-
-    /**
-     * A [DataOperation] charged with authenticating the user.
-     */
-    class AuthenticateOperation @Inject constructor(
-
-        /**
-         * the singleton [AuthorizationInterceptor] instance. This is needed (perhaps
-         * temporarily) so we can set the access token for API calls that require it.
-         */
-        private val authorizationInterceptor: AuthorizationInterceptor,
-
-        /**
-         * An instance of [UserWebservice] for making user-related API calls.
-         */
-        private val userWebservice: UserWebservice
-
-    ) : DataOperation<Void, User, User>() {
-
-        // TODO NEXT !!! AppExecutors, inject them here, use executeOnExecutor
-
-        // region Inherited methods
-
-        /**
-         * Gets the current user from the various repository sources.
-         */
-        override fun doInBackground(vararg params: Void?): User? {
-
-            // TODO TEMP How to get token into interceptor and/or retrofit calls?
-            authorizationInterceptor.accessToken = TEMP_ACCESS_TOKEN
-
-            return try {
-                val response = userWebservice.getUser().execute()
-                if (response.isSuccessful) {
-                    response.body()
-                } else {
-                    e = CancellationException("Canceled")
+    fun authenticate(): LiveData<DataUpdate<User, User>> {
+        return object : DataTask<Void, User, User>() {
+            override fun doInBackground(vararg params: Void?): User? {
+                return try {
+                    val response = userWebservice.getUser().execute()
+                    if (response.isSuccessful) {
+                        response.body()
+                    } else {
+                        e = CancellationException("Canceled")
+                        cancel(true)
+                        null
+                    }
+                } catch (e: Exception) {
+                    this.e = e
                     cancel(true)
                     null
                 }
-            } catch (e: Exception) {
-                this.e = e
-                cancel(true)
-                null
             }
-        }
-
-        // endregion Inherited methods
-
+        }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    // endregion Nested/inner classes
+    // endregion Methods
 
 }

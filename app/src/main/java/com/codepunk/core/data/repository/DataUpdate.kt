@@ -19,27 +19,27 @@ package com.codepunk.core.data.repository
 import java.util.*
 
 /**
- * A sealed class representing the possible published results from a [DataOperation].
+ * A sealed class representing the possible published results from a [DataTask].
  */
 @Suppress("UNUSED")
-sealed class OperationStatus<Progress, Result>
+sealed class DataUpdate<Progress, Result>
 
 /**
- * A [OperationStatus] representing a pending task (i.e. a task that has not been executed yet).
+ * A [DataUpdate] representing a pending task (i.e. a task that has not been executed yet).
  */
-class PendingStatus<Progress, Result> : OperationStatus<Progress, Result>()
+class PendingUpdate<Progress, Result> : DataUpdate<Progress, Result>()
 
 /**
- * A [OperationStatus] representing a running task (i.e. a task that is running).
+ * A [DataUpdate] representing a running task (i.e. a task that is running).
  */
-data class RunningStatus<Progress, Result>(
+data class LoadingUpdate<Progress, Result>(
 
     /**
      * The values indicating progress of the task.
      */
     val progress: Array<out Progress?>
 
-) : OperationStatus<Progress, Result>() {
+) : DataUpdate<Progress, Result>() {
 
     // region Inherited methods
 
@@ -50,7 +50,7 @@ data class RunningStatus<Progress, Result>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as RunningStatus<*, *>
+        other as LoadingUpdate<*, *>
 
         if (!Arrays.equals(progress, other.progress)) return false
 
@@ -69,23 +69,23 @@ data class RunningStatus<Progress, Result>(
 }
 
 /**
- * A [OperationStatus] representing a finished task (i.e. a task that has finished without being
+ * A [DataUpdate] representing a finished task (i.e. a task that has finished without being
  * cancelled).
  */
-data class FinishedStatus<Progress, Result>(
+data class SuccessUpdate<Progress, Result>(
 
     /**
      * The result of the operation computed by the task.
      */
     val result: Result? = null
 
-) : OperationStatus<Progress, Result>()
+) : DataUpdate<Progress, Result>()
 
 /**
- * A [OperationStatus] representing a cancelled task (i.e. a task that was cancelled or experienced
+ * A [DataUpdate] representing a cancelled task (i.e. a task that was cancelled or experienced
  * some other sort of error during execution).
  */
-data class CancelledStatus<Progress, Result>(
+data class FailureUpdate<Progress, Result>(
 
     /**
      * The result, if any, computed by the task. Can be null.
@@ -97,4 +97,4 @@ data class CancelledStatus<Progress, Result>(
      */
     val e: Exception? = null
 
-) : OperationStatus<Progress, Result>()
+) : DataUpdate<Progress, Result>()
