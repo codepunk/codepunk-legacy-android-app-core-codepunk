@@ -38,7 +38,7 @@ abstract class DataTask<Params, Progress, Result> :
     /**
      * Any exceptions that were encountered while executing this task.
      */
-    protected var e: Exception? = null
+    private var exception: Exception? = null
 
     // endregion Properties
 
@@ -83,17 +83,12 @@ abstract class DataTask<Params, Progress, Result> :
      * failed or was cancelled.
      */
     override fun onCancelled(result: Result?) {
-        liveData.value = FailureUpdate(result, e)
+        liveData.value = FailureUpdate(result, exception)
     }
 
     // endregion Inherited methods
 
     // region Methods
-
-    /**
-     * Returns the current state of this task wrapped in a [LiveData] instance.
-     */
-    fun asLiveData(): LiveData<DataUpdate<Progress, Result>> = liveData
 
     /**
      * Executes this operation with [params] and returns [liveData] for observation.
@@ -113,6 +108,20 @@ abstract class DataTask<Params, Progress, Result> :
     ): LiveData<DataUpdate<Progress, Result>> {
         executeOnExecutor(exec, *params)
         return liveData
+    }
+
+    /**
+     * Cancels the DataTask, optionally saving an exception [e] and returning the supplied
+     * [result].
+     */
+    fun cancelWithException(
+        result: Result?,
+        e: Exception,
+        mayInterruptIfRunning: Boolean = true
+    ): Result? {
+        exception = e
+        cancel(mayInterruptIfRunning)
+        return result
     }
 
     // endregion Methods

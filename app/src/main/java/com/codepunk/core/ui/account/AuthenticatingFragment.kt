@@ -123,12 +123,12 @@ class AuthenticatingFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        accountViewModel.userTask.observe(this, Observer { status ->
-            Log.d("AuthenticatingFragment", "Observe: state=$status")
-            binding.text1.text = when (status) {
+        accountViewModel.userTask.observe(this, Observer { update ->
+            Log.d("AuthenticatingFragment", "Observe: update=$update")
+            binding.text1.text = when (update) {
                 is LoadingUpdate<User, User> -> "Loading…"
-                is SuccessUpdate<User, User> -> "Hello, ${status.result?.name ?: "User"}!"
-                is FailureUpdate<User, User> -> "Error: ${status.e?.message})"
+                is SuccessUpdate<User, User> -> "Hello, ${update.result?.name ?: "User"}!"
+                is FailureUpdate<User, User> -> "Error: ${update.e?.message})"
                 else -> ""
             }
         })

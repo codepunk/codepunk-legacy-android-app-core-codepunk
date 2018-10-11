@@ -70,19 +70,15 @@ class UserRepository @Inject constructor(
     fun authenticate(): LiveData<DataUpdate<User, User>> {
         return object : DataTask<Void, User, User>() {
             override fun doInBackground(vararg params: Void?): User? {
+                // TODO Get user from local db first
                 return try {
                     val response = userWebservice.getUser().execute()
-                    if (response.isSuccessful) {
-                        response.body()
-                    } else {
-                        e = CancellationException("Canceled")
-                        cancel(true)
-                        null
+                    when {
+                        response.isSuccessful -> response.body()
+                        else -> cancelWithException(null, CancellationException("Cancelled"))
                     }
                 } catch (e: Exception) {
-                    this.e = e
-                    cancel(true)
-                    null
+                    cancelWithException(null, e)
                 }
             }
         }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
