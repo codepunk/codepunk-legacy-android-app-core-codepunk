@@ -88,16 +88,6 @@ class AuthenticatingFragment : Fragment() {
     }
 
     /**
-     * Attempts to authenticate via [AccountViewModel].
-     */
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        when (savedInstanceState) {
-            null -> accountViewModel.authenticate()
-        }
-    }
-
-    /**
      * Creates the view.
      */
     override fun onCreateView(
@@ -132,6 +122,9 @@ class AuthenticatingFragment : Fragment() {
                 else -> ""
             }
         })
+        when (savedInstanceState) {
+            null -> accountViewModel.authenticate()
+        }
     }
 
     /**

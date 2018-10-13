@@ -3,7 +3,19 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.codepunk.core">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- region Permissions -->
+
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission
+        android:name="android.permission.GET_ACCOUNTS"
+        android:maxSdkVersion="22"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+
+    <!-- endregion Permissions -->
+
+    <!-- region Application -->
 
     <application
         android:name=".CodepunkApp"
@@ -14,32 +26,52 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <service
-            android:name=".session.AuthenticationService"
-            android:enabled="true"
-            android:exported="true">
-        </service>
+
+        <!-- region Activities -->
 
         <activity
             android:name=".ui.main.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <action android:name="com.codepunk.core.debug.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.codepunk.core.debug.action.MAIN" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.account.AccountActivity"
             android:label="@string/app_account">
             <intent-filter>
-                <action android:name="com.codepunk.core.debug.action.ACCOUNT"/>
+                <action android:name="com.codepunk.core.debug.action.ACCOUNT" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- endregion Activities -->
+
+        <!-- region Services -->
+
+        <service
+            android:name=".session.AuthenticatorService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator"/>
+        </service>
+
+        <!-- endregion Services -->
+
     </application>
+
+    <!-- endregion Application -->
 
 </manifest>

@@ -16,11 +16,13 @@
 
 package com.codepunk.core.ui.account
 
+import android.accounts.AccountManager
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.repository.DataUpdate
 import com.codepunk.core.data.repository.UserRepository
@@ -39,8 +41,9 @@ class AccountViewModel @Inject constructor(
     /**
      * The application shared preferences.
      */
-    @Suppress("UNUSED")
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+
+    private val accountManager: AccountManager
 
 ) : ViewModel() {
 
@@ -70,6 +73,16 @@ class AccountViewModel @Inject constructor(
      * Tries to authenticate the user.
      */
     fun authenticate() {
+        // Get a list of accounts from AccountManager
+//        accountManager.getAccountsByType()
+
+        // First, see if we saved an account name
+        sharedPreferences.getString(BuildConfig.PREF_KEY_CURRENT_ACCOUNT, null)?.run {
+
+        } ?: run {
+            ""
+        }
+
         attemptAuthenticate.value = true
     }
 

@@ -25,6 +25,12 @@
 
     <!-- endregion Application -->
 
+    <!-- region Authenticator -->
+
+    <string name="authenticator_account_type">com.codepunk.core</string>
+
+    <!-- endregion Authenticator -->
+
     <!-- region Environments -->
 
     <string name="environment_development">Development</string>
