@@ -58,7 +58,8 @@
         <service
             android:name=".session.AuthenticatorService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedService"> <!-- TODO Permission? Exported = false? -->
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

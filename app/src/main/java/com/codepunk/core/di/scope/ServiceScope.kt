@@ -16,13 +16,13 @@
 
 package com.codepunk.core.di.scope
 
-import androidx.fragment.app.Fragment
+import android.app.Service
 import javax.inject.Scope
 
 /**
- * A [Scope] used for retaining single instances of injected dependencies throughout a [Fragment]
+ * A [Scope] used for retaining single instances of injected dependencies throughout a [Service]
  * lifecycle.
  */
 @Scope
 @Retention(AnnotationRetention.RUNTIME)
-annotation class FragmentScope
+annotation class ServiceScope

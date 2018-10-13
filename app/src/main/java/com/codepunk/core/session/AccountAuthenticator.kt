@@ -21,11 +21,20 @@ import android.accounts.Account
 import android.accounts.AccountAuthenticatorResponse
 import android.content.Context
 import android.os.Bundle
+import com.codepunk.core.di.qualifier.ApplicationContext
+import javax.inject.Inject
 
 /**
  * Implementation of [AbstractAccountAuthenticator] that authenticates Codepunk accounts.
  */
-class AccountAuthenticator(private val context: Context) : AbstractAccountAuthenticator(context) {
+class AccountAuthenticator @Inject constructor(
+
+    /**
+     * The application [Context] associated with this account authenticator.
+     */
+    @ApplicationContext private val context: Context
+
+) : AbstractAccountAuthenticator(context) {
 
     // region Inherited methods
 

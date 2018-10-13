@@ -33,35 +33,35 @@ abstract class AccountActivityModule {
      * Contributes an AndroidInjector to [AuthenticatingFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector /*(modules = [AuthenticatingFragmentModule::class])*/
+    @ContributesAndroidInjector //(modules = [AuthenticatingFragmentModule::class])
     abstract fun contributeAuthenticatingFragmentInjector(): AuthenticatingFragment
 
     /**
      * Contributes an AndroidInjector to [AuthenticationOptionsFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector /*(modules = [AuthenticationOptionsFragmentModule::class])*/
+    @ContributesAndroidInjector //(modules = [AuthenticationOptionsFragmentModule::class])
     abstract fun contributeAuthenticationOptionsFragmentInjector(): AuthenticationOptionsFragment
 
     /**
      * Contributes an AndroidInjector to [CreateAccountFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector /*(modules = [CreateAccountFragmentModule::class])*/
+    @ContributesAndroidInjector //(modules = [CreateAccountFragmentModule::class])
     abstract fun contributeCreateAccountFragmentInjector(): CreateAccountFragment
 
     /**
      * Contributes an AndroidInjector to [ForgotPasswordFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector /*(modules = [ForgotPasswordFragmentModule::class])*/
+    @ContributesAndroidInjector //(modules = [ForgotPasswordFragmentModule::class])
     abstract fun contributeForgotPasswordFragmentInjector(): ForgotPasswordFragment
 
     /**
      * Contributes an AndroidInjector to [LogInFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector /*(modules = [LogInFragmentModule::class])*/
+    @ContributesAndroidInjector //(modules = [LogInFragmentModule::class])
     abstract fun contributeLogInFragmentInjector(): LogInFragment
 
     // endregion Methods

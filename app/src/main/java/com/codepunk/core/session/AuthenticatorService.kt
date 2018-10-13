@@ -19,10 +19,45 @@ package com.codepunk.core.session
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import dagger.android.AndroidInjection
+import javax.inject.Inject
 
+/**
+ * A [Service] that handles account authentication using [AccountAuthenticator].
+ */
 class AuthenticatorService : Service() {
 
-    override fun onBind(intent: Intent): IBinder {
-        TODO("Return the communication channel to the service.")
+    // region Properties
+
+    /**
+     * The [AccountAuthenticator] that handles account authentication and management.
+     */
+    @Inject
+    lateinit var accountAuthenticator: AccountAuthenticator
+
+    // endregion Properties
+
+    // region Lifecycle methods
+
+    /**
+     * Injects dependencies into this service.
+     */
+    override fun onCreate() {
+        AndroidInjection.inject(this)
+        super.onCreate()
     }
+
+    // endregion Lifecycle methods
+
+    // region Inherited methods
+
+    /**
+     * Binds this service to the [AccountAuthenticator].
+     */
+    override fun onBind(intent: Intent): IBinder {
+        return accountAuthenticator.iBinder
+    }
+
+    // endregion Inherited methods
+
 }

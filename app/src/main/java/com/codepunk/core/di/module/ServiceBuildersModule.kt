@@ -16,9 +16,8 @@
 
 package com.codepunk.core.di.module
 
-import com.codepunk.core.di.scope.ActivityScope
-import com.codepunk.core.ui.account.AccountActivity
-import com.codepunk.core.ui.main.MainActivity
+import com.codepunk.core.di.scope.ServiceScope
+import com.codepunk.core.session.AuthenticatorService
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -26,24 +25,17 @@ import dagger.android.ContributesAndroidInjector
  * The [Module] used for dependency injection into all activities in the app.
  */
 @Module
-interface ActivityBuildersModule {
+interface ServiceBuildersModule {
 
     // region Methods
 
     /**
-     * Contributes an AndroidInjector to [MainActivity].
+     * Contributes an AndroidInjector to [AuthenticatorService].
      */
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [MainActivityModule::class])
-    fun contributeMainActivityInjector(): MainActivity
+    @ServiceScope
+    @ContributesAndroidInjector //(modules = [AuthenticatorServiceModule::class])
+    fun contributeAuthenticatorServiceInjector(): AuthenticatorService
 
-    /**
-     * Contributes an AndroidInjector to [AccountActivity].
-     */
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [AccountActivityModule::class])
-    fun contributeAccountActivityInjector(): AccountActivity
-
-    // endregion Methods
+    // endregion methods
 
 }
