@@ -20,13 +20,13 @@ import android.content.Context
 import com.codepunk.core.data.remote.*
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.squareup.moshi.Moshi
+//import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory TODO Maybe not needed
 import dagger.Module
 import dagger.Provides
 import okhttp3.Cache
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okio.Buffer
-import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
@@ -103,16 +103,17 @@ class NetModule {
         booleanIntAdapter: BooleanIntAdapter,
         dateJsonAdapter: DateJsonAdapter
     ): Moshi = Moshi.Builder()
+        // .add(KotlinJsonAdapterFactory()) // TODO Maybe not needed
         .add(booleanIntAdapter)
         .add(Date::class.java, dateJsonAdapter)
         .build()
 
     /**
-     * Provides an instance of [Converter.Factory] for dependency injection.
+     * Provides an instance of [MoshiConverterFactory] for dependency injection.
      */
     @Provides
     @Singleton
-    fun providesConverterFactory(moshi: Moshi): Converter.Factory =
+    fun providesConverterFactory(moshi: Moshi): MoshiConverterFactory =
         MoshiConverterFactory.create(moshi)
 
     /**
@@ -122,11 +123,13 @@ class NetModule {
     @Singleton
     fun providesRetrofit(
         okHttpClient: OkHttpClient,
-        converterFactory: Converter.Factory
+        moshiConverterFactory: MoshiConverterFactory,
+        moshiEnumConverterFactory: MoshiEnumConverterFactory
     ): Retrofit = Retrofit.Builder()
         .client(okHttpClient)
         .baseUrl("https://codepunk.test") /* TODO */
-        .addConverterFactory(converterFactory)
+        .addConverterFactory(moshiConverterFactory)
+        .addConverterFactory(moshiEnumConverterFactory)
         .build()
 
     /**
@@ -160,20 +163,21 @@ class NetModule {
          * certificates have not been signed by these certificates will fail with a
          * [SSLHandshakeException].
          *
-         * This can be used to replace the host platform's built-in trusted certificates with a custom
-         * set. This is useful in development where certificate authority-trusted certificates aren't
-         * available. Or in production, to avoid reliance on third-party certificate authorities.
+         * This can be used to replace the host platform's built-in trusted certificates with a
+         * custom set. This is useful in development where certificate authority-trusted
+         * certificates aren't available. Or in production, to avoid reliance on third-party
+         * certificate authorities.
          *
          * See also [CertificatePinner], which can limit trusted certificates while still using
          * the host platform's built-in trust store.
          *
          * Warning: Customizing Trusted Certificates is Dangerous!
          *
-         * Relying on your own trusted certificates limits your server team's ability to update their
-         * TLS certificates. By installing a specific set of trusted certificates, you take on additional
-         * operational complexity and limit your ability to migrate between certificate authorities. Do
-         * not use custom trusted certificates in production without the blessing of your server's TLS
-         * administrator.
+         * Relying on your own trusted certificates limits your server team's ability to update
+         * their TLS certificates. By installing a specific set of trusted certificates, you take
+         * on additional operational complexity and limit your ability to migrate between
+         * certificate authorities. Do not use custom trusted certificates in production without
+         * the blessing of your server's TLS administrator.
          */
         @Throws(GeneralSecurityException::class)
         private fun trustManagerForCertificates(stream: InputStream): X509TrustManager {
@@ -231,6 +235,7 @@ class NetModule {
         private fun trustedCertificatesInputStream(): InputStream {
             // PEM file for Codepunk root certificate. This CAs is sufficient to view
             // https://codepunk.test in a local laravel/homestead installation.
+            @Suppress("SpellCheckingInspection")
             val codepunkRootCertificationAuthority = "" +
                     "-----BEGIN CERTIFICATE-----\n" +
                     "MIIE9DCCAtygAwIBAgIJAImoOObaNoHrMA0GCSqGSIb3DQEBCwUAMEUxEDAOBgNV\n" +

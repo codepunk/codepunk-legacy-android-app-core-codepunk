@@ -42,7 +42,7 @@
         </activity>
 
         <activity
-            android:name=".ui.account.AccountActivity"
+            android:name=".ui.auth.AccountActivity"
             android:label="@string/app_account">
             <intent-filter>
                 <action android:name="com.codepunk.core.debug.action.ACCOUNT" />

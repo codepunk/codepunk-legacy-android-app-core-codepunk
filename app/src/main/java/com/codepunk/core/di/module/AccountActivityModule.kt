@@ -17,7 +17,7 @@
 package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.FragmentScope
-import com.codepunk.core.ui.account.*
+import com.codepunk.core.ui.auth.*
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

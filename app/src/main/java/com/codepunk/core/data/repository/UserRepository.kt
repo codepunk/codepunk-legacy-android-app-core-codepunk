@@ -26,6 +26,7 @@ import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("SpellCheckingInspection")
 private const val TEMP_ACCESS_TOKEN: String =
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjcxMWE0Y2I2NDhhZmViNTkxYjJlMDI0OTQwYjYyY2U4ZDJkODVlOTRmZmMzYmZkYTU2YTY0YWYyOTlmYzM2OGYxZjA1ZDUwNmQyNGUzOTkxIn0.eyJhdWQiOiIyIiwianRpIjoiNzExYTRjYjY0OGFmZWI1OTFiMmUwMjQ5NDBiNjJjZThkMmQ4NWU5NGZmYzNiZmRhNTZhNjRhZjI5OWZjMzY4ZjFmMDVkNTA2ZDI0ZTM5OTEiLCJpYXQiOjE1MzkxODMzMTksIm5iZiI6MTUzOTE4MzMxOSwiZXhwIjoxNTcwNzE5MzE5LCJzdWIiOiIyIiwic2NvcGVzIjpbIioiXX0.z4sD2627vTYMQR0F_kmL5mjwHtE97VzA55P5bgHJM-TYgDrgVtmN8yuAfBUhoMHRSYz1H6Htrxx47-rnMjJ6Mvta6Y-or2gMJMZfO-wj2yVkeiM8P1HPk0XCRApPHVDBQ37uMhfzPO70DSs-yFwjPTn_Wc-1nd5wMul7zoj6yF6WIPs4TJP2S7Su_r58ti7ZOxcbPpPt2sQtGF5ePP8mDr647vOepwV9ah-KVoSOB206rGrxzNhDs6fyAE19YxLHpzrlItV7YpFVHR_iXJDRAKpFU_fudh-fy8PYU1qXjxn3sV1NKuUrldBGLGW8vmhx0yoP0pl_rEigvk6wQ1UMMUcfz9YndXKLEi3Z-erwmjvBImPdpe9m2TIPCVZKn1072R0TUljO4CLfapSDSWOhkTXmmoOHK4yaDBpf_OfOsZZ1qfOfv6owfn_CgwY9DYPNJi-P3XEFU9X1eaR2TMg9pae5q1bEJiPFB5ZnVD_6FqFL9cXIJcDDHtQLUlhdkbOrAQNWqhV2GBjkd1lBJM2sH0STRqMNNASMXSkBctQkDPGwdnlC_U6qkp11AvXhI-UZAl_vw_MylhvNjZ4EjWzGeaFW8koSpMMcFyxUqetdUuxgzxxhLV_ReWYPdrE8eS3GrzsMR31NwoJPPup1NU1dzwjQW8A_3c6Y5Y46wjQLEyE"
 
@@ -65,7 +66,6 @@ class UserRepository @Inject constructor(
 
     /**
      * Attempts to authenticate using the current account if one exists.
-     * TODO Use AccountManager to get current account
      */
     fun authenticate(): LiveData<DataUpdate<User, User>> {
         return object : DataTask<Void, User, User>() {

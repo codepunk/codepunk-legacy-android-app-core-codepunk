@@ -24,6 +24,7 @@ import com.codepunk.core.R
  * Enum class that specifies an environment used for making API calls. Each is initialized with
  * a [nameResId] that specifies a user-friendly name for the environment.
  */
+@Suppress("UNUSED")
 enum class Environment(
 
     /**

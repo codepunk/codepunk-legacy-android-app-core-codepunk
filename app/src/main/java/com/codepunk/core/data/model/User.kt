@@ -16,12 +16,12 @@
 
 package com.codepunk.core.data.model
 
-import com.codepunk.core.data.remote.BooleanInt
+import com.codepunk.core.data.remote.annotation.BooleanInt
 import com.squareup.moshi.Json
 import java.util.*
 
 /**
- * Data class representing a user.
+ * A data class representing a user.
  */
 data class User(
 

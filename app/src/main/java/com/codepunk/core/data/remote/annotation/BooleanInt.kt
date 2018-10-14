@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.annotation
 
 import com.squareup.moshi.JsonQualifier
 
+/**
+ * A [JsonQualifier] that indicates that an integer in a JSON response should be converted
+ * to a boolean and vice versa.
+ */
 @JsonQualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class BooleanInt

@@ -16,6 +16,7 @@
 
 package com.codepunk.core.data.remote
 
+import com.codepunk.core.data.remote.annotation.BooleanInt
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
 import javax.inject.Inject

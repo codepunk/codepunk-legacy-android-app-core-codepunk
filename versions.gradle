@@ -54,6 +54,7 @@ versions.kotlin = "1.2.60"
 versions.lifecycle = "2.0.0"
 versions.navigation = "1.0.0-alpha05"
 versions.retrofit = "2.4.0"
+// versions.retrofit_moshi_kotlin = "1.7.0" TODO Maybe not needed
 
 ext.deps = [:]
 
@@ -109,6 +110,7 @@ deps.navigation = navigation
 def retrofit = [:]
 retrofit.runtime = "com.squareup.retrofit2:retrofit:${versions.retrofit}"
 retrofit.moshi = "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
+// retrofit.moshi_kotlin = "com.squareup.moshi:moshi-kotlin:${versions.retrofit_moshi_kotlin}" TODO Maybe not needed
 retrofit.mock = "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 deps.retrofit = retrofit
 

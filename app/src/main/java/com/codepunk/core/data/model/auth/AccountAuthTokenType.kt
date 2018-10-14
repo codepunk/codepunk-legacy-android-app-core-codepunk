@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.session
+package com.codepunk.core.data.model.auth
 
 import android.content.Context
 import android.content.res.Resources
@@ -22,10 +22,9 @@ import androidx.annotation.StringRes
 import com.codepunk.core.R
 
 /**
- * Enum class representing authorization token types.
+ * Enum class representing authorization token types in accounts managed by Android.
  */
-@Suppress("UNUSED")
-enum class AuthTokenType(
+enum class AccountAuthTokenType(
 
     /**
      * The value associated with this authorization token type.
@@ -54,6 +53,7 @@ enum class AuthTokenType(
      * Returns a user-friendly (readable) name for this authentication token type using the
      * supplied [resources].
      */
+    @Suppress("UNUSED")
     fun getFriendlyName(resources: Resources): String {
         return resources.getString(resId)
     }
@@ -76,7 +76,7 @@ enum class AuthTokenType(
          * A lookup map of labels to authorization token types.
          */
         private val lookupMap by lazy {
-            HashMap<String, AuthTokenType>(values().size).apply {
+            HashMap<String, AccountAuthTokenType>(values().size).apply {
                 for (type in values()) {
                     put(type.value, type)
                 }
@@ -87,7 +87,10 @@ enum class AuthTokenType(
          * Returns the authorization token type associated with the given [value], or
          * [defaultValue] if no such type is found.
          */
-        fun lookup(value: String?, defaultValue: AuthTokenType? = null): AuthTokenType? {
+        fun lookup(
+            value: String?,
+            defaultValue: AccountAuthTokenType? = null
+        ): AccountAuthTokenType? {
             return lookupMap[value] ?: defaultValue
         }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.account
+package com.codepunk.core.ui.auth
 
 
 import android.os.Bundle
@@ -30,6 +30,9 @@ import com.codepunk.core.R
  */
 class AuthenticationOptionsFragment : Fragment() {
 
+    /**
+     * Inflates the view.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

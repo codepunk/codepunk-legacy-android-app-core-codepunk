@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.account
+package com.codepunk.core.ui.auth
 
 
 import android.os.Bundle
@@ -28,14 +28,17 @@ import com.codepunk.core.R
 /**
  * A simple [Fragment] subclass. TODO
  */
-class LogInFragment : Fragment() {
+class CreateAccountFragment : Fragment() {
 
+    /**
+     * Inflates the view.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_log_in, container, false)
+        return inflater.inflate(R.layout.fragment_create_account, container, false)
     }
 
 

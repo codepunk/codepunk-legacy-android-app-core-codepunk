@@ -19,8 +19,8 @@ package com.codepunk.core.di.module
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.codepunk.core.di.key.ViewModelKey
-import com.codepunk.core.ui.account.AccountViewModel
-import com.codepunk.core.util.InjectingViewModelFactory
+import com.codepunk.core.ui.auth.AccountViewModel
+import com.codepunk.core.di.provider.InjectingViewModelFactory
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

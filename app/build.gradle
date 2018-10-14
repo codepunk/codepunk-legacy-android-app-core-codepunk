@@ -45,7 +45,7 @@ android {
 
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' // TODO This will likely cause moshi serialization issues. Fun.
 
             ext.defaultRemoteEnvironment = "PRODUCTION"
         }
@@ -175,6 +175,7 @@ dependencies {
     implementation rootProject.deps.navigation.ui_ktx
     implementation rootProject.deps.retrofit.runtime
     implementation rootProject.deps.retrofit.moshi
+    // implementation rootProject.deps.retrofit.moshi_kotlin TODO Maybe not needed
 
     // See https://stackoverflow.com/questions/44989650/dagger2-cannot-access-nullable-javax-annotation-nullable-not-found
     // for why this is being included

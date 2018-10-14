@@ -16,8 +16,8 @@
 
 package com.codepunk.core.data.remote
 
-import com.codepunk.core.data.model.AuthToken
-import com.codepunk.core.data.model.AuthToken.GrantType
+import com.codepunk.core.data.model.auth.AuthToken
+import com.codepunk.core.data.model.auth.GrantType
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -27,6 +27,7 @@ import retrofit2.http.POST
 /**
  * Webservice that defines authorization-related calls.
  */
+@Suppress("UNUSED")
 interface AuthWebservice {
 
     // region Methods
@@ -57,6 +58,9 @@ interface AuthWebservice {
         scope: String
     ): Call<AuthToken>
 
+    /**
+     * Gets an authorization token from an existing [refreshToken].
+     */
     @POST("oauth/token")
     @FormUrlEncoded
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
@@ -65,7 +69,7 @@ interface AuthWebservice {
         grantType: GrantType,
 
         @Field("client_id")
-        clientId: Int,
+        clientId: String,
 
         @Field("client_secret")
         clientSecret: String,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.account
+package com.codepunk.core.ui.auth
 
 
 import android.content.Context

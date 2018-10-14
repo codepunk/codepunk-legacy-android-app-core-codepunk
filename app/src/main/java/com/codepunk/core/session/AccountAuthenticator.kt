@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
+import com.codepunk.core.data.model.auth.AccountAuthTokenType
 import com.codepunk.core.data.remote.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import javax.inject.Inject
@@ -98,7 +99,7 @@ class AccountAuthenticator @Inject constructor(
 
         return Bundle().apply {
             var authToken =
-                accountManager.peekAuthToken(account, AuthTokenType.DEFAULT.value)
+                accountManager.peekAuthToken(account, AccountAuthTokenType.DEFAULT.value)
 
             // TODO Check when auth token expires?
 
@@ -109,7 +110,6 @@ class AccountAuthenticator @Inject constructor(
                 // TODO
                 // Here, I'm going to need to call refreshToken() in a repository.
                 // I think I'm not in the main UI thread so I should be fine calling it here.
-
             }
 
             if (TextUtils.isEmpty(authToken)) {
@@ -131,7 +131,7 @@ class AccountAuthenticator @Inject constructor(
     }
 
     override fun getAuthTokenLabel(authTokenType: String?): String {
-        return AuthTokenType.lookup(authTokenType)?.getFriendlyName(context)
+        return AccountAuthTokenType.lookup(authTokenType)?.getFriendlyName(context)
             ?: context.getString(R.string.authenticator_token_type_unknown)
     }
 

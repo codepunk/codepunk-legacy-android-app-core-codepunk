@@ -25,8 +25,18 @@ import javax.inject.Singleton
  * Class that manages any currently-logged in user session.
  */
 @Singleton
-class SessionManager @Inject constructor(@ApplicationContext val context: Context) {
+class SessionManager @Inject constructor(
 
+    /**
+     * The application [Context].
+     */
+    @ApplicationContext val context: Context
+
+) {
+
+    /**
+     * The currently-active session, if any.
+     */
     var session: Session? = null
 
 }

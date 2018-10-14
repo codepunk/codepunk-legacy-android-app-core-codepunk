@@ -21,4 +21,5 @@ import retrofit2.Retrofit
 /**
  * An interceptor that will allow the [Retrofit] base URL to be overridden.
  */
+@Suppress("UNUSED")
 class HostOverrideInterceptor

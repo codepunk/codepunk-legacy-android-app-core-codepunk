@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.account
+package com.codepunk.core.ui.auth
 
 import android.accounts.AccountManager
 import android.content.SharedPreferences
@@ -43,6 +43,10 @@ class AccountViewModel @Inject constructor(
      */
     private val sharedPreferences: SharedPreferences,
 
+    /**
+     * The Android [AccountManager].
+     */
+    @Suppress("UNUSED")
     private val accountManager: AccountManager
 
 ) : ViewModel() {

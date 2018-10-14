@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.account
+package com.codepunk.core.ui.auth
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -55,6 +54,7 @@ class AccountActivity :
     /**
      * An instance of [AccountViewModel] for managing account-related data.
      */
+    @Suppress("UNUSED")
     private val accountViewModel: AccountViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(AccountViewModel::class.java)
     }
