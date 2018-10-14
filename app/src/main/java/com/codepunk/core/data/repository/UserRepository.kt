@@ -16,9 +16,7 @@
 
 package com.codepunk.core.data.repository
 
-import android.accounts.AccountManager
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.model.User

@@ -130,11 +130,20 @@ class NetModule {
         .build()
 
     /**
+     * Provides an instance of [AuthWebservice] for making authorization API calls.
+     */
+    @Provides
+    @Singleton
+    fun providesAuthWebservice(
+        retrofit: Retrofit
+    ): AuthWebservice = retrofit.create(AuthWebservice::class.java)
+
+    /**
      * Provides an instance of [UserWebservice] for making user API calls.
      */
     @Provides
     @Singleton
-    fun provideUserWebService(
+    fun providesUserWebservice(
         retrofit: Retrofit
     ): UserWebservice = retrofit.create(UserWebservice::class.java)
 

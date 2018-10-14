@@ -17,6 +17,7 @@
 package com.codepunk.core.data.remote
 
 import androidx.annotation.StringRes
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 
 /**
@@ -28,7 +29,17 @@ enum class Environment(
     /**
      * A string resource pointing to a user-friendly name for the environment.
      */
-    @StringRes val nameResId: Int
+    @StringRes val nameResId: Int,
+
+    /**
+     * The client ID for this environment.
+     */
+    val clientId: Int,
+
+    /**
+     * The client secret for this environment.
+     */
+    val clientSecret: String
 
 ) {
 
@@ -37,17 +48,29 @@ enum class Environment(
     /**
      * The production API environment.
      */
-    PRODUCTION(R.string.environment_production),
+    PRODUCTION(
+        R.string.environment_production,
+        BuildConfig.CODEPUNK_PROD_CLIENT_ID,
+        BuildConfig.CODEPUNK_PROD_CLIENT_SECRET
+    ),
 
     /**
      * The development API environment.
      */
-    DEVELOPMENT(R.string.environment_development),
+    DEVELOPMENT(
+        R.string.environment_development,
+        BuildConfig.CODEPUNK_DEV_CLIENT_ID,
+        BuildConfig.CODEPUNK_DEV_CLIENT_SECRET
+    ),
 
     /**
      * The local API environment.
      */
-    LOCAL(R.string.environment_local)
+    LOCAL(
+        R.string.environment_local,
+        BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
+        BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET
+    )
 
     // endregion Values
 

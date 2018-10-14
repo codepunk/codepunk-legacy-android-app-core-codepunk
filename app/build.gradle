@@ -107,6 +107,40 @@ android {
             def buildConfigValue = "\"${variant.applicationId}.$key\""
             variant.buildConfigField("String", buildConfigName, buildConfigValue)
         }
+
+        /*
+         * Pull private values from gradle.properties
+         * (See http://www.rainbowbreeze.it/environmental-variables-api-key-and-secret-buildconfig-and-android-studio/)
+         */
+        def codepunkLocalClientIdProp = project.hasProperty("CodepunkLocalClientIdProp") ?
+                "${CodepunkLocalClientIdProp}" :
+                "/**** Define Codepunk Local Client Id ****/ -1"
+        variant.buildConfigField("int", "CODEPUNK_LOCAL_CLIENT_ID", codepunkLocalClientIdProp)
+
+        def codepunkLocalClientSecretProp = project.hasProperty("CodepunkLocalClientSecretProp") ?
+                "\"${CodepunkLocalClientSecretProp}\"" :
+                "/**** Define Codepunk Local Client Secret ****/ \"\""
+        variant.buildConfigField("String", "CODEPUNK_LOCAL_CLIENT_SECRET", codepunkLocalClientSecretProp)
+
+        def codepunkDevClientIdProp = project.hasProperty("CodepunkDevClientIdProp") ?
+                "${CodepunkDevClientIdProp}" :
+                "/**** Define Codepunk Dev Client Id ****/ -1"
+        variant.buildConfigField("int", "CODEPUNK_DEV_CLIENT_ID", codepunkDevClientIdProp)
+
+        def codepunkDevClientSecretProp = project.hasProperty("CodepunkDevClientSecretProp") ?
+                "\"${CodepunkDevClientSecretProp}\"" :
+                "/**** Define Codepunk Dev Client Secret ****/ \"\""
+        variant.buildConfigField("String", "CODEPUNK_DEV_CLIENT_SECRET", codepunkDevClientSecretProp)
+
+        def codepunkProdClientIdProp = project.hasProperty("CodepunkProdClientIdProp") ?
+                "${CodepunkProdClientIdProp}" :
+                "/**** Define Codepunk Prod Client Id ****/ -1"
+        variant.buildConfigField("int", "CODEPUNK_PROD_CLIENT_ID", codepunkProdClientIdProp)
+
+        def codepunkProdClientSecretProp = project.hasProperty("CodepunkProdClientSecretProp") ?
+                "\"${CodepunkProdClientSecretProp}\"" :
+                "/**** Define Codepunk Prod Client Secret ****/ \"\""
+        variant.buildConfigField("String", "CODEPUNK_PROD_CLIENT_SECRET", codepunkProdClientSecretProp)
     }
 
     compileOptions {

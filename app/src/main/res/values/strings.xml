@@ -29,6 +29,10 @@
 
     <string name="authenticator_account_type">com.codepunk.core</string>
 
+    <string name="authenticator_token_type_default">Default</string>
+
+    <string name="authenticator_token_type_unknown">Unknown</string>
+
     <!-- endregion Authenticator -->
 
     <!-- region Environments -->
