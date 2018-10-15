@@ -17,7 +17,9 @@
 package com.codepunk.core.lib
 
 import retrofit2.Response
+import java.lang.Exception
 import java.util.*
+import java.util.concurrent.CancellationException
 
 /**
  * A sealed class representing the various possible updates from a [DataTask].
@@ -145,9 +147,14 @@ class FailureUpdate<Progress, Result>(
     val result: Result? = null,
 
     /**
-     * The [Response] that resulted in this update.
+     * The [Response], if any, that resulted in this update.
      */
-    val response: Response<Result>? = null
+    val response: Response<Result>? = null,
+
+    /**
+     * The [Exception] associated with this failure.
+     */
+    val e: Exception = CancellationException()
 
 ) : DataUpdate<Progress, Result>() {
 
@@ -161,18 +168,20 @@ class FailureUpdate<Progress, Result>(
 
         if (result != other.result) return false
         if (response != other.response) return false
+        if (e != other.e) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result1 = result?.hashCode() ?: 0
-        result1 = 31 * result1 + (response?.hashCode() ?: 0)
-        return result1
+        var result = result?.hashCode() ?: 0
+        result = 31 * result + (response?.hashCode() ?: 0)
+        result = 31 * result + e.hashCode()
+        return result
     }
 
     override fun toString(): String {
-        return "FailureUpdate(result=$result, response=$response)"
+        return "FailureUpdate(result=$result, response=$response, e=$e)"
     }
 
     // endregion Inherited methods

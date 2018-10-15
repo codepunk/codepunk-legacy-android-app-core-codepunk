@@ -70,16 +70,11 @@ class UserRepository @Inject constructor(
     @SuppressLint("StaticFieldLeak")
     fun authenticate(): LiveData<DataUpdate<User, User>> {
         return object : DataTask<Void, User, User>() {
-            override fun doInBackground(vararg params: Void?): User? {
-                // TODO Get user from local db first to have a value while fetching
 
-                return userWebservice.prepareGetUser().execute().run {
-                    when {
-                        isSuccessful -> succeed(body(), this)
-                        else -> fail(null, this)
-                    }
-                }
-            }
+            // TODO I still want to include getting locally-stored user from db here
+            override fun doInBackground(vararg params: Void?): User? =
+                resultOf(userWebservice.prepareGetUser())
+
         }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 

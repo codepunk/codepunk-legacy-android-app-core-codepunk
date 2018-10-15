@@ -19,7 +19,10 @@ package com.codepunk.core.lib
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import retrofit2.Call
 import retrofit2.Response
+import java.io.IOException
+import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 
 /**
@@ -37,9 +40,14 @@ abstract class DataTask<Params, Progress, Result> :
     private val liveData = MutableLiveData<DataUpdate<Progress, Result>>()
 
     /**
-     * Any exceptions that were encountered while executing this task.
+     * An optional [Response] that was obtained while executing this task.
      */
     private var response: Response<Result>? = null
+
+    /**
+     * Any [Exception] encountered while executing this task.
+     */
+    private lateinit var e: Exception
 
     // endregion Properties
 
@@ -84,7 +92,7 @@ abstract class DataTask<Params, Progress, Result> :
      * failed or was cancelled.
      */
     override fun onCancelled(result: Result?) {
-        liveData.value = FailureUpdate(result, response)
+        liveData.value = FailureUpdate(result, response, e)
     }
 
     // endregion Inherited methods
@@ -122,11 +130,15 @@ abstract class DataTask<Params, Progress, Result> :
      *
      * ```kotlin
      * override fun doInBackground(vararg params: Void?): User? {
-     *     return myWebservice.getMyData().execute().run {
-     *         when {
-     *             isSuccessful -> succeed(body(), this)
-     *             else -> fail(null, this)
+     *     return try {
+     *         myWebservice.getMyData().execute().run {
+     *             when {
+     *                 isSuccessful -> succeed(body(), this)
+     *                 else -> fail(null, this)
+     *             }
      *         }
+     *     } catch (e: IOException) {
+     *         fail(null, null, e)
      *     }
      * }
      * ```
@@ -144,11 +156,15 @@ abstract class DataTask<Params, Progress, Result> :
      *
      * ```kotlin
      * override fun doInBackground(vararg params: Void?): User? {
-     *     return myWebservice.getMyData().execute().run {
-     *         when {
-     *             isSuccessful -> succeed(body(), this)
-     *             else -> fail(null, this)
+     *     return try {
+     *         myWebservice.getMyData().execute().run {
+     *             when {
+     *                 isSuccessful -> succeed(body(), this)
+     *                 else -> fail(null, this)
+     *             }
      *         }
+     *     } catch (e: IOException) {
+     *         fail(null, null, e)
      *     }
      * }
      * ```
@@ -156,11 +172,46 @@ abstract class DataTask<Params, Progress, Result> :
     fun fail(
         result: Result?,
         response: Response<Result>? = null,
+        e: Exception = CancellationException(),
         mayInterruptIfRunning: Boolean = true
     ): Result? {
         this.response = response
+        this.e = e
         cancel(mayInterruptIfRunning)
         return result
+    }
+
+    /**
+     * Convenience method for handling errors in [doInBackground]. Further encapsulates the logic
+     * in [succeed] and [fail].
+     *
+     * This allows for ultra-concise code such as the following:
+     *
+     * ```kotlin
+     * override fun doInBackground(vararg params: Void?): User? =
+     *     resultOf(myWebservice.getMayData())
+     * ```
+     */
+    fun resultOf(call: Call<Result>, mayInterruptIfRunning: Boolean = true): Result? {
+        return try {
+            call.execute().run {
+                when {
+                    isSuccessful -> succeed(body(), this)
+                    else -> {
+                        val description =
+                            HttpStatus.lookup(code())?.description ?: "${code()} Unknown"
+                        fail(
+                            body(),
+                            this,
+                            CancellationException(description),
+                            mayInterruptIfRunning
+                        )
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            fail(null, null, e, mayInterruptIfRunning)
+        }
     }
 
     // endregion Methods

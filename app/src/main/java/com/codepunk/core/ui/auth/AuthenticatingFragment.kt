@@ -20,6 +20,7 @@ package com.codepunk.core.ui.auth
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -37,6 +38,7 @@ import com.codepunk.core.lib.SuccessUpdate
 import com.codepunk.core.lib.LoadingUpdate
 import com.codepunk.core.data.model.User
 import com.codepunk.core.databinding.FragmentAuthenticatingBinding
+import com.codepunk.core.lib.PendingUpdate
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -117,10 +119,13 @@ class AuthenticatingFragment : Fragment() {
             Log.d("AuthenticatingFragment", "Observe: update=$update")
             with(update) {
                 binding.text1.text = when (this) {
+                    is PendingUpdate<User, User> -> "[Pending]"
                     is LoadingUpdate<User, User> -> "Loading…"
                     is SuccessUpdate<User, User> -> "Hello, ${result?.name ?: "User"}!"
-                    is FailureUpdate<User, User> -> "Error ${response?.code()}: ${response?.message()})"
-                    else -> ""
+                    is FailureUpdate<User, User> -> when {
+                        TextUtils.isEmpty(e.message) -> "Error"
+                        else -> "Error: ${e.message}"
+                    }
                 }
             }
         })
