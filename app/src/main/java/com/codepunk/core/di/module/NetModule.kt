@@ -17,7 +17,12 @@
 package com.codepunk.core.di.module
 
 import android.content.Context
-import com.codepunk.core.data.remote.*
+import com.codepunk.core.data.remote.adapter.BooleanIntAdapter
+import com.codepunk.core.data.remote.adapter.DateJsonAdapter
+import com.codepunk.core.data.remote.converter.MoshiEnumConverterFactory
+import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
+import com.codepunk.core.data.remote.webservice.AuthWebservice
+import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.squareup.moshi.Moshi
 //import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory TODO Maybe not needed

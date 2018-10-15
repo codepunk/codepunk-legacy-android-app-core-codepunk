@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.converter
 
 import com.squareup.moshi.Json
 import retrofit2.Converter

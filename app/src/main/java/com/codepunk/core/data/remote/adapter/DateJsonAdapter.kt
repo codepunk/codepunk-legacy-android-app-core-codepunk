@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.adapter
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader

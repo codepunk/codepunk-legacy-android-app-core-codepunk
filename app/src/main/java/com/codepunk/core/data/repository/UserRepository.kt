@@ -20,7 +20,8 @@ import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.model.User
-import com.codepunk.core.data.remote.*
+import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
+import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.lib.DataTask
 import com.codepunk.core.lib.DataUpdate
 import javax.inject.Inject

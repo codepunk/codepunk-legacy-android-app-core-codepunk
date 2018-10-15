@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.auth.GrantType
+import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

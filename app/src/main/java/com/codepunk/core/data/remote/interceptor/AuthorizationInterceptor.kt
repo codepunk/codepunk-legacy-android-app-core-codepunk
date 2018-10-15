@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.interceptor
 
+import com.codepunk.core.data.remote.HEADER_NAME_AUTHORIZATION
+import com.codepunk.core.data.remote.HEADER_VALUE_ACCESS_TOKEN_PLACEHOLDER
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject

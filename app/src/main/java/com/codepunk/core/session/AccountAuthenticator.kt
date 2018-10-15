@@ -30,7 +30,7 @@ import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.model.auth.GrantType.REFRESH_TOKEN
-import com.codepunk.core.data.remote.AuthWebservice
+import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import javax.inject.Inject
 

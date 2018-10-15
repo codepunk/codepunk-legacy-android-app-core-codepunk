@@ -14,31 +14,12 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.interceptor
 
-import com.codepunk.core.data.model.User
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Headers
+import retrofit2.Retrofit
 
 /**
- * Webservice that defines user-related calls.
+ * An interceptor that will allow the [Retrofit] base URL to be overridden.
  */
-interface UserWebservice {
-
-    // region Methods
-
-    /**
-     * Gets the current user.
-     */
-    @Suppress("UNUSED")
-    @GET("api/user")
-    @Headers(
-        HEADER_ACCEPT_APPLICATION_JSON,
-        HEADER_AUTHORIZATION_BEARER
-    )
-    fun prepareGetUser(): Call<User>
-
-    // endregion Methods
-
-}
+@Suppress("UNUSED")
+class HostOverrideInterceptor

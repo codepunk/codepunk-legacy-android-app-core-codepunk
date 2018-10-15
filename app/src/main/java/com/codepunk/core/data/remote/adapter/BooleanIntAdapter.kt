@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote
+package com.codepunk.core.data.remote.adapter
 
 import com.codepunk.core.data.remote.annotation.BooleanInt
 import com.squareup.moshi.FromJson
