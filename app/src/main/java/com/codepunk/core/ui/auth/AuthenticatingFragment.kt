@@ -122,10 +122,7 @@ class AuthenticatingFragment : Fragment() {
                     is PendingUpdate<User, User> -> "[Pending]"
                     is LoadingUpdate<User, User> -> "Loading…"
                     is SuccessUpdate<User, User> -> "Hello, ${result?.name ?: "User"}!"
-                    is FailureUpdate<User, User> -> when {
-                        TextUtils.isEmpty(e.message) -> "Error"
-                        else -> "Error: ${e.message}"
-                    }
+                    is FailureUpdate<User, User> -> "Error: ${e.message}"
                 }
             }
         })
