@@ -21,6 +21,8 @@ import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.remote.*
+import com.codepunk.core.lib.DataTask
+import com.codepunk.core.lib.DataUpdate
 import javax.inject.Inject
 import javax.inject.Singleton
 

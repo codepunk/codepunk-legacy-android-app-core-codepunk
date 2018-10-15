@@ -24,7 +24,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.model.User
-import com.codepunk.core.data.repository.DataUpdate
+import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.data.repository.UserRepository
 import javax.inject.Inject
 

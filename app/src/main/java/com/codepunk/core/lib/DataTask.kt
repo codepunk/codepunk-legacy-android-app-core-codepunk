@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.repository
+package com.codepunk.core.lib
 
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData

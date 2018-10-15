@@ -32,9 +32,9 @@ import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig.KEY_FIRST_TIME
 
 import com.codepunk.core.R
-import com.codepunk.core.data.repository.FailureUpdate
-import com.codepunk.core.data.repository.SuccessUpdate
-import com.codepunk.core.data.repository.LoadingUpdate
+import com.codepunk.core.lib.FailureUpdate
+import com.codepunk.core.lib.SuccessUpdate
+import com.codepunk.core.lib.LoadingUpdate
 import com.codepunk.core.data.model.User
 import com.codepunk.core.databinding.FragmentAuthenticatingBinding
 import dagger.android.support.AndroidSupportInjection
@@ -115,11 +115,13 @@ class AuthenticatingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         accountViewModel.userTask.observe(this, Observer { update ->
             Log.d("AuthenticatingFragment", "Observe: update=$update")
-            binding.text1.text = when (update) {
-                is LoadingUpdate<User, User> -> "Loading…"
-                is SuccessUpdate<User, User> -> "Hello, ${update.result?.name ?: "User"}!"
-                is FailureUpdate<User, User> -> "Error: ${update.e?.message})"
-                else -> ""
+            with(update) {
+                binding.text1.text = when (this) {
+                    is LoadingUpdate<User, User> -> "Loading…"
+                    is SuccessUpdate<User, User> -> "Hello, ${result?.name ?: "User"}!"
+                    is FailureUpdate<User, User> -> "Error ${response?.code()}: ${response?.message()})"
+                    else -> ""
+                }
             }
         })
         when (savedInstanceState) {
