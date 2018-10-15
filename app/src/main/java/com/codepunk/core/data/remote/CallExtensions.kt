@@ -16,29 +16,20 @@
 
 package com.codepunk.core.data.remote
 
-import com.codepunk.core.data.model.User
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Headers
+import java.io.IOException
 
-/**
- * Webservice that defines user-related calls.
- */
-interface UserWebservice {
-
-    // region Methods
-
-    /**
-     * Gets the current user.
-     */
-    @Suppress("UNUSED")
-    @GET("api/user")
-    @Headers(
-        HEADER_ACCEPT_APPLICATION_JSON,
-        HEADER_AUTHORIZATION_BEARER
-    )
-    fun prepareGetUser(): Call<User>
-
-    // endregion Methods
-
+fun <T> Call<T>.getResult(): CallResult<T> {
+    return try {
+        execute().let { response ->
+            when {
+                response.isSuccessful -> SuccessResult<T>(response)
+                else -> FailureResult<T>(response)
+                // TODO Maybe examine different types of errors?
+            }
+        }
+    } catch (e: IOException) {
+        // TODO Maybe examine different types of exceptions?
+        ExceptionResult(e)
+    }
 }

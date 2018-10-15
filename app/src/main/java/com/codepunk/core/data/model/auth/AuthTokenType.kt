@@ -23,8 +23,13 @@ import com.codepunk.core.R
 
 /**
  * Enum class representing authorization token types in accounts managed by Android.
+ *
+ * Note that for the purposes of this application, "access token" refers to the token (and possibly
+ * related information) we get from the network via [com.codepunk.core.data.remote.AuthWebservice].
+ * "Auth token" refers the token information stored by Android via the
+ * [android.accounts.AccountManager].
  */
-enum class AccountAuthTokenType(
+enum class AuthTokenType(
 
     /**
      * The value associated with this authorization token type.
@@ -76,7 +81,7 @@ enum class AccountAuthTokenType(
          * A lookup map of labels to authorization token types.
          */
         private val lookupMap by lazy {
-            HashMap<String, AccountAuthTokenType>(values().size).apply {
+            HashMap<String, AuthTokenType>(values().size).apply {
                 for (type in values()) {
                     put(type.value, type)
                 }
@@ -89,8 +94,8 @@ enum class AccountAuthTokenType(
          */
         fun lookup(
             value: String?,
-            defaultValue: AccountAuthTokenType? = null
-        ): AccountAuthTokenType? {
+            defaultValue: AuthTokenType? = null
+        ): AuthTokenType? {
             return lookupMap[value] ?: defaultValue
         }
 

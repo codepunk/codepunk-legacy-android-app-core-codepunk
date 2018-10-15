@@ -16,6 +16,7 @@
 
 package com.codepunk.core.data.repository
 
+import retrofit2.Response
 import java.util.*
 
 /**
@@ -77,7 +78,12 @@ data class SuccessUpdate<Progress, Result>(
     /**
      * The result of the operation computed by the task.
      */
-    val result: Result? = null
+    val result: Result? = null,
+
+    /**
+     * The [Response] that resulted in this update.
+     */
+    val response: Response<Result>? = null
 
 ) : DataUpdate<Progress, Result>()
 
@@ -93,8 +99,8 @@ data class FailureUpdate<Progress, Result>(
     val result: Result? = null,
 
     /**
-     * The exception, if any, describing the reason the task was cancelled. Can be null.
+     * The [Response] that resulted in this update.
      */
-    val e: Exception? = null
+    val response: Response<Result>? = null
 
 ) : DataUpdate<Progress, Result>()

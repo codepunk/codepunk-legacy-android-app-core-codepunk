@@ -16,29 +16,14 @@
 
 package com.codepunk.core.data.remote
 
-import com.codepunk.core.data.model.User
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Headers
+import retrofit2.Response
+import java.lang.Exception
 
-/**
- * Webservice that defines user-related calls.
- */
-interface UserWebservice {
+sealed class CallResult<T>
 
-    // region Methods
+class SuccessResult<T>(val response: Response<T>) : CallResult<T>()
 
-    /**
-     * Gets the current user.
-     */
-    @Suppress("UNUSED")
-    @GET("api/user")
-    @Headers(
-        HEADER_ACCEPT_APPLICATION_JSON,
-        HEADER_AUTHORIZATION_BEARER
-    )
-    fun prepareGetUser(): Call<User>
+class FailureResult<T>(val response: Response<T>) : CallResult<T>()
 
-    // endregion Methods
-
-}
+class ExceptionResult<T>(val exception: Exception, val response: Response<T>? = null) :
+    CallResult<T>()

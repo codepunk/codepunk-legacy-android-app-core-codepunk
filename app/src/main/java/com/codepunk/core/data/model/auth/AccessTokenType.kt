@@ -21,8 +21,13 @@ import com.squareup.moshi.Json
 /**
  * An enumerated class that represents how an access token will be generated and presented for
  * OAuth calls.
+
+ * Note that for the purposes of this application, "access token" refers to the token (and possibly
+ * related information) we get from the network via [com.codepunk.core.data.remote.AuthWebservice].
+ * "Auth token" refers the token information stored by Android via the
+ * [android.accounts.AccountManager].
  */
-enum class TokenType {
+enum class AccessTokenType {
 
     /**
      * A security token with the property that any party in possession of the token (a "bearer")

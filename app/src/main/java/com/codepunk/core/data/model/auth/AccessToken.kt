@@ -19,9 +19,14 @@ package com.codepunk.core.data.model.auth
 import com.squareup.moshi.Json
 
 /**
- * Data class representing an OAuth2 authorization token.
+ * Data class representing an OAuth2 access token.
+ *
+ * Note that for the purposes of this application, "access token" refers to the token (and possibly
+ * related information) we get from the network via [com.codepunk.core.data.remote.AuthWebservice].
+ * "Auth token" refers the token information stored by Android via the
+ * [android.accounts.AccountManager].
  */
-data class AuthToken(
+data class AccessToken(
 
     /**
      * The type of access token, which provides the client with the information required to
@@ -29,7 +34,7 @@ data class AuthToken(
      * type-specific attributes).
      */
     @field:Json(name = "token_type")
-    val tokenType: TokenType,
+    val tokenType: AccessTokenType,
 
     /**
      * The number of seconds until the access token expires.

@@ -19,6 +19,7 @@ package com.codepunk.core.data.repository
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import retrofit2.Response
 import java.util.concurrent.Executor
 
 /**
@@ -38,7 +39,7 @@ abstract class DataTask<Params, Progress, Result> :
     /**
      * Any exceptions that were encountered while executing this task.
      */
-    private var exception: Exception? = null
+    private var response: Response<Result>? = null
 
     // endregion Properties
 
@@ -75,7 +76,7 @@ abstract class DataTask<Params, Progress, Result> :
      * Updates [liveData] with a [SuccessUpdate] instance describing the result of this task.
      */
     override fun onPostExecute(result: Result?) {
-        liveData.value = SuccessUpdate(result)
+        liveData.value = SuccessUpdate(result, response)
     }
 
     /**
@@ -83,7 +84,7 @@ abstract class DataTask<Params, Progress, Result> :
      * failed or was cancelled.
      */
     override fun onCancelled(result: Result?) {
-        liveData.value = FailureUpdate(result, exception)
+        liveData.value = FailureUpdate(result, response)
     }
 
     // endregion Inherited methods
@@ -91,7 +92,8 @@ abstract class DataTask<Params, Progress, Result> :
     // region Methods
 
     /**
-     * Executes this operation with [params] and returns [liveData] for observation.
+     * Convenience method for executing this task and getting the results as [LiveData]. Executes
+     * this task with [params] and returns [liveData] for observation.
      */
     @Suppress("UNUSED")
     fun fetch(vararg params: Params): LiveData<DataUpdate<Progress, Result>> {
@@ -100,7 +102,9 @@ abstract class DataTask<Params, Progress, Result> :
     }
 
     /**
-     * Executes this operation on [exec] with [params] and returns [liveData] for observation.
+     * Convenience method for executing this task and getting the results as [LiveData]. Executes
+     * this task on the supplied [Executor] [exec] with [params] and returns [liveData] for
+     * observation.
      */
     fun fetchOnExecutor(
         exec: Executor,
@@ -111,15 +115,50 @@ abstract class DataTask<Params, Progress, Result> :
     }
 
     /**
-     * Cancels the DataTask, optionally saving an exception [e] and returning the supplied
-     * [result].
+     * Convenience method for returning from [doInBackground]. Saves the [response] and returns
+     * the supplied [result].
+     *
+     * This allows for concise code such as the following:
+     *
+     * ```kotlin
+     * override fun doInBackground(vararg params: Void?): User? {
+     *     return myWebservice.getMyData().execute().run {
+     *         when {
+     *             isSuccessful -> succeed(body(), this)
+     *             else -> fail(null, this)
+     *         }
+     *     }
+     * }
+     * ```
      */
-    fun cancelWithException(
+    fun succeed(result: Result?, response: Response<Result>? = null): Result? {
+        this.response = response
+        return result
+    }
+
+    /**
+     * Convenience method for handling errors in [doInBackground]. Cancels the DataTask, optionally
+     * saving the [response] and returning the supplied [result].
+     *
+     * This allows for concise code such as the following:
+     *
+     * ```kotlin
+     * override fun doInBackground(vararg params: Void?): User? {
+     *     return myWebservice.getMyData().execute().run {
+     *         when {
+     *             isSuccessful -> succeed(body(), this)
+     *             else -> fail(null, this)
+     *         }
+     *     }
+     * }
+     * ```
+     */
+    fun fail(
         result: Result?,
-        e: Exception,
+        response: Response<Result>? = null,
         mayInterruptIfRunning: Boolean = true
     ): Result? {
-        exception = e
+        this.response = response
         cancel(mayInterruptIfRunning)
         return result
     }

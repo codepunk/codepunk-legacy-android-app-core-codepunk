@@ -20,9 +20,7 @@ import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.model.User
-import com.codepunk.core.data.remote.AuthorizationInterceptor
-import com.codepunk.core.data.remote.UserWebservice
-import java.util.concurrent.CancellationException
+import com.codepunk.core.data.remote.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,7 +31,6 @@ private const val TEMP_ACCESS_TOKEN: String =
 /**
  * A repository for accessing and manipulating user-related data.
  */
-@SuppressLint("StaticFieldLeak")
 @Singleton
 class UserRepository @Inject constructor(
 
@@ -67,18 +64,17 @@ class UserRepository @Inject constructor(
     /**
      * Attempts to authenticate using the current account if one exists.
      */
+    @SuppressLint("StaticFieldLeak")
     fun authenticate(): LiveData<DataUpdate<User, User>> {
         return object : DataTask<Void, User, User>() {
             override fun doInBackground(vararg params: Void?): User? {
-                // TODO Get user from local db first
-                return try {
-                    val response = userWebservice.getUser().execute()
+                // TODO Get user from local db first to have a value while fetching
+
+                return userWebservice.prepareGetUser().execute().run {
                     when {
-                        response.isSuccessful -> response.body()
-                        else -> cancelWithException(null, CancellationException("Cancelled"))
+                        isSuccessful -> succeed(body(), this)
+                        else -> fail(null, this)
                     }
-                } catch (e: Exception) {
-                    cancelWithException(null, e)
                 }
             }
         }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)

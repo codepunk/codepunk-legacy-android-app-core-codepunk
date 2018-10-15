@@ -27,7 +27,9 @@ import android.os.Bundle
 import android.text.TextUtils
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.AccountAuthTokenType
+import com.codepunk.core.data.model.auth.AuthTokenType
+import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
+import com.codepunk.core.data.model.auth.GrantType.REFRESH_TOKEN
 import com.codepunk.core.data.remote.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import javax.inject.Inject
@@ -42,9 +44,15 @@ class AccountAuthenticator @Inject constructor(
      */
     @ApplicationContext private val context: Context,
 
+    /**
+     * TODO
+     */
     private val accountManager: AccountManager, // Note that even though we're not using context
     // to get the accountManager instance, it should be the same since it's @ApplicationContext.
 
+    /**
+     * TODO
+     */
     private val authWebservice: AuthWebservice
 
 ) : AbstractAccountAuthenticator(context) {
@@ -98,21 +106,36 @@ class AccountAuthenticator @Inject constructor(
         }
 
         return Bundle().apply {
-            var authToken =
-                accountManager.peekAuthToken(account, AccountAuthTokenType.DEFAULT.value)
+            var authTokenString =
+                accountManager.peekAuthToken(account, AuthTokenType.DEFAULT.value)
 
             // TODO Check when auth token expires?
 
             // TODO Is this common? Or should I add refresh token as user data?
-            val refreshToken = accountManager.getPassword(account)
+            var refreshToken = accountManager.getPassword(account)
 
-            if (TextUtils.isEmpty(authToken) && !TextUtils.isEmpty(refreshToken)) {
-                // TODO
-                // Here, I'm going to need to call refreshToken() in a repository.
+            if (TextUtils.isEmpty(authTokenString) && !TextUtils.isEmpty(refreshToken)) {
+                // TODO Boilerplate!! How to reduce? Also catch IOException?
+                // Here, I'm going to need to call prepareRefreshToken() in a repository.
                 // I think I'm not in the main UI thread so I should be fine calling it here.
+                authWebservice.prepareRefreshToken(REFRESH_TOKEN, "", "", refreshToken)
+                    .execute().apply {
+                        val authToken = body()
+                        when {
+                            isSuccessful && authToken != null -> {
+                                authTokenString = authToken.accessToken
+                                refreshToken = authToken.refreshToken
+                                accountManager.setAuthToken(account, DEFAULT.value, authTokenString)
+                                accountManager.setPassword(account, refreshToken)
+                            }
+                            else -> {
+                                // TODO Handle error here
+                            }
+                        }
+                    }
             }
 
-            if (TextUtils.isEmpty(authToken)) {
+            if (TextUtils.isEmpty(authTokenString)) {
                 // We were unable to get an auth token. We need the user to log in again.
                 putParcelable(
                     KEY_INTENT,
@@ -124,14 +147,14 @@ class AccountAuthenticator @Inject constructor(
             } else {
                 putString(KEY_ACCOUNT_NAME, account.name)
                 putString(KEY_ACCOUNT_TYPE, account.type)
-                putString(KEY_AUTHTOKEN, authToken)
+                putString(KEY_AUTHTOKEN, authTokenString)
                 putString(KEY_PASSWORD, refreshToken)
             }
         }
     }
 
     override fun getAuthTokenLabel(authTokenType: String?): String {
-        return AccountAuthTokenType.lookup(authTokenType)?.getFriendlyName(context)
+        return AuthTokenType.lookup(authTokenType)?.getFriendlyName(context)
             ?: context.getString(R.string.authenticator_token_type_unknown)
     }
 
