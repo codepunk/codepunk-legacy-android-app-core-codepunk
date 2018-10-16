@@ -52,7 +52,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-        def environmentClass = "com.codepunk.core.data.remote.Environment"
+        def environmentClass = "com.codepunk.core.data.remote.RemoteEnvironment"
         variant.buildConfigField(
                 environmentClass,
                 "DEFAULT_REMOTE_ENVIRONMENT",
@@ -67,6 +67,7 @@ android {
          * and as BuildConfig constants.
          */
         def prefKeys = [
+                "PREF_KEY_CURRENT_REMOTE_ENVIRONMENT",
                 "PREF_KEY_CURRENT_ACCOUNT"
         ]
         prefKeys.each { key ->
@@ -165,6 +166,7 @@ dependencies {
     implementation rootProject.deps.androidx.app_compat
     implementation rootProject.deps.androidx.constraint_layout
     implementation rootProject.deps.androidx.legacy
+    implementation rootProject.deps.androidx.preference
     implementation rootProject.deps.dagger.dagger
     implementation rootProject.deps.dagger.android
     implementation rootProject.deps.dagger.android_support

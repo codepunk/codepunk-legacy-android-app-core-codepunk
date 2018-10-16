@@ -19,7 +19,13 @@ package com.codepunk.core
 import android.app.Activity
 import android.app.Application
 import android.app.Service
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
+import com.codepunk.core.BuildConfig.DEFAULT_REMOTE_ENVIRONMENT
+import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_REMOTE_ENVIRONMENT
+import com.codepunk.core.data.remote.RemoteEnvironment
 import com.codepunk.core.di.component.DaggerAppComponent
+import com.codepunk.core.util.getEnvironment
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -30,7 +36,11 @@ import javax.inject.Inject
  * The main Codepunk [Application].
  */
 @Suppress("unused")
-class CodepunkApp : Application(), HasActivityInjector, HasServiceInjector {
+class CodepunkApp :
+    Application(),
+    HasActivityInjector,
+    HasServiceInjector,
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     // region Properties
 
@@ -46,18 +56,47 @@ class CodepunkApp : Application(), HasActivityInjector, HasServiceInjector {
     @Inject
     lateinit var serviceDispatchingAndroidInjector: DispatchingAndroidInjector<Service>
 
+    /**
+     * The application [SharedPreferences]
+     */
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
+    /**
+     * The current [RemoteEnvironment] being used for remote API calls.
+     */
+    @Suppress("WEAKER_ACCESS")
+    lateinit var remoteEnvironment: RemoteEnvironment
+        private set
+
     // endregion Properties
 
     // region Lifecycle methods
 
     /**
-     * Performs dependency injection for the application.
+     * Performs dependency injection for the application and establishes the remote environment
+     * for API calls.
      */
+    @Suppress("UNRESOLVED")
     override fun onCreate() {
         super.onCreate()
         DaggerAppComponent.builder()
             .create(this)
             .inject(this)
+
+        remoteEnvironment = sharedPreferences.getEnvironment(PREF_KEY_CURRENT_REMOTE_ENVIRONMENT)
+                ?: DEFAULT_REMOTE_ENVIRONMENT
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_main, false)
+    }
+
+    /**
+     * Performs cleanup. Not totally necessary since the app is done when the Application object
+     * is destroyed, but is it included here for completeness.
+     */
+    override fun onTerminate() {
+        super.onTerminate()
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     // endregion Lifecycle methods
@@ -76,6 +115,25 @@ class CodepunkApp : Application(), HasActivityInjector, HasServiceInjector {
      */
     override fun serviceInjector(): AndroidInjector<Service> = serviceDispatchingAndroidInjector
 
+    /**
+     * Sets [remoteEnvironment] to the value referenced in [PREF_KEY_CURRENT_REMOTE_ENVIRONMENT].
+     */
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        sharedPreferences?.apply {
+            when (key) {
+                PREF_KEY_CURRENT_REMOTE_ENVIRONMENT ->
+                    remoteEnvironment = sharedPreferences.getEnvironment(
+                        PREF_KEY_CURRENT_REMOTE_ENVIRONMENT
+                    ) ?: DEFAULT_REMOTE_ENVIRONMENT
+            }
+        }
+    }
+
     // endregion Implemented methods
+
+    // region Methods
+
+
+    // endregion Methods
 
 }

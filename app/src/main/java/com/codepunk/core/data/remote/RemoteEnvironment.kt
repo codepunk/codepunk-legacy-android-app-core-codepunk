@@ -25,7 +25,7 @@ import com.codepunk.core.R
  * a [nameResId] that specifies a user-friendly name for the environment.
  */
 @Suppress("UNUSED")
-enum class Environment(
+enum class RemoteEnvironment(
 
     /**
      * A string resource pointing to a user-friendly name for the environment.
