@@ -22,6 +22,7 @@ import com.codepunk.core.data.remote.adapter.DateJsonAdapter
 import com.codepunk.core.data.remote.converter.MoshiEnumConverterFactory
 import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
 import com.codepunk.core.data.remote.webservice.AuthWebservice
+import com.codepunk.core.data.remote.webservice.AuthWebserviceWrapper
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.squareup.moshi.Moshi
@@ -144,7 +145,7 @@ class NetModule {
     @Singleton
     fun providesAuthWebservice(
         retrofit: Retrofit
-    ): AuthWebservice = retrofit.create(AuthWebservice::class.java)
+    ): AuthWebservice = AuthWebserviceWrapper(retrofit.create(AuthWebservice::class.java))
 
     /**
      * Provides an instance of [UserWebservice] for making user API calls.

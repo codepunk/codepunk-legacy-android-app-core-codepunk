@@ -39,7 +39,7 @@ interface AuthWebservice {
     @POST("oauth/token")
     @FormUrlEncoded
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
-    fun prepareGetAuthToken(
+    fun getAuthToken(
         @Field("grant_type")
         grantType: GrantType,
 
@@ -65,7 +65,7 @@ interface AuthWebservice {
     @POST("oauth/token")
     @FormUrlEncoded
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
-    fun prepareRefreshToken(
+    fun refreshToken(
         @Field("grant_type")
         grantType: GrantType,
 
@@ -75,6 +75,19 @@ interface AuthWebservice {
         @Field("client_secret")
         clientSecret: String,
 
+        @Field("refresh_token")
+        refreshToken: String
+    ): Call<AccessToken>
+
+    /**
+     * Gets an authorization token from an existing [refreshToken].
+     */
+    /* TODO Probably don't need these here
+    @POST("oauth/token")
+    @FormUrlEncoded
+    @Headers(HEADER_ACCEPT_APPLICATION_JSON)
+    */
+    fun refreshToken(
         @Field("refresh_token")
         refreshToken: String
     ): Call<AccessToken>

@@ -35,7 +35,7 @@ enum class RemoteEnvironment(
     /**
      * The client ID for this environment.
      */
-    val clientId: Int,
+    val clientId: String,
 
     /**
      * The client secret for this environment.

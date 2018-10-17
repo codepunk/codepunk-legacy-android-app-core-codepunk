@@ -116,9 +116,9 @@ class AccountAuthenticator @Inject constructor(
 
             if (TextUtils.isEmpty(authTokenString) && !TextUtils.isEmpty(refreshToken)) {
                 // TODO Boilerplate!! How to reduce? Also catch IOException?
-                // Here, I'm going to need to call prepareRefreshToken() in a repository.
+                // Here, I'm going to need to call refreshToken() in a repository.
                 // I think I'm not in the main UI thread so I should be fine calling it here.
-                authWebservice.prepareRefreshToken(REFRESH_TOKEN, "", "", refreshToken)
+                authWebservice.refreshToken(REFRESH_TOKEN, "", "", refreshToken)
                     .execute().apply {
                         val authToken = body()
                         when {

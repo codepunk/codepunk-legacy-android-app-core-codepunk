@@ -35,6 +35,7 @@ private const val TEMP_ACCESS_TOKEN: String =
  * A repository for accessing and manipulating user-related data.
  */
 @Singleton
+@SuppressLint("StaticFieldLeak")
 class UserRepository @Inject constructor(
 
     /**
@@ -73,7 +74,7 @@ class UserRepository @Inject constructor(
 
             // TODO I still want to include getting locally-stored user from db here
             override fun doInBackground(vararg params: Void?): User? =
-                resultOf(userWebservice.prepareGetUser())
+                handleCall(userWebservice.getUser())
 
         }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }

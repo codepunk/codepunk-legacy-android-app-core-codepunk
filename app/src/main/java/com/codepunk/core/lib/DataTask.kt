@@ -189,10 +189,10 @@ abstract class DataTask<Params, Progress, Result> :
      *
      * ```kotlin
      * override fun doInBackground(vararg params: Void?): User? =
-     *     resultOf(myWebservice.getMayData())
+     *     handleCall(myWebservice.getMayData())
      * ```
      */
-    fun resultOf(call: Call<Result>, mayInterruptIfRunning: Boolean = true): Result? {
+    fun handleCall(call: Call<Result>, mayInterruptIfRunning: Boolean = true): Result? {
         return try {
             call.execute().run {
                 when {

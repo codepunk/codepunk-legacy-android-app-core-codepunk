@@ -38,7 +38,7 @@ interface UserWebservice {
         HEADER_ACCEPT_APPLICATION_JSON,
         HEADER_AUTHORIZATION_BEARER
     )
-    fun prepareGetUser(): Call<User>
+    fun getUser(): Call<User>
 
     // endregion Methods
 
