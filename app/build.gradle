@@ -112,6 +112,8 @@ android {
         /*
          * Pull private values from gradle.properties
          * (See http://www.rainbowbreeze.it/environmental-variables-api-key-and-secret-buildconfig-and-android-studio/)
+         * (Also see https://medium.com/@ericfu/securely-storing-secrets-in-an-android-application-501f030ae5a3
+         *  for info about using KeyStore)
          */
         def codepunkLocalClientIdProp = project.hasProperty("CodepunkLocalClientIdProp") ?
                 "\"${CodepunkLocalClientIdProp}\"" :

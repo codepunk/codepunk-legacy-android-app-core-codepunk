@@ -82,15 +82,7 @@ interface AuthWebservice {
     /**
      * Gets an authorization token from an existing [refreshToken].
      */
-    /* TODO Probably don't need these here
-    @POST("oauth/token")
-    @FormUrlEncoded
-    @Headers(HEADER_ACCEPT_APPLICATION_JSON)
-    */
-    fun refreshToken(
-        @Field("refresh_token")
-        refreshToken: String
-    ): Call<AccessToken>
+    fun refreshToken(refreshToken: String): Call<AccessToken>
 
     // endregion Methods
 
