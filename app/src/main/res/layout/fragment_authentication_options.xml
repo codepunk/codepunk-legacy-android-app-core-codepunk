@@ -23,10 +23,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary"
-        android:padding="16dp"
+        android:paddingLeft="@dimen/margin_horizontal"
+        android:paddingStart="@dimen/margin_horizontal"
+        android:paddingTop="@dimen/margin_vertical"
+        android:paddingRight="@dimen/margin_horizontal"
+        android:paddingEnd="@dimen/margin_horizontal"
+        android:paddingBottom="@dimen/margin_vertical"
         tools:context="com.codepunk.core.ui.auth.AuthenticationOptionsFragment">
-
-        <!-- TODO dimens -->
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@id/create_btn"
@@ -41,10 +44,11 @@
             android:id="@id/login_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/authenticator_log_in"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/create_btn"/>
+            app:layout_constraintTop_toBottomOf="@id/create_btn"
+            android:layout_marginTop="@dimen/margin_standard"
+            android:text="@string/authenticator_log_in" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

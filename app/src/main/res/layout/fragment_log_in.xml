@@ -23,10 +23,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary"
-        android:padding="16dp"
+        android:paddingLeft="@dimen/margin_horizontal"
+        android:paddingStart="@dimen/margin_horizontal"
+        android:paddingTop="@dimen/margin_vertical"
+        android:paddingRight="@dimen/margin_horizontal"
+        android:paddingEnd="@dimen/margin_horizontal"
+        android:paddingBottom="@dimen/margin_vertical"
         tools:context="com.codepunk.core.ui.auth.LogInFragment">
-
-        <!-- TODO dimens -->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@id/username_layout"
@@ -50,7 +53,7 @@
             android:id="@id/password_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/margin_standard"
             app:errorEnabled="true"
             app:hintEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
@@ -71,7 +74,7 @@
             android:id="@id/login_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/margin_standard"
             android:text="@string/authenticator_log_in"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/password_layout"/>
