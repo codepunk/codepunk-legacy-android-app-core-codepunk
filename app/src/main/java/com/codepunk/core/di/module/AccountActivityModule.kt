@@ -22,7 +22,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 /**
- * A [Module] for injecting dependencies into [AccountActivity].
+ * A [Module] for injecting dependencies into [AuthenticatorActivity].
  */
 @Module
 abstract class AccountActivityModule {

@@ -16,13 +16,21 @@
 
 package com.codepunk.core.ui.auth
 
+import android.accounts.AccountManager
+import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.Navigation
 import com.codepunk.core.R
+import com.codepunk.core.databinding.ActivityAuthenticatorBinding
+import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
+import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
+import com.codepunk.core.util.EXTRA_CONFIRM_CREDENTIALS
+import com.codepunk.core.util.EXTRA_USERNAME
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -33,11 +41,18 @@ import javax.inject.Inject
  * An Activity that handles all actions relating to creating, selecting, and authenticating
  * an account.
  */
-class AccountActivity :
-    AppCompatActivity(),
+class AuthenticatorActivity :
+    AccountAuthenticatorAppCompatActivity(),
     HasSupportFragmentInjector {
 
     // region Properties
+
+    /**
+     * The Android account manage.
+     */
+    @Suppress("UNUSED")
+    @Inject
+    lateinit var accountManager: AccountManager
 
     /**
      * Performs dependency injection on fragments.
@@ -52,6 +67,11 @@ class AccountActivity :
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
+     * The binding for this activity.
+     */
+    private lateinit var binding: ActivityAuthenticatorBinding
+
+    /**
      * An instance of [AccountViewModel] for managing account-related data.
      */
     @Suppress("UNUSED")
@@ -59,17 +79,39 @@ class AccountActivity :
         ViewModelProviders.of(this, viewModelFactory).get(AccountViewModel::class.java)
     }
 
+    /**
+     * The current username.
+     */
+    private var username: String? = null
+
+    /**
+     * The initial action to use for navigation.
+     */
+    private var initialAction: Int = R.id.action_authenticating_to_authentication_options
+
+    /**
+     *
+     */
+    private var confirmCredentials: Boolean = false
+
     // endregion Properties
 
     // region Lifecycle methods
 
     /**
-     * Creates the content view.
+     * Creates the content view and pulls values from the passed [Intent].
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account)
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticator)
+
+        username = intent.getStringExtra(EXTRA_USERNAME)
+        confirmCredentials = intent.getBooleanExtra(EXTRA_CONFIRM_CREDENTIALS, false)
+
+        initialAction = intent.getIntExtra(EXTRA_AUTHENTICATOR_INITIAL_ACTION, initialAction)
+        Navigation.findNavController(this, R.id.account_nav_fragment).navigate(initialAction)
     }
 
     // endregion Lifecycle methods

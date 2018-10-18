@@ -18,17 +18,29 @@ package com.codepunk.core.ui.auth
 
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import com.codepunk.core.R
+import com.codepunk.core.databinding.FragmentCreateAccountBinding
 
 /**
  * A simple [Fragment] subclass. TODO
  */
 class CreateAccountFragment : Fragment() {
+
+    // region Properties
+
+    /**
+     * The binding for this fragment.
+     */
+    private lateinit var binding: FragmentCreateAccountBinding
+
+    // endregion Properties
+
+    // region Lifecycle methods
 
     /**
      * Inflates the view.
@@ -38,8 +50,15 @@ class CreateAccountFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_account, container, false)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_create_account,
+            container,
+            false
+        )
+        return binding.root
     }
 
+    // endregion Lifecycle methods
 
 }

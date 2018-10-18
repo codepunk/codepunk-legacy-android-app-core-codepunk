@@ -19,7 +19,17 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="authenticating_to_authentication_options">
+                            <entry key="action_authenticating_to_authentication_options">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_authenticating_to_create_account">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_authenticating_to_log_in">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -40,12 +50,12 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="authentication_options_to_create_account">
+                            <entry key="action_authentication_options_to_create_account">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="authentication_options_to_log_in">
+                            <entry key="action_authentication_options_to_log_in">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -60,13 +70,13 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="771" />
-                            <option name="y" value="368" />
+                            <option name="x" value="519" />
+                            <option name="y" value="370" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="create_account_to_log_in">
+                            <entry key="action_create_account_to_log_in">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -81,8 +91,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="771" />
-                            <option name="y" value="12" />
+                            <option name="x" value="775" />
+                            <option name="y" value="-116" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -94,17 +104,17 @@
                         <option name="myPosition">
                           <Point>
                             <option name="x" value="518" />
-                            <option name="y" value="76" />
+                            <option name="y" value="-119" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="log_in_to_create_account">
+                            <entry key="action_log_in_to_create_account">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="log_in_to_forgot_password">
+                            <entry key="action_log_in_to_forgot_password">
                               <value>
                                 <LayoutPositions />
                               </value>

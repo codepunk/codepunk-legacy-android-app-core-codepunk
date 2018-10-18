@@ -15,8 +15,6 @@
 
     <!-- endregion Permissions -->
 
-    <!-- region Application -->
-
     <application
         android:name=".CodepunkApp"
         android:allowBackup="true"
@@ -33,21 +31,21 @@
             android:name=".ui.main.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="com.codepunk.core.debug.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.codepunk.core.debug.action.MAIN"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".ui.auth.AccountActivity"
+            android:name=".ui.auth.AuthenticatorActivity"
             android:label="@string/app_account">
             <intent-filter>
-                <action android:name="com.codepunk.core.debug.action.ACCOUNT" />
+                <action android:name="com.codepunk.core.debug.action.ACCOUNT"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
@@ -61,7 +59,7 @@
             android:exported="true"
             tools:ignore="ExportedService"> <!-- TODO Permission? Exported = false? -->
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
+                <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
 
             <meta-data
@@ -72,7 +70,5 @@
         <!-- endregion Services -->
 
     </application>
-
-    <!-- endregion Application -->
 
 </manifest>

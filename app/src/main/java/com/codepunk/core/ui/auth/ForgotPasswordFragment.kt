@@ -18,17 +18,29 @@ package com.codepunk.core.ui.auth
 
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import com.codepunk.core.R
+import com.codepunk.core.databinding.FragmentForgotPasswordBinding
 
 /**
  * A simple [Fragment] subclass. TODO
  */
 class ForgotPasswordFragment : Fragment() {
+
+    // region Properties
+
+    /**
+     * The binding for this fragment.
+     */
+    private lateinit var binding: FragmentForgotPasswordBinding
+
+    // endregion Properties
+
+    // region Lifecycle methods
 
     /**
      * Inflates the view.
@@ -38,8 +50,15 @@ class ForgotPasswordFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_forgot_password, container, false)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_forgot_password,
+            container,
+            false
+        )
+        return binding.root
     }
 
+    // endregion Lifecycle methods
 
 }

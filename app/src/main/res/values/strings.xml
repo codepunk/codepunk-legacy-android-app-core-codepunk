@@ -37,6 +37,16 @@
 
     <string name="authenticator_token_type_unknown">Unknown</string>
 
+    <string name="authenticator_username">Username</string>
+
+    <string name="authenticator_password">Password</string>
+
+    <string name="authenticator_confirm_password">Confirm password</string>
+
+    <string name="authenticator_create">Create account</string>
+
+    <string name="authenticator_log_in">Log in</string>
+
     <!-- endregion Authenticator -->
 
     <!-- region Environments -->

@@ -86,6 +86,10 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
+    // endregion Lifecycle methods
+
+    // region Inherited methods
+
     /**
      * Updates the view.
      */
@@ -95,6 +99,6 @@ class MainFragment : Fragment() {
         binding.text1.text = getString(R.string.dependency_injection_message, text)
     }
 
-    // endregion Lifecycle methods
+    // endregion Inherited methods
 
 }

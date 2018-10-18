@@ -29,10 +29,14 @@ import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
-import com.codepunk.core.data.model.auth.GrantType.REFRESH_TOKEN
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
+import com.codepunk.core.util.EXTRA_AUTH_TOKEN_TYPE
+import com.codepunk.core.util.EXTRA_USERNAME
 import javax.inject.Inject
+
+// TODO Add documentation
 
 /**
  * Implementation of [AbstractAccountAuthenticator] that authenticates Codepunk accounts.
@@ -71,6 +75,10 @@ class AccountAuthenticator @Inject constructor(
                 KEY_INTENT,
                 Intent(BuildConfig.ACTION_ACCOUNT).apply {
                     putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
+                    putExtra(
+                        EXTRA_AUTHENTICATOR_INITIAL_ACTION,
+                        R.id.action_authenticating_to_create_account
+                    )
                     // TODO Anything else here?
                 }
             )
@@ -115,24 +123,18 @@ class AccountAuthenticator @Inject constructor(
             var refreshToken = accountManager.getPassword(account)
 
             if (TextUtils.isEmpty(authTokenString) && !TextUtils.isEmpty(refreshToken)) {
-                // TODO Boilerplate!! How to reduce? Also catch IOException?
-                // Here, I'm going to need to call refreshToken() in a repository.
-                // I think I'm not in the main UI thread so I should be fine calling it here.
-                authWebservice.refreshToken(REFRESH_TOKEN, "", "", refreshToken)
-                    .execute().apply {
-                        val authToken = body()
-                        when {
-                            isSuccessful && authToken != null -> {
-                                authTokenString = authToken.accessToken
-                                refreshToken = authToken.refreshToken
-                                accountManager.setAuthToken(account, DEFAULT.value, authTokenString)
-                                accountManager.setPassword(account, refreshToken)
-                            }
-                            else -> {
-                                // TODO Handle error here
-                            }
-                        }
+                val resp = authWebservice.refreshToken(refreshToken).execute()
+                when {
+                    !resp.isSuccessful || resp.body() == null -> {
+                        // TODO Handle error here
                     }
+                    else -> resp.body()?.apply {
+                        authTokenString = this.accessToken
+                        refreshToken = this.refreshToken
+                        accountManager.setAuthToken(account, DEFAULT.value, authTokenString)
+                        accountManager.setPassword(account, refreshToken)
+                    }
+                }
             }
 
             if (TextUtils.isEmpty(authTokenString)) {
@@ -141,7 +143,12 @@ class AccountAuthenticator @Inject constructor(
                     KEY_INTENT,
                     Intent(BuildConfig.ACTION_ACCOUNT).apply {
                         putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
-                        // TODO Anything else here?
+                        putExtra(
+                            EXTRA_AUTHENTICATOR_INITIAL_ACTION,
+                            R.id.action_authenticating_to_log_in
+                        )
+                        putExtra(EXTRA_USERNAME, account.name)
+                        putExtra(EXTRA_AUTH_TOKEN_TYPE, authTokenType)
                     }
                 )
             } else {

@@ -22,13 +22,26 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 
 import com.codepunk.core.R
+import com.codepunk.core.databinding.FragmentLogInBinding
 
 /**
  * A simple [Fragment] subclass. TODO
  */
 class LogInFragment : Fragment() {
+
+    // region Properties
+
+    /**
+     * The binding for this fragment.
+     */
+    private lateinit var binding: FragmentLogInBinding
+
+    // endregion Properties
+
+    // region Lifecycle methods
 
     /**
      * Inflates the view.
@@ -38,8 +51,15 @@ class LogInFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_log_in, container, false)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_log_in,
+            container,
+            false
+        )
+        return binding.root
     }
 
+    // endregion Lifecycle methods
 
 }

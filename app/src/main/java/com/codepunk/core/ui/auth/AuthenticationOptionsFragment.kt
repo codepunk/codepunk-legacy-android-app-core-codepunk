@@ -18,17 +18,32 @@ package com.codepunk.core.ui.auth
 
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import com.codepunk.core.R
+import com.codepunk.core.databinding.FragmentAuthenticationOptionsBinding
 
 /**
- * A simple [Fragment] subclass. TODO
+ * A [Fragment] that shows options for authenticating into the app.
  */
-class AuthenticationOptionsFragment : Fragment() {
+class AuthenticationOptionsFragment :
+    Fragment(),
+    View.OnClickListener {
+
+    // region Properties
+
+    /**
+     * The binding for this fragment.
+     */
+    private lateinit var binding: FragmentAuthenticationOptionsBinding
+
+    // endregion Properties
+
+    // region Lifecycle methods
 
     /**
      * Inflates the view.
@@ -38,8 +53,46 @@ class AuthenticationOptionsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_authentication_options, container, false)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_authentication_options,
+            container,
+            false
+        )
+        return binding.root
     }
 
+    // endregion Lifecycle methods
+
+    // region Inherited methods
+
+    /**
+     * Sets up listeners.
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.createBtn.setOnClickListener(this)
+        binding.loginBtn.setOnClickListener(this)
+    }
+
+    // endregion Inherited methods
+
+    // region Implemented methods
+
+    /**
+     * Handles onClick events.
+     */
+    override fun onClick(v: View?) {
+        when (v) {
+            binding.createBtn -> Navigation.findNavController(v).navigate(
+                R.id.action_authentication_options_to_create_account
+            )
+            binding.loginBtn -> Navigation.findNavController(v).navigate(
+                R.id.action_authentication_options_to_log_in
+            )
+        }
+    }
+
+    // endregion Implemented methods
 
 }
