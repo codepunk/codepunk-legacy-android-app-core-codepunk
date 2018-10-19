@@ -35,7 +35,6 @@ private const val TEMP_ACCESS_TOKEN: String =
  * A repository for accessing and manipulating user-related data.
  */
 @Singleton
-@SuppressLint("StaticFieldLeak")
 class UserRepository @Inject constructor(
 
     /**

@@ -16,7 +16,6 @@
 
 package com.codepunk.core.ui.main
 
-import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
@@ -27,7 +26,6 @@ import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_ACCOUNT
 import com.codepunk.core.R
 import com.codepunk.core.di.scope.ActivityScope
-import com.codepunk.core.session.SessionManager
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -39,7 +37,6 @@ private const val ACCOUNT_REQUIRED_REQUEST_CODE = 1
 /**
  * The main [Activity] for the Codepunk app.
  */
-@Suppress("unused")
 @ActivityScope
 class MainActivity :
     AppCompatActivity(),
@@ -58,19 +55,6 @@ class MainActivity :
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences
-
-    /**
-     * The [AccountManager] that provides access to a centralized registry of the user's online
-     * accounts.
-     */
-    @Inject
-    lateinit var accountManager: AccountManager
-
-    /**
-     * The [SessionManager] instance that manages any currently-logged in user session.
-     */
-    @Inject
-    lateinit var sessionManager: SessionManager
 
     // endregion Properties
 

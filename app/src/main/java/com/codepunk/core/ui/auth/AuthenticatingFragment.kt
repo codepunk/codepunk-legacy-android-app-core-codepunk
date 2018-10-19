@@ -16,7 +16,6 @@
 
 package com.codepunk.core.ui.auth
 
-
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -113,7 +112,7 @@ class AuthenticatingFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        accountViewModel.userTask.observe(this, Observer { update ->
+        accountViewModel.userData.observe(this, Observer { update ->
             Log.d("AuthenticatingFragment", "Observe: update=$update")
             with(update) {
                 binding.text1.text = when (this) {

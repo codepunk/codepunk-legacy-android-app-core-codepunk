@@ -189,7 +189,7 @@ abstract class DataTask<Params, Progress, Result> :
      *
      * ```kotlin
      * override fun doInBackground(vararg params: Void?): User? =
-     *     handleCall(myWebservice.getMayData())
+     *     handleCall(myWebservice.getMyData())
      * ```
      */
     fun handleCall(call: Call<Result>, mayInterruptIfRunning: Boolean = true): Result? {
@@ -201,7 +201,7 @@ abstract class DataTask<Params, Progress, Result> :
                         val description =
                             HttpStatus.lookup(code())?.description ?: "${code()} Unknown"
                         fail(
-                            body(),
+                            body(), // TODO How can I convert errorBody().string() to Result?
                             this,
                             CancellationException(description),
                             mayInterruptIfRunning

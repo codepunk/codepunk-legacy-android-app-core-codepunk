@@ -90,7 +90,7 @@ class AuthenticatorActivity :
     private var initialAction: Int = R.id.action_authenticating_to_authentication_options
 
     /**
-     *
+     * TODO
      */
     private var confirmCredentials: Boolean = false
 

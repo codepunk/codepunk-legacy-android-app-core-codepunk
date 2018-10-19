@@ -18,7 +18,9 @@ package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.auth.GrantType
+import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -83,6 +85,26 @@ interface AuthWebservice {
      * Gets an authorization token from an existing [refreshToken].
      */
     fun refreshToken(refreshToken: String): Call<AccessToken>
+
+    /**
+     * Registers a new account.
+     */
+    @POST("register")
+    @FormUrlEncoded
+    @Headers(HEADER_ACCEPT_APPLICATION_JSON)
+    fun register(
+        @Field("name")
+        name: String,
+
+        @Field("email")
+        email: String,
+
+        @Field("password")
+        password: String,
+
+        @Field("password_confirmation")
+        passwordConfirmation: String
+    ): Call<ResponseMessage>
 
     // endregion Methods
 

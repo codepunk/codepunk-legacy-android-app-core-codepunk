@@ -16,21 +16,24 @@
 
 package com.codepunk.core.ui.auth
 
-
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.text.TextUtils
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-
+import androidx.fragment.app.Fragment
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
+import com.codepunk.core.ui.base.FormFragment
 
 /**
  * A simple [Fragment] subclass. TODO
  */
-class LogInFragment : Fragment() {
+class LogInFragment :
+    FormFragment(),
+    View.OnClickListener {
 
     // region Properties
 
@@ -61,5 +64,71 @@ class LogInFragment : Fragment() {
     }
 
     // endregion Lifecycle methods
+
+    // region Inherited methods
+
+    /**
+     * Sets up form information and event listeners.
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        with(binding) {
+            addTextInputLayouts(emailLayout, passwordLayout)
+            addRequiredFields(emailEdit, passwordEdit)
+            loginBtn.setOnClickListener(this@LogInFragment)
+        }
+    }
+
+    /**
+     * Disables the create button when any required fields are missing.
+     */
+    override fun onRequiredFieldMissing(view: View) {
+        binding.loginBtn.isEnabled = false
+    }
+
+    /**
+     * Enables the create button when all required fields are filled in.
+     */
+    override fun onRequiredFieldsComplete() {
+        binding.loginBtn.isEnabled = true
+    }
+
+    /**
+     * Validates the form.
+     */
+    override fun validate(): Boolean {
+        super.validate()
+        with(binding) {
+            return when {
+                !Patterns.EMAIL_ADDRESS.matcher(emailEdit.text).matches() -> {
+                    emailLayout.error = getString(R.string.authenticator_error_email)
+                    false
+                }
+                TextUtils.isEmpty(passwordEdit.text) -> {
+                    passwordLayout.error = getString(R.string.authenticator_error_password)
+                    false
+                }
+                else -> true
+            }
+        }
+    }
+    // endregion Inherited methods
+
+    // region Implemented methods
+
+    /**
+     * Attempts to log in.
+     */
+    override fun onClick(v: View?) {
+        when (v) {
+            binding.loginBtn -> {
+                if (validate()) {
+
+                }
+            }
+        }
+    }
+
+    // endregion Implemented methods
 
 }

@@ -223,6 +223,11 @@ enum class HttpStatus(
     IM_A_TEAPOT(418, "I'm a Teapot"),
 
     /**
+     * The request was well-formed but was unable to be followed due to semantic errors.
+     */
+    UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
+
+    /**
      * A generic error message, given when an unexpected condition was encountered and no more
      * specific message is suitable.
      */

@@ -39,6 +39,8 @@
 
     <string name="authenticator_username">Username</string>
 
+    <string name="authenticator_email">Email</string>
+
     <string name="authenticator_password">Password</string>
 
     <string name="authenticator_confirm_password">Confirm password</string>
@@ -46,6 +48,18 @@
     <string name="authenticator_create">Create account</string>
 
     <string name="authenticator_log_in">Log in</string>
+
+    <string name="authenticator_sent_email">We sent you an activation code! Please check your e-mail.</string>
+
+    <string name="authenticator_error_username">Enter a valid username</string>
+
+    <string name="authenticator_error_email">Enter a valid email</string>
+
+    <string name="authenticator_error_password">Enter a valid passowrd</string>
+
+    <string name="authenticator_error_confirm_password">Confirm password</string>
+
+    <string name="authenticator_error_passwords_do_not_match">Passwords do not match</string>
 
     <!-- endregion Authenticator -->
 

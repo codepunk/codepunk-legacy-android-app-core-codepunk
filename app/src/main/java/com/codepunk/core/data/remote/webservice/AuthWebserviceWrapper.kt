@@ -19,6 +19,8 @@ package com.codepunk.core.data.remote.webservice
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.auth.GrantType
+import com.codepunk.core.data.model.http.ResponseMessage
+import okhttp3.ResponseBody
 import retrofit2.Call
 
 /**
@@ -61,4 +63,10 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         refreshToken
     )
 
+    override fun register(
+        name: String,
+        email: String,
+        password: String,
+        passwordConfirmation: String
+    ): Call<ResponseMessage> = base.register(name, email, password, passwordConfirmation)
 }
