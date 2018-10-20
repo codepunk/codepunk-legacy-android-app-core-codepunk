@@ -56,7 +56,7 @@ open class AccountAuthenticatorAppCompatActivity : AppCompatActivity() {
      */
     @Suppress("WEAKER_ACCESS")
     var accountAuthenticatorResult: Bundle? = null
-        private set
+        protected set
 
     // endregion Properties
 

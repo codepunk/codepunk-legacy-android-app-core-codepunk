@@ -38,7 +38,7 @@ import javax.inject.Inject
 /**
  * A [ViewModel] for managing account-related data.
  */
-class AccountViewModel @Inject constructor(
+class AuthViewModel @Inject constructor(
 
     private val retrofit: Retrofit,
 
@@ -88,6 +88,10 @@ class AccountViewModel @Inject constructor(
                 else -> null
             }
         }
+
+    lateinit var username: String
+
+    lateinit var password: String
 
     // endregion Properties
 

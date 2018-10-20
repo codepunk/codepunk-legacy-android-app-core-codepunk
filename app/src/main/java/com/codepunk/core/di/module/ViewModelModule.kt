@@ -19,7 +19,7 @@ package com.codepunk.core.di.module
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.codepunk.core.di.key.ViewModelKey
-import com.codepunk.core.ui.auth.AccountViewModel
+import com.codepunk.core.ui.auth.AuthViewModel
 import com.codepunk.core.di.provider.InjectingViewModelFactory
 import dagger.Binds
 import dagger.Module
@@ -34,12 +34,12 @@ import dagger.multibindings.IntoMap
 interface ViewModelModule {
 
     /**
-     * Binds an instance of [AccountViewModel] to this [Module] for dependency injection.
+     * Binds an instance of [AuthViewModel] to this [Module] for dependency injection.
      */
     @Binds
     @IntoMap
-    @ViewModelKey(AccountViewModel::class)
-    fun bindRepoViewModel(repoViewModel: AccountViewModel): ViewModel
+    @ViewModelKey(AuthViewModel::class)
+    fun bindRepoViewModel(repoViewModel: AuthViewModel): ViewModel
 
     /**
      * Binds an instance of [InjectingViewModelFactory] to this [Module] for dependency injection.

@@ -65,13 +65,13 @@ class AuthenticatingFragment : Fragment() {
     private lateinit var binding: FragmentAuthenticatingBinding
 
     /**
-     * The [AccountViewModel] for managing and observing account-related data.
+     * The [AuthViewModel] for managing and observing account-related data.
      */
-    private val accountViewModel: AccountViewModel by lazy {
+    private val authViewModel: AuthViewModel by lazy {
         ViewModelProviders.of(
             requireActivity(),
             viewModelFactory
-        ).get(AccountViewModel::class.java)
+        ).get(AuthViewModel::class.java)
     }
 
     // endregion Properties
@@ -112,7 +112,7 @@ class AuthenticatingFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        accountViewModel.userData.observe(this, Observer { update ->
+        authViewModel.userData.observe(this, Observer { update ->
             Log.d("AuthenticatingFragment", "Observe: update=$update")
             with(update) {
                 binding.text1.text = when (this) {
@@ -124,7 +124,7 @@ class AuthenticatingFragment : Fragment() {
             }
         })
         when (savedInstanceState) {
-            null -> accountViewModel.authenticate()
+            null -> authViewModel.authenticate()
         }
     }
 

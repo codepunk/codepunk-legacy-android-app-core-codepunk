@@ -49,7 +49,7 @@ class CreateAccountFragment :
 
     /**
      * The injected [ViewModelProvider.Factory] that we will use to get an instance of
-     * [AccountViewModel].
+     * [AuthViewModel].
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -60,11 +60,11 @@ class CreateAccountFragment :
     private lateinit var binding: FragmentCreateAccountBinding
 
     /**
-     * The [AccountViewModel] instance backing this fragment.
+     * The [AuthViewModel] instance backing this fragment.
      */
-    private val accountViewModel: AccountViewModel by lazy {
+    private val authViewModel: AuthViewModel by lazy {
         ViewModelProviders.of(requireActivity(), viewModelFactory)
-            .get(AccountViewModel::class.java)
+            .get(AuthViewModel::class.java)
     }
 
     // endregion Properties
@@ -110,10 +110,6 @@ class CreateAccountFragment :
             addRequiredFields(emailEdit, passwordEdit, confirmPasswordEdit)
             createBtn.setOnClickListener(this@CreateAccountFragment)
         }
-
-        accountViewModel.authData.observe(this, Observer { update ->
-            observeAuthData(update)
-        })
     }
 
     /**
@@ -171,29 +167,23 @@ class CreateAccountFragment :
      * Submits the new account.
      */
     override fun onClick(v: View?) {
-        when (v) {
-            binding.createBtn -> {
-                if (validate()) {
-                    accountViewModel.register(
-                        binding.usernameEdit.text.toString(),
-                        binding.emailEdit.text.toString(),
-                        binding.passwordEdit.text.toString()
-                    )
+        with(binding) {
+            when (v) {
+                createBtn -> {
+                    authViewModel.username = usernameEdit.text.toString()
+                    authViewModel.password = passwordEdit.text.toString()
+                    if (validate()) {
+                        authViewModel.register(
+                            usernameEdit.text.toString(),
+                            emailEdit.text.toString(),
+                            passwordEdit.text.toString()
+                        )
+                    }
                 }
             }
         }
     }
 
     // endregion Implemented methods
-
-    // region Methods
-
-    fun observeAuthData(update: DataUpdate<ResponseMessage, AccessToken>) {
-        Log.d("CreateAccountFragment", "update=$update")
-        // TODO Tie back to parent Activity and AccountManager?
-        // OR OR OR Just put this observer on the Activity itself
-    }
-
-    // endregion Methods
 
 }

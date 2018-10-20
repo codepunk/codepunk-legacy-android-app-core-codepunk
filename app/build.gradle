@@ -21,6 +21,8 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jetbrains.dokka-android'
 
+import com.android.build.gradle.api.BaseVariant
+
 android {
     compileSdkVersion rootProject.build_versions.target_sdk
     buildToolsVersion rootProject.build_versions.build_tools
@@ -52,62 +54,53 @@ android {
     }
 
     applicationVariants.all { variant ->
+        /*
+         * Generate a set of key/value pairs that are accessible both as string resources
+         * and as BuildConfig constants.
+         */
+        makeConstantValues(
+                variant,
+                "DEFAULT_REMOTE_ENVIRONMENT_VALUE", variant.buildType.ext.defaultRemoteEnvironment,
+                "AUTHENTICATOR_ACCOUNT_TYPE", variant.applicationId
+        )
+
+        /*
+         * Define an additional BuildConfig variable that is the value of defaultRemoteEnvironment.
+         */
         def environmentClass = "com.codepunk.core.data.remote.RemoteEnvironment"
         variant.buildConfigField(
                 environmentClass,
                 "DEFAULT_REMOTE_ENVIRONMENT",
-                "${environmentClass}.valueOf(\"${variant.buildType.ext.defaultRemoteEnvironment}\")")
-        variant.resValue(
-                "string",
-                "default_remote_environment",
-                variant.buildType.ext.defaultRemoteEnvironment)
+                "${environmentClass}.valueOf(\"${variant.buildType.ext.defaultRemoteEnvironment}\")"
+        )
 
         /*
          * Generate a set of preference keys that are accessible both as string resources
          * and as BuildConfig constants.
          */
-        def prefKeys = [
+        makePreferenceKeys(
+                variant,
                 "PREF_KEY_CURRENT_REMOTE_ENVIRONMENT",
                 "PREF_KEY_CURRENT_ACCOUNT"
-        ]
-        prefKeys.each { key ->
-            def buildConfigValue = "\"${variant.applicationId}.$key\""
-            variant.buildConfigField("String", key, buildConfigValue)
-
-            def resourceName = key.toLowerCase(Locale.US)
-            def resourceValue = "${variant.applicationId}.$key"
-            variant.resValue("string", resourceName, resourceValue)
-        }
+        )
 
         /*
          * Generate a set of intent actions that are accessible both as string resources
          * and as BuildConfig constants.
          */
-        def intentActions = [
+        makeIntentActions(
+                variant,
                 "ACCOUNT",
                 "MAIN"
-        ]
-        intentActions.each { action ->
-            def buildConfigName = "ACTION_$action"
-            def buildConfigValue = "\"${variant.applicationId}.action.$action\""
-            variant.buildConfigField("String", buildConfigName, buildConfigValue)
-
-            def resourceName = "intent_action_${action.toLowerCase(Locale.US)}"
-            def resourceValue = "${variant.applicationId}.action.$action"
-            variant.resValue("string", resourceName, resourceValue)
-        }
+        )
 
         /*
          * Generate a set of unique bundle keys that are accessible as BuildConfig constants.
          */
-        def bundleKeys = [
+        makeBundleKeys(
+                variant,
                 "FIRST_TIME"
-        ]
-        bundleKeys.each { key ->
-            def buildConfigName = "KEY_$key"
-            def buildConfigValue = "\"${variant.applicationId}.$key\""
-            variant.buildConfigField("String", buildConfigName, buildConfigValue)
-        }
+        )
 
         /*
          * Pull private values from gradle.properties
@@ -194,3 +187,53 @@ dependencies {
     androidTestImplementation rootProject.deps.espresso.core
     androidTestImplementation rootProject.deps.lifecycle.testing
 }
+
+// region Methods
+
+static def makeBundleKeys(BaseVariant variant, String... keys) {
+    keys.each { key ->
+        def buildConfigName = "KEY_$key"
+        def buildConfigValue = "\"${variant.applicationId}.$key\""
+        variant.buildConfigField("String", buildConfigName, buildConfigValue)
+    }
+}
+
+static def makePreferenceKeys(BaseVariant variant, String... keys) {
+    keys.each { key ->
+        def buildConfigValue = "\"${variant.applicationId}.$key\""
+        variant.buildConfigField("String", key, buildConfigValue)
+
+        def resourceName = key.toLowerCase(Locale.US)
+        def resourceValue = "${variant.applicationId}.$key"
+        variant.resValue("string", resourceName, resourceValue)
+    }
+}
+
+static def makeIntentActions(BaseVariant variant, String... actions) {
+    actions.each { action ->
+        def buildConfigName = "ACTION_$action"
+        def buildConfigValue = "\"${variant.applicationId}.action.$action\""
+        variant.buildConfigField("String", buildConfigName, buildConfigValue)
+
+        def resourceName = "intent_action_${action.toLowerCase(Locale.US)}"
+        def resourceValue = "${variant.applicationId}.action.$action"
+        variant.resValue("string", resourceName, resourceValue)
+    }
+}
+
+static def makeConstantValues(BaseVariant variant, String... values) {
+    0.step(values.length, 2) { i ->
+        System.out.print("i = " + i + "\n")
+        if (i + 1 < values.length) {
+            def buildConfigValue = "\"${values[i + 1]}\""
+            System.out.print("buildConfigValue = " + buildConfigValue + "\n")
+
+            variant.buildConfigField("String", values[i], buildConfigValue)
+
+            def resourceName = values[i].toLowerCase(Locale.US)
+            variant.resValue("string", resourceName, values[i + 1])
+        }
+    }
+}
+
+// endregion Methods

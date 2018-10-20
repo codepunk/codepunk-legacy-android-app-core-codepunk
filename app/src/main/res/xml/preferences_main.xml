@@ -26,6 +26,6 @@
     <androidx.preference.ListPreference
         android:key="@string/pref_key_current_remote_environment"
         android:title="Remote Environment"
-        android:defaultValue="@string/default_remote_environment" />
+        android:defaultValue="@string/default_remote_environment_value" />
 
 </androidx.preference.PreferenceScreen>
