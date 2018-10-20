@@ -14,29 +14,9 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.session
-
-import android.content.Context
-import com.codepunk.core.di.qualifier.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
+package com.codepunk.core.auth
 
 /**
- * Class that manages any currently-logged in user session.
+ * A class with information about the current user session.
  */
-@Singleton
-class SessionManager @Inject constructor(
-
-    /**
-     * The application [Context].
-     */
-    @ApplicationContext val context: Context
-
-) {
-
-    /**
-     * The currently-active session, if any.
-     */
-    var session: Session? = null
-
-}
+class Session

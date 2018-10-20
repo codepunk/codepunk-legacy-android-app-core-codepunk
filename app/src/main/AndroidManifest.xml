@@ -54,7 +54,7 @@
         <!-- region Services -->
 
         <service
-            android:name=".session.AuthenticatorService"
+            android:name=".auth.AuthenticatorService"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedService"> <!-- TODO Permission? Exported = false? -->

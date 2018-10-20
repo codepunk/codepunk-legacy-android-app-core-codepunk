@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.session
+package com.codepunk.core.auth
 
 import android.app.Service
 import android.content.Intent
