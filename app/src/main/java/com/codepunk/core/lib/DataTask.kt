@@ -42,12 +42,12 @@ abstract class DataTask<Params, Progress, Result> :
     /**
      * An optional [Response] that was obtained while executing this task.
      */
-    private var response: Response<Result>? = null
+    protected var response: Response<Result>? = null
 
     /**
      * Any [Exception] encountered while executing this task.
      */
-    private lateinit var e: Exception
+    protected lateinit var e: Exception
 
     // endregion Properties
 
@@ -70,7 +70,7 @@ abstract class DataTask<Params, Progress, Result> :
      * an empty [LoadingUpdate] instance.
      */
     override fun onPreExecute() {
-        publishProgress()
+        onProgressUpdate()
     }
 
     /**
@@ -143,14 +143,14 @@ abstract class DataTask<Params, Progress, Result> :
      * }
      * ```
      */
-    fun succeed(result: Result?, response: Response<Result>? = null): Result? {
+    fun succeed(response: Response<Result>?, result: Result? = response?.body()): Result? {
         this.response = response
         return result
     }
 
     /**
      * Convenience method for handling errors in [doInBackground]. Cancels the DataTask, optionally
-     * saving the [response] and returning the supplied [result].
+     * saving the [response] and an exception [e] and returning the supplied [result].
      *
      * This allows for concise code such as the following:
      *
@@ -169,17 +169,57 @@ abstract class DataTask<Params, Progress, Result> :
      * }
      * ```
      */
-    fun fail(
-        result: Result?,
+    fun failWithException(
         response: Response<Result>? = null,
-        e: Exception = CancellationException(),
+        e: Exception = CancellationException(
+            response?.code()?.let { code ->
+                HttpStatus.descriptionOf(code)
+            }
+        ),
+        result: Result? = response?.body(),
         mayInterruptIfRunning: Boolean = true
     ): Result? {
-        this.response = response
         this.e = e
+        this.response = response
         cancel(mayInterruptIfRunning)
         return result
     }
+
+    /**
+     * Convenience method for handling errors in [doInBackground]. Cancels the DataTask, optionally
+     * saving the [response] and a CancellationException with [message], and returning the supplied
+     * [result].
+     *
+     * This allows for concise code such as the following:
+     *
+     * ```kotlin
+     * override fun doInBackground(vararg params: Void?): User? {
+     *     return try {
+     *         myWebservice.getMyData().execute().run {
+     *             when {
+     *                 isSuccessful -> succeed(this)
+     *                 else -> fail(this)
+     *             }
+     *         }
+     *     } catch (e: IOException) {
+     *         fail(e = e)
+     *     }
+     * }
+     * ```
+     */
+    fun fail(
+        response: Response<Result>? = null,
+        message: String? = response?.code()?.let { code ->
+            HttpStatus.descriptionOf(code)
+        },
+        result: Result? = response?.body(),
+        mayInterruptIfRunning: Boolean = true
+    ): Result? = failWithException(
+        response,
+        CancellationException(message),
+        result,
+        mayInterruptIfRunning
+    )
 
     /**
      * Convenience method for handling errors in [doInBackground]. Further encapsulates the logic
@@ -196,21 +236,15 @@ abstract class DataTask<Params, Progress, Result> :
         return try {
             call.execute().run {
                 when {
-                    isSuccessful -> succeed(body(), this)
-                    else -> {
-                        val description =
-                            HttpStatus.lookup(code())?.description ?: "${code()} Unknown"
-                        fail(
-                            body(), // TODO How can I convert errorBody().string() to Result?
-                            this,
-                            CancellationException(description),
-                            mayInterruptIfRunning
-                        )
-                    }
+                    isSuccessful -> succeed(this)
+                    else -> fail(
+                        response = this,
+                        mayInterruptIfRunning = mayInterruptIfRunning
+                    )
                 }
             }
         } catch (e: IOException) {
-            fail(null, null, e, mayInterruptIfRunning)
+            failWithException(e = e, mayInterruptIfRunning = mayInterruptIfRunning)
         }
     }
 

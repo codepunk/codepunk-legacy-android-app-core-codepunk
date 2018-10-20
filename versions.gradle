@@ -39,7 +39,7 @@
  */
 
 def versions = [:]
-versions.android_gradle_plugin = "3.3.0-alpha13"
+versions.android_gradle_plugin = "3.4.0-alpha01"
 versions.android_testing_support_library = "1.1.0-alpha4"
 versions.androidx_legacy = "1.0.0"
 versions.android_support = "28.0.0"

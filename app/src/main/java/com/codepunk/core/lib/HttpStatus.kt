@@ -264,7 +264,7 @@ enum class HttpStatus(
     // region Properties
 
     /**
-     * A full description that includes the code and text of the status.
+     * A full descriptionOf that includes the code and text of the status.
      */
     val description: String = "$code $text"
 
@@ -295,7 +295,14 @@ enum class HttpStatus(
          * Gets the [HttpStatus] associated with the supplied [code], or null if no such value
          * exists.
          */
+        @Suppress("WEAKER_ACCESS")
         fun lookup(code: Int): HttpStatus? = lookupArray[code]
+
+        /**
+         * Gets a descriptionOf
+         */
+        fun descriptionOf(code: Int, notFoundText: String = "Unknown"): String =
+            lookup(code)?.description ?: "$code $notFoundText"
 
         // endregion Methods
 

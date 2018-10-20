@@ -32,7 +32,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.ui.base.FormFragment
@@ -54,12 +53,6 @@ class CreateAccountFragment :
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    /**
-     * The authorization web service.
-     */
-    @Inject
-    lateinit var authWebservice: AuthWebservice
 
     /**
      * The binding for this fragment.
@@ -184,8 +177,7 @@ class CreateAccountFragment :
                     accountViewModel.register(
                         binding.usernameEdit.text.toString(),
                         binding.emailEdit.text.toString(),
-                        binding.passwordEdit.text.toString(),
-                        binding.confirmPasswordEdit.text.toString()
+                        binding.passwordEdit.text.toString()
                     )
                 }
             }
@@ -196,8 +188,10 @@ class CreateAccountFragment :
 
     // region Methods
 
-    fun observeAuthData(update: DataUpdate<ResponseMessage, ResponseMessage>) {
+    fun observeAuthData(update: DataUpdate<ResponseMessage, AccessToken>) {
         Log.d("CreateAccountFragment", "update=$update")
+        // TODO Tie back to parent Activity and AccountManager?
+        // OR OR OR Just put this observer on the Activity itself
     }
 
     // endregion Methods

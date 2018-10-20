@@ -20,7 +20,6 @@ import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.auth.GrantType
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -46,7 +45,7 @@ interface AuthWebservice {
         grantType: GrantType,
 
         @Field("client_id")
-        clientId: Int,
+        clientId: String,
 
         @Field("client_secret")
         clientSecret: String,
@@ -60,6 +59,16 @@ interface AuthWebservice {
         @Field("scope")
         scope: String
     ): Call<AccessToken>
+
+    /**
+     * Gets an authorization token using default values.
+     */
+    fun getAuthToken(username: String, password: String, scope: String): Call<AccessToken>
+
+    /**
+     * Gets an authorization token using default values.
+     */
+    fun getAuthToken(username: String, password: String): Call<AccessToken>
 
     /**
      * Gets an authorization token from an existing [refreshToken].

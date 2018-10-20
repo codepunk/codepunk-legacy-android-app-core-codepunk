@@ -20,7 +20,6 @@ import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.auth.GrantType
 import com.codepunk.core.data.model.http.ResponseMessage
-import okhttp3.ResponseBody
 import retrofit2.Call
 
 /**
@@ -31,7 +30,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
 
     override fun getAuthToken(
         grantType: GrantType,
-        clientId: Int,
+        clientId: String,
         clientSecret: String,
         username: String,
         password: String,
@@ -44,6 +43,39 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         password,
         scope
     )
+
+    /**
+     * Gets an authorization token using default values.
+     */
+    override fun getAuthToken(
+        username: String,
+        password: String,
+        scope: String
+    ): Call<AccessToken> {
+        return base.getAuthToken(
+            GrantType.PASSWORD,
+            BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
+            BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,
+            username,
+            password,
+            scope
+        )
+    }
+
+
+    /**
+     * Gets an authorization token using default values.
+     */
+    override fun getAuthToken(username: String, password: String): Call<AccessToken> {
+        return base.getAuthToken(
+            GrantType.PASSWORD,
+            BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
+            BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,
+            username,
+            password,
+            "*"
+        )
+    }
 
     override fun refreshToken(
         grantType: GrantType,
@@ -69,4 +101,5 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         password: String,
         passwordConfirmation: String
     ): Call<ResponseMessage> = base.register(name, email, password, passwordConfirmation)
+
 }

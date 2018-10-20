@@ -23,15 +23,16 @@ import android.os.AsyncTask
 import androidx.lifecycle.*
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.model.User
+import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.repository.UserRepository
 import com.codepunk.core.lib.DataTask
 import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.HttpStatus
-import com.squareup.moshi.Moshi
+import retrofit2.Response
+import retrofit2.Retrofit
 import java.io.IOException
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 /**
@@ -39,10 +40,10 @@ import javax.inject.Inject
  */
 class AccountViewModel @Inject constructor(
 
-    private val moshi: Moshi,
+    private val retrofit: Retrofit,
 
     /**
-     * TODO
+     * The authorization webservice.
      */
     private val authWebservice: AuthWebservice,
 
@@ -71,7 +72,11 @@ class AccountViewModel @Inject constructor(
      */
     private val attemptAuthenticate = MutableLiveData<Boolean>()
 
-    val authData = MediatorLiveData<DataUpdate<ResponseMessage, ResponseMessage>>()
+    /**
+     * A [LiveData] holding the [AccessToken] information relating to the current authorization
+     * attempt.
+     */
+    val authData = MediatorLiveData<DataUpdate<ResponseMessage, AccessToken>>()
 
     /**
      * The [LiveData] that will hold the result of user authentication.
@@ -105,60 +110,54 @@ class AccountViewModel @Inject constructor(
         attemptAuthenticate.value = true
     }
 
+    /**
+     * Creates a new account. Note that this account will not be activated as the user will still
+     * need to respond to the activation email.
+     */
     @SuppressLint("StaticFieldLeak")
-    fun register(
-        username: String,
-        email: String,
-        password: String,
-        passwordConfirmation: String
-    ) {
+    fun register(username: String, email: String, password: String) {
         val registerData =
-            object : DataTask<Void, ResponseMessage, ResponseMessage>() {
-                /*
-                override fun doInBackground(vararg params: Void?): ResponseMessage? = handleCall(
-                    authWebservice.register(
-                        username,
-                        email,
-                        password,
-                        passwordConfirmation
-                    )
-                )
-                */
-
-                override fun doInBackground(vararg params: Void?): ResponseMessage? {
-                    val call =
-                        authWebservice.register(username, email, password, passwordConfirmation)
-                    return try {
-                        call.execute().run {
-                            when {
-                                isSuccessful -> succeed(body(), this)
-                                else -> {
-                                    val description =
-                                        HttpStatus.lookup(code())?.description
-                                            ?: "${code()} Unknown"
-
-                                    // TODO **** Can I somehow pass this to DataTask?
-                                    val result = errorBody()?.string()?.let {
-                                        moshi.adapter(ResponseMessage::class.java).fromJson(it)
-                                    }
-
-                                    fail(
-                                        result,
-                                        this,
-                                        CancellationException(description),
-                                        true
-                                    )
+            object : DataTask<Void, ResponseMessage, AccessToken>() {
+                override fun doInBackground(vararg params: Void?): AccessToken? {
+                    try {
+                        authWebservice.register(username, email, password, password).execute()
+                            .apply {
+                                val message = toMessage(this)
+                                when (message) {
+                                    null -> publishProgress()
+                                    else -> publishProgress(message)
                                 }
+                                if (!isSuccessful) {
+                                    return fail(message = HttpStatus.descriptionOf(code()))
+                                }
+                            }
+
+                        return authWebservice.getAuthToken(email, password).execute().run {
+                            when {
+                                isSuccessful -> succeed(this)
+                                else -> fail(this)
                             }
                         }
                     } catch (e: IOException) {
-                        fail(null, null, e, true)
+                        return failWithException(e = e)
                     }
                 }
 
             }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         authData.addSource(registerData) {
             authData.value = it
+        }
+    }
+
+    private fun toMessage(response: Response<ResponseMessage>): ResponseMessage? {
+        return when {
+            response.isSuccessful -> response.body()
+            else -> response.errorBody()?.run {
+                retrofit.responseBodyConverter<ResponseMessage>(
+                    ResponseMessage::class.java,
+                    arrayOf()
+                ).convert(this)
+            }
         }
     }
 

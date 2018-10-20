@@ -20,6 +20,6 @@ data class ResponseMessage(
 
     val message: String,
 
-    val errors: Map<String, Array<String>>?
+    val errors: Map<String, Array<String>>? = null
 
 )

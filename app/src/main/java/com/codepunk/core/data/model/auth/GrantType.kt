@@ -60,8 +60,8 @@ enum class GrantType(
      * or Digest authentication to OAuth by converting the stored credentials to an access
      * token.
      */
-    @Json(name = "user_credentials")
-    USER_CREDENTIALS("password"),
+    @Json(name = "password")
+    PASSWORD("password"),
 
     /**
      * The client can request an access token using only its client credentials (or other
