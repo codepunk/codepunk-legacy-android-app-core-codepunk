@@ -79,7 +79,7 @@
 
     <string name="account_label_authenticating">Authenticating…</string>
 
-    <string name="account_label_authentication_options">Options</string>
+    <string name="account_label_authentication">Sign in to Codepunk</string>
 
     <string name="account_label_create_account">Create account</string>
 

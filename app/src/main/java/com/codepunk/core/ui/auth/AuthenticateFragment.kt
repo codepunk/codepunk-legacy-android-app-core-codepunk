@@ -24,12 +24,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.codepunk.core.R
-import com.codepunk.core.databinding.FragmentAuthenticationOptionsBinding
+import com.codepunk.core.databinding.FragmentAuthenticateBinding
 
 /**
  * A [Fragment] that shows options for authenticating into the app.
  */
-class AuthenticationOptionsFragment :
+class AuthenticateFragment :
     Fragment(),
     View.OnClickListener {
 
@@ -38,7 +38,7 @@ class AuthenticationOptionsFragment :
     /**
      * The binding for this fragment.
      */
-    private lateinit var binding: FragmentAuthenticationOptionsBinding
+    private lateinit var binding: FragmentAuthenticateBinding
 
     // endregion Properties
 
@@ -54,7 +54,7 @@ class AuthenticationOptionsFragment :
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_authentication_options,
+            R.layout.fragment_authenticate,
             container,
             false
         )
@@ -84,10 +84,10 @@ class AuthenticationOptionsFragment :
     override fun onClick(v: View?) {
         when (v) {
             binding.createBtn -> Navigation.findNavController(v).navigate(
-                R.id.action_authentication_options_to_create_account
+                R.id.action_authenticate_to_create_account
             )
             binding.loginBtn -> Navigation.findNavController(v).navigate(
-                R.id.action_authentication_options_to_log_in
+                R.id.action_authenticate_to_log_in
             )
         }
     }

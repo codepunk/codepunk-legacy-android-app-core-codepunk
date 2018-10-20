@@ -77,7 +77,7 @@ class AccountAuthenticator @Inject constructor(
                     putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                     putExtra(
                         EXTRA_AUTHENTICATOR_INITIAL_ACTION,
-                        R.id.action_authenticating_to_create_account
+                        R.id.action_authenticate_to_create_account
                     )
                     // TODO Anything else here?
                 }
@@ -145,7 +145,7 @@ class AccountAuthenticator @Inject constructor(
                         putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                         putExtra(
                             EXTRA_AUTHENTICATOR_INITIAL_ACTION,
-                            R.id.action_authenticating_to_log_in
+                            R.id.action_authenticate_to_log_in
                         )
                         putExtra(EXTRA_USERNAME, account.name)
                         putExtra(EXTRA_AUTH_TOKEN_TYPE, authTokenType)

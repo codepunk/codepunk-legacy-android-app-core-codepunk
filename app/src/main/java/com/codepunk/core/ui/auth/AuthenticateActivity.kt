@@ -28,22 +28,24 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.databinding.ActivityAuthenticatorBinding
+import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
 import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
 import com.codepunk.core.util.EXTRA_CONFIRM_CREDENTIALS
-import com.codepunk.core.util.EXTRA_USERNAME
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
 
+private const val NO_ACTION: Int = -1
 
 /**
  * An Activity that handles all actions relating to creating, selecting, and authenticating
@@ -77,7 +79,7 @@ class AuthenticatorActivity :
     /**
      * The binding for this activity.
      */
-    private lateinit var binding: ActivityAuthenticatorBinding
+    private lateinit var binding: ActivityAuthenticateBinding
 
     /**
      * An instance of [AuthViewModel] for managing account-related data.
@@ -95,7 +97,7 @@ class AuthenticatorActivity :
     /**
      * The initial action to use for navigation.
      */
-    private var initialAction: Int = R.id.action_authenticating_to_authentication_options
+    private var initialAction: Int = NO_ACTION
 
     /**
      * TODO
@@ -113,18 +115,37 @@ class AuthenticatorActivity :
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticator)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
 // TODO        username = intent.getStringExtra(EXTRA_USERNAME)
         confirmCredentials = intent.getBooleanExtra(EXTRA_CONFIRM_CREDENTIALS, false)
 
+        var navController =
+            Navigation.findNavController(this, R.id.account_nav_fragment)
         initialAction = intent.getIntExtra(EXTRA_AUTHENTICATOR_INITIAL_ACTION, initialAction)
-        Navigation.findNavController(this, R.id.account_nav_fragment).navigate(initialAction)
+        if (initialAction == NO_ACTION) {
+            setupActionBarWithNavController(navController)
+        } else {
+            val navOptions = NavOptions.Builder().setPopUpTo(R.id.fragment_authenticate, true)
+                .build()
+            navController.navigate(initialAction, null, navOptions)
+            navController.addOnNavigatedListener { controller, destination ->
+                title = destination.label
+            }
+        }
 
         authViewModel.authData.observe(this, Observer { update -> onAuthUpdate(update) })
     }
 
     // endregion Lifecycle methods
+
+    // region Inherited methods
+
+    override fun onSupportNavigateUp(): Boolean {
+        return Navigation.findNavController(this, R.id.account_nav_fragment).navigateUp()
+    }
+
+    // endregion Inherited methods
 
     // region Implemented methods
 

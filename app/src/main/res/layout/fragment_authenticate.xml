@@ -29,7 +29,7 @@
         android:paddingRight="@dimen/margin_horizontal"
         android:paddingEnd="@dimen/margin_horizontal"
         android:paddingBottom="@dimen/margin_vertical"
-        tools:context="com.codepunk.core.ui.auth.AuthenticationOptionsFragment">
+        tools:context="com.codepunk.core.ui.auth.AuthenticateFragment">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@id/create_btn"

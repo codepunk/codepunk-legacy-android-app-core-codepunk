@@ -19,27 +19,22 @@ package com.codepunk.core.ui.auth
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.AccessToken
-import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
-import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.ui.base.FormFragment
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 /**
- * A [Fragment] used to create a new account.
+ * A [Fragment] used to add a new account.
  */
 class CreateAccountFragment :
     FormFragment(),
@@ -113,14 +108,14 @@ class CreateAccountFragment :
     }
 
     /**
-     * Disables the create button when any required fields are missing.
+     * Disables the add button when any required fields are missing.
      */
     override fun onRequiredFieldMissing(view: View) {
         binding.createBtn.isEnabled = false
     }
 
     /**
-     * Enables the create button when all required fields are filled in.
+     * Enables the add button when all required fields are filled in.
      */
     override fun onRequiredFieldsComplete() {
         binding.createBtn.isEnabled = true

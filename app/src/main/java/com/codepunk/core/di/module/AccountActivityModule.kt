@@ -30,18 +30,11 @@ abstract class AccountActivityModule {
     // region Methods
 
     /**
-     * Contributes an AndroidInjector to [AuthenticatingFragment].
+     * Contributes an AndroidInjector to [AuthenticateFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector //(modules = [AuthenticatingFragmentModule::class])
-    abstract fun contributeAuthenticatingFragmentInjector(): AuthenticatingFragment
-
-    /**
-     * Contributes an AndroidInjector to [AuthenticationOptionsFragment].
-     */
-    @FragmentScope
-    @ContributesAndroidInjector //(modules = [AuthenticationOptionsFragmentModule::class])
-    abstract fun contributeAuthenticationOptionsFragmentInjector(): AuthenticationOptionsFragment
+    @ContributesAndroidInjector //(modules = [AuthenticationFragmentModule::class])
+    abstract fun contributeAuthenticationFragmentInjector(): AuthenticateFragment
 
     /**
      * Contributes an AndroidInjector to [CreateAccountFragment].

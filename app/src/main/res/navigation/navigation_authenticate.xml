@@ -19,46 +19,20 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/navigation_account"
-            app:startDestination="@id/fragment_authenticating">
+            app:startDestination="@id/fragment_authenticate">
 
     <fragment
-        android:id="@+id/fragment_authenticating"
-        android:name="com.codepunk.core.ui.auth.AuthenticatingFragment"
-        android:label="@string/account_label_authenticating"
-        tools:layout="@layout/fragment_authenticating">
+        android:id="@+id/fragment_authenticate"
+        android:name="com.codepunk.core.ui.auth.AuthenticateFragment"
+        android:label="@string/account_label_authentication"
+        tools:layout="@layout/fragment_authenticate">
 
         <action
-            android:id="@+id/action_authenticating_to_authentication_options"
-            app:destination="@id/fragment_authentication_options"
-            app:popUpTo="@id/fragment_authenticating"
-            app:popUpToInclusive="true" />
-
-        <action
-            android:id="@+id/action_authenticating_to_log_in"
-            app:destination="@id/fragment_log_in"
-            app:popUpTo="@id/fragment_authenticating"
-            app:popUpToInclusive="true" />
-
-        <action
-            android:id="@+id/action_authenticating_to_create_account"
-            app:destination="@id/fragment_create_account"
-            app:popUpTo="@id/fragment_authenticating"
-            app:popUpToInclusive="true" />
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_authentication_options"
-        android:name="com.codepunk.core.ui.auth.AuthenticationOptionsFragment"
-        android:label="@string/account_label_authentication_options"
-        tools:layout="@layout/fragment_authentication_options">
-
-        <action
-            android:id="@+id/action_authentication_options_to_create_account"
+            android:id="@+id/action_authenticate_to_create_account"
             app:destination="@id/fragment_create_account" />
 
         <action
-            android:id="@+id/action_authentication_options_to_log_in"
+            android:id="@+id/action_authenticate_to_log_in"
             app:destination="@id/fragment_log_in" />
 
     </fragment>
