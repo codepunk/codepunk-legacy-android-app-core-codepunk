@@ -45,6 +45,10 @@
 
     <string name="authenticator_password">Password</string>
 
+    <string name="authenticator_choose_account">Choose an account</string>
+
+    <string name="authenticator_choose_account_colon">Choose an account:</string>
+
     <string name="authenticator_confirm_password">Confirm password</string>
 
     <string name="authenticator_create">Create account</string>

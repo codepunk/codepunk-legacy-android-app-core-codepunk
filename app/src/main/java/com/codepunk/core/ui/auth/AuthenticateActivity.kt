@@ -60,7 +60,6 @@ class AuthenticatorActivity :
     /**
      * The Android account manage.
      */
-    @Suppress("UNUSED")
     @Inject
     lateinit var accountManager: AccountManager
 
@@ -129,7 +128,7 @@ class AuthenticatorActivity :
             val navOptions = NavOptions.Builder().setPopUpTo(R.id.fragment_authenticate, true)
                 .build()
             navController.navigate(initialAction, null, navOptions)
-            navController.addOnNavigatedListener { controller, destination ->
+            navController.addOnNavigatedListener { _, destination ->
                 title = destination.label
             }
         }
@@ -140,6 +139,10 @@ class AuthenticatorActivity :
     // endregion Lifecycle methods
 
     // region Inherited methods
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         return Navigation.findNavController(this, R.id.account_nav_fragment).navigateUp()
@@ -171,8 +174,9 @@ class AuthenticatorActivity :
                 // TODO Hide spinner
                 update.result?.also { accessToken ->
                     val account = Account(
-                        authViewModel.username,
-                        BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
+                        authViewModel.email,
+                        BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
+                    )
                     if (!accountManager.addAccountExplicitly(
                             account,
                             accessToken.refreshToken,
@@ -183,13 +187,22 @@ class AuthenticatorActivity :
                     }
 
                     accountAuthenticatorResult = Bundle().apply {
-                        putString(KEY_ACCOUNT_NAME, authViewModel.username)
+                        putString(KEY_ACCOUNT_NAME, authViewModel.email)
                         putString(KEY_ACCOUNT_TYPE, BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
                         putString(KEY_AUTHTOKEN, accessToken.accessToken)
                         putString(KEY_PASSWORD, accessToken.refreshToken)
                     }
 
-                    setResult(RESULT_OK)
+                    setResult(RESULT_OK, Intent().apply {
+                        putExtra(
+                            BuildConfig.KEY_ACCOUNT_AUTHENTICATOR_RESULT,
+                            accountAuthenticatorResult
+                        )
+                        putExtra(
+                            BuildConfig.KEY_ACCOUNT,
+                            account
+                        )
+                    })
                     finish()
                 }
             }

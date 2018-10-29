@@ -15,18 +15,10 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <item name="account_image" type="id" />
-    <item name="confirm_password_edit" type="id" />
-    <item name="confirm_password_layout" type="id" />
-    <item name="create_btn" type="id" />
-    <item name="email_edit" type="id" />
-    <item name="email_layout" type="id" />
-    <item name="email_text" type="id" />
-    <item name="login_btn" type="id" />
-    <item name="password_edit" type="id" />
-    <item name="password_layout" type="id" />
-    <item name="username_edit" type="id" />
-    <item name="username_layout" type="id" />
-    <item name="username_text" type="id" />
-</resources>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <size
+        android:height="@dimen/margin_standard" />
+
+</shape>

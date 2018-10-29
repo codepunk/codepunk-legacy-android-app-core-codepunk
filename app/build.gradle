@@ -65,7 +65,8 @@ android {
         )
 
         /*
-         * Define an additional BuildConfig variable that is the value of defaultRemoteEnvironment.
+         * Define an additional BuildConfig enum variable that is the value of
+         * defaultRemoteEnvironment.
          */
         def environmentClass = "com.codepunk.core.data.remote.RemoteEnvironment"
         variant.buildConfigField(
@@ -81,7 +82,8 @@ android {
         makePreferenceKeys(
                 variant,
                 "PREF_KEY_CURRENT_REMOTE_ENVIRONMENT",
-                "PREF_KEY_CURRENT_ACCOUNT"
+                "PREF_KEY_CURRENT_ACCOUNT_NAME",
+                "PREF_KEY_CURRENT_ACCOUNT_TYPE"
         )
 
         /*
@@ -99,7 +101,9 @@ android {
          */
         makeBundleKeys(
                 variant,
-                "FIRST_TIME"
+                "FIRST_TIME",
+                "ACCOUNT_AUTHENTICATOR_RESULT",
+                "ACCOUNT"
         )
 
         /*
@@ -178,10 +182,11 @@ dependencies {
     // for why this is being included
     implementation rootProject.deps.findbugs
 
-    testImplementation rootProject.deps.junit
-
     kapt rootProject.deps.dagger.android_support_compiler
     kapt rootProject.deps.dagger.compiler
+    kapt rootProject.deps.kotlin.compiler
+
+    testImplementation rootProject.deps.junit
 
     androidTestImplementation rootProject.deps.atsl.runner
     androidTestImplementation rootProject.deps.espresso.core
@@ -189,6 +194,18 @@ dependencies {
 }
 
 // region Methods
+
+static def makeConstantValues(BaseVariant variant, String... values) {
+    0.step(values.length, 2) { i ->
+        if (i + 1 < values.length) {
+            def buildConfigValue = "\"${values[i + 1]}\""
+            variant.buildConfigField("String", values[i], buildConfigValue)
+
+            def resourceName = values[i].toLowerCase(Locale.US)
+            variant.resValue("string", resourceName, values[i + 1])
+        }
+    }
+}
 
 static def makeBundleKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
@@ -218,21 +235,6 @@ static def makeIntentActions(BaseVariant variant, String... actions) {
         def resourceName = "intent_action_${action.toLowerCase(Locale.US)}"
         def resourceValue = "${variant.applicationId}.action.$action"
         variant.resValue("string", resourceName, resourceValue)
-    }
-}
-
-static def makeConstantValues(BaseVariant variant, String... values) {
-    0.step(values.length, 2) { i ->
-        System.out.print("i = " + i + "\n")
-        if (i + 1 < values.length) {
-            def buildConfigValue = "\"${values[i + 1]}\""
-            System.out.print("buildConfigValue = " + buildConfigValue + "\n")
-
-            variant.buildConfigField("String", values[i], buildConfigValue)
-
-            def resourceName = values[i].toLowerCase(Locale.US)
-            variant.resValue("string", resourceName, values[i + 1])
-        }
     }
 }
 

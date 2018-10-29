@@ -16,15 +16,21 @@
 
 package com.codepunk.core.ui.main
 
+import android.accounts.Account
+import android.accounts.AccountManager
+import android.accounts.AccountManagerCallback
+import android.accounts.AccountManagerFuture
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.codepunk.core.BuildConfig
-import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_ACCOUNT
+import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
+import com.codepunk.core.auth.getAccountByNameAndType
+import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.di.scope.ActivityScope
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -56,6 +62,12 @@ class MainActivity :
     @Inject
     lateinit var sharedPreferences: SharedPreferences
 
+    /**
+     * The Android account manage.
+     */
+    @Inject
+    lateinit var accountManager: AccountManager
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -69,12 +81,52 @@ class MainActivity :
 
         when (savedInstanceState) {
             null -> {
-                // TODO I might be able to use SessionManager for this
-                if (!sharedPreferences.contains(PREF_KEY_CURRENT_ACCOUNT)) {
-                    startActivityForResult(
-                        Intent(BuildConfig.ACTION_ACCOUNT),
-                        ACCOUNT_REQUIRED_REQUEST_CODE
-                    )
+
+                // TODO Maybe break this out? Extension function on AccountManager?
+
+                val name: String? = sharedPreferences.getString(PREF_KEY_CURRENT_ACCOUNT_TYPE, null)
+                val account: Account? = when (name) {
+                    null -> null
+                    else -> {
+                        val type: String = sharedPreferences.getString(
+                            PREF_KEY_CURRENT_ACCOUNT_TYPE,
+                            null
+                        ) ?: AUTHENTICATOR_ACCOUNT_TYPE
+                        accountManager.getAccountByNameAndType(name, type)
+                    }
+                } ?: let {
+                    // There was no "saved" account.
+                    // If there's only one account in the AccountManager, choose it
+                    val accounts = accountManager.getAccountsByType(AUTHENTICATOR_ACCOUNT_TYPE)
+                    when (accounts.size) {
+                        1 -> accounts[0]
+                        else -> null
+                    }
+                }
+
+                when (account) {
+                    null -> {
+                        // We didn't have a saved account
+                        // If there's more than one, open AuthenticateActivity with chooser
+                        startActivityForResult(
+                            Intent(ACTION_ACCOUNT),
+                            ACCOUNT_REQUIRED_REQUEST_CODE
+                        )
+                    }
+                    else -> {
+                        // We had a saved account
+                        val future = accountManager.getAuthToken(
+                            account,
+                            AuthTokenType.DEFAULT.value,
+                            null,
+                            this,
+                            { future ->
+                                val bundle = future?.result
+                                Log.d("MainActivity", "onCreate: bundle=$bundle")
+                            },
+                            null
+                        )
+                    }
                 }
             }
         }
@@ -91,7 +143,16 @@ class MainActivity :
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            ACCOUNT_REQUIRED_REQUEST_CODE -> { /* No op */
+            ACCOUNT_REQUIRED_REQUEST_CODE -> when (resultCode) {
+                RESULT_OK -> {
+                    val account: Account? = data?.getParcelableExtra(KEY_ACCOUNT)
+                    when (account) {
+                        null -> { /* TODO Respond to null account */
+                        }
+                        else -> onAccount(account)
+                    }
+                }
+                RESULT_CANCELED -> Log.d("MainActivity", "resultCode=RESULT_CANCELED")
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
@@ -109,5 +170,15 @@ class MainActivity :
         fragmentDispatchingAndroidInjector
 
     // endregion Implemented methods
+
+    // region Methods
+
+    private fun onAccount(account: Account) {
+        with(account) {
+            Log.d("MainActivity", "account=$name, type=$type")
+        }
+    }
+
+    // endregion Methods
 
 }

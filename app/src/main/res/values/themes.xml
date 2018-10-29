@@ -16,17 +16,15 @@
   -->
 
 <resources>
-    <item name="account_image" type="id" />
-    <item name="confirm_password_edit" type="id" />
-    <item name="confirm_password_layout" type="id" />
-    <item name="create_btn" type="id" />
-    <item name="email_edit" type="id" />
-    <item name="email_layout" type="id" />
-    <item name="email_text" type="id" />
-    <item name="login_btn" type="id" />
-    <item name="password_edit" type="id" />
-    <item name="password_layout" type="id" />
-    <item name="username_edit" type="id" />
-    <item name="username_layout" type="id" />
-    <item name="username_text" type="id" />
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="autoHeightRecyclerViewStyle">@style/AutoHeightRecyclerView</item>
+    </style>
+
 </resources>

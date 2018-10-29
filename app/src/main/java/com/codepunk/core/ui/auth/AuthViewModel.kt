@@ -91,6 +91,8 @@ class AuthViewModel @Inject constructor(
 
     lateinit var username: String
 
+    lateinit var email: String
+
     lateinit var password: String
 
     // endregion Properties
@@ -105,13 +107,26 @@ class AuthViewModel @Inject constructor(
 //        accountManager.getAccountsByType()
 
         // First, see if we saved an account name
-        sharedPreferences.getString(BuildConfig.PREF_KEY_CURRENT_ACCOUNT, null)?.run {
+        sharedPreferences.getString(BuildConfig.PREF_KEY_CURRENT_ACCOUNT_NAME, null)?.run {
 
         } ?: run {
             ""
         }
 
         attemptAuthenticate.value = true
+    }
+
+    /**
+     * Authenticates using email and password.
+     */
+    @SuppressLint("StaticFieldLeak")
+    fun authenticate(email: String, password: String) {
+        val authenticateData =
+            object : DataTask<Void, ResponseMessage, AccessToken>() {
+                override fun doInBackground(vararg params: Void?): AccessToken? =
+                    handleCall(authWebservice.getAuthToken(email, password))
+            }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        authData.addSource(authenticateData) { authData.value = it }
     }
 
     /**
@@ -126,7 +141,7 @@ class AuthViewModel @Inject constructor(
                     try {
                         authWebservice.register(username, email, password, password).execute()
                             .apply {
-                                val message = toMessage(this)
+                                val message = toMessage(this, retrofit)
                                 when (message) {
                                     null -> publishProgress()
                                     else -> publishProgress(message)
@@ -148,23 +163,36 @@ class AuthViewModel @Inject constructor(
                 }
 
             }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-        authData.addSource(registerData) {
-            authData.value = it
-        }
-    }
-
-    private fun toMessage(response: Response<ResponseMessage>): ResponseMessage? {
-        return when {
-            response.isSuccessful -> response.body()
-            else -> response.errorBody()?.run {
-                retrofit.responseBodyConverter<ResponseMessage>(
-                    ResponseMessage::class.java,
-                    arrayOf()
-                ).convert(this)
-            }
-        }
+        authData.addSource(registerData) { authData.value = it }
     }
 
     // endregion methods
+
+    // region Companion object
+
+    companion object {
+
+        // region Methods
+
+        private fun toMessage(
+            response: Response<ResponseMessage>,
+            retrofit: Retrofit
+        ): ResponseMessage? {
+            return when {
+                response.isSuccessful -> response.body()
+                else -> response.errorBody()?.run {
+                    retrofit.responseBodyConverter<ResponseMessage>(
+                        ResponseMessage::class.java,
+                        arrayOf()
+                    ).convert(this)
+                }
+            }
+        }
+
+        // endregion Methods
+
+    }
+
+    // endregion Companion object
 
 }

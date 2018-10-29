@@ -25,7 +25,7 @@ import dagger.android.ContributesAndroidInjector
  * A [Module] for injecting dependencies into [AuthenticatorActivity].
  */
 @Module
-abstract class AccountActivityModule {
+abstract class AuthenticateActivityModule {
 
     // region Methods
 
@@ -33,8 +33,8 @@ abstract class AccountActivityModule {
      * Contributes an AndroidInjector to [AuthenticateFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector //(modules = [AuthenticationFragmentModule::class])
-    abstract fun contributeAuthenticationFragmentInjector(): AuthenticateFragment
+    @ContributesAndroidInjector //(modules = [AuthenticateFragmentModule::class])
+    abstract fun contributeAuthenticateFragmentInjector(): AuthenticateFragment
 
     /**
      * Contributes an AndroidInjector to [CreateAccountFragment].

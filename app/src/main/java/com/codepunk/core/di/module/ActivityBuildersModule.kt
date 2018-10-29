@@ -41,7 +41,7 @@ interface ActivityBuildersModule {
      * Contributes an AndroidInjector to [AuthenticatorActivity].
      */
     @ActivityScope
-    @ContributesAndroidInjector(modules = [AccountActivityModule::class])
+    @ContributesAndroidInjector(modules = [AuthenticateActivityModule::class])
     fun contributeAccountActivityInjector(): AuthenticatorActivity
 
     // endregion Methods

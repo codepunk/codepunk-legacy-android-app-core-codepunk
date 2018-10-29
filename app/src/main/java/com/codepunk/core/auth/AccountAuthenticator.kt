@@ -35,12 +35,14 @@ import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
 import com.codepunk.core.util.EXTRA_AUTH_TOKEN_TYPE
 import com.codepunk.core.util.EXTRA_USERNAME
 import javax.inject.Inject
+import javax.inject.Singleton
 
 // TODO Add documentation
 
 /**
  * Implementation of [AbstractAccountAuthenticator] that authenticates Codepunk accounts.
  */
+@Singleton
 class AccountAuthenticator @Inject constructor(
 
     /**

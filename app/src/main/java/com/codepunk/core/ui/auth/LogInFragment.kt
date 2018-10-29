@@ -16,6 +16,7 @@
 
 package com.codepunk.core.ui.auth
 
+import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Patterns
@@ -24,12 +25,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.ui.base.FormFragment
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 /**
- * A simple [Fragment] subclass. TODO
+ * A [Fragment] used to log into an existing account.
  */
 class LogInFragment :
     FormFragment(),
@@ -38,13 +43,36 @@ class LogInFragment :
     // region Properties
 
     /**
+     * The injected [ViewModelProvider.Factory] that we will use to get an instance of
+     * [AuthViewModel].
+     */
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    /**
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentLogInBinding
 
+    /**
+     * The [AuthViewModel] instance backing this fragment.
+     */
+    private val authViewModel: AuthViewModel by lazy {
+        ViewModelProviders.of(requireActivity(), viewModelFactory)
+            .get(AuthViewModel::class.java)
+    }
+
     // endregion Properties
 
     // region Lifecycle methods
+
+    /**
+     * Injects dependencies into this fragment.
+     */
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     /**
      * Inflates the view.
@@ -120,10 +148,21 @@ class LogInFragment :
      * Attempts to log in.
      */
     override fun onClick(v: View?) {
-        when (v) {
-            binding.loginBtn -> {
-                if (validate()) {
-
+        with(binding) {
+            when (v) {
+                loginBtn -> {
+                    if (validate()) {
+//                    authViewModel.username = usernameEdit.text.toString()
+                        authViewModel.email = emailEdit.text.toString()
+                        authViewModel.password = passwordEdit.text.toString()
+                        if (validate()) {
+                            authViewModel.authenticate(
+//                                usernameEdit.text.toString(),
+                                emailEdit.text.toString(),
+                                passwordEdit.text.toString()
+                            )
+                        }
+                    }
                 }
             }
         }
