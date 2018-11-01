@@ -19,13 +19,12 @@ package com.codepunk.core.lib
 import retrofit2.Response
 import java.lang.Exception
 import java.util.*
-import java.util.concurrent.CancellationException
 
 /**
  * A sealed class representing the various possible updates from a [DataTask].
  */
 @Suppress("UNUSED")
-sealed class DataUpdate<Progress, Result>
+sealed class DataUpdate<Progress, Result> : HashMap<String, Any>()
 
 /**
  * A [DataUpdate] representing a pending task (i.e. a task that has not been executed yet).
@@ -40,13 +39,9 @@ class PendingUpdate<Progress, Result> : DataUpdate<Progress, Result>() {
         return true
     }
 
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
+    override fun hashCode(): Int = javaClass.hashCode()
 
-    override fun toString(): String {
-        return "PendingUpdate()"
-    }
+    override fun toString(): String = "${javaClass.simpleName}(map=${super.toString()})"
 
     // endregion Inherited methods
 }
@@ -76,14 +71,10 @@ class LoadingUpdate<Progress, Result>(
         return true
     }
 
-    override fun hashCode(): Int {
-        return Arrays.hashCode(progress)
-    }
+    override fun hashCode(): Int = Arrays.hashCode(progress)
 
-    override fun toString(): String {
-        return "LoadingUpdate(progress=${Arrays.toString(progress)})"
-    }
-
+    override fun toString(): String = javaClass.simpleName +
+            "(progress=${Arrays.toString(progress)}, map=${super.toString()})"
 
     // endregion Inherited methods
 
@@ -112,6 +103,7 @@ class SuccessUpdate<Progress, Result>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as SuccessUpdate<*, *>
 
@@ -122,14 +114,14 @@ class SuccessUpdate<Progress, Result>(
     }
 
     override fun hashCode(): Int {
-        var result1 = result?.hashCode() ?: 0
+        var result1 = super.hashCode()
+        result1 = 31 * result1 + (result?.hashCode() ?: 0)
         result1 = 31 * result1 + (response?.hashCode() ?: 0)
         return result1
     }
 
-    override fun toString(): String {
-        return "SuccessUpdate(result=$result, response=$response)"
-    }
+    override fun toString(): String =
+        "${javaClass.simpleName}(result=$result, response=$response, map=${super.toString()})"
 
     // endregion Inherited methods
 
@@ -147,14 +139,14 @@ class FailureUpdate<Progress, Result>(
     val result: Result? = null,
 
     /**
-     * The [Response], if any, that resulted in this update.
-     */
-    val response: Response<Result>? = null,
-
-    /**
      * The [Exception] associated with this failure.
      */
-    val e: Exception = CancellationException()
+    val e: Exception? = null,
+
+    /**
+     * The [Response] that resulted in this update.
+     */
+    val response: Response<Result>? = null
 
 ) : DataUpdate<Progress, Result>() {
 
@@ -163,26 +155,27 @@ class FailureUpdate<Progress, Result>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as FailureUpdate<*, *>
 
         if (result != other.result) return false
-        if (response != other.response) return false
         if (e != other.e) return false
+        if (response != other.response) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = result?.hashCode() ?: 0
-        result = 31 * result + (response?.hashCode() ?: 0)
-        result = 31 * result + e.hashCode()
-        return result
+        var result1 = super.hashCode()
+        result1 = 31 * result1 + (result?.hashCode() ?: 0)
+        result1 = 31 * result1 + (e?.hashCode() ?: 0)
+        result1 = 31 * result1 + (response?.hashCode() ?: 0)
+        return result1
     }
 
-    override fun toString(): String {
-        return "FailureUpdate(result=$result, response=$response, e=$e)"
-    }
+    override fun toString(): String =
+        "${javaClass.simpleName}(result=$result, response=$response, e=$e, map=${super.toString()})"
 
     // endregion Inherited methods
 

@@ -99,11 +99,11 @@ android {
         /*
          * Generate a set of unique bundle keys that are accessible as BuildConfig constants.
          */
-        makeBundleKeys(
+        makeKeys(
                 variant,
-                "FIRST_TIME",
+                "ACCOUNT",
                 "ACCOUNT_AUTHENTICATOR_RESULT",
-                "ACCOUNT"
+                "FIRST_TIME"
         )
 
         /*
@@ -207,7 +207,7 @@ static def makeConstantValues(BaseVariant variant, String... values) {
     }
 }
 
-static def makeBundleKeys(BaseVariant variant, String... keys) {
+static def makeKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
         def buildConfigName = "KEY_$key"
         def buildConfigValue = "\"${variant.applicationId}.$key\""

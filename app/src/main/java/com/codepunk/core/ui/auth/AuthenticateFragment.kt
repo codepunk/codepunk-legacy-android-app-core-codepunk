@@ -18,10 +18,16 @@ package com.codepunk.core.ui.auth
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.accounts.AccountManager.KEY_ACCOUNT_TYPE
+import android.accounts.AccountManager.KEY_ACCOUNT_NAME
+import android.accounts.AccountManager.KEY_AUTHTOKEN
+import android.accounts.AccountManager.KEY_PASSWORD
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
@@ -34,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
+import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.databinding.FragmentAuthenticateBinding
 import com.codepunk.core.lib.CustomDividerItemDecoration
 import dagger.android.support.AndroidSupportInjection
@@ -44,7 +51,7 @@ import javax.inject.Inject
  */
 class AuthenticateFragment :
     Fragment(),
-    View.OnClickListener {
+    OnClickListener {
 
     // region Properties
 
@@ -117,7 +124,7 @@ class AuthenticateFragment :
         binding.accountsRecycler.addItemDecoration(itemDecoration)
         binding.accountsRecycler.layoutManager =
                 LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        adapter = AccountAdapter(binding.accountsRecycler.context, accountManager)
+        adapter = AccountAdapter(binding.accountsRecycler.context, accountManager, this)
         binding.accountsRecycler.adapter = adapter
 
         view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -132,9 +139,9 @@ class AuthenticateFragment :
     // region Implemented methods
 
     /**
-     * Handles onClick events.
+     * Handles click events.
      */
-    override fun onClick(v: View?) {
+    override fun onClick(v: View) {
         when (v) {
             binding.createBtn -> Navigation.findNavController(v).navigate(
                 R.id.action_authenticate_to_create_account
@@ -142,10 +149,45 @@ class AuthenticateFragment :
             binding.loginBtn -> Navigation.findNavController(v).navigate(
                 R.id.action_authenticate_to_log_in
             )
+            else -> AccountViewHolder.of(v)?.run {
+                onAccountClick(this.account)
+            }
         }
     }
 
     // endregion Implemented methods
+
+    // region Methods
+
+    private fun onAccountClick(account: Account) {
+        Log.d("AuthenticateFragment", "onAccountClick: account=$account")
+
+        // TODO Maybe we have a method in AuthViewModel that is like
+        // authenticateWithAccount(account Account). Then we don't need spinner here.
+        // AuthenticateActivity has an observer for DataUpdate<ResponseMessage????, Bundle>
+
+        // TODO Spinner?
+        accountManager.getAuthToken(
+            account,
+            AuthTokenType.DEFAULT.value,
+            null,
+            requireActivity(),
+            { future ->
+                future.result.apply {
+                    // This is the same bundle that AuthenticateActivity uses to set and finish
+                    // in onAuthUpdate(). So how to just set it now?
+                    val accountName = getString(KEY_ACCOUNT_NAME)
+                    val accountType = getString(KEY_ACCOUNT_TYPE)
+                    val authToken = getString(KEY_AUTHTOKEN)
+                    val refreshToken = getString(KEY_PASSWORD)
+                    Log.d("AuthenticateFragment", "bundle=$this")
+                }
+            },
+            null
+        )
+    }
+
+    // endregion Methods
 
     // region Nested/inner classes
 
@@ -153,16 +195,32 @@ class AuthenticateFragment :
         val accountImage: AppCompatImageView = itemView.findViewById(R.id.account_image)
         val usernameText: AppCompatTextView = itemView.findViewById(R.id.username_text)
         val emailText: AppCompatTextView = itemView.findViewById(R.id.email_text)
-        var account: Account? = null
-            set(value) {
-                field = value
-                usernameText.text = value?.name
-                emailText.visibility = View.GONE
-            }
+        lateinit var account: Account
+
+        init {
+            itemView.setTag(R.id.account_view_holder, this)
+        }
+
+        fun bindAccount(account: Account) {
+            this.account = account
+            usernameText.text = account.name
+            emailText.visibility = View.GONE
+
+        }
+
+        companion object {
+
+            fun of(v: View?): AccountViewHolder? =
+                v?.getTag(R.id.account_view_holder) as? AccountViewHolder
+
+        }
     }
 
-    private class AccountAdapter(context: Context, val accountManager: AccountManager) :
-        RecyclerView.Adapter<AccountViewHolder>() {
+    private class AccountAdapter(
+        context: Context,
+        val accountManager: AccountManager,
+        val onClickListener: OnClickListener? = null
+    ) : RecyclerView.Adapter<AccountViewHolder>() {
 
         private val inflater: LayoutInflater = LayoutInflater.from(context)
 
@@ -173,14 +231,15 @@ class AuthenticateFragment :
         override fun getItemCount(): Int = accounts.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountViewHolder {
-            return AccountViewHolder(
-                inflater.inflate(R.layout.item_account, parent, false)
-            )
+            val itemView = inflater.inflate(R.layout.item_account, parent, false)
+            itemView.setOnClickListener(onClickListener)
+            return AccountViewHolder(itemView)
         }
 
         override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-            holder.account = if (position < accounts.size) accounts[position] else accounts[0]
+            holder.bindAccount(accounts[position])
         }
+
     }
 
     // endregion Nested/inner classers

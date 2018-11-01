@@ -18,7 +18,10 @@ package com.codepunk.core.ui.auth
 
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.AccountManager.*
+import android.accounts.AccountManager.KEY_ACCOUNT_NAME
+import android.accounts.AccountManager.KEY_ACCOUNT_TYPE
+import android.accounts.AccountManager.KEY_AUTHTOKEN
+import android.accounts.AccountManager.KEY_PASSWORD
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -38,11 +41,11 @@ import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
 import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
-import com.codepunk.core.util.EXTRA_CONFIRM_CREDENTIALS
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
+import retrofit2.Response
 import javax.inject.Inject
 
 private const val NO_ACTION: Int = -1
@@ -51,7 +54,7 @@ private const val NO_ACTION: Int = -1
  * An Activity that handles all actions relating to creating, selecting, and authenticating
  * an account.
  */
-class AuthenticatorActivity :
+class AuthenticateActivity :
     AccountAuthenticatorAppCompatActivity(),
     HasSupportFragmentInjector {
 
@@ -98,11 +101,6 @@ class AuthenticatorActivity :
      */
     private var initialAction: Int = NO_ACTION
 
-    /**
-     * TODO
-     */
-    private var confirmCredentials: Boolean = false
-
     // endregion Properties
 
     // region Lifecycle methods
@@ -116,16 +114,13 @@ class AuthenticatorActivity :
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
-// TODO        username = intent.getStringExtra(EXTRA_USERNAME)
-        confirmCredentials = intent.getBooleanExtra(EXTRA_CONFIRM_CREDENTIALS, false)
-
-        var navController =
-            Navigation.findNavController(this, R.id.account_nav_fragment)
         initialAction = intent.getIntExtra(EXTRA_AUTHENTICATOR_INITIAL_ACTION, initialAction)
+        val navController = Navigation.findNavController(this, R.id.account_nav_fragment)
         if (initialAction == NO_ACTION) {
             setupActionBarWithNavController(navController)
         } else {
-            val navOptions = NavOptions.Builder().setPopUpTo(R.id.fragment_authenticate, true)
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.fragment_authenticate, true)
                 .build()
             navController.navigate(initialAction, null, navOptions)
             navController.addOnNavigatedListener { _, destination ->
@@ -133,7 +128,8 @@ class AuthenticatorActivity :
             }
         }
 
-        authViewModel.authData.observe(this, Observer { update -> onAuthUpdate(update) })
+        authViewModel.authData.observe(this, Observer { onAccessTokenUpdate(it) })
+//        authViewModel.authAccountData.observe(this, Observer { onAuthUpdate(it) })
     }
 
     // endregion Lifecycle methods
@@ -142,6 +138,7 @@ class AuthenticatorActivity :
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        // TODO
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -163,8 +160,11 @@ class AuthenticatorActivity :
 
     // region Methods
 
+    // TODO This shouldn't happen here. Just catch a bundle instead.
+
+    /*
     fun onAuthUpdate(update: DataUpdate<ResponseMessage, AccessToken>) {
-        Log.d("AuthenticatorActivity", "update=$update")
+        Log.d("AuthenticateActivity", "update=$update")
         // TODO Tie back to AccountManager?
         when (update) {
             is LoadingUpdate -> {
@@ -186,6 +186,8 @@ class AuthenticatorActivity :
                         accountManager.setPassword(account, accessToken.refreshToken)
                     }
 
+                    // TODO THIS bundle is the goal. So maybe we do an observer on
+                    // a bundle from AuthViewModel?
                     accountAuthenticatorResult = Bundle().apply {
                         putString(KEY_ACCOUNT_NAME, authViewModel.email)
                         putString(KEY_ACCOUNT_TYPE, BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
@@ -209,6 +211,66 @@ class AuthenticatorActivity :
             is FailureUpdate -> {
                 // TODO Hide spinner
                 // TODO React to failure
+            }
+        }
+    }
+    */
+
+    fun onAccessTokenUpdate(update: DataUpdate<ResponseMessage, AccessToken>) {
+
+        // TODO Loading dialog (show and hide)
+        // TODO Add or update account
+        // TODO Finish when successful
+
+        val response = when (update) {
+            is SuccessUpdate -> update.response
+            is FailureUpdate -> update.response
+            else -> null
+        }
+        val httpStatus = when (response) {
+            null -> null
+            else -> HttpStatus.lookup(response.code())
+        }
+        Log.d(
+            "AuthenticateActivity",
+            "onAccessTokenUpdate: httpStatus=$httpStatus, response=$response, update=$update"
+        )
+    }
+
+    fun onAuthUpdate(update: DataUpdate<Void, Pair<Account, AccessToken>>) {
+        when (update) {
+            is LoadingUpdate -> {
+                // TODO Show spinner/dialog
+            }
+            is SuccessUpdate -> {
+                // TODO Hide spinner/dialog
+                update.result?.apply {
+                    val account = first
+                    val accessToken = second
+                    accountAuthenticatorResult = Bundle().apply {
+                        putString(KEY_ACCOUNT_NAME, authViewModel.email)
+                        putString(KEY_ACCOUNT_TYPE, BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
+                        putString(KEY_AUTHTOKEN, accessToken.accessToken)
+                        putString(KEY_PASSWORD, accessToken.refreshToken)
+                    }
+                    setResult(
+                        RESULT_OK,
+                        Intent().apply {
+                            putExtra(
+                                BuildConfig.KEY_ACCOUNT_AUTHENTICATOR_RESULT,
+                                accountAuthenticatorResult
+                            ) // TODO Can I capture this some other way?
+                            putExtra(BuildConfig.KEY_ACCOUNT, account)
+                        }
+                    )
+                    finish()
+                } ?: apply {
+                    // TODO error? Null update.result??
+                }
+            }
+            is FailureUpdate -> {
+                // TODO Hide spinner/dialog
+                // TODO Show message
             }
         }
     }

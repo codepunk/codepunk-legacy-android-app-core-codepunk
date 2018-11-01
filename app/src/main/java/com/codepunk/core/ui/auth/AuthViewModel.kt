@@ -16,23 +16,27 @@
 
 package com.codepunk.core.ui.auth
 
+import android.accounts.Account
 import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.os.AsyncTask
-import androidx.lifecycle.*
+import android.os.Bundle
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.data.model.User
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.repository.UserRepository
 import com.codepunk.core.lib.DataTask
+import com.codepunk.core.lib.DataTask2
 import com.codepunk.core.lib.DataUpdate
-import com.codepunk.core.lib.HttpStatus
+import com.codepunk.core.lib.HttpStatusEnum
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 /**
@@ -68,26 +72,12 @@ class AuthViewModel @Inject constructor(
     // region Properties
 
     /**
-     * A [LiveData] that will serve as the trigger to attempt to authenticate the user.
-     */
-    private val attemptAuthenticate = MutableLiveData<Boolean>()
-
-    /**
      * A [LiveData] holding the [AccessToken] information relating to the current authorization
      * attempt.
      */
     val authData = MediatorLiveData<DataUpdate<ResponseMessage, AccessToken>>()
 
-    /**
-     * The [LiveData] that will hold the result of user authentication.
-     */
-    val userData: LiveData<DataUpdate<User, User>> = Transformations
-        .switchMap(attemptAuthenticate) {
-            when (it) {
-                true -> userRepository.authenticate()
-                else -> null
-            }
-        }
+    val authAccountData = MediatorLiveData<DataUpdate<Void, Pair<Account, AccessToken>>>()
 
     lateinit var username: String
 
@@ -100,33 +90,62 @@ class AuthViewModel @Inject constructor(
     // region Methods
 
     /**
-     * Tries to authenticate the user.
+     * Authenticates using username (or email) and password.
      */
-    fun authenticate() {
-        // Get a list of accounts from AccountManager
-//        accountManager.getAccountsByType()
-
-        // First, see if we saved an account name
-        sharedPreferences.getString(BuildConfig.PREF_KEY_CURRENT_ACCOUNT_NAME, null)?.run {
-
-        } ?: run {
-            ""
+    @SuppressLint("StaticFieldLeak")
+    fun authenticate2(usernameOrEmail: String, password: String) {
+        val task = object : DataTask2<Void, ResponseMessage, AccessToken>() {
+            override fun doInBackground(vararg params: Void?):
+                    DataUpdate<ResponseMessage, AccessToken> {
+                return generateUpdate(authWebservice.getAuthToken(usernameOrEmail, password))
+            }
         }
-
-        attemptAuthenticate.value = true
+        authData.addSource(task.fetchOnExecutor()) { authData.value = it }
     }
 
+    /**
+     * Authenticates using username (or email) and password.
+     */
+    @SuppressLint("StaticFieldLeak")
+    fun authenticate(usernameOrEmail: String, password: String) {
+        val task = object : DataTask<Void, Void, Pair<Account, AccessToken>>() {
+            override fun doInBackground(vararg params: Void?): Pair<Account, AccessToken>? {
+                val response =
+                    authWebservice.getAuthToken(usernameOrEmail, password).execute()
+                return when {
+                    response.isSuccessful -> {
+                        val accessToken =
+                            response.body() ?: throw IllegalStateException()
+                        val account =
+                            Account(usernameOrEmail, BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
+                        addOrUpdateAccount(accountManager, account, accessToken.refreshToken)
+                        Pair(account, accessToken)
+                    }
+                    else -> fail(message = HttpStatusEnum.descriptionOf(response?.code()))
+                }
+            }
+        }
+        authAccountData.addSource(task.fetchOnExecutor()) { authAccountData.value = it }
+    }
+
+    /*
     /**
      * Authenticates using email and password.
      */
     @SuppressLint("StaticFieldLeak")
-    fun authenticate(email: String, password: String) {
+    fun authenticateOld(email: String, password: String) {
         val authenticateData =
             object : DataTask<Void, ResponseMessage, AccessToken>() {
                 override fun doInBackground(vararg params: Void?): AccessToken? =
                     handleCall(authWebservice.getAuthToken(email, password))
-            }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            }.fetchOnExecutor()
         authData.addSource(authenticateData) { authData.value = it }
+    }
+    */
+
+    @SuppressLint("StaticFieldLeak")
+    fun register(username: String, email: String, password: String) {
+        // TODO NEXT !!!!!!
     }
 
     /**
@@ -134,7 +153,7 @@ class AuthViewModel @Inject constructor(
      * need to respond to the activation email.
      */
     @SuppressLint("StaticFieldLeak")
-    fun register(username: String, email: String, password: String) {
+    fun registerOld(username: String, email: String, password: String) {
         val registerData =
             object : DataTask<Void, ResponseMessage, AccessToken>() {
                 override fun doInBackground(vararg params: Void?): AccessToken? {
@@ -147,7 +166,7 @@ class AuthViewModel @Inject constructor(
                                     else -> publishProgress(message)
                                 }
                                 if (!isSuccessful) {
-                                    return fail(message = HttpStatus.descriptionOf(code()))
+                                    return fail(message = HttpStatusEnum.descriptionOf(code()))
                                 }
                             }
 
@@ -162,7 +181,7 @@ class AuthViewModel @Inject constructor(
                     }
                 }
 
-            }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            }.fetchOnExecutor()
         authData.addSource(registerData) { authData.value = it }
     }
 
@@ -186,6 +205,17 @@ class AuthViewModel @Inject constructor(
                         arrayOf()
                     ).convert(this)
                 }
+            }
+        }
+
+        private fun addOrUpdateAccount(
+            accountManager: AccountManager,
+            account: Account,
+            password: String,
+            userdata: Bundle? = null
+        ) {
+            if (!accountManager.addAccountExplicitly(account, password, userdata)) {
+                accountManager.setPassword(account, password)
             }
         }
 

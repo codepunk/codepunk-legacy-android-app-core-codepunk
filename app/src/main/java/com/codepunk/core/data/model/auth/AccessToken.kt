@@ -16,6 +16,7 @@
 
 package com.codepunk.core.data.model.auth
 
+import android.os.Bundle
 import com.squareup.moshi.Json
 
 /**
@@ -37,12 +38,6 @@ data class AccessToken(
     val tokenType: AccessTokenType,
 
     /**
-     * The number of seconds until the access token expires.
-     */
-    @field:Json(name = "expires_in")
-    val expiresIn: Long,
-
-    /**
      * A long string of characters that serves as a credential used to access protected resources.
      */
     @field:Json(name = "access_token")
@@ -52,6 +47,30 @@ data class AccessToken(
      * A token which allows the app to fetch a new access token when the old one expires.
      */
     @field:Json(name = "refresh_token")
-    val refreshToken: String
+    val refreshToken: String,
 
-)
+    /**
+     * The number of seconds until the access token expires.
+     */
+    @field:Json(name = "expires_in")
+    val expiresIn: Long = UNKNOWN
+
+) {
+
+    // region Companion object
+
+    companion object {
+
+        // region Properties
+
+        /**
+         * A constant indicating an unknown "expires in" value.
+         */
+        const val UNKNOWN: Long = -1L
+
+        // endregion Properties
+
+    }
+
+    // endregion Companion object
+}

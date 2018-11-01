@@ -18,11 +18,12 @@ package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.FragmentScope
 import com.codepunk.core.ui.auth.*
+import com.codepunk.core.ui.auth.AuthenticateFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 /**
- * A [Module] for injecting dependencies into [AuthenticatorActivity].
+ * A [Module] for injecting dependencies into [AuthenticateActivity].
  */
 @Module
 abstract class AuthenticateActivityModule {

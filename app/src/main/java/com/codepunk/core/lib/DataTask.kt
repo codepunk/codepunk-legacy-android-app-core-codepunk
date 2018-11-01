@@ -84,7 +84,7 @@ abstract class DataTask<Params, Progress, Result> :
      * Updates [liveData] with a [SuccessUpdate] instance describing the result of this task.
      */
     override fun onPostExecute(result: Result?) {
-        liveData.value = SuccessUpdate(result, response)
+        liveData.value = SuccessUpdate(result /*, response*/)
     }
 
     /**
@@ -92,7 +92,7 @@ abstract class DataTask<Params, Progress, Result> :
      * failed or was cancelled.
      */
     override fun onCancelled(result: Result?) {
-        liveData.value = FailureUpdate(result, response, e)
+        liveData.value = FailureUpdate(result, /*response,*/ e)
     }
 
     // endregion Inherited methods
@@ -115,7 +115,7 @@ abstract class DataTask<Params, Progress, Result> :
      * observation.
      */
     fun fetchOnExecutor(
-        exec: Executor,
+        exec: Executor = AsyncTask.THREAD_POOL_EXECUTOR,
         vararg params: Params
     ): LiveData<DataUpdate<Progress, Result>> {
         executeOnExecutor(exec, *params)
@@ -171,11 +171,7 @@ abstract class DataTask<Params, Progress, Result> :
      */
     fun failWithException(
         response: Response<Result>? = null,
-        e: Exception = CancellationException(
-            response?.code()?.let { code ->
-                HttpStatus.descriptionOf(code)
-            }
-        ),
+        e: Exception = CancellationException(HttpStatusEnum.descriptionOf(response?.code())),
         result: Result? = response?.body(),
         mayInterruptIfRunning: Boolean = true
     ): Result? {
@@ -209,9 +205,7 @@ abstract class DataTask<Params, Progress, Result> :
      */
     fun fail(
         response: Response<Result>? = null,
-        message: String? = response?.code()?.let { code ->
-            HttpStatus.descriptionOf(code)
-        },
+        message: String? = HttpStatusEnum.descriptionOf(response?.code()),
         result: Result? = response?.body(),
         mayInterruptIfRunning: Boolean = true
     ): Result? = failWithException(

@@ -18,8 +18,6 @@ package com.codepunk.core.ui.main
 
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.AccountManagerCallback
-import android.accounts.AccountManagerFuture
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences

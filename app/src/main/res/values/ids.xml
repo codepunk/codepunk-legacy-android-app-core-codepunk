@@ -16,6 +16,10 @@
   -->
 
 <resources>
+
+    <!-- Used for key in View.setTag(key, tag) -->
+    <item name="account_view_holder" type="id" />
+
     <item name="account_image" type="id" />
     <item name="confirm_password_edit" type="id" />
     <item name="confirm_password_layout" type="id" />
@@ -29,4 +33,5 @@
     <item name="username_edit" type="id" />
     <item name="username_layout" type="id" />
     <item name="username_text" type="id" />
+
 </resources>

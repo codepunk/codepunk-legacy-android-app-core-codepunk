@@ -155,13 +155,21 @@ class LogInFragment :
 //                    authViewModel.username = usernameEdit.text.toString()
                         authViewModel.email = emailEdit.text.toString()
                         authViewModel.password = passwordEdit.text.toString()
-                        if (validate()) {
+
+                        authViewModel.authenticate2(
+                            emailEdit.text.toString(),
+                            passwordEdit.text.toString()
+                        )
+
+                        /*
+//                        if (validate()) {
                             authViewModel.authenticate(
 //                                usernameEdit.text.toString(),
                                 emailEdit.text.toString(),
                                 passwordEdit.text.toString()
                             )
-                        }
+//                        }
+                        */
                     }
                 }
             }
