@@ -156,7 +156,7 @@ class LogInFragment :
                         authViewModel.email = emailEdit.text.toString()
                         authViewModel.password = passwordEdit.text.toString()
 
-                        authViewModel.authenticate2(
+                        authViewModel.authenticate(
                             emailEdit.text.toString(),
                             passwordEdit.text.toString()
                         )

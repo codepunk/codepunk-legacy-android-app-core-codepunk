@@ -29,10 +29,7 @@ import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.repository.UserRepository
-import com.codepunk.core.lib.DataTask
-import com.codepunk.core.lib.DataTask2
-import com.codepunk.core.lib.DataUpdate
-import com.codepunk.core.lib.HttpStatusEnum
+import com.codepunk.core.lib.*
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
@@ -93,12 +90,11 @@ class AuthViewModel @Inject constructor(
      * Authenticates using username (or email) and password.
      */
     @SuppressLint("StaticFieldLeak")
-    fun authenticate2(usernameOrEmail: String, password: String) {
-        val task = object : DataTask2<Void, ResponseMessage, AccessToken>() {
+    fun authenticate(usernameOrEmail: String, password: String) {
+        val task = object : DataTask<Void, ResponseMessage, AccessToken>() {
             override fun doInBackground(vararg params: Void?):
-                    DataUpdate<ResponseMessage, AccessToken> {
-                return generateUpdate(authWebservice.getAuthToken(usernameOrEmail, password))
-            }
+                    DataUpdate<ResponseMessage, AccessToken> =
+                authWebservice.getAuthToken(usernameOrEmail, password).toDataUpdate()
         }
         authData.addSource(task.fetchOnExecutor()) { authData.value = it }
     }
@@ -107,8 +103,8 @@ class AuthViewModel @Inject constructor(
      * Authenticates using username (or email) and password.
      */
     @SuppressLint("StaticFieldLeak")
-    fun authenticate(usernameOrEmail: String, password: String) {
-        val task = object : DataTask<Void, Void, Pair<Account, AccessToken>>() {
+    fun authenticateOld(usernameOrEmail: String, password: String) {
+        val task = object : DataTaskOld<Void, Void, Pair<Account, AccessToken>>() {
             override fun doInBackground(vararg params: Void?): Pair<Account, AccessToken>? {
                 val response =
                     authWebservice.getAuthToken(usernameOrEmail, password).execute()
@@ -135,7 +131,7 @@ class AuthViewModel @Inject constructor(
     @SuppressLint("StaticFieldLeak")
     fun authenticateOld(email: String, password: String) {
         val authenticateData =
-            object : DataTask<Void, ResponseMessage, AccessToken>() {
+            object : DataTaskOld<Void, ResponseMessage, AccessToken>() {
                 override fun doInBackground(vararg params: Void?): AccessToken? =
                     handleCall(authWebservice.getAuthToken(email, password))
             }.fetchOnExecutor()
@@ -155,7 +151,7 @@ class AuthViewModel @Inject constructor(
     @SuppressLint("StaticFieldLeak")
     fun registerOld(username: String, email: String, password: String) {
         val registerData =
-            object : DataTask<Void, ResponseMessage, AccessToken>() {
+            object : DataTaskOld<Void, ResponseMessage, AccessToken>() {
                 override fun doInBackground(vararg params: Void?): AccessToken? {
                     try {
                         authWebservice.register(username, email, password, password).execute()
@@ -224,5 +220,11 @@ class AuthViewModel @Inject constructor(
     }
 
     // endregion Companion object
+
+    // region Nested/inner classes
+
+
+
+    // endregion Nested/inner classes
 
 }

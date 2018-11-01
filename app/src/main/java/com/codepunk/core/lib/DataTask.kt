@@ -19,10 +19,6 @@ package com.codepunk.core.lib
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import retrofit2.Call
-import retrofit2.Response
-import java.io.IOException
-import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 
 /**
@@ -30,24 +26,15 @@ import java.util.concurrent.Executor
  * sealed class and sets it to a [MutableLiveData] instance.
  */
 abstract class DataTask<Params, Progress, Result> :
-    AsyncTask<Params, Progress?, Result?>() {
+    AsyncTask<Params, Progress?, DataUpdate<Progress, Result>>() {
 
     // region Properties
 
     /**
      * A [LiveData] that will contain progress, results, or exceptions related to this task.
      */
-    private val liveData = MutableLiveData<DataUpdate<Progress, Result>>()
-
-    /**
-     * An optional [Response] that was obtained while executing this task.
-     */
-    protected var response: Response<Result>? = null
-
-    /**
-     * Any [Exception] encountered while executing this task.
-     */
-    protected lateinit var e: Exception
+    @Suppress("WEAKER_ACCESS")
+    val liveData = MutableLiveData<DataUpdate<Progress, Result>>()
 
     // endregion Properties
 
@@ -81,18 +68,17 @@ abstract class DataTask<Params, Progress, Result> :
     }
 
     /**
-     * Updates [liveData] with a [SuccessUpdate] instance describing the result of this task.
+     * Updates [liveData] with the result from [doInBackground].
      */
-    override fun onPostExecute(result: Result?) {
-        liveData.value = SuccessUpdate(result /*, response*/)
+    override fun onPostExecute(result: DataUpdate<Progress, Result>?) {
+        liveData.value = result
     }
 
     /**
-     * Updates [liveData] with a [FailureUpdate] instance describing the reason(s) the task
-     * failed or was cancelled.
+     * Updates [liveData] with the result from [doInBackground] if the task was cancelled.
      */
-    override fun onCancelled(result: Result?) {
-        liveData.value = FailureUpdate(result, /*response,*/ e)
+    override fun onCancelled(result: DataUpdate<Progress, Result>?) {
+        liveData.value = result
     }
 
     // endregion Inherited methods
@@ -114,132 +100,13 @@ abstract class DataTask<Params, Progress, Result> :
      * this task on the supplied [Executor] [exec] with [params] and returns [liveData] for
      * observation.
      */
+    @Suppress("UNUSED")
     fun fetchOnExecutor(
         exec: Executor = AsyncTask.THREAD_POOL_EXECUTOR,
         vararg params: Params
     ): LiveData<DataUpdate<Progress, Result>> {
         executeOnExecutor(exec, *params)
         return liveData
-    }
-
-    /**
-     * Convenience method for returning from [doInBackground]. Saves the [response] and returns
-     * the supplied [result].
-     *
-     * This allows for concise code such as the following:
-     *
-     * ```kotlin
-     * override fun doInBackground(vararg params: Void?): User? {
-     *     return try {
-     *         myWebservice.getMyData().execute().run {
-     *             when {
-     *                 isSuccessful -> succeed(body(), this)
-     *                 else -> fail(null, this)
-     *             }
-     *         }
-     *     } catch (e: IOException) {
-     *         fail(null, null, e)
-     *     }
-     * }
-     * ```
-     */
-    fun succeed(response: Response<Result>?, result: Result? = response?.body()): Result? {
-        this.response = response
-        return result
-    }
-
-    /**
-     * Convenience method for handling errors in [doInBackground]. Cancels the DataTask, optionally
-     * saving the [response] and an exception [e] and returning the supplied [result].
-     *
-     * This allows for concise code such as the following:
-     *
-     * ```kotlin
-     * override fun doInBackground(vararg params: Void?): User? {
-     *     return try {
-     *         myWebservice.getMyData().execute().run {
-     *             when {
-     *                 isSuccessful -> succeed(body(), this)
-     *                 else -> fail(null, this)
-     *             }
-     *         }
-     *     } catch (e: IOException) {
-     *         fail(null, null, e)
-     *     }
-     * }
-     * ```
-     */
-    fun failWithException(
-        response: Response<Result>? = null,
-        e: Exception = CancellationException(HttpStatusEnum.descriptionOf(response?.code())),
-        result: Result? = response?.body(),
-        mayInterruptIfRunning: Boolean = true
-    ): Result? {
-        this.e = e
-        this.response = response
-        cancel(mayInterruptIfRunning)
-        return result
-    }
-
-    /**
-     * Convenience method for handling errors in [doInBackground]. Cancels the DataTask, optionally
-     * saving the [response] and a CancellationException with [message], and returning the supplied
-     * [result].
-     *
-     * This allows for concise code such as the following:
-     *
-     * ```kotlin
-     * override fun doInBackground(vararg params: Void?): User? {
-     *     return try {
-     *         myWebservice.getMyData().execute().run {
-     *             when {
-     *                 isSuccessful -> succeed(this)
-     *                 else -> fail(this)
-     *             }
-     *         }
-     *     } catch (e: IOException) {
-     *         fail(e = e)
-     *     }
-     * }
-     * ```
-     */
-    fun fail(
-        response: Response<Result>? = null,
-        message: String? = HttpStatusEnum.descriptionOf(response?.code()),
-        result: Result? = response?.body(),
-        mayInterruptIfRunning: Boolean = true
-    ): Result? = failWithException(
-        response,
-        CancellationException(message),
-        result,
-        mayInterruptIfRunning
-    )
-
-    /**
-     * Convenience method for handling errors in [doInBackground]. Further encapsulates the logic
-     * in [succeed] and [fail].
-     *
-     * This allows for ultra-concise code such as the following:
-     *
-     * ```kotlin
-     * override fun doInBackground(vararg params: Void?): User? =
-     *     handleCall(myWebservice.getMyData())
-     * ```
-     */
-    fun handleCall(call: Call<Result>, mayInterruptIfRunning: Boolean = true): Result? {
-        return try {
-            call.execute().run {
-                when {
-                    isSuccessful -> succeed(this)
-                    else -> fail(
-                        response = this,
-                        mayInterruptIfRunning = mayInterruptIfRunning
-                    )
-                }
-            }
-        } catch (e: IOException) {
-            failWithException(e = e, mayInterruptIfRunning = mayInterruptIfRunning)
-        }
     }
 
     // endregion Methods
