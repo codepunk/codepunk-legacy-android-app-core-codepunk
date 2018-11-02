@@ -21,6 +21,7 @@ import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -34,6 +35,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
 import java.lang.IllegalStateException
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -74,8 +76,6 @@ class AuthViewModel @Inject constructor(
      */
     val authData = MediatorLiveData<DataUpdate<ResponseMessage, AccessToken>>()
 
-    val authAccountData = MediatorLiveData<DataUpdate<Void, Pair<Account, AccessToken>>>()
-
     lateinit var username: String
 
     lateinit var email: String
@@ -99,6 +99,7 @@ class AuthViewModel @Inject constructor(
         authData.addSource(task.fetchOnExecutor()) { authData.value = it }
     }
 
+    /*
     /**
      * Authenticates using username (or email) and password.
      */
@@ -123,62 +124,31 @@ class AuthViewModel @Inject constructor(
         }
         authAccountData.addSource(task.fetchOnExecutor()) { authAccountData.value = it }
     }
-
-    /*
-    /**
-     * Authenticates using email and password.
-     */
-    @SuppressLint("StaticFieldLeak")
-    fun authenticateOld(email: String, password: String) {
-        val authenticateData =
-            object : DataTaskOld<Void, ResponseMessage, AccessToken>() {
-                override fun doInBackground(vararg params: Void?): AccessToken? =
-                    handleCall(authWebservice.getAuthToken(email, password))
-            }.fetchOnExecutor()
-        authData.addSource(authenticateData) { authData.value = it }
-    }
     */
 
-    @SuppressLint("StaticFieldLeak")
-    fun register(username: String, email: String, password: String) {
-        // TODO NEXT !!!!!!
-    }
-
     /**
-     * Creates a new account. Note that this account will not be activated as the user will still
-     * need to respond to the activation email.
+     * Registers a new user. Note that this user will not be activated as the user will
+     * still need to respond to the activation email.
      */
     @SuppressLint("StaticFieldLeak")
-    fun registerOld(username: String, email: String, password: String) {
-        val registerData =
-            object : DataTaskOld<Void, ResponseMessage, AccessToken>() {
-                override fun doInBackground(vararg params: Void?): AccessToken? {
-                    try {
-                        authWebservice.register(username, email, password, password).execute()
-                            .apply {
-                                val message = toMessage(this, retrofit)
-                                when (message) {
-                                    null -> publishProgress()
-                                    else -> publishProgress(message)
-                                }
-                                if (!isSuccessful) {
-                                    return fail(message = HttpStatusEnum.descriptionOf(code()))
-                                }
-                            }
-
-                        return authWebservice.getAuthToken(email, password).execute().run {
-                            when {
-                                isSuccessful -> succeed(this)
-                                else -> fail(this)
-                            }
+    fun register(username: String, email: String, password: String) {
+        val authTokenTask =
+            object : DataTask<Void, ResponseMessage, AccessToken>() {
+                override fun doInBackground(vararg params: Void?):
+                        DataUpdate<ResponseMessage, AccessToken> {
+                    val update: DataUpdate<Void, ResponseMessage> =
+                        authWebservice.register(username, email, password, password).toDataUpdate()
+                    return when (update) {
+                        is SuccessUpdate -> {
+                            publishProgress(update.result)
+                            authWebservice.getAuthToken(email, password).toDataUpdate()
                         }
-                    } catch (e: IOException) {
-                        return failWithException(e = e)
+                        is FailureUpdate -> FailureUpdate(e = update.e)
+                        else -> FailureUpdate()
                     }
                 }
-
-            }.fetchOnExecutor()
-        authData.addSource(registerData) { authData.value = it }
+            }
+        authData.addSource(authTokenTask.fetchOnExecutor()) { authData.value = it }
     }
 
     // endregion methods
@@ -222,7 +192,6 @@ class AuthViewModel @Inject constructor(
     // endregion Companion object
 
     // region Nested/inner classes
-
 
 
     // endregion Nested/inner classes

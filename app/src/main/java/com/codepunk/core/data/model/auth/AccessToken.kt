@@ -16,7 +16,6 @@
 
 package com.codepunk.core.data.model.auth
 
-import android.os.Bundle
 import com.squareup.moshi.Json
 
 /**
@@ -57,11 +56,25 @@ data class AccessToken(
 
 ) {
 
+    // region Inherited methods
+
+    /**
+     * A version of [toString] that truncates [accessToken] and [refreshToken].
+     */
+    override fun toString(): String {
+        return "AccessToken(tokenType=$tokenType, accessToken='${ellipsize(accessToken)}', " +
+                "refreshToken='${ellipsize(refreshToken)}', expiresIn=$expiresIn)"
+    }
+
+    // endregion Inherited methods
+
     // region Companion object
 
     companion object {
 
         // region Properties
+
+        private const val ELLIPSIZE_LENGTH: Int = 10
 
         /**
          * A constant indicating an unknown "expires in" value.
@@ -69,6 +82,17 @@ data class AccessToken(
         const val UNKNOWN: Long = -1L
 
         // endregion Properties
+
+        // region Methods
+
+        private fun ellipsize(string: String, length: Int = ELLIPSIZE_LENGTH): String {
+            return when (string.length) {
+                in 0..length -> string
+                else -> string.substring(0 until (length - 1)) + "…"
+            }
+        }
+
+        // endregion Methods
 
     }
 

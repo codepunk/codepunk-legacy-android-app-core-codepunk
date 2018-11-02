@@ -16,12 +16,7 @@
 
 package com.codepunk.core.ui.auth
 
-import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.AccountManager.KEY_ACCOUNT_NAME
-import android.accounts.AccountManager.KEY_ACCOUNT_TYPE
-import android.accounts.AccountManager.KEY_AUTHTOKEN
-import android.accounts.AccountManager.KEY_PASSWORD
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -34,7 +29,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
 import androidx.navigation.ui.setupActionBarWithNavController
-import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
@@ -45,7 +39,6 @@ import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
-import retrofit2.Response
 import javax.inject.Inject
 
 private const val NO_ACTION: Int = -1
@@ -129,7 +122,6 @@ class AuthenticateActivity :
         }
 
         authViewModel.authData.observe(this, Observer { onAccessTokenUpdate(it) })
-//        authViewModel.authAccountData.observe(this, Observer { onAuthUpdate(it) })
     }
 
     // endregion Lifecycle methods
@@ -159,8 +151,6 @@ class AuthenticateActivity :
     // endregion Implemented methods
 
     // region Methods
-
-    // TODO This shouldn't happen here. Just catch a bundle instead.
 
     /*
     fun onAuthUpdate(update: DataUpdate<ResponseMessage, AccessToken>) {
@@ -233,10 +223,11 @@ class AuthenticateActivity :
         }
         Log.d(
             "AuthenticateActivity",
-            "onAccessTokenUpdate: httpStatus=$httpStatus, response=$response, update=$update"
+            "onAccessTokenUpdate: httpStatus=$httpStatus, update=$update"
         )
     }
 
+    /*
     fun onAuthUpdate(update: DataUpdate<Void, Pair<Account, AccessToken>>) {
         when (update) {
             is LoadingUpdate -> {
@@ -274,6 +265,7 @@ class AuthenticateActivity :
             }
         }
     }
+    */
 
     // endregion Methods
 

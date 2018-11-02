@@ -22,8 +22,9 @@ import androidx.lifecycle.LiveData
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
 import com.codepunk.core.data.remote.webservice.UserWebservice
-import com.codepunk.core.lib.DataTaskOld
+import com.codepunk.core.lib.DataTask
 import com.codepunk.core.lib.DataUpdate
+import com.codepunk.core.lib.toDataUpdate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -69,11 +70,11 @@ class UserRepository @Inject constructor(
      */
     @SuppressLint("StaticFieldLeak")
     fun authenticate(): LiveData<DataUpdate<User, User>> {
-        return object : DataTaskOld<Void, User, User>() {
+        return object : DataTask<Void, User, User>() {
 
             // TODO I still want to include getting locally-stored user from db here
-            override fun doInBackground(vararg params: Void?): User? =
-                handleCall(userWebservice.getUser())
+            override fun doInBackground(vararg params: Void?): DataUpdate<User, User>? =
+                userWebservice.getUser().toDataUpdate()
 
         }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
