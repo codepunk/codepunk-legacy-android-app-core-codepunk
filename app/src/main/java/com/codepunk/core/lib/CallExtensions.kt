@@ -16,6 +16,7 @@
 
 package com.codepunk.core.lib
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import retrofit2.Call
 import retrofit2.Response
@@ -36,13 +37,14 @@ import java.io.IOException
  * DataUpdate<Void, User>. This value will be stored in the DataTask's [LiveData], which can be
  * observed from an Activity or other observer.
  */
-fun <Progress, Result> Call<Result>.toDataUpdate(): DataUpdate<Progress, Result> {
+fun <Progress, Result> Call<Result>.toDataUpdate(data: Bundle? = null):
+        DataUpdate<Progress, Result> {
     return try {
         val response = execute()
         when {
             response.isSuccessful ->
                 SuccessUpdate<Progress, Result>(response.body(), response)
-            else -> FailureUpdate(
+            else -> FailureUpdate( // TODO Try to process response.errorBody()?.string()? Or can I just do that in the observer?
                 response.body(),
                 HttpStatusException(response.code()),
                 response

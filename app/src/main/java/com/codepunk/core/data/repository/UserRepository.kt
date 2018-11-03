@@ -73,7 +73,7 @@ class UserRepository @Inject constructor(
         return object : DataTask<Void, User, User>() {
 
             // TODO I still want to include getting locally-stored user from db here
-            override fun doInBackground(vararg params: Void?): DataUpdate<User, User>? =
+            override fun generateUpdate(vararg params: Void?): DataUpdate<User, User> =
                 userWebservice.getUser().toDataUpdate()
 
         }.fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)

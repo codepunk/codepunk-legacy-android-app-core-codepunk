@@ -26,7 +26,7 @@ import java.util.concurrent.Executor
  * sealed class and sets it to a [MutableLiveData] instance.
  */
 abstract class DataTask<Params, Progress, Result> :
-    AsyncTask<Params, Progress?, DataUpdate<Progress, Result>>() {
+    AsyncTask<Params, Progress, DataUpdate<Progress, Result>>() {
 
     // region Properties
 
@@ -35,36 +35,33 @@ abstract class DataTask<Params, Progress, Result> :
      */
     @Suppress("WEAKER_ACCESS")
     val liveData = MutableLiveData<DataUpdate<Progress, Result>>()
+        .apply {
+            value = PendingUpdate()
+        }
 
     // endregion Properties
-
-    // region Constructors
-
-    /**
-     * Sets liveData value to PendingUpdate by default. Most observers will choose to ignore this
-     * state.
-     */
-    init {
-        liveData.value = PendingUpdate()
-    }
-
-    // endregion Constructors
 
     // region Inherited methods
 
     /**
      * Publishes progress without any data. This will initialize the value in [liveData] to
-     * an empty [LoadingUpdate] instance.
+     * an empty [ProgressUpdate] instance.
      */
     override fun onPreExecute() {
         onProgressUpdate()
     }
 
     /**
-     * Updates [liveData] with a [LoadingUpdate] instance describing this task's progress.
+     * Calls the abstract method [generateUpdate] to produce the return value for the data task.
+     */
+    override fun doInBackground(vararg params: Params): DataUpdate<Progress, Result> =
+        generateUpdate(*params)
+
+    /**
+     * Updates [liveData] with a [ProgressUpdate] instance describing this task's progress.
      */
     override fun onProgressUpdate(vararg values: Progress?) {
-        liveData.value = LoadingUpdate(values)
+        liveData.value = ProgressUpdate(values)
     }
 
     /**
@@ -84,6 +81,11 @@ abstract class DataTask<Params, Progress, Result> :
     // endregion Inherited methods
 
     // region Methods
+
+    /**
+     * Used to generate a [DataUpdate] using the passed [params] in descendants of this class.
+     */
+    abstract fun generateUpdate(vararg params: Params?): DataUpdate<Progress, Result>
 
     /**
      * Convenience method for executing this task and getting the results as [LiveData]. Executes

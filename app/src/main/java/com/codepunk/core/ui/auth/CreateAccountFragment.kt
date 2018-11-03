@@ -165,9 +165,6 @@ class CreateAccountFragment :
         with(binding) {
             when (v) {
                 createBtn -> {
-                    authViewModel.username = usernameEdit.text.toString()
-                    authViewModel.email = emailEdit.text.toString()
-                    authViewModel.password = passwordEdit.text.toString()
                     if (validate()) {
                         authViewModel.register(
                             usernameEdit.text.toString(),

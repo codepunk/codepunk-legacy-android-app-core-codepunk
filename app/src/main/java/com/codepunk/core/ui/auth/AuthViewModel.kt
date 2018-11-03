@@ -16,26 +16,21 @@
 
 package com.codepunk.core.ui.auth
 
-import android.accounts.Account
 import android.accounts.AccountManager
+import android.accounts.AccountManager.*
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
-import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
-import com.codepunk.core.data.repository.UserRepository
 import com.codepunk.core.lib.*
 import retrofit2.Response
 import retrofit2.Retrofit
-import java.io.IOException
-import java.lang.IllegalStateException
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -43,28 +38,10 @@ import javax.inject.Inject
  */
 class AuthViewModel @Inject constructor(
 
-    private val retrofit: Retrofit,
-
     /**
      * The authorization webservice.
      */
-    private val authWebservice: AuthWebservice,
-
-    /**
-     * The repository for accessing and manipulating user-related data.
-     */
-    private val userRepository: UserRepository,
-
-    /**
-     * The application shared preferences.
-     */
-    private val sharedPreferences: SharedPreferences,
-
-    /**
-     * The Android [AccountManager].
-     */
-    @Suppress("UNUSED")
-    private val accountManager: AccountManager
+    private val authWebservice: AuthWebservice
 
 ) : ViewModel() {
 
@@ -74,57 +51,61 @@ class AuthViewModel @Inject constructor(
      * A [LiveData] holding the [AccessToken] information relating to the current authorization
      * attempt.
      */
-    val authData = MediatorLiveData<DataUpdate<ResponseMessage, AccessToken>>()
-
-    lateinit var username: String
-
-    lateinit var email: String
-
-    lateinit var password: String
+    val accessTokenDataUpdate = MediatorLiveData<DataUpdate<ResponseMessage, AccessToken>>()
 
     // endregion Properties
 
     // region Methods
 
     /**
-     * Authenticates using username (or email) and password.
+     * Synchronously calls the getAuthToken endpoint and adds a [Bundle] needed by the
+     * [AccountManager].
+     *
      */
-    @SuppressLint("StaticFieldLeak")
-    fun authenticate(usernameOrEmail: String, password: String) {
-        val task = object : DataTask<Void, ResponseMessage, AccessToken>() {
-            override fun doInBackground(vararg params: Void?):
-                    DataUpdate<ResponseMessage, AccessToken> =
-                authWebservice.getAuthToken(usernameOrEmail, password).toDataUpdate()
+    @WorkerThread
+    private fun getAuthToken(
+        username: String,
+        email: String,
+        password: String
+    ): DataUpdate<ResponseMessage, AccessToken> {
+        // Call the getAuthToken endpoint
+        val authTokenUpdate: DataUpdate<ResponseMessage, AccessToken> =
+            authWebservice.getAuthToken(email, password).toDataUpdate()
+
+        // Process the getAuthToken endpoint result
+        when (authTokenUpdate) {
+            is SuccessUpdate -> {
+                // If we got a successful AccessToken, add (or update) the
+                // account in the AccountManager and pass a bundle back with
+                // relevant account information
+                authTokenUpdate.result?.let {
+                    authTokenUpdate.data = Bundle().apply {
+                        putString(KEY_ACCOUNT_NAME, username)
+                        putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
+                        putString(KEY_AUTHTOKEN, it.accessToken)
+                        putString(KEY_PASSWORD, it.refreshToken)
+                    }
+                }
+            }
         }
-        authData.addSource(task.fetchOnExecutor()) { authData.value = it }
+        return authTokenUpdate
     }
 
-    /*
     /**
      * Authenticates using username (or email) and password.
      */
     @SuppressLint("StaticFieldLeak")
-    fun authenticateOld(usernameOrEmail: String, password: String) {
-        val task = object : DataTaskOld<Void, Void, Pair<Account, AccessToken>>() {
-            override fun doInBackground(vararg params: Void?): Pair<Account, AccessToken>? {
-                val response =
-                    authWebservice.getAuthToken(usernameOrEmail, password).execute()
-                return when {
-                    response.isSuccessful -> {
-                        val accessToken =
-                            response.body() ?: throw IllegalStateException()
-                        val account =
-                            Account(usernameOrEmail, BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
-                        addOrUpdateAccount(accountManager, account, accessToken.refreshToken)
-                        Pair(account, accessToken)
-                    }
-                    else -> fail(message = HttpStatusEnum.descriptionOf(response?.code()))
-                }
-            }
+    fun authenticate(email: String, password: String) {
+        // TODO I need to get the username from email! (Or vice versa)
+        val task = object : DataTask<Void, ResponseMessage, AccessToken>() {
+            override fun generateUpdate(vararg params: Void?):
+                    DataUpdate<ResponseMessage, AccessToken> =
+                getAuthToken(email, email, password)
         }
-        authAccountData.addSource(task.fetchOnExecutor()) { authAccountData.value = it }
+        accessTokenDataUpdate.addSource(task.fetchOnExecutor()) {
+            accessTokenDataUpdate.value = it
+        }
     }
-    */
 
     /**
      * Registers a new user. Note that this user will not be activated as the user will
@@ -132,23 +113,27 @@ class AuthViewModel @Inject constructor(
      */
     @SuppressLint("StaticFieldLeak")
     fun register(username: String, email: String, password: String) {
-        val authTokenTask =
-            object : DataTask<Void, ResponseMessage, AccessToken>() {
-                override fun doInBackground(vararg params: Void?):
-                        DataUpdate<ResponseMessage, AccessToken> {
-                    val update: DataUpdate<Void, ResponseMessage> =
-                        authWebservice.register(username, email, password, password).toDataUpdate()
-                    return when (update) {
-                        is SuccessUpdate -> {
-                            publishProgress(update.result)
-                            authWebservice.getAuthToken(email, password).toDataUpdate()
-                        }
-                        is FailureUpdate -> FailureUpdate(e = update.e)
-                        else -> FailureUpdate()
+        val task = object : DataTask<Void, ResponseMessage, AccessToken>() {
+            override fun generateUpdate(vararg params: Void?):
+                    DataUpdate<ResponseMessage, AccessToken> {
+                // First, call the register endpoint
+                val update: DataUpdate<Void, ResponseMessage> =
+                    authWebservice.register(username, email, password, password).toDataUpdate()
+
+                // Process the register endpoint result
+                return when (update) {
+                    is SuccessUpdate -> {
+                        publishProgress(update.result)
+                        getAuthToken(username, email, password)
                     }
+                    is FailureUpdate -> FailureUpdate(e = update.e)
+                    else -> FailureUpdate()
                 }
             }
-        authData.addSource(authTokenTask.fetchOnExecutor()) { authData.value = it }
+        }
+        accessTokenDataUpdate.addSource(task.fetchOnExecutor()) {
+            accessTokenDataUpdate.value = it
+        }
     }
 
     // endregion methods
@@ -174,26 +159,10 @@ class AuthViewModel @Inject constructor(
             }
         }
 
-        private fun addOrUpdateAccount(
-            accountManager: AccountManager,
-            account: Account,
-            password: String,
-            userdata: Bundle? = null
-        ) {
-            if (!accountManager.addAccountExplicitly(account, password, userdata)) {
-                accountManager.setPassword(account, password)
-            }
-        }
-
         // endregion Methods
 
     }
 
     // endregion Companion object
-
-    // region Nested/inner classes
-
-
-    // endregion Nested/inner classes
 
 }

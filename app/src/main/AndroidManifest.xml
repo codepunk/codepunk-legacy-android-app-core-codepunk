@@ -41,7 +41,8 @@
 
         <activity
             android:name=".ui.auth.AuthenticateActivity"
-            android:label="@string/app_account">
+            android:label="@string/app_account"
+            android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="com.codepunk.core.debug.action.ACCOUNT"/>
 

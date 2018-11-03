@@ -16,6 +16,7 @@
 
 package com.codepunk.core.lib
 
+import android.os.Bundle
 import retrofit2.Response
 import java.lang.Exception
 import java.util.*
@@ -24,37 +25,17 @@ import java.util.*
  * A sealed class representing the various possible updates from a [DataTask].
  */
 @Suppress("UNUSED")
-sealed class DataUpdate<Progress, Result> : HashMap<String, Any>()
+sealed class DataUpdate<Progress, Result>
 
 /**
  * A [DataUpdate] representing a pending task (i.e. a task that has not been executed yet).
  */
-class PendingUpdate<Progress, Result> : DataUpdate<Progress, Result>() {
-
-    // region Inherited methods
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return true
-    }
-
-    override fun hashCode(): Int = javaClass.hashCode()
-
-    override fun toString(): String = "${javaClass.simpleName}(map=${super.toString()})"
-
-    // endregion Inherited methods
-}
-
-/**
- * A [DataUpdate] representing a running task (i.e. a task that is running).
- */
-class LoadingUpdate<Progress, Result>(
+class PendingUpdate<Progress, Result>(
 
     /**
-     * The values indicating progress of the task.
+     * Optional additional data to send along with the update.
      */
-    val progress: Array<out Progress?>
+    var data: Bundle? = null
 
 ) : DataUpdate<Progress, Result>() {
 
@@ -64,17 +45,61 @@ class LoadingUpdate<Progress, Result>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as LoadingUpdate<*, *>
+        other as PendingUpdate<*, *>
 
-        if (!Arrays.equals(progress, other.progress)) return false
+        if (data != other.data) return false
 
         return true
     }
 
-    override fun hashCode(): Int = Arrays.hashCode(progress)
+    override fun hashCode(): Int {
+        return data?.hashCode() ?: 0
+    }
+
+    override fun toString(): String = "${javaClass.simpleName}(data=$data)"
+
+    // endregion Inherited methods
+}
+
+/**
+ * A [DataUpdate] representing a task that is currently in progress (i.e. a running task).
+ */
+class ProgressUpdate<Progress, Result>(
+
+    /**
+     * The values indicating progress of the task.
+     */
+    val progress: Array<out Progress?>,
+
+    /**
+     * Optional additional data to send along with the update.
+     */
+    var data: Bundle? = null
+
+) : DataUpdate<Progress, Result>() {
+
+    // region Inherited methods
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ProgressUpdate<*, *>
+
+        if (!progress.contentEquals(other.progress)) return false
+        if (data != other.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = progress.contentHashCode()
+        result = 31 * result + (data?.hashCode() ?: 0)
+        return result
+    }
 
     override fun toString(): String = javaClass.simpleName +
-            "(progress=${Arrays.toString(progress)}, map=${super.toString()})"
+            "(progress=${Arrays.toString(progress)}, data=$data)"
 
     // endregion Inherited methods
 
@@ -94,7 +119,12 @@ class SuccessUpdate<Progress, Result>(
     /**
      * The [Response] that resulted in this update.
      */
-    val response: Response<Result>? = null
+    val response: Response<Result>? = null,
+
+    /**
+     * Optional additional data to send along with the update.
+     */
+    var data: Bundle? = null
 
 ) : DataUpdate<Progress, Result>() {
 
@@ -103,32 +133,32 @@ class SuccessUpdate<Progress, Result>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
 
         other as SuccessUpdate<*, *>
 
         if (result != other.result) return false
         if (response != other.response) return false
+        if (data != other.data) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result1 = super.hashCode()
-        result1 = 31 * result1 + (result?.hashCode() ?: 0)
+        var result1 = result?.hashCode() ?: 0
         result1 = 31 * result1 + (response?.hashCode() ?: 0)
+        result1 = 31 * result1 + (data?.hashCode() ?: 0)
         return result1
     }
 
     override fun toString(): String =
-        "${javaClass.simpleName}(result=$result, response=$response, map=${super.toString()})"
+        "${javaClass.simpleName}(result=$result, response=$response, data=$data)"
 
     // endregion Inherited methods
 
 }
 
 /**
- * A [DataUpdate] representing a cancelled task (i.e. a task that was cancelled or experienced
+ * A [DataUpdate] representing a failed task (i.e. a task that was cancelled or experienced
  * some other sort of error during execution).
  */
 class FailureUpdate<Progress, Result>(
@@ -146,7 +176,12 @@ class FailureUpdate<Progress, Result>(
     /**
      * The [Response] that resulted in this update.
      */
-    val response: Response<Result>? = null
+    val response: Response<Result>? = null,
+
+    /**
+     * Optional additional data to send along with the update.
+     */
+    var data: Bundle? = null
 
 ) : DataUpdate<Progress, Result>() {
 
@@ -155,27 +190,27 @@ class FailureUpdate<Progress, Result>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
 
         other as FailureUpdate<*, *>
 
         if (result != other.result) return false
         if (e != other.e) return false
         if (response != other.response) return false
+        if (data != other.data) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result1 = super.hashCode()
-        result1 = 31 * result1 + (result?.hashCode() ?: 0)
+        var result1 = result?.hashCode() ?: 0
         result1 = 31 * result1 + (e?.hashCode() ?: 0)
         result1 = 31 * result1 + (response?.hashCode() ?: 0)
+        result1 = 31 * result1 + (data?.hashCode() ?: 0)
         return result1
     }
 
     override fun toString(): String =
-        "${javaClass.simpleName}(result=$result, response=$response, e=$e, map=${super.toString()})"
+        "${javaClass.simpleName}(result=$result, response=$response, e=$e, data=$data)"
 
     // endregion Inherited methods
 
