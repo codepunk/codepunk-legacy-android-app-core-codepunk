@@ -19,66 +19,72 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        android:paddingLeft="@dimen/margin_horizontal"
-        android:paddingStart="@dimen/margin_horizontal"
-        android:paddingTop="@dimen/margin_vertical"
-        android:paddingRight="@dimen/margin_horizontal"
-        android:paddingEnd="@dimen/margin_horizontal"
-        android:paddingBottom="@dimen/margin_vertical"
-        tools:context="com.codepunk.core.ui.auth.LogInFragment">
+        android:background="@color/colorPrimary">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@id/email_layout"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:errorEnabled="true"
-            app:hintEnabled="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:paddingLeft="@dimen/margin_horizontal"
+            android:paddingStart="@dimen/margin_horizontal"
+            android:paddingTop="@dimen/margin_vertical"
+            android:paddingRight="@dimen/margin_horizontal"
+            android:paddingEnd="@dimen/margin_horizontal"
+            android:paddingBottom="@dimen/margin_vertical"
+            tools:context="com.codepunk.core.ui.auth.LogInFragment">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@id/email_edit"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@id/email_layout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/authenticator_email"/>
+                app:errorEnabled="true"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@id/email_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/authenticator_username_or_email"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@id/password_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_standard"
-            app:errorEnabled="true"
-            app:hintEnabled="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/email_layout"
-            app:passwordToggleEnabled="true">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@id/password_edit"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@id/password_layout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/authenticator_password"
-                android:inputType="textPassword"/>
+                android:layout_marginTop="@dimen/margin_standard"
+                app:errorEnabled="true"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/email_layout"
+                app:passwordToggleEnabled="true">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@id/password_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/authenticator_password"
+                    android:inputType="textPassword"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@id/login_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_standard"
-            android:text="@string/authenticator_log_in"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/password_layout"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@id/login_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_standard"
+                android:text="@string/authenticator_log_in"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/password_layout"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 
 </layout>

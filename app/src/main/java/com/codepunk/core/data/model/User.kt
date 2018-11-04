@@ -28,20 +28,29 @@ data class User(
     /**
      * The user id.
      */
-    @field:Json(name = "id")
     val id: Long,
 
     /**
-     * The user's name.
+     * The username.
      */
-    @field:Json(name = "name")
-    val name: String,
+    val username: String,
 
     /**
      * The user's email.
      */
-    @field:Json(name = "email")
     val email: String,
+
+    /**
+     * The user's family name.
+     */
+    @field:Json(name = "family_name")
+    val familyName: String,
+
+    /**
+     * The user's given name.
+     */
+    @field:Json(name = "given_name")
+    val givenName: String,
 
     /**
      * Whether the user is active.

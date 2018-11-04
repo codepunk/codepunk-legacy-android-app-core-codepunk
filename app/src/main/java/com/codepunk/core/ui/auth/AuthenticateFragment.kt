@@ -224,6 +224,7 @@ class AuthenticateFragment :
 
         private val inflater: LayoutInflater = LayoutInflater.from(context)
 
+        // TODO This should come from a ViewModel and auto-update/refresh
         private val accounts: Array<Account>
             get() = accountManager.getAccountsByType(BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)
                 ?: arrayOf()

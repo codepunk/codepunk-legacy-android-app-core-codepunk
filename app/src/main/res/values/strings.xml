@@ -43,6 +43,8 @@
 
     <string name="authenticator_email">Email</string>
 
+    <string name="authenticator_username_or_email">Username or email</string>
+
     <string name="authenticator_password">Password</string>
 
     <string name="authenticator_choose_account">Choose an account</string>

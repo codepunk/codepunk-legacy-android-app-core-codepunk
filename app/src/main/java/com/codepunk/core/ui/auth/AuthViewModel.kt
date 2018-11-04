@@ -20,14 +20,18 @@ import android.accounts.AccountManager
 import android.accounts.AccountManager.*
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Patterns
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
+import com.codepunk.core.data.model.User
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
 import com.codepunk.core.data.remote.webservice.AuthWebservice
+import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.lib.*
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -41,7 +45,17 @@ class AuthViewModel @Inject constructor(
     /**
      * The authorization webservice.
      */
-    private val authWebservice: AuthWebservice
+    private val authWebservice: AuthWebservice,
+
+    /**
+     * The user webserverice.
+     */
+    private val userWebservice: UserWebservice,
+
+    /**
+     * The authorization interception, which handles adding access tokens to API requests.
+     */
+    private val authorizationInterceptor: AuthorizationInterceptor
 
 ) : ViewModel() {
 
@@ -64,13 +78,12 @@ class AuthViewModel @Inject constructor(
      */
     @WorkerThread
     private fun getAuthToken(
-        username: String,
-        email: String,
+        usernameOrEmail: String,
         password: String
     ): DataUpdate<ResponseMessage, AccessToken> {
         // Call the getAuthToken endpoint
         val authTokenUpdate: DataUpdate<ResponseMessage, AccessToken> =
-            authWebservice.getAuthToken(email, password).toDataUpdate()
+            authWebservice.getAuthToken(usernameOrEmail, password).toDataUpdate()
 
         // Process the getAuthToken endpoint result
         when (authTokenUpdate) {
@@ -79,6 +92,25 @@ class AuthViewModel @Inject constructor(
                 // account in the AccountManager and pass a bundle back with
                 // relevant account information
                 authTokenUpdate.result?.let {
+                    // Set the auth token in authorizationInterceptor
+                    authorizationInterceptor.accessToken = it.accessToken
+
+                    val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
+                    val username = when (isEmail) {
+                        true -> {
+                            val userUpdate: DataUpdate<Void, User> =
+                                userWebservice.getUser().toDataUpdate()
+                            // TODO TEMP -- we need to fetch username here
+                            when (userUpdate) {
+                                is SuccessUpdate -> userUpdate.result?.username
+                                    ?: return FailureUpdate() // TODO ??
+                                is FailureUpdate -> return FailureUpdate() // TODO
+                                else -> return FailureUpdate() // TODO
+                            }
+                        }
+                        false -> usernameOrEmail
+                    }
+
                     authTokenUpdate.data = Bundle().apply {
                         putString(KEY_ACCOUNT_NAME, username)
                         putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
@@ -95,12 +127,11 @@ class AuthViewModel @Inject constructor(
      * Authenticates using username (or email) and password.
      */
     @SuppressLint("StaticFieldLeak")
-    fun authenticate(email: String, password: String) {
-        // TODO I need to get the username from email! (Or vice versa)
+    fun authenticate(usernameOrEmail: String, password: String) {
         val task = object : DataTask<Void, ResponseMessage, AccessToken>() {
             override fun generateUpdate(vararg params: Void?):
                     DataUpdate<ResponseMessage, AccessToken> =
-                getAuthToken(email, email, password)
+                getAuthToken(usernameOrEmail, password)
         }
         accessTokenDataUpdate.addSource(task.fetchOnExecutor()) {
             accessTokenDataUpdate.value = it
@@ -124,7 +155,7 @@ class AuthViewModel @Inject constructor(
                 return when (update) {
                     is SuccessUpdate -> {
                         publishProgress(update.result)
-                        getAuthToken(username, email, password)
+                        getAuthToken(username, password)
                     }
                     is FailureUpdate -> FailureUpdate(e = update.e)
                     else -> FailureUpdate()
