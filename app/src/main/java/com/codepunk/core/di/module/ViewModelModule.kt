@@ -21,6 +21,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.codepunk.core.di.key.ViewModelKey
 import com.codepunk.core.ui.auth.AuthViewModel
 import com.codepunk.core.di.provider.InjectingViewModelFactory
+import com.codepunk.core.ui.settings.DeveloperOptionsSettingsViewModel
+import com.codepunk.core.ui.settings.MainSettingsViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -39,7 +41,25 @@ interface ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(AuthViewModel::class)
-    fun bindRepoViewModel(repoViewModel: AuthViewModel): ViewModel
+    fun bindAuthViewModel(authViewModel: AuthViewModel): ViewModel
+
+    /**
+     * Binds an instance of [MainSettingsViewModel] to this [Module] for dependency injection.
+     */
+    @Binds
+    @IntoMap
+    @ViewModelKey(MainSettingsViewModel::class)
+    fun bindMainSettingsViewModel(authViewModel: MainSettingsViewModel): ViewModel
+
+    /**
+     * Binds an instance of [DeveloperOptionsSettingsViewModel] to this [Module] for dependency
+     * injection.
+     */
+    @Binds
+    @IntoMap
+    @ViewModelKey(DeveloperOptionsSettingsViewModel::class)
+    fun bindDeveloperOptionsSettingsViewModel(authViewModel: DeveloperOptionsSettingsViewModel):
+            ViewModel
 
     /**
      * Binds an instance of [InjectingViewModelFactory] to this [Module] for dependency injection.

@@ -15,17 +15,12 @@
   ~ limitations under the License.
   -->
 
-<androidx.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--
-    ~ NOTE: For some reason, preferences of class type Preference will not get picked up
-    ~ when calling PreferenceManager.setDefaultValues. It seems to require one of the
-    ~ subclasses of Preference.
-    -->
-    <androidx.preference.ListPreference
-        android:key="@string/pref_key_current_remote_environment"
-        android:title="Remote Environment"
-        android:defaultValue="@string/default_remote_environment_value" />
+    <item android:id="@+id/menu_settings"
+          android:title="@string/menu_settings_title"
+          android:icon="@android:drawable/ic_menu_preferences"
+          app:showAsAction="never" />
 
-</androidx.preference.PreferenceScreen>
+</menu>

@@ -43,6 +43,7 @@ versions.android_gradle_plugin = "3.4.0-alpha02"
 versions.android_testing_support_library = "1.1.0-alpha4"
 versions.androidx_legacy = "1.0.0"
 versions.android_support = "28.0.0"
+versions.apache_codec = "1.11"
 versions.app_compat = "1.0.0-rc01"
 versions.constraint_layout = "1.1.2"
 versions.dagger = "2.15"
@@ -69,6 +70,10 @@ deps.androidx = androidx
 def android = [:]
 android.animated_vector_drawable = "com.android.support:animated-vector-drawable:${versions.android_support}"
 deps.android = android
+
+def apache = [:]
+apache.codec = "commons-codec:commons-codec:${versions.apache_codec}"
+deps.apache = apache
 
 def atsl = [:]
 atsl.runner = "com.android.support.test:runner:${versions.android_testing_support_library}"

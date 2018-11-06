@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/*
+ * TODO NEXT:
+ * Clean EVERY. SINGLE. New file just added. Clear those warnings!
+ * Add DI to all new Settings screens/logic
+ * Add "Logout" to Main Settings screen
+ */
+
 package com.codepunk.core.ui.main
 
 import android.accounts.Account
@@ -23,6 +30,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.codepunk.core.BuildConfig.*
@@ -107,7 +116,7 @@ class MainActivity :
                         // We didn't have a saved account
                         // If there's more than one, open AuthenticateActivity with chooser
                         startActivityForResult(
-                            Intent(ACTION_ACCOUNT),
+                            Intent(ACTION_AUTHORIZATION),
                             ACCOUNT_REQUIRED_REQUEST_CODE
                         )
                     }
@@ -153,6 +162,27 @@ class MainActivity :
                 RESULT_CANCELED -> Log.d("MainActivity", "resultCode=RESULT_CANCELED")
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    /**
+     * Creates the main options menu.
+     */
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    /**
+     * Handles the various menu options.
+     */
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.menu_settings -> {
+                startActivity(Intent(ACTION_SETTINGS))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

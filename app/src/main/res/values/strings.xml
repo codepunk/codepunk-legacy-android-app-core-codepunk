@@ -23,11 +23,23 @@
 
     <!-- region Application -->
 
-    <string name="app_name">Codepunk</string>
-
     <string name="app_account">Account</string>
 
+    <string name="app_disabled">Disabled</string>
+
+    <string name="app_enabled">Enabled</string>
+
+    <string name="app_name">Codepunk</string>
+
+    <string name="app_settings">Settings</string>
+
     <!-- endregion Application -->
+
+    <!-- region Menus -->
+
+    <string name="menu_settings_title">Settings</string>
+
+    <!-- endregion Menus -->
 
     <!-- region Authenticator -->
 
@@ -60,6 +72,8 @@
     <string name="authenticator_sent_email">We sent you an activation code! Please check your e-mail.</string>
 
     <string name="authenticator_error_username">Enter a valid username</string>
+
+    <string name="authenticator_error_username_or_email">Enter a valid username or email</string>
 
     <string name="authenticator_error_email">Enter a valid email</string>
 
@@ -94,6 +108,36 @@
     <string name="account_label_log_in">Log in</string>
 
     <!-- endregion Accounts -->
+
+    <!-- region Settings -->
+
+    <string name="settings_about_summary">Version %s</string>
+
+    <string name="settings_about_title">About</string>
+
+    <string name="settings_developer_options_disable_dialog_message">All connections will be reset and the app will revert to the launch screen.</string>
+
+    <string name="settings_developer_options_disable_dialog_title">Disable developer options?</string>
+
+    <string name="settings_developer_options_incorrect_password">Incorrect password</string>
+
+    <string name="settings_developer_options_password_dialog_message">Enter the password to enable developer options:</string>
+
+    <string name="settings_developer_options_password_dialog_title">Developer password</string>
+
+    <string name="settings_developer_options_password_hint">Password</string>
+
+    <string name="settings_developer_options_redundant_show_request">No need, developer options are already unlocked</string>
+
+    <string name="settings_developer_options_steps_from_unlocking">You are now %d steps away from unlocking developer options!</string>
+
+    <string name="settings_label_developer_options">Developer options</string>
+
+    <string name="settings_label_main">Settings</string>
+
+    <string name="settings_remote_environment_title">Remote environment</string>
+
+    <!-- endregion Settings -->
 
     <!-- region Temporary -->
 

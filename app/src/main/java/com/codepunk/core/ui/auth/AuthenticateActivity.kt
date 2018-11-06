@@ -58,6 +58,11 @@ class AuthenticateActivity :
 
     // region Properties
 
+    /**
+     * Performs dependency injection on fragments.
+     */
+    @Inject
+    lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     /**
      * The Android account manage.
@@ -66,29 +71,22 @@ class AuthenticateActivity :
     lateinit var accountManager: AccountManager
 
     /**
-     * Performs dependency injection on fragments.
-     */
-    @Inject
-    lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-
-    /**
      * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
-     * The binding for this activity.
-     */
-    private lateinit var binding: ActivityAuthenticateBinding
-
-    /**
      * An instance of [AuthViewModel] for managing account-related data.
      */
-    @Suppress("UNUSED")
     private val authViewModel: AuthViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(AuthViewModel::class.java)
     }
+
+    /**
+     * The binding for this activity.
+     */
+    private lateinit var binding: ActivityAuthenticateBinding
 
     /**
      * The current username.

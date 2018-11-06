@@ -101,8 +101,8 @@ class LogInFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            addTextInputLayouts(emailLayout, passwordLayout)
-            addRequiredFields(emailEdit, passwordEdit)
+            addTextInputLayouts(usernameOrEmailLayout, passwordLayout)
+            addRequiredFields(usernameOrEmailEdit, passwordEdit)
             loginBtn.setOnClickListener(this@LogInFragment)
         }
     }
@@ -128,10 +128,17 @@ class LogInFragment :
         super.validate()
         with(binding) {
             return when {
+                TextUtils.isEmpty(usernameOrEmailEdit.text) -> {
+                    usernameOrEmailLayout.error =
+                            getString(R.string.authenticator_error_username_or_email)
+                    false
+                }
+                /*
                 !Patterns.EMAIL_ADDRESS.matcher(emailEdit.text).matches() -> {
                     emailLayout.error = getString(R.string.authenticator_error_email)
                     false
                 }
+                */
                 TextUtils.isEmpty(passwordEdit.text) -> {
                     passwordLayout.error = getString(R.string.authenticator_error_password)
                     false
@@ -153,7 +160,7 @@ class LogInFragment :
                 loginBtn -> {
                     if (validate()) {
                         authViewModel.authenticate(
-                            emailEdit.text.toString(),
+                            usernameOrEmailEdit.text.toString(),
                             passwordEdit.text.toString()
                         )
                     }

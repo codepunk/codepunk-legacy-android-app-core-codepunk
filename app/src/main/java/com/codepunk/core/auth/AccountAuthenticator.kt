@@ -21,6 +21,7 @@ import android.accounts.Account
 import android.accounts.AccountAuthenticatorResponse
 import android.accounts.AccountManager
 import android.accounts.AccountManager.*
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -51,13 +52,12 @@ class AccountAuthenticator @Inject constructor(
     @ApplicationContext private val context: Context,
 
     /**
-     * TODO
+     * The Android [AccountManager].
      */
-    private val accountManager: AccountManager, // Note that even though we're not using context
-    // to get the accountManager instance, it should be the same since it's @ApplicationContext.
+    private val accountManager: AccountManager,
 
     /**
-     * TODO
+     * The auth webservice.
      */
     private val authWebservice: AuthWebservice
 
@@ -65,6 +65,9 @@ class AccountAuthenticator @Inject constructor(
 
     // region Inherited methods
 
+    /**
+     * Adds an account of the specified accountType.
+     */
     override fun addAccount(
         response: AccountAuthenticatorResponse?,
         accountType: String?,
@@ -75,7 +78,7 @@ class AccountAuthenticator @Inject constructor(
         return Bundle().apply {
             putParcelable(
                 KEY_INTENT,
-                Intent(BuildConfig.ACTION_ACCOUNT).apply {
+                Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
                     putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                     putExtra(
                         EXTRA_AUTHENTICATOR_INITIAL_ACTION,
@@ -87,6 +90,9 @@ class AccountAuthenticator @Inject constructor(
         }
     }
 
+    /**
+     * Checks that the user knows the credentials of an account.
+     */
     override fun confirmCredentials(
         response: AccountAuthenticatorResponse?,
         account: Account?,
@@ -96,6 +102,11 @@ class AccountAuthenticator @Inject constructor(
         return null
     }
 
+    /**
+     * Returns a [Bundle] that contains the [Intent] of the activity that can be used to edit the
+     * properties. In order to indicate success the activity should call
+     * [AccountAuthenticatorResponse.onResult] with a non-null Bundle.
+     */
     override fun editProperties(
         response: AccountAuthenticatorResponse?,
         accountType: String?
@@ -104,6 +115,11 @@ class AccountAuthenticator @Inject constructor(
         return null
     }
 
+    /**
+     * Gets an auth token for an account. If not null, the resultant [Bundle] will contain
+     * different sets of keys depending on whether a token was successfully issued and, if not,
+     * whether one could be issued via some [Activity].
+     */
     override fun getAuthToken(
         response: AccountAuthenticatorResponse?,
         account: Account?,
@@ -143,7 +159,7 @@ class AccountAuthenticator @Inject constructor(
                 // We were unable to get an auth token. We need the user to log in again.
                 putParcelable(
                     KEY_INTENT,
-                    Intent(BuildConfig.ACTION_ACCOUNT).apply {
+                    Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
                         putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                         putExtra(
                             EXTRA_AUTHENTICATOR_INITIAL_ACTION,
@@ -162,11 +178,17 @@ class AccountAuthenticator @Inject constructor(
         }
     }
 
+    /**
+     * Ask the authenticator for a localized label for the given authTokenType.
+     */
     override fun getAuthTokenLabel(authTokenType: String?): String {
         return AuthTokenType.lookup(authTokenType)?.getFriendlyName(context)
             ?: context.getString(R.string.authenticator_token_type_unknown)
     }
 
+    /**
+     * Checks if the account supports all the specified authenticator specific features.
+     */
     override fun hasFeatures(
         response: AccountAuthenticatorResponse?,
         account: Account?,
@@ -176,6 +198,9 @@ class AccountAuthenticator @Inject constructor(
         return null
     }
 
+    /**
+     * Update the locally stored credentials for an account.
+     */
     override fun updateCredentials(
         response: AccountAuthenticatorResponse?,
         account: Account?,

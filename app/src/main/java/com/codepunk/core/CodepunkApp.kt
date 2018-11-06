@@ -22,7 +22,7 @@ import android.app.Service
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.codepunk.core.BuildConfig.DEFAULT_REMOTE_ENVIRONMENT
-import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_REMOTE_ENVIRONMENT
+import com.codepunk.core.BuildConfig.PREF_KEY_REMOTE_ENVIRONMENT
 import com.codepunk.core.data.remote.RemoteEnvironment
 import com.codepunk.core.di.component.DaggerAppComponent
 import com.codepunk.core.util.getEnvironment
@@ -84,10 +84,10 @@ class CodepunkApp :
             .create(this)
             .inject(this)
 
-        remoteEnvironment = sharedPreferences.getEnvironment(PREF_KEY_CURRENT_REMOTE_ENVIRONMENT)
+        remoteEnvironment = sharedPreferences.getEnvironment(PREF_KEY_REMOTE_ENVIRONMENT)
                 ?: DEFAULT_REMOTE_ENVIRONMENT
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        PreferenceManager.setDefaultValues(this, R.xml.preferences_main, false)
+        PreferenceManager.setDefaultValues(this, R.xml.settings_main, false)
     }
 
     /**
@@ -116,15 +116,14 @@ class CodepunkApp :
     override fun serviceInjector(): AndroidInjector<Service> = serviceDispatchingAndroidInjector
 
     /**
-     * Sets [remoteEnvironment] to the value referenced in [PREF_KEY_CURRENT_REMOTE_ENVIRONMENT].
+     * Sets [remoteEnvironment] to the value referenced in [PREF_KEY_REMOTE_ENVIRONMENT].
      */
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         sharedPreferences?.apply {
             when (key) {
-                PREF_KEY_CURRENT_REMOTE_ENVIRONMENT ->
-                    remoteEnvironment = sharedPreferences.getEnvironment(
-                        PREF_KEY_CURRENT_REMOTE_ENVIRONMENT
-                    ) ?: DEFAULT_REMOTE_ENVIRONMENT
+                PREF_KEY_REMOTE_ENVIRONMENT ->
+                    remoteEnvironment = sharedPreferences.getEnvironment(key) ?:
+                            DEFAULT_REMOTE_ENVIRONMENT
             }
         }
     }

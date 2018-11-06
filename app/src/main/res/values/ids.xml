@@ -33,5 +33,7 @@
     <item name="username_edit" type="id" />
     <item name="username_layout" type="id" />
     <item name="username_text" type="id" />
+    <item name="username_or_email_edit" type="id" />
+    <item name="username_or_email_layout" type="id" />
 
 </resources>

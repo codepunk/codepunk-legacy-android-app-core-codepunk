@@ -19,6 +19,7 @@ package com.codepunk.core.di.module
 import com.codepunk.core.di.scope.ActivityScope
 import com.codepunk.core.ui.auth.AuthenticateActivity
 import com.codepunk.core.ui.main.MainActivity
+import com.codepunk.core.ui.settings.SettingsActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -31,18 +32,25 @@ interface ActivityBuildersModule {
     // region Methods
 
     /**
-     * Contributes an AndroidInjector to [MainActivity].
+     * Contributes an Android injector to [MainActivity].
      */
     @ActivityScope
     @ContributesAndroidInjector(modules = [MainActivityModule::class])
     fun contributeMainActivityInjector(): MainActivity
 
     /**
-     * Contributes an AndroidInjector to [AuthenticateActivity].
+     * Contributes an Android injector to [AuthenticateActivity].
      */
     @ActivityScope
     @ContributesAndroidInjector(modules = [AuthenticateActivityModule::class])
     fun contributeAuthenticateActivityInjector(): AuthenticateActivity
+
+    /**
+     * Contributes an Android injector to [SettingsActivity].
+     */
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [SettingsActivityModule::class])
+    fun contributesSettingsActivityInjector(): SettingsActivity
 
     // endregion Methods
 

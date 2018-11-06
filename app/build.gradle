@@ -81,9 +81,13 @@ android {
          */
         makePreferenceKeys(
                 variant,
-                "PREF_KEY_CURRENT_REMOTE_ENVIRONMENT",
-                "PREF_KEY_CURRENT_ACCOUNT_NAME",
-                "PREF_KEY_CURRENT_ACCOUNT_TYPE"
+                "ABOUT",
+                "CURRENT_ACCOUNT_NAME",
+                "CURRENT_ACCOUNT_TYPE",
+                "DEVELOPER_OPTIONS_AUTHENTICATED_HASH",
+                "DEVELOPER_OPTIONS_ENABLED",
+                "DEVELOPER_OPTIONS_UNLOCKED",
+                "REMOTE_ENVIRONMENT"
         )
 
         /*
@@ -92,8 +96,28 @@ android {
          */
         makeIntentActions(
                 variant,
-                "ACCOUNT",
+                "AUTHORIZATION",
+                "MAIN",
+                "SETTINGS"
+        )
+
+        /*
+         * Generate a set of intent categories that are accessible both as string resources
+         * and as BuildConfig constants.
+         */
+        makeIntentCategories(
+                variant,
+                "DEVELOPER",
                 "MAIN"
+        )
+
+        /*
+         * Generate a set of intent categories that are accessible both as string resources
+         * and as BuildConfig constants.
+         */
+        makeIntentExtras(
+                variant,
+                "DEVELOPER_OPTIONS_PASSWORD_HASH"
         )
 
         /*
@@ -141,6 +165,11 @@ android {
                 "\"${CodepunkProdClientSecretProp}\"" :
                 "/**** Define Codepunk Prod Client Secret ****/ \"\""
         variant.buildConfigField("String", "CODEPUNK_PROD_CLIENT_SECRET", codepunkProdClientSecretProp)
+
+        def developerOptionsPasswordHash = project.hasProperty("DeveloperOptionsPasswordHash") ?
+                "\"${DeveloperOptionsPasswordHash}\"" :
+                "/**** Define Developer Password Hash ****/ \"\""
+        variant.buildConfigField("String", "DEVELOPER_OPTIONS_PASSWORD_HASH", developerOptionsPasswordHash)
     }
 
     compileOptions {
@@ -166,6 +195,7 @@ dependencies {
     implementation rootProject.deps.androidx.constraint_layout
     implementation rootProject.deps.androidx.legacy
     implementation rootProject.deps.androidx.preference
+    implementation rootProject.deps.apache.codec
     implementation rootProject.deps.dagger.dagger
     implementation rootProject.deps.dagger.android
     implementation rootProject.deps.dagger.android_support
@@ -177,6 +207,8 @@ dependencies {
     implementation rootProject.deps.retrofit.runtime
     implementation rootProject.deps.retrofit.moshi
     // implementation rootProject.deps.retrofit.moshi_kotlin TODO Maybe not needed
+
+    implementation project(':doofenschmirtz')
 
     // See https://stackoverflow.com/questions/44989650/dagger2-cannot-access-nullable-javax-annotation-nullable-not-found
     // for why this is being included
@@ -217,25 +249,39 @@ static def makeKeys(BaseVariant variant, String... keys) {
 
 static def makePreferenceKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
-        def buildConfigValue = "\"${variant.applicationId}.$key\""
-        variant.buildConfigField("String", key, buildConfigValue)
+        def full_key = "PREF_KEY_$key"
+        def buildConfigValue = "\"${variant.applicationId}.$full_key\""
+        variant.buildConfigField("String", full_key, buildConfigValue)
 
-        def resourceName = key.toLowerCase(Locale.US)
-        def resourceValue = "${variant.applicationId}.$key"
+        def resourceName = full_key.toLowerCase(Locale.US)
+        def resourceValue = "${variant.applicationId}.$full_key"
         variant.resValue("string", resourceName, resourceValue)
     }
 }
 
-static def makeIntentActions(BaseVariant variant, String... actions) {
-    actions.each { action ->
-        def buildConfigName = "ACTION_$action"
-        def buildConfigValue = "\"${variant.applicationId}.action.$action\""
+static def makeIntentEntities(BaseVariant variant, String type, String... names) {
+    names.each { name ->
+        def lowerType = type.toLowerCase(Locale.US)
+        def buildConfigName = "${type}_$name"
+        def buildConfigValue = "\"${variant.applicationId}.intent.$lowerType.$name\""
         variant.buildConfigField("String", buildConfigName, buildConfigValue)
 
-        def resourceName = "intent_action_${action.toLowerCase(Locale.US)}"
-        def resourceValue = "${variant.applicationId}.action.$action"
+        def resourceName = "intent_${lowerType}_${name.toLowerCase(Locale.US)}"
+        def resourceValue = "${variant.applicationId}.intent.$lowerType.$name"
         variant.resValue("string", resourceName, resourceValue)
     }
+}
+
+static def makeIntentActions(BaseVariant variant, String... names) {
+    makeIntentEntities(variant, "ACTION", names)
+}
+
+static def makeIntentCategories(BaseVariant variant, String... names) {
+    makeIntentEntities(variant, "CATEGORY", names)
+}
+
+static def makeIntentExtras(BaseVariant variant, String... names) {
+    makeIntentEntities(variant, "EXTRA", names)
 }
 
 // endregion Methods
