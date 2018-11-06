@@ -28,6 +28,8 @@ import retrofit2.Call
  */
 class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
 
+    // region Inherited methods
+
     override fun getAuthToken(
         grantType: GrantType,
         clientId: String,
@@ -101,5 +103,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         password: String,
         passwordConfirmation: String
     ): Call<ResponseMessage> = base.register(name, email, password, passwordConfirmation)
+
+    // endregion Inherited methods
 
 }

@@ -26,7 +26,6 @@ import com.codepunk.core.data.remote.webservice.AuthWebserviceWrapper
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.squareup.moshi.Moshi
-//import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory TODO Maybe not needed
 import dagger.Module
 import dagger.Provides
 import okhttp3.Cache
@@ -109,7 +108,6 @@ class NetModule {
         booleanIntAdapter: BooleanIntAdapter,
         dateJsonAdapter: DateJsonAdapter
     ): Moshi = Moshi.Builder()
-        // .add(KotlinJsonAdapterFactory()) // TODO Maybe not needed
         .add(booleanIntAdapter)
         .add(Date::class.java, dateJsonAdapter)
         .build()

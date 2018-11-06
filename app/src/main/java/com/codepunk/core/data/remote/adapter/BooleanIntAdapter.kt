@@ -27,6 +27,8 @@ import javax.inject.Inject
 @Suppress("UNUSED")
 class BooleanIntAdapter @Inject constructor() {
 
+    // region Methods
+
     /**
      * Converts a boolean to a JSON integer.
      */
@@ -49,4 +51,7 @@ class BooleanIntAdapter @Inject constructor() {
             else -> true
         }
     }
+
+    // endregion Methods
+
 }

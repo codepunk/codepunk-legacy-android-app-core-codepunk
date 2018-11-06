@@ -31,6 +31,8 @@ enum class GrantType(
 
 ) {
 
+    // region Values
+
     /**
      * The authorization code grant type is used to obtain both access tokens and refresh
      * tokens and is optimized for confidential clients.
@@ -86,5 +88,7 @@ enum class GrantType(
      */
     @Json(name = "extensions")
     EXTENSIONS("extensions")
+
+    // endregion Values
 
 }

@@ -16,10 +16,20 @@
 
 package com.codepunk.core.data.model.http
 
+/**
+ * A response message from the server. This response contains a [message] string and
+ * optional [errors] detailing any issues discovered during the request.
+ */
 data class ResponseMessage(
 
+    /**
+     * A string message.
+     */
     val message: String,
 
+    /**
+     * Any errors that were discovered during the request.
+     */
     val errors: Map<String, Array<String>>? = null
 
 )

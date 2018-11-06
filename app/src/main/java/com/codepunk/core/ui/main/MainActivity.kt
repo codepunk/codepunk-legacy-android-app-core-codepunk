@@ -37,7 +37,6 @@ import androidx.fragment.app.Fragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.auth.getAccountByNameAndType
-import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.di.scope.ActivityScope
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -82,6 +81,7 @@ class MainActivity :
     /**
      * Sets the content view for the activity.
      */
+    @Suppress("UNUSED")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -122,6 +122,7 @@ class MainActivity :
                     }
                     else -> {
                         // We had a saved account
+                        /*
                         val future = accountManager.getAuthToken(
                             account,
                             AuthTokenType.DEFAULT.value,
@@ -133,6 +134,7 @@ class MainActivity :
                             },
                             null
                         )
+                        */
                     }
                 }
             }

@@ -16,15 +16,16 @@
 
 package com.codepunk.core.data.model.auth
 
+import android.accounts.AccountManager
+import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.squareup.moshi.Json
 
 /**
  * Data class representing an OAuth2 access token.
  *
  * Note that for the purposes of this application, "access token" refers to the token (and possibly
- * related information) we get from the network via [com.codepunk.core.data.remote.AuthWebservice].
- * "Auth token" refers the token information stored by Android via the
- * [android.accounts.AccountManager].
+ * related information) we get from the network via [AuthWebservice]. "Auth token" refers the token
+ * information stored by Android via the [AccountManager].
  */
 data class AccessToken(
 

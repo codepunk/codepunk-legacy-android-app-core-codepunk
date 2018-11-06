@@ -19,6 +19,7 @@ package com.codepunk.core.di.module
 import com.codepunk.core.di.scope.FragmentScope
 import com.codepunk.core.ui.settings.DeveloperOptionsSettingsFragment
 import com.codepunk.core.ui.settings.MainSettingsFragment
+import com.codepunk.core.ui.settings.SettingsActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -26,6 +27,9 @@ import dagger.android.ContributesAndroidInjector
  * Author(s): Scott Slater
  */
 
+/**
+ * A [Module] for injecting dependencies into [SettingsActivity].
+ */
 @Module
 abstract class SettingsActivityModule {
 

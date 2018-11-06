@@ -27,13 +27,9 @@ import javax.inject.Inject
  */
 class MainSettingsViewModel @Inject constructor(
 
-    /*
     /**
-     * The Codepunk application.
+     * The application [Context].
      */
-    val app: CodepunkApp
-    */
-
     @ApplicationContext val applicationContext: Context
 
 ) : ViewModel() {

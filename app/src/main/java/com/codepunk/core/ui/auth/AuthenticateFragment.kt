@@ -18,10 +18,6 @@ package com.codepunk.core.ui.auth
 
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.AccountManager.KEY_ACCOUNT_TYPE
-import android.accounts.AccountManager.KEY_ACCOUNT_NAME
-import android.accounts.AccountManager.KEY_AUTHTOKEN
-import android.accounts.AccountManager.KEY_PASSWORD
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -176,10 +172,12 @@ class AuthenticateFragment :
                 future.result.apply {
                     // This is the same bundle that AuthenticateActivity uses to set and finish
                     // in onAuthUpdate(). So how to just set it now?
+                    /*
                     val accountName = getString(KEY_ACCOUNT_NAME)
                     val accountType = getString(KEY_ACCOUNT_TYPE)
                     val authToken = getString(KEY_AUTHTOKEN)
                     val refreshToken = getString(KEY_PASSWORD)
+                    */
                     Log.d("AuthenticateFragment", "bundle=$this")
                 }
             },
@@ -192,6 +190,7 @@ class AuthenticateFragment :
     // region Nested/inner classes
 
     private class AccountViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        @Suppress("UNUSED")
         val accountImage: AppCompatImageView = itemView.findViewById(R.id.account_image)
         val usernameText: AppCompatTextView = itemView.findViewById(R.id.username_text)
         val emailText: AppCompatTextView = itemView.findViewById(R.id.email_text)
@@ -243,6 +242,6 @@ class AuthenticateFragment :
 
     }
 
-    // endregion Nested/inner classers
+    // endregion Nested/inner classes
 
 }

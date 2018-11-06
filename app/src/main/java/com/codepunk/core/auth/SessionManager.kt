@@ -34,9 +34,14 @@ class SessionManager @Inject constructor(
 
 ) {
 
+    // region Properties
+
     /**
      * The currently-active session, if any.
      */
+    @Suppress("UNUSED")
     var session: Session? = null
+
+    // endregion Properties
 
 }

@@ -20,7 +20,6 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import java.io.IOException
-import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,7 +62,7 @@ class DateJsonAdapter @Inject constructor() : JsonAdapter<Date>() {
 
         // region Properties
 
-        private val DATE_FORMAT: DateFormat =
+        private val DATE_FORMAT: SimpleDateFormat =
             SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US)
 
         // endregion Properties

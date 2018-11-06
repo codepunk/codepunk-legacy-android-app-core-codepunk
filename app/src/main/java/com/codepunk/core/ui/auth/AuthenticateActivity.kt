@@ -126,11 +126,18 @@ class AuthenticateActivity :
 
     // region Inherited methods
 
+    /**
+     * Reacts to a new intent.
+     */
+    @Suppress("UNUSED")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         // TODO
     }
 
+    /**
+     * Reacts to the "up" button being pressed.
+     */
     override fun onSupportNavigateUp(): Boolean {
         return Navigation.findNavController(this, R.id.authenticate_nav_fragment).navigateUp()
     }
@@ -150,7 +157,10 @@ class AuthenticateActivity :
 
     // region Methods
 
-    fun onAccessTokenUpdate(update: DataUpdate<ResponseMessage, AccessToken>) {
+    /**
+     * Reacts to access token changing.
+     */
+    private fun onAccessTokenUpdate(update: DataUpdate<ResponseMessage, AccessToken>) {
         when (update) {
             is ProgressUpdate -> {
                 // TODO Loading dialog (show and hide)

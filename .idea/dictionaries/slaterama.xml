@@ -2,6 +2,8 @@
   <dictionary name="slaterama">
     <words>
       <w>atsl</w>
+      <w>authtoken</w>
+      <w>beyls</w>
       <w>codepunk</w>
       <w>datainator</w>
       <w>deps</w>
@@ -18,8 +20,10 @@
       <w>pinner</w>
       <w>pluginator</w>
       <w>proxying</w>
+      <w>settingslib</w>
       <w>squareup</w>
       <w>subcomponent</w>
+      <w>throwables</w>
       <w>unprocessable</w>
       <w>xxlarge</w>
     </words>

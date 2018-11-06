@@ -35,6 +35,8 @@ import dagger.multibindings.IntoMap
 @Module
 interface ViewModelModule {
 
+    // region Methods
+
     /**
      * Binds an instance of [AuthViewModel] to this [Module] for dependency injection.
      */
@@ -68,5 +70,7 @@ interface ViewModelModule {
     // to be created separately for each Activity etc.?
     @Binds
     fun bindViewModelFactory(factory: InjectingViewModelFactory): ViewModelProvider.Factory
+
+    // endregion Methods
 
 }

@@ -48,7 +48,7 @@ class AuthViewModel @Inject constructor(
     private val authWebservice: AuthWebservice,
 
     /**
-     * The user webserverice.
+     * The user web service.
      */
     private val userWebservice: UserWebservice,
 
@@ -74,7 +74,6 @@ class AuthViewModel @Inject constructor(
     /**
      * Synchronously calls the getAuthToken endpoint and adds a [Bundle] needed by the
      * [AccountManager].
-     *
      */
     @WorkerThread
     private fun getAuthToken(
@@ -175,6 +174,11 @@ class AuthViewModel @Inject constructor(
 
         // region Methods
 
+        /**
+         * Extracts a [ResponseMessage] from a [Response], or converts the error body message
+         * to a [ResponseMessage].
+         */
+        @Suppress("UNUSED")
         private fun toMessage(
             response: Response<ResponseMessage>,
             retrofit: Retrofit
