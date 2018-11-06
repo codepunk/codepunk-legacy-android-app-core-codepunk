@@ -27,14 +27,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.CATEGORY_CREATE_ACCOUNT
+import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
+import com.codepunk.core.BuildConfig.EXTRA_AUTH_TOKEN_TYPE
+import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
-import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
-import com.codepunk.core.util.EXTRA_AUTH_TOKEN_TYPE
-import com.codepunk.core.util.EXTRA_USERNAME
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -79,11 +80,8 @@ class AccountAuthenticator @Inject constructor(
             putParcelable(
                 KEY_INTENT,
                 Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                    addCategory(CATEGORY_CREATE_ACCOUNT)
                     putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
-                    putExtra(
-                        EXTRA_AUTHENTICATOR_INITIAL_ACTION,
-                        R.id.action_authenticate_to_create_account
-                    )
                     // TODO Anything else here?
                 }
             )
@@ -160,11 +158,8 @@ class AccountAuthenticator @Inject constructor(
                 putParcelable(
                     KEY_INTENT,
                     Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                        addCategory(CATEGORY_LOG_IN)
                         putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
-                        putExtra(
-                            EXTRA_AUTHENTICATOR_INITIAL_ACTION,
-                            R.id.action_authenticate_to_log_in
-                        )
                         putExtra(EXTRA_USERNAME, account.name)
                         putExtra(EXTRA_AUTH_TOKEN_TYPE, authTokenType)
                     }

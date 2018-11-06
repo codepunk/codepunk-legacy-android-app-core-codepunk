@@ -107,7 +107,9 @@ android {
          */
         makeIntentCategories(
                 variant,
+                "CREATE_ACCOUNT",
                 "DEVELOPER",
+                "LOG_IN",
                 "MAIN"
         )
 
@@ -117,7 +119,9 @@ android {
          */
         makeIntentExtras(
                 variant,
-                "DEVELOPER_OPTIONS_PASSWORD_HASH"
+                "AUTH_TOKEN_TYPE",
+                "DEVELOPER_OPTIONS_PASSWORD_HASH",
+                "USERNAME"
         )
 
         /*

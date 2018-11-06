@@ -30,23 +30,20 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AccessToken
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
-import com.codepunk.core.util.EXTRA_AUTHENTICATOR_INITIAL_ACTION
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
-
-private const val NO_ACTION: Int = -1
 
 /**
  * An Activity that handles all actions relating to creating, selecting, and authenticating
@@ -89,14 +86,15 @@ class AuthenticateActivity :
     private lateinit var binding: ActivityAuthenticateBinding
 
     /**
-     * The current username.
+     * The navigation controller for the activity.
      */
-//    private var username: String? = null
-
-    /**
-     * The initial action to use for navigation.
-     */
-    private var initialAction: Int = NO_ACTION
+    private val navController: NavController by lazy {
+        Navigation.findNavController(this, R.id.authenticate_nav_fragment).apply {
+            addOnNavigatedListener { _, destination ->
+                title = destination.label
+            }
+        }
+    }
 
     // endregion Properties
 
@@ -111,17 +109,13 @@ class AuthenticateActivity :
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
-        initialAction = intent.getIntExtra(EXTRA_AUTHENTICATOR_INITIAL_ACTION, initialAction)
-        val navController = Navigation.findNavController(this, R.id.account_nav_fragment)
-        if (initialAction == NO_ACTION) {
-            setupActionBarWithNavController(navController)
-        } else {
-            val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.fragment_authenticate, true)
-                .build()
-            navController.navigate(initialAction, null, navOptions)
-            navController.addOnNavigatedListener { _, destination ->
-                title = destination.label
+        // TODO Must be a cleaner way to do this?
+        intent.categories?.let {
+            when {
+                it.contains(CATEGORY_CREATE_ACCOUNT) ->
+                    navigateTo(R.id.action_authenticate_to_create_account)
+                it.contains(CATEGORY_LOG_IN) ->
+                    navigateTo(R.id.action_authenticate_to_log_in)
             }
         }
 
@@ -138,7 +132,7 @@ class AuthenticateActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return Navigation.findNavController(this, R.id.account_nav_fragment).navigateUp()
+        return Navigation.findNavController(this, R.id.authenticate_nav_fragment).navigateUp()
     }
 
     // endregion Inherited methods
@@ -200,6 +194,16 @@ class AuthenticateActivity :
             "AuthenticateActivity",
             "onAccessTokenUpdate: httpStatus=$httpStatus, update=$update"
         )
+    }
+
+    /**
+     * Navigates to the given resId and pops up to the start destination.
+     */
+    private fun navigateTo(resId: Int) {
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.fragment_authenticate, true)
+            .build()
+        navController.navigate(resId, null, navOptions)
     }
 
     // endregion Methods

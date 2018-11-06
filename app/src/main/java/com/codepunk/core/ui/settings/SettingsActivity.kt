@@ -19,14 +19,19 @@ package com.codepunk.core.ui.settings
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigation
 import androidx.preference.Preference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback
 import com.codepunk.core.BuildConfig.CATEGORY_DEVELOPER
+import com.codepunk.core.R
+import com.codepunk.core.databinding.ActivitySettingsBinding
 import com.codepunk.doofenschmirtz.preference.displayCustomPreferenceDialogFragment
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -49,6 +54,22 @@ class SettingsActivity : AppCompatActivity(),
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
+    /**
+     * The binding for this activity.
+     */
+    private lateinit var binding: ActivitySettingsBinding
+
+    /**
+     * The navigation controller for the activity.
+     */
+    private val navController: NavController by lazy {
+        Navigation.findNavController(this, R.id.settings_nav_fragment).apply {
+            addOnNavigatedListener { _, destination ->
+                title = destination.label
+            }
+        }
+    }
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -62,11 +83,14 @@ class SettingsActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (supportFragmentManager.findFragmentById(android.R.id.content) == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .add(android.R.id.content, createFragment(intent))
-                .commit()
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_settings)
+
+        // TODO Must be a cleaner way to do this?
+        if (intent.categories?.contains(CATEGORY_DEVELOPER) == true) {
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.fragment_main_settings, true)
+                .build()
+            navController.navigate(R.id.action_main_to_developer_options, null, navOptions)
         }
     }
 
@@ -75,17 +99,13 @@ class SettingsActivity : AppCompatActivity(),
     // region Inherited methods
 
     /**
-     * Changes the default "Up" behavior to always go "back" instead of "up".
+     * Handles up navigation.
      */
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
-            android.R.id.home -> {
-                // Always go back instead of "Up"
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    override fun onSupportNavigateUp(): Boolean {
+        if (!navController.navigateUp()) {
+            finish()
         }
+        return true
     }
 
     // endregion Inherited methods
@@ -102,6 +122,7 @@ class SettingsActivity : AppCompatActivity(),
     /**
      * Provides a way to display custom [PreferenceDialogFragmentCompat]s.
      */
+
     // PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback
     override fun onPreferenceDisplayDialog(
         caller: PreferenceFragmentCompat,
@@ -112,29 +133,4 @@ class SettingsActivity : AppCompatActivity(),
 
     // endregion Implemented methods
 
-    // region Companion object
-
-    companion object {
-
-        // region Methods
-
-        /**
-         * Creates a [PreferenceFragmentCompat] associated with the category passed in the intent.
-         */
-        private fun createFragment(intent: Intent): PreferenceFragmentCompat {
-            intent.categories?.run {
-                for (category in this) {
-                    when (category) {
-                        CATEGORY_DEVELOPER -> return DeveloperOptionsSettingsFragment()
-                    }
-                }
-            }
-            return MainSettingsFragment()
-        }
-
-        // endregion Methods
-
-    }
-
-    // endregion Companion object
 }

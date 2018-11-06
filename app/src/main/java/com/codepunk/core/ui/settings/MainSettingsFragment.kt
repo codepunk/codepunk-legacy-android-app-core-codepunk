@@ -25,6 +25,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigation
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.codepunk.core.BuildConfig.*
@@ -263,10 +265,32 @@ class MainSettingsFragment :
             }
             developerOptionsPreference -> {
                 when (developerSettingsViewModel.developerOptionsState.value) {
-                    DeveloperOptionsState.ENABLED ->
+                    DeveloperOptionsState.ENABLED -> {
+                        /*
                         startActivity(Intent(ACTION_SETTINGS).apply {
                             addCategory(CATEGORY_DEVELOPER)
                         })
+                        */
+                        val activity = requireActivity()
+                        val navController =
+                            Navigation.findNavController(activity, R.id.settings_nav_fragment)
+                        navController.navigate(R.id.action_main_to_developer_options)
+                        /*
+                        if (activity.intent.categories?.contains(CATEGORY_DEVELOPER) == true) {
+                            val navOptions = NavOptions.Builder()
+                                .setPopUpTo(R.id.fragment_authenticate, true)
+                                .build()
+                            navController.navigate(
+                                R.id.action_main_to_developer_options,
+                                null,
+                                navOptions
+                            )
+                            navController.addOnNavigatedListener { _, destination ->
+                                activity.title = destination.label
+                            }
+                        }
+                        */
+                    }
                     DeveloperOptionsState.UNLOCKED ->
                         showDeveloperPasswordDialogFragment()
                     else -> { /* No action */

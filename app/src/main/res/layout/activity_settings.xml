@@ -23,15 +23,15 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.auth.AuthenticateActivity">
+        tools:context=".ui.settings.SettingsActivity">
 
         <fragment
-            android:id="@+id/authenticate_nav_fragment"
+            android:id="@+id/settings_nav_fragment"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:defaultNavHost="true"
-            app:navGraph="@navigation/navigation_authenticate"/>
+            app:navGraph="@navigation/navigation_settings"/>
 
     </FrameLayout>
 

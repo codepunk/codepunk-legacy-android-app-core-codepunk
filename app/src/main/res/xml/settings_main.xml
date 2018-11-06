@@ -30,6 +30,7 @@
         android:order="100"
         android:defaultValue="false" />
 
+    <!--suppress AndroidDomInspection -->
     <Preference
         android:key="@string/pref_key_about"
         android:icon="@drawable/ic_preference_info"

@@ -47,6 +47,19 @@
                 <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="${applicationId}.intent.category.MAIN"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="${applicationId}.intent.category.CREATE_ACCOUNT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="${applicationId}.intent.category.LOG_IN"/>
             </intent-filter>
         </activity>
 
