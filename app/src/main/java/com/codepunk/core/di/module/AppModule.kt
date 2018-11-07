@@ -21,7 +21,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.codepunk.core.CodepunkApp
+import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.core.user.SessionManager
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -29,7 +31,11 @@ import javax.inject.Singleton
 /**
  * A [Module] for injecting application-level dependencies.
  */
-@Module
+@Module(
+    subcomponents = [
+        UserComponent::class
+    ]
+)
 object AppModule {
 
     // region Methods
@@ -52,6 +58,17 @@ object AppModule {
     @Singleton
     fun providesAccountManager(@ApplicationContext context: Context): AccountManager =
         AccountManager.get(context)
+
+    /**
+     * Provides a [SessionManager] instance for managing a user session.
+     */
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun providesSessionManager(
+        @ApplicationContext applicationContext: Context,
+        userComponentBuilder: UserComponent.Builder
+    ): SessionManager = SessionManager(applicationContext, userComponentBuilder)
 
     /**
      * Provides the default [SharedPreferences] for the app.

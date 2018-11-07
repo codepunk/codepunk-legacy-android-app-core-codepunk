@@ -87,6 +87,7 @@ android {
                 "DEVELOPER_OPTIONS_AUTHENTICATED_HASH",
                 "DEVELOPER_OPTIONS_ENABLED",
                 "DEVELOPER_OPTIONS_UNLOCKED",
+                "LOG_OUT",
                 "REMOTE_ENVIRONMENT"
         )
 
@@ -131,6 +132,7 @@ android {
                 variant,
                 "ACCOUNT",
                 "ACCOUNT_AUTHENTICATOR_RESULT",
+                "DEVELOPER_OPTIONS_CLICKS_REMAINING",
                 "FIRST_TIME"
         )
 

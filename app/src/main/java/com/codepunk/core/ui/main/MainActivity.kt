@@ -36,7 +36,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.auth.getAccountByNameAndType
+import com.codepunk.core.user.getAccountByNameAndType
 import com.codepunk.core.di.scope.ActivityScope
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector

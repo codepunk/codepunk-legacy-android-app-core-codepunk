@@ -29,22 +29,31 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
+        ActivityBuildersModule::class,
         AndroidSupportInjectionModule::class,
         AppModule::class,
         NetModule::class,
         ViewModelModule::class,
-        ActivityBuildersModule::class,
         ServiceBuildersModule::class
     ]
 )
 interface AppComponent : AndroidInjector<CodepunkApp> {
+
+    // region Methods
+
+    /**
+     * Returns a new [UserComponent.Builder] for building new
+     * [UserComponent] instances.
+     */
+    fun userComponentBuilder(): UserComponent.Builder
+
+    // endregion Methods
 
     // region Nested/inner classes
 
     /**
      * Helper class for creating an instance of [AppComponent].
      */
-    @Singleton
     @Component.Builder
     abstract class Builder : AndroidInjector.Builder<CodepunkApp>()
 

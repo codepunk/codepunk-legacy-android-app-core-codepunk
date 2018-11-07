@@ -14,34 +14,18 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.auth
+package com.codepunk.core.di.module
 
-import android.content.Context
-import com.codepunk.core.di.qualifier.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import dagger.Module
 
 /**
- * Class that manages any currently-logged in user session.
+ * A [Module] for injecting user session-level dependencies.
  */
-@Singleton
-class SessionManager @Inject constructor(
+@Module
+class UserModule {
 
-    /**
-     * The application [Context].
-     */
-    @ApplicationContext val context: Context
+    // region Methods
 
-) {
-
-    // region Properties
-
-    /**
-     * The currently-active session, if any.
-     */
-    @Suppress("UNUSED")
-    var session: Session? = null
-
-    // endregion Properties
+    // endregion Methods
 
 }

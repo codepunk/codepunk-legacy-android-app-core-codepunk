@@ -130,14 +130,27 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="clipartAsset">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="url" value="jar:file:/Applications/Android%20Studio%203.4%20Preview.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_power_settings_new_black_24dp.xml" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="height" value="180" />
-                            <entry key="outputName" value="ic_launcher_foreground" />
+                            <entry key="color" value="737373" />
+                            <entry key="outputName" value="ic_preference_log_out" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="$PROJECT_DIR$/assets/ic_launcher_foreground.svg" />
-                            <entry key="width" value="180" />
                           </map>
                         </option>
                       </PersistentState>

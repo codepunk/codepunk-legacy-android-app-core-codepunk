@@ -19,21 +19,17 @@ package com.codepunk.core.ui.settings
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.ui.developer.DeveloperOptionsPasswordDialogFragment
 import com.codepunk.core.ui.developer.DisableDeveloperOptionsDialogFragment
-import com.codepunk.core.ui.settings.DeveloperOptionsSettingsViewModel.DeveloperOptionsState
-import com.codepunk.core.ui.settings.DeveloperOptionsSettingsViewModel.DeveloperOptionsState.*
+import com.codepunk.core.user.SessionManager
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.startLaunchActivity
 import dagger.android.support.AndroidSupportInjection
@@ -61,49 +57,24 @@ private const val DEV_OPTS_CLICKS_TO_UNLOCK: Int = 7
  */
 private const val DEV_OPTS_CLICKS_REMAINING_TOAST = 3
 
-/**
- * The save state key for storing clicks remaining to unlock developer options.
- */
-private const val SAVE_STATE_CLICKS_REMAINING = "clicksRemaining"
-
 // endregion Constants
 
 /**
  * A preference fragment that displays the main settings available to the user.
  */
 class MainSettingsFragment :
-    PreferenceFragmentCompat(),
+    BaseSettingsFragment(),
     Preference.OnPreferenceChangeListener,
     Preference.OnPreferenceClickListener {
 
-    // region Fields
+    // region Properties
 
     /**
-     * The number of clicks remaining to unlock developer options.
+     * The [SessionManager] for tracking user session.
      */
-    private var clicksToUnlockDeveloperOptions = 0
-
-    /**
-     * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
-     */
+    @Suppress("UNUSED")
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    /**
-     * An instance of [MainSettingsViewModel] for managing developer options settings.
-     */
-    private val mainSettingsViewModel: MainSettingsViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory)
-            .get(MainSettingsViewModel::class.java)
-    }
-
-    /**
-     * The [ViewModel] that stores developer options-related preference data used by this fragment.
-     */
-    private val developerSettingsViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory)
-            .get(DeveloperOptionsSettingsViewModel::class.java)
-    }
+    lateinit var sessionManager: SessionManager
 
     /**
      * The developer options preference.
@@ -119,7 +90,16 @@ class MainSettingsFragment :
         findPreference(PREF_KEY_ABOUT)
     }
 
-    // endregion Fields
+    /**
+     * The number of clicks remaining to unlock developer options.
+     */
+    private var clicksToUnlockDeveloperOptions = 0
+
+    private var isDeveloperOptionsEnabled: Boolean = false
+
+    private var isDeveloperOptionsUnlocked: Boolean = false
+
+    // endregion Properties
 
     // region Lifecycle methods
 
@@ -132,29 +112,26 @@ class MainSettingsFragment :
     }
 
     /**
-     * Sets up this fragment.
-     */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        clicksToUnlockDeveloperOptions = when {
-            savedInstanceState != null ->
-                savedInstanceState.getInt(SAVE_STATE_CLICKS_REMAINING, DEV_OPTS_CLICKS_TO_UNLOCK)
-            developerSettingsViewModel.developerOptionsUnlocked.value == true -> 0
-            else -> DEV_OPTS_CLICKS_TO_UNLOCK
-        }
-    }
-
-    /**
      * Saves this fragment's instance state.
      */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(SAVE_STATE_CLICKS_REMAINING, clicksToUnlockDeveloperOptions)
+        outState.putInt(KEY_DEVELOPER_OPTIONS_CLICKS_REMAINING, clicksToUnlockDeveloperOptions)
     }
 
     // endregion Lifecycle methods
 
     // region Inherited methods
+
+    /**
+     * Called when the value of shared preferences changes.
+     */
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED -> updatePreferenceScreen()
+            PREF_KEY_DEVELOPER_OPTIONS_AUTHENTICATED_HASH -> updatePreferenceScreen()
+        }
+    }
 
     /**
      * Processes the results of dialogs launched by preferences in this fragment.
@@ -165,18 +142,23 @@ class MainSettingsFragment :
                 when (resultCode) {
                     Activity.RESULT_OK -> {
                         data?.run {
-                            developerSettingsViewModel.updateDeveloperOptions(
+                            updateDeveloperOptions(
                                 true,
                                 getStringExtra(EXTRA_DEVELOPER_OPTIONS_PASSWORD_HASH)
                             )
                         }
+                        Toast.makeText(
+                            context,
+                            R.string.settings_developer_options_now_a_developer,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
             DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE -> {
                 when (resultCode) {
                     Activity.RESULT_OK -> {
-                        developerSettingsViewModel.updateDeveloperOptions(true)
+                        updateDeveloperOptions(true)
                         // TODO Set remote environment to "Production"
                         requireContext().startLaunchActivity()
                     }
@@ -196,25 +178,26 @@ class MainSettingsFragment :
         developerOptionsPreference.onPreferenceClickListener = this
         developerOptionsPreference.onPreferenceChangeListener = this
 
-        with(mainSettingsViewModel) {
-            appVersion.observe(
-                this@MainSettingsFragment,
-                Observer { version ->
-                    aboutPreference.summary = getString(R.string.settings_about_summary, version)
-                })
+        val versionName = context
+            ?.packageManager
+            ?.getPackageInfo(requireContext().packageName, 0)
+            ?.versionName
+        aboutPreference.summary = when (versionName) {
+            null -> ""
+            else -> getString(R.string.settings_about_summary, versionName)
         }
 
-        with(developerSettingsViewModel) {
-            developerOptionsState.observe(
-                this@MainSettingsFragment,
-                Observer { state ->
-                    onDeveloperOptionsStateChange(state ?: DeveloperOptionsState.LOCKED)
-                })
-
-            onDeveloperOptionsStateChange(
-                developerOptionsState.value ?: DeveloperOptionsState.LOCKED
-            )
+        clicksToUnlockDeveloperOptions = when {
+            savedInstanceState != null ->
+                savedInstanceState.getInt(
+                    KEY_DEVELOPER_OPTIONS_CLICKS_REMAINING,
+                    DEV_OPTS_CLICKS_TO_UNLOCK
+                )
+            sharedPreferences.getBoolean(PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED, false) -> 0
+            else -> DEV_OPTS_CLICKS_TO_UNLOCK
         }
+
+        updatePreferenceScreen()
     }
 
     // endregion Inherited methods
@@ -256,41 +239,21 @@ class MainSettingsFragment :
                     }
                     clicksToUnlockDeveloperOptions == 1 -> {
                         clicksToUnlockDeveloperOptions = 0
-                        developerSettingsViewModel.updateDeveloperOptions(true)
+                        updateDeveloperOptions(true)
                     }
                     else -> onRedundantUnlockRequest()
                 }
                 false
             }
             developerOptionsPreference -> {
-                when (developerSettingsViewModel.developerOptionsState.value) {
-                    DeveloperOptionsState.ENABLED -> {
-                        /*
-                        startActivity(Intent(ACTION_SETTINGS).apply {
-                            addCategory(CATEGORY_DEVELOPER)
-                        })
-                        */
+                when {
+                    isDeveloperOptionsEnabled -> {
                         val activity = requireActivity()
                         val navController =
                             Navigation.findNavController(activity, R.id.settings_nav_fragment)
                         navController.navigate(R.id.action_main_to_developer_options)
-                        /*
-                        if (activity.intent.categories?.contains(CATEGORY_DEVELOPER) == true) {
-                            val navOptions = NavOptions.Builder()
-                                .setPopUpTo(R.id.fragment_authenticate, true)
-                                .build()
-                            navController.navigate(
-                                R.id.action_main_to_developer_options,
-                                null,
-                                navOptions
-                            )
-                            navController.addOnNavigatedListener { _, destination ->
-                                activity.title = destination.label
-                            }
-                        }
-                        */
                     }
-                    DeveloperOptionsState.UNLOCKED ->
+                    isDeveloperOptionsUnlocked ->
                         showDeveloperPasswordDialogFragment()
                     else -> { /* No action */
                     }
@@ -308,19 +271,6 @@ class MainSettingsFragment :
     // region Private methods
 
     /**
-     * Updates the preference screen based on the state of developer options (i.e.
-     * [LOCKED], [UNLOCKED], or [ENABLED].)
-     */
-    private fun onDeveloperOptionsStateChange(state: DeveloperOptionsState) {
-        developerOptionsPreference.isChecked = (state == DeveloperOptionsState.ENABLED)
-        when (state) {
-            DeveloperOptionsState.LOCKED ->
-                preferenceScreen.removePreference(developerOptionsPreference)
-            else -> preferenceScreen.addPreference(developerOptionsPreference)
-        }
-    }
-
-    /**
      * Handles when the about preference is clicked when developer options have already been
      * unlocked.
      */
@@ -329,8 +279,7 @@ class MainSettingsFragment :
             context,
             R.string.settings_developer_options_redundant_show_request,
             Toast.LENGTH_SHORT
-        )
-            .show()
+        ).show()
     }
 
     /**
@@ -342,8 +291,7 @@ class MainSettingsFragment :
                 context,
                 getString(R.string.settings_developer_options_steps_from_unlocking, steps),
                 Toast.LENGTH_SHORT
-            )
-                .show()
+            ).show()
         }
     }
 
@@ -385,6 +333,50 @@ class MainSettingsFragment :
                 }
                 .show(this, DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG)
         }
+    }
+
+    /**
+     * Updates whether the developer options preference has been unlocked as well as whether
+     * the user has authenticated themselves as a developer. The [onSharedPreferenceChanged]
+     * method will catch changes to these preferences and update the corresponding LiveData
+     * accordingly.
+     */
+    private fun updateDeveloperOptions(unlocked: Boolean, hash: String? = null) {
+        val enabled: Boolean = (unlocked && hash != null)
+        sharedPreferences
+            .edit()
+            .putBoolean(PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED, unlocked)
+            .putBoolean(PREF_KEY_DEVELOPER_OPTIONS_ENABLED, enabled)
+            .putString(
+                PREF_KEY_DEVELOPER_OPTIONS_AUTHENTICATED_HASH,
+                if (unlocked) hash else null
+            )
+            .apply()
+    }
+
+    /**
+     * Updates the preference screen based on the developer options state.
+     */
+    private fun updatePreferenceScreen() {
+        isDeveloperOptionsUnlocked =
+                sharedPreferences.getBoolean(PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED, false)
+        isDeveloperOptionsEnabled = when {
+            !isDeveloperOptionsUnlocked -> false
+            sharedPreferences.getString(
+                PREF_KEY_DEVELOPER_OPTIONS_AUTHENTICATED_HASH,
+                null
+            ) == null -> false
+            else -> true
+        }
+        developerOptionsPreference.isChecked =
+                isDeveloperOptionsUnlocked && isDeveloperOptionsEnabled
+        if (isDeveloperOptionsUnlocked) {
+            preferenceScreen.addPreference(developerOptionsPreference)
+        } else {
+            preferenceScreen.removePreference(developerOptionsPreference)
+        }
+
+        // TODO Show/hide Log out preference, set summary to user name
     }
 
     // endregion Private methods

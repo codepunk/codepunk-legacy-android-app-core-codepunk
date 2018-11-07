@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.auth
+package com.codepunk.core.di.scope
+
+import javax.inject.Scope
 
 /**
- * A class with information about the current user session.
+ * A [Scope] used for retaining single instances of injected dependencies throughout a logged-in
+ * user lifecycle.
  */
-class Session
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class UserScope

@@ -33,6 +33,7 @@ import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.lib.*
+import com.codepunk.core.user.SessionManager
 import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -55,7 +56,12 @@ class AuthViewModel @Inject constructor(
     /**
      * The authorization interception, which handles adding access tokens to API requests.
      */
-    private val authorizationInterceptor: AuthorizationInterceptor
+    private val authorizationInterceptor: AuthorizationInterceptor,
+
+    /**
+     * The [SessionManager] for managing the user session.
+     */
+    private val sessionManager: SessionManager
 
 ) : ViewModel() {
 
@@ -80,6 +86,9 @@ class AuthViewModel @Inject constructor(
         usernameOrEmail: String,
         password: String
     ): DataUpdate<ResponseMessage, AccessToken> {
+        // TODO go through AccountAuthenticator somehow? Probably not because I need to create
+        // Account
+
         // Call the getAuthToken endpoint
         val authTokenUpdate: DataUpdate<ResponseMessage, AccessToken> =
             authWebservice.getAuthToken(usernameOrEmail, password).toDataUpdate()
@@ -91,6 +100,9 @@ class AuthViewModel @Inject constructor(
                 // account in the AccountManager and pass a bundle back with
                 // relevant account information
                 authTokenUpdate.result?.let {
+
+                    sessionManager.openSession()
+
                     // Set the auth token in authorizationInterceptor
                     authorizationInterceptor.accessToken = it.accessToken
 
@@ -99,7 +111,6 @@ class AuthViewModel @Inject constructor(
                         true -> {
                             val userUpdate: DataUpdate<Void, User> =
                                 userWebservice.getUser().toDataUpdate()
-                            // TODO TEMP -- we need to fetch username here
                             when (userUpdate) {
                                 is SuccessUpdate -> userUpdate.result?.username
                                     ?: return FailureUpdate() // TODO ??

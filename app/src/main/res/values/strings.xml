@@ -113,8 +113,6 @@
 
     <string name="settings_about_summary">Version %s</string>
 
-    <string name="settings_about_title">About</string>
-
     <string name="settings_developer_options_disable_dialog_message">All connections will be reset and the app will revert to the launch screen.</string>
 
     <string name="settings_developer_options_disable_dialog_title">Disable developer options?</string>
@@ -127,11 +125,17 @@
 
     <string name="settings_developer_options_password_hint">Password</string>
 
+    <string name="settings_developer_options_now_a_developer">You are now a developer!</string>
+
     <string name="settings_developer_options_redundant_show_request">No need, developer options are already unlocked</string>
 
     <string name="settings_developer_options_steps_from_unlocking">You are now %d steps away from unlocking developer options!</string>
 
+    <string name="settings_label_about">About</string>
+
     <string name="settings_label_developer_options">Developer options</string>
+
+    <string name="settings_label_log_out">Log out</string>
 
     <string name="settings_label_main">Settings</string>
 
