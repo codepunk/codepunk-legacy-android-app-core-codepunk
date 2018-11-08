@@ -36,6 +36,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
+import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.user.getAccountByNameAndType
 import com.codepunk.core.di.scope.ActivityScope
 import dagger.android.AndroidInjection
@@ -122,8 +123,8 @@ class MainActivity :
                     }
                     else -> {
                         // We had a saved account
-                        /*
-                        val future = accountManager.getAuthToken(
+                        Log.d("MainActivity", "")
+                        accountManager.getAuthToken(
                             account,
                             AuthTokenType.DEFAULT.value,
                             null,
@@ -134,7 +135,6 @@ class MainActivity :
                             },
                             null
                         )
-                        */
                     }
                 }
             }

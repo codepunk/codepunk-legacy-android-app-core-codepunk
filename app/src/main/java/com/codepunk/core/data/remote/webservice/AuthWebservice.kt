@@ -16,7 +16,7 @@
 
 package com.codepunk.core.data.remote.webservice
 
-import com.codepunk.core.data.model.auth.AccessToken
+import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.auth.GrantType
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
@@ -40,7 +40,7 @@ interface AuthWebservice {
     @POST("oauth/token")
     @FormUrlEncoded
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
-    fun getAuthToken(
+    fun authorize(
         @Field("grant_type")
         grantType: GrantType,
 
@@ -58,17 +58,17 @@ interface AuthWebservice {
 
         @Field("scope")
         scope: String
-    ): Call<AccessToken>
+    ): Call<Authorization>
 
     /**
      * Gets an authorization token using default values.
      */
-    fun getAuthToken(username: String, password: String, scope: String): Call<AccessToken>
+    fun authorize(username: String, password: String, scope: String): Call<Authorization>
 
     /**
      * Gets an authorization token using default values.
      */
-    fun getAuthToken(username: String, password: String): Call<AccessToken>
+    fun authorize(username: String, password: String): Call<Authorization>
 
     /**
      * Gets an authorization token from an existing [refreshToken].
@@ -88,15 +88,16 @@ interface AuthWebservice {
 
         @Field("refresh_token")
         refreshToken: String
-    ): Call<AccessToken>
+    ): Call<Authorization>
 
     /**
      * Gets an authorization token from an existing [refreshToken].
      */
-    fun refreshToken(refreshToken: String): Call<AccessToken>
+    fun refreshToken(refreshToken: String): Call<Authorization>
 
     /**
-     * Registers a new account.
+     * Registers a new account. // TODO Move this to an "account" webservice? Hmm. It's not
+     * really user, and not really auth.
      */
     @POST("register")
     @FormUrlEncoded

@@ -17,7 +17,7 @@
 package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.data.model.auth.AccessToken
+import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.auth.GrantType
 import com.codepunk.core.data.model.http.ResponseMessage
 import retrofit2.Call
@@ -30,14 +30,14 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
 
     // region Inherited methods
 
-    override fun getAuthToken(
+    override fun authorize(
         grantType: GrantType,
         clientId: String,
         clientSecret: String,
         username: String,
         password: String,
         scope: String
-    ): Call<AccessToken> = base.getAuthToken(
+    ): Call<Authorization> = base.authorize(
         grantType,
         clientId,
         clientSecret,
@@ -49,12 +49,12 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
     /**
      * Gets an authorization token using default values.
      */
-    override fun getAuthToken(
+    override fun authorize(
         username: String,
         password: String,
         scope: String
-    ): Call<AccessToken> {
-        return base.getAuthToken(
+    ): Call<Authorization> {
+        return base.authorize(
             GrantType.PASSWORD,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,
@@ -68,8 +68,8 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
     /**
      * Gets an authorization token using default values.
      */
-    override fun getAuthToken(username: String, password: String): Call<AccessToken> {
-        return base.getAuthToken(
+    override fun authorize(username: String, password: String): Call<Authorization> {
+        return base.authorize(
             GrantType.PASSWORD,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,
@@ -84,13 +84,13 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         clientId: String,
         clientSecret: String,
         refreshToken: String
-    ): Call<AccessToken> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
+    ): Call<Authorization> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
 
     /**
      * Gets an authorization token from an existing [refreshToken] by passing default arguments to
      * the base implementation.
      */
-    override fun refreshToken(refreshToken: String): Call<AccessToken> = base.refreshToken(
+    override fun refreshToken(refreshToken: String): Call<Authorization> = base.refreshToken(
         GrantType.REFRESH_TOKEN,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,

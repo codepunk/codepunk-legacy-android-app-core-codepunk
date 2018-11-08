@@ -35,7 +35,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.AccessToken
+import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
@@ -119,7 +119,7 @@ class AuthenticateActivity :
             }
         }
 
-        authViewModel.accessTokenDataUpdate.observe(this, Observer { onAccessTokenUpdate(it) })
+        authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
     }
 
     // endregion Lifecycle methods
@@ -158,9 +158,9 @@ class AuthenticateActivity :
     // region Methods
 
     /**
-     * Reacts to access token changing.
+     * Reacts to authorization data changing.
      */
-    private fun onAccessTokenUpdate(update: DataUpdate<ResponseMessage, AccessToken>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
         when (update) {
             is ProgressUpdate -> {
                 // TODO Loading dialog (show and hide)
@@ -202,7 +202,7 @@ class AuthenticateActivity :
         }
         Log.d(
             "AuthenticateActivity",
-            "onAccessTokenUpdate: httpStatus=$httpStatus, update=$update"
+            "onAuthorizationUpdate: httpStatus=$httpStatus, update=$update"
         )
     }
 

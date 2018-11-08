@@ -40,9 +40,9 @@ const val HEADER_NAME_CONTENT_TYPE = "Content-Type"
 // Header values
 
 /**
- * A placeholder for an access token in endpoints that require authentication.
+ * A placeholder for an auth token in endpoints that require authentication.
  */
-const val HEADER_VALUE_ACCESS_TOKEN_PLACEHOLDER = "\$accessToken"
+const val HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER = "\$authToken"
 
 /**
  * The "application/json" header value.
@@ -60,7 +60,7 @@ const val HEADER_ACCEPT_APPLICATION_JSON = "$HEADER_NAME_ACCEPT: $HEADER_VALUE_A
  * A name/value pair for bearer authorization header.
  */
 const val HEADER_AUTHORIZATION_BEARER =
-    "$HEADER_NAME_AUTHORIZATION: Bearer $HEADER_VALUE_ACCESS_TOKEN_PLACEHOLDER"
+    "$HEADER_NAME_AUTHORIZATION: Bearer $HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER"
 
 /**
  * A name/value pair for specifying application/json Content-Type.

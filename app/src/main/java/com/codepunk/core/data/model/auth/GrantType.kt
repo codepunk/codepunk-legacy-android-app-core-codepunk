@@ -19,7 +19,7 @@ package com.codepunk.core.data.model.auth
 import com.squareup.moshi.Json
 
 /**
- * An enumerated class that refers to the way an application gets an access token for making
+ * An enumerated class that refers to the way an application gets an auth token for making
  * OAuth calls.
  */
 enum class GrantType(
@@ -34,14 +34,14 @@ enum class GrantType(
     // region Values
 
     /**
-     * The authorization code grant type is used to obtain both access tokens and refresh
+     * The authorization code grant type is used to obtain both auth tokens and refresh
      * tokens and is optimized for confidential clients.
      */
     @Json(name = "authorization_code")
     AUTH_CODE("authorization_code"),
 
     /**
-     * The implicit grant type is used to obtain access tokens (it does not support the
+     * The implicit grant type is used to obtain auth tokens (it does not support the
      * issuance of refresh tokens) and is optimized for public clients known to operate a
      * particular redirection URI.  These clients are typically implemented in a browser
      * using a scripting language such as JavaScript.
@@ -59,14 +59,13 @@ enum class GrantType(
      * This grant type is suitable for clients capable of obtaining the resource owner's
      * credentials (username and password, typically using an interactive form).  It is also
      * used to migrate existing clients using direct authentication schemes such as HTTP Basic
-     * or Digest authentication to OAuth by converting the stored credentials to an access
-     * token.
+     * or Digest authentication to OAuth by converting the stored credentials to an auth token.
      */
     @Json(name = "password")
     PASSWORD("password"),
 
     /**
-     * The client can request an access token using only its client credentials (or other
+     * The client can request an auth token using only its client credentials (or other
      * supported means of authentication) when the client is requesting access to the protected
      * resources under its control, or those of another resource owner that have been
      * previously arranged with the authorization server.

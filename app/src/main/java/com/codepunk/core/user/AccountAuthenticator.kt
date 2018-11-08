@@ -26,6 +26,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.CATEGORY_CREATE_ACCOUNT
 import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
@@ -145,7 +146,7 @@ class AccountAuthenticator @Inject constructor(
                         // TODO Handle error here
                     }
                     else -> resp.body()?.apply {
-                        authTokenString = this.accessToken
+                        authTokenString = this.authToken
                         refreshToken = this.refreshToken
                         accountManager.setAuthToken(account, DEFAULT.value, authTokenString)
                         accountManager.setPassword(account, refreshToken)
@@ -170,6 +171,9 @@ class AccountAuthenticator @Inject constructor(
                 putString(KEY_AUTHTOKEN, authTokenString)
                 putString(KEY_PASSWORD, refreshToken)
             }
+
+            // TODO Maybe get the user here so we can set it?
+            Log.d("AccountAuthenticator", "")
         }
     }
 

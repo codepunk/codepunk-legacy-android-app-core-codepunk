@@ -16,19 +16,13 @@
 
 package com.codepunk.core.data.model.auth
 
-import android.accounts.AccountManager
-import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.squareup.moshi.Json
 
 /**
- * An enumerated class that represents how an access token will be generated and presented for
+ * An enumerated class that represents how an auth token will be generated and presented for
  * OAuth calls.
-
- * Note that for the purposes of this application, "access token" refers to the token (and possibly
- * related information) we get from the network via [AuthWebservice]. "Auth token" refers the token
- * information stored by Android via the [AccountManager].
  */
-enum class AccessTokenType {
+enum class TokenType {
 
     // region Values
 

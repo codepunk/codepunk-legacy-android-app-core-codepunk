@@ -16,41 +16,35 @@
 
 package com.codepunk.core.data.model.auth
 
-import android.accounts.AccountManager
-import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.squareup.moshi.Json
 
 /**
- * Data class representing an OAuth2 access token.
- *
- * Note that for the purposes of this application, "access token" refers to the token (and possibly
- * related information) we get from the network via [AuthWebservice]. "Auth token" refers the token
- * information stored by Android via the [AccountManager].
+ * A data class representing an OAuth2 authorization.
  */
-data class AccessToken(
+data class Authorization(
 
     /**
-     * The type of access token, which provides the client with the information required to
-     * successfully utilize the access token to make a protected resource request (along with
+     * The type of auth token, which provides the client with the information required to
+     * successfully utilize the auth token to make a protected resource request (along with
      * type-specific attributes).
      */
     @field:Json(name = "token_type")
-    val tokenType: AccessTokenType,
+    val tokenType: TokenType,
 
     /**
      * A long string of characters that serves as a credential used to access protected resources.
      */
     @field:Json(name = "access_token")
-    val accessToken: String,
+    val authToken: String,
 
     /**
-     * A token which allows the app to fetch a new access token when the old one expires.
+     * A token which allows the app to fetch a new auth token when the old one expires.
      */
     @field:Json(name = "refresh_token")
     val refreshToken: String,
 
     /**
-     * The number of seconds until the access token expires.
+     * The number of seconds until the auth token expires.
      */
     @field:Json(name = "expires_in")
     val expiresIn: Long = UNKNOWN
@@ -60,10 +54,10 @@ data class AccessToken(
     // region Inherited methods
 
     /**
-     * A version of [toString] that truncates [accessToken] and [refreshToken].
+     * A version of [toString] that truncates [authToken] and [refreshToken].
      */
     override fun toString(): String {
-        return "AccessToken(tokenType=$tokenType, accessToken='${ellipsize(accessToken)}', " +
+        return "Authorization(tokenType=$tokenType, authToken='${ellipsize(authToken)}', " +
                 "refreshToken='${ellipsize(refreshToken)}', expiresIn=$expiresIn)"
     }
 
