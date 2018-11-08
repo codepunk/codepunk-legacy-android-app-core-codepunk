@@ -19,8 +19,8 @@ package com.codepunk.core.ui.auth
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.AccountManager.KEY_ACCOUNT_NAME
+import android.accounts.AccountManager.KEY_ACCOUNT_TYPE
 import android.accounts.AccountManager.KEY_PASSWORD
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -166,13 +166,40 @@ class AuthenticateActivity :
                 // TODO Loading dialog (show and hide)
             }
             is SuccessUpdate -> {
-                update.data?.also { data ->
-                    accountAuthenticatorResult = data
+                val result = update.data
+                when (result) {
+                    null -> setResult(RESULT_CANCELED)
+                    else -> {
+                        // Set accountAuthenticatorResult so accountAuthenticatorResponse can
+                        // react to it
+                        accountAuthenticatorResult = update.data
+
+                        // Update accountManager with the account
+                        val accountName = result.getString(KEY_ACCOUNT_NAME)
+                        val accountType = result.getString(KEY_ACCOUNT_TYPE)
+                        val password = result.getString(KEY_PASSWORD)
+                        val account = Account(accountName, accountType)
+                        accountManager.addOrUpdateAccount(account, password)
+
+                        // Set the result to pass back to the calling activity
+                        setResult(
+                            RESULT_OK,
+                            Intent().apply {
+//                                putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESULT, result)
+                                putExtra(KEY_ACCOUNT, account)
+                            }
+                        )
+                    }
+                }
+
+                /*
+                update.data?.also { result ->
+                    accountAuthenticatorResult = result
                     val account = Account(
-                        data.getString(KEY_ACCOUNT_NAME),
+                        result.getString(KEY_ACCOUNT_NAME),
                         AUTHENTICATOR_ACCOUNT_TYPE
                     )
-                    accountManager.addOrUpdateAccount(account, data.getString(KEY_PASSWORD))
+                    accountManager.addOrUpdateAccount(account, result.getString(KEY_PASSWORD))
                     setResult(
                         RESULT_OK,
                         Intent().apply {
@@ -184,6 +211,8 @@ class AuthenticateActivity :
                         }
                     )
                 } ?: setResult(Activity.RESULT_CANCELED)
+                */
+
                 finish()
             }
             is FailureUpdate -> {

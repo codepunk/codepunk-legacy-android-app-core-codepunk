@@ -16,11 +16,13 @@
 
 package com.codepunk.core.di.module
 
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.codepunk.core.di.key.ViewModelKey
 import com.codepunk.core.di.provider.InjectingViewModelFactory
 import com.codepunk.core.ui.auth.AuthViewModel
+import com.codepunk.core.ui.main.MainViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -34,6 +36,14 @@ import dagger.multibindings.IntoMap
 interface ViewModelModule {
 
     // region Methods
+
+    /**
+     * Binds an instance
+     */
+    @Binds
+    @IntoMap
+    @ViewModelKey(MainViewModel::class)
+    fun bindMainViewModel(mainViewModel: MainViewModel): ViewModel
 
     /**
      * Binds an instance of [AuthViewModel] to this [Module] for dependency injection.

@@ -19,4 +19,14 @@ package com.codepunk.core.user
 /**
  * A class with information about the current user session.
  */
-class Session
+class Session(
+
+    val accountName: String,
+
+    val accountType: String,
+
+    val authToken: String,
+
+    val refreshToken: String
+
+)

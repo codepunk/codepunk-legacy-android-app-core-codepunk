@@ -67,8 +67,11 @@ object AppModule {
     @Singleton
     fun providesSessionManager(
         @ApplicationContext applicationContext: Context,
+        accountManager: AccountManager,
+        sharedPreferences: SharedPreferences,
         userComponentBuilder: UserComponent.Builder
-    ): SessionManager = SessionManager(applicationContext, userComponentBuilder)
+    ): SessionManager =
+        SessionManager(applicationContext, accountManager, sharedPreferences, userComponentBuilder)
 
     /**
      * Provides the default [SharedPreferences] for the app.

@@ -83,7 +83,6 @@ android {
                 variant,
                 "ABOUT",
                 "CURRENT_ACCOUNT_NAME",
-                "CURRENT_ACCOUNT_TYPE",
                 "DEVELOPER_OPTIONS_AUTHENTICATED_HASH",
                 "DEVELOPER_OPTIONS_ENABLED",
                 "DEVELOPER_OPTIONS_UNLOCKED",
@@ -131,9 +130,9 @@ android {
         makeKeys(
                 variant,
                 "ACCOUNT",
-                "ACCOUNT_AUTHENTICATOR_RESULT",
                 "DEVELOPER_OPTIONS_CLICKS_REMAINING",
-                "FIRST_TIME"
+                "FIRST_TIME",
+                "PENDING_INTENT"
         )
 
         /*

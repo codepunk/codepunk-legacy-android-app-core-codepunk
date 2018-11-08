@@ -18,6 +18,7 @@ package com.codepunk.core.data.remote.interceptor
 
 import com.codepunk.core.data.remote.HEADER_NAME_AUTHORIZATION
 import com.codepunk.core.data.remote.HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER
+import com.codepunk.core.user.SessionManager
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -26,44 +27,43 @@ import javax.inject.Singleton
 /**
  * Singleton class that intercepts Retrofit requests and looks for a header with a name
  * of [HEADER_NAME_AUTHORIZATION] ("Authorization"). If found, any instance in the value matching
- * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] will be replaced with the current value of [authToken].
+ * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] will be replaced with the authToken (if any) currently
+ * stored in [SessionManager].
  */
 @Singleton
-class AuthorizationInterceptor @Inject constructor() : Interceptor {
-
-    // region Properties
+class AuthorizationInterceptor @Inject constructor(
 
     /**
-     * The auth token corresponding to the current session.
-     * TODO Replace this with some sort of Session object (or just set the current Account)
+     * The session manager used for managing a user session.
      */
-    var authToken: String = ""
+    private val sessionManager: SessionManager
 
-    // endregion Properties
+) : Interceptor {
 
     // region Implemented methods
 
     /**
      * Implementation of [Interceptor]. Looks for a header with a name of
      * [HEADER_NAME_AUTHORIZATION] ("Authorization") and replaces any instance of
-     * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] in the value with the value of [authToken].
+     * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] in the value with the authToken (if any) currently
+     * stored in [SessionManager].
      */
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        return chain.proceed(
-            request.header(HEADER_NAME_AUTHORIZATION)?.let { value ->
-                request.newBuilder()
-                    .header(
-                        HEADER_NAME_AUTHORIZATION,
-                        value.replace(
-                            HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER,
-                            authToken,
-                            true
-                        )
+        val authToken = sessionManager.session?.authToken ?: ""
+        val originalRequest = chain.request()
+        val request = originalRequest.header(HEADER_NAME_AUTHORIZATION)?.let { value ->
+            originalRequest.newBuilder()
+                .header(
+                    HEADER_NAME_AUTHORIZATION,
+                    value.replace(
+                        HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER,
+                        authToken,
+                        true
                     )
-                    .build()
-            } ?: request
-        )
+                )
+                .build()
+        } ?: originalRequest
+        return chain.proceed(request)
     }
 
     // endregion Implemented methods

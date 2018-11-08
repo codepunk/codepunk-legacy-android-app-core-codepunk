@@ -130,6 +130,7 @@ class MainSettingsFragment :
         when (key) {
             PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED -> updatePreferenceScreen()
             PREF_KEY_DEVELOPER_OPTIONS_AUTHENTICATED_HASH -> updatePreferenceScreen()
+            PREF_KEY_CURRENT_ACCOUNT_NAME -> updatePreferenceScreen()
         }
     }
 

@@ -24,14 +24,25 @@
         android:layout_height="match_parent"
         tools:context="com.codepunk.core.ui.main.MainFragment">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@android:id/text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Hello, User!"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/log_in_out_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_standard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@android:id/text1"
+            android:text="@string/main_log_in" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -51,8 +51,9 @@ class AuthViewModel @Inject constructor(
     /**
      * The user web service.
      */
-    private val userWebservice: UserWebservice,
+    private val userWebservice: UserWebservice
 
+    /*
     /**
      * The authorization interception, which handles adding auth tokens to API requests.
      */
@@ -62,6 +63,7 @@ class AuthViewModel @Inject constructor(
      * The [SessionManager] for managing the user session.
      */
     private val sessionManager: SessionManager
+    */
 
 ) : ViewModel() {
 
@@ -100,10 +102,10 @@ class AuthViewModel @Inject constructor(
                 // relevant account information
                 authTokenUpdate.result?.let {
 
-                    sessionManager.openSession()
+//                    sessionManager.openSession()
 
                     // Set the auth token in authorizationInterceptor
-                    authorizationInterceptor.authToken = it.authToken
+//                    authorizationInterceptor.authToken = it.authToken
 
                     val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
                     val username = when (isEmail) {

@@ -24,28 +24,28 @@
 package com.codepunk.core.ui.main
 
 import android.accounts.Account
-import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.codepunk.core.BuildConfig.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import com.codepunk.core.BuildConfig.ACTION_SETTINGS
+import com.codepunk.core.BuildConfig.KEY_ACCOUNT
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.AuthTokenType
-import com.codepunk.core.user.getAccountByNameAndType
 import com.codepunk.core.di.scope.ActivityScope
+import com.codepunk.core.ui.auth.AuthViewModel
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
 
-private const val ACCOUNT_REQUIRED_REQUEST_CODE = 1
+const val ACCOUNT_REQUIRED_REQUEST_CODE = 1
 
 /**
  * The main [Activity] for the Codepunk app.
@@ -64,16 +64,17 @@ class MainActivity :
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     /**
-     * The application [SharedPreferences].
+     * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
      */
     @Inject
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
-     * The Android account manage.
+     * An instance of [AuthViewModel] for managing account-related data.
      */
-    @Inject
-    lateinit var accountManager: AccountManager
+    private val mainViewModel: MainViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
+    }
 
     // endregion Properties
 
@@ -86,60 +87,6 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-
-        when (savedInstanceState) {
-            null -> {
-
-                // TODO Maybe break this out? Extension function on AccountManager?
-
-                val name: String? = sharedPreferences.getString(PREF_KEY_CURRENT_ACCOUNT_TYPE, null)
-                val account: Account? = when (name) {
-                    null -> null
-                    else -> {
-                        val type: String = sharedPreferences.getString(
-                            PREF_KEY_CURRENT_ACCOUNT_TYPE,
-                            null
-                        ) ?: AUTHENTICATOR_ACCOUNT_TYPE
-                        accountManager.getAccountByNameAndType(name, type)
-                    }
-                } ?: let {
-                    // There was no "saved" account.
-                    // If there's only one account in the AccountManager, choose it
-                    val accounts = accountManager.getAccountsByType(AUTHENTICATOR_ACCOUNT_TYPE)
-                    when (accounts.size) {
-                        1 -> accounts[0]
-                        else -> null
-                    }
-                }
-
-                when (account) {
-                    null -> {
-                        // We didn't have a saved account
-                        // If there's more than one, open AuthenticateActivity with chooser
-                        startActivityForResult(
-                            Intent(ACTION_AUTHORIZATION),
-                            ACCOUNT_REQUIRED_REQUEST_CODE
-                        )
-                    }
-                    else -> {
-                        // We had a saved account
-                        Log.d("MainActivity", "")
-                        accountManager.getAuthToken(
-                            account,
-                            AuthTokenType.DEFAULT.value,
-                            null,
-                            this,
-                            { future ->
-                                val bundle = future?.result
-                                Log.d("MainActivity", "onCreate: bundle=$bundle")
-                            },
-                            null
-                        )
-                    }
-                }
-            }
-        }
-
         setContentView(R.layout.activity_main)
     }
 
@@ -156,12 +103,11 @@ class MainActivity :
                 RESULT_OK -> {
                     val account: Account? = data?.getParcelableExtra(KEY_ACCOUNT)
                     when (account) {
-                        null -> { /* TODO Respond to null account */
-                        }
-                        else -> onAccount(account)
+                        null -> finish() // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
+                        else -> mainViewModel.authenticate()
                     }
                 }
-                RESULT_CANCELED -> Log.d("MainActivity", "resultCode=RESULT_CANCELED")
+                RESULT_CANCELED -> finish()
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
@@ -200,15 +146,5 @@ class MainActivity :
         fragmentDispatchingAndroidInjector
 
     // endregion Implemented methods
-
-    // region Methods
-
-    private fun onAccount(account: Account) {
-        with(account) {
-            Log.d("MainActivity", "account=$name, type=$type")
-        }
-    }
-
-    // endregion Methods
 
 }

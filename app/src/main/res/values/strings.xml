@@ -41,6 +41,16 @@
 
     <!-- endregion Menus -->
 
+    <!-- region Main -->
+
+    <string name="main_log_in">Log In</string>
+
+    <string name="main_logging_in">Logging In…</string>
+
+    <string name="main_log_out">Log Out</string>
+
+    <!-- endregion Main -->
+
     <!-- region Authenticator -->
 
     <!--
@@ -59,6 +69,8 @@
 
     <string name="authenticator_password">Password</string>
 
+    <string name="authenticator_already_have_account">Already have an account?</string>
+
     <string name="authenticator_choose_account">Choose an account</string>
 
     <string name="authenticator_choose_account_colon">Choose an account:</string>
@@ -68,6 +80,8 @@
     <string name="authenticator_create">Create account</string>
 
     <string name="authenticator_log_in">Log in</string>
+
+    <string name="authenticator_or">Or:</string>
 
     <string name="authenticator_sent_email">We sent you an activation code! Please check your e-mail.</string>
 
@@ -146,7 +160,8 @@
     <!-- region Temporary -->
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="dependency_injection_message">Dependency injection: %1$s</string>
+    <string name="hello">Hello!</string>
+    <string name="hello_user">Hello, %1$s!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- endregion Temporary -->

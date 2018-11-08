@@ -27,6 +27,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.Navigation
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.ui.base.FormFragment
@@ -100,10 +101,11 @@ class CreateAccountFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.createBtn.setOnClickListener(this)
+        binding.loginBtn.setOnClickListener(this)
         with(binding) {
             addTextInputLayouts(emailLayout, passwordLayout, confirmPasswordLayout)
             addRequiredFields(emailEdit, passwordEdit, confirmPasswordEdit)
-            createBtn.setOnClickListener(this@CreateAccountFragment)
         }
     }
 
@@ -172,6 +174,9 @@ class CreateAccountFragment :
                             passwordEdit.text.toString()
                         )
                     }
+                }
+                loginBtn -> {
+                    Navigation.findNavController(v).navigate(R.id.action_create_account_to_log_in)
                 }
             }
         }
