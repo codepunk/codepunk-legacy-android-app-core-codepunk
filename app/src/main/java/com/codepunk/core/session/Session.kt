@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.user
+package com.codepunk.core.session
+
+import com.codepunk.core.data.model.User
+import com.codepunk.core.di.component.UserComponent
+import java.util.*
+
+private val PENDING_USER = Date(0L).let {
+    User(-1, "", "", "", "", false, it, it)
+}
 
 /**
  * A class with information about the current user session.
@@ -27,6 +35,24 @@ class Session(
 
     val authToken: String,
 
-    val refreshToken: String
+    val refreshToken: String,
 
-)
+    val userComponent: UserComponent,
+
+    val user: User = PENDING_USER
+
+) {
+
+    constructor(session: Session, user: User? = null) : this(
+        session.accountName,
+        session.accountType,
+        session.authToken,
+        session.refreshToken,
+        session.userComponent,
+        when (user) {
+            null -> session.user
+            else -> user
+        }
+    )
+
+}

@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * TODO NEXT:
- * Clean EVERY. SINGLE. New file just added. Clear those warnings!
- * Add DI to all new Settings screens/logic
- * Add "Logout" to Main Settings screen
- */
-
 package com.codepunk.core.ui.main
 
 import android.accounts.Account
@@ -38,6 +31,7 @@ import com.codepunk.core.BuildConfig.ACTION_SETTINGS
 import com.codepunk.core.BuildConfig.KEY_ACCOUNT
 import com.codepunk.core.R
 import com.codepunk.core.di.scope.ActivityScope
+import com.codepunk.core.session.SessionManager
 import com.codepunk.core.ui.auth.AuthViewModel
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -62,6 +56,12 @@ class MainActivity :
      */
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+
+    /**
+     * The application [SessionManager].
+     */
+    @Inject
+    lateinit var sessionManager: SessionManager
 
     /**
      * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
@@ -104,7 +104,7 @@ class MainActivity :
                     val account: Account? = data?.getParcelableExtra(KEY_ACCOUNT)
                     when (account) {
                         null -> finish() // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
-                        else -> mainViewModel.authenticate()
+                        else -> sessionManager.openSession() /* mainViewModel.authenticate() */
                     }
                 }
                 RESULT_CANCELED -> finish()

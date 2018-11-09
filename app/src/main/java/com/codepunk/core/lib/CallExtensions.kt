@@ -43,14 +43,20 @@ fun <Progress, Result> Call<Result>.toDataUpdate(data: Bundle? = null):
         val response = execute()
         when {
             response.isSuccessful ->
-                SuccessUpdate<Progress, Result>(response.body(), response)
-            else -> FailureUpdate( // TODO Try to process response.errorBody()?.string()? Or can I just do that in the observer?
+                SuccessUpdate<Progress, Result>(response.body(), response).apply {
+                    this.data = data
+                }
+            else -> FailureUpdate<Progress, Result>( // TODO Try to process response.errorBody()?.string()? Or can I just do that in the observer?
                 response.body(),
                 HttpStatusException(response.code()),
                 response
-            )
+            ).apply {
+                this.data = data
+            }
         }
     } catch (e: IOException) {
-        FailureUpdate(null, e)
+        FailureUpdate<Progress, Result>(null, e).apply {
+            this.data = data
+        }
     }
 }

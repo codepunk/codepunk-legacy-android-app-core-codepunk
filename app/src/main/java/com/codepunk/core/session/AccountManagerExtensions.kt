@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.user
+package com.codepunk.core.session
 
 import android.accounts.Account
 import android.accounts.AccountManager
@@ -37,7 +37,7 @@ fun AccountManager.getAccountsByName(name: String): Array<Account> {
  * Returns an [Account] whose name and type match the given [name] and [type], or null if
  * no accounts match.
  */
-fun AccountManager.getAccountByNameAndType(name: String, type: String): Account? {
+fun AccountManager.getAccountByNameAndType(name: String?, type: String): Account? {
     getAccountsByType(type).forEach { account ->
         when (account.name) {
             name -> return account

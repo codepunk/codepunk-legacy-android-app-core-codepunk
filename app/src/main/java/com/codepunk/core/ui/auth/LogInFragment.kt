@@ -27,6 +27,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
+import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.ui.base.FormFragment
@@ -105,6 +107,11 @@ class LogInFragment :
         with(binding) {
             addTextInputLayouts(usernameOrEmailLayout, passwordLayout)
             addRequiredFields(usernameOrEmailEdit, passwordEdit)
+        }
+        requireActivity().intent?.apply {
+            if (hasExtra(EXTRA_USERNAME)) {
+                binding.usernameOrEmailEdit.setText(getStringExtra(EXTRA_USERNAME))
+            }
         }
     }
 

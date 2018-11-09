@@ -132,6 +132,7 @@ android {
                 "ACCOUNT",
                 "DEVELOPER_OPTIONS_CLICKS_REMAINING",
                 "FIRST_TIME",
+                "INTENT",
                 "PENDING_INTENT"
         )
 

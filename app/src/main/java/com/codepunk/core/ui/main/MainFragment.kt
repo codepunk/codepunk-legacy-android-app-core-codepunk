@@ -16,8 +16,8 @@
 
 package com.codepunk.core.ui.main
 
-import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,11 +29,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.KEY_INTENT
 import com.codepunk.core.R
-import com.codepunk.core.data.model.User
 import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.lib.*
+import com.codepunk.core.session.Session
+import com.codepunk.core.session.SessionManager
 import com.codepunk.core.ui.auth.AuthViewModel
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.AndroidSupportInjection
@@ -60,6 +61,12 @@ class MainFragment :
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    /**
+     * The application [SessionManager].
+     */
+    @Inject
+    lateinit var sessionManager: SessionManager
 
     /**
      * The binding for this fragment.
@@ -112,7 +119,7 @@ class MainFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.logInOutBtn.setOnClickListener(this)
-        mainViewModel.liveUser.observe(this, Observer { onUserUpdate(it) })
+        sessionManager.observeSession(this, Observer { onSessionUpdate(it) })
     }
 
     // endregion Inherited methods
@@ -122,12 +129,9 @@ class MainFragment :
     override fun onClick(v: View?) {
         when (v) {
             binding.logInOutBtn -> {
-                when (mainViewModel.liveUser.value) {
-                    is PendingUpdate -> mainViewModel.authenticate()
-                    is SuccessUpdate -> mainViewModel.logOut()
-                    is FailureUpdate -> mainViewModel.authenticate()
-                    else -> { // No op
-                    }
+                when (sessionManager.session) {
+                    null -> sessionManager.openSession()
+                    else -> sessionManager.closeSession(true)
                 }
             }
         }
@@ -137,8 +141,8 @@ class MainFragment :
 
     // region Methods
 
-    private fun onUserUpdate(update: DataUpdate<Void, User>) {
-        Log.d("MainActivity", "onUserUpdate: update=$update")
+    private fun onSessionUpdate(update: DataUpdate<Void, Session>) {
+        Log.d("MainFragment", "onSessionUpdate: update=$update")
         when (update) {
             is PendingUpdate -> {
                 binding.text1.setText(R.string.hello)
@@ -151,18 +155,18 @@ class MainFragment :
                 binding.logInOutBtn.isEnabled = false
             }
             is SuccessUpdate -> {
-                binding.text1.text = getString(R.string.hello_user, update.result?.givenName)
-                binding.logInOutBtn.setText(R.string.main_log_out)
-                binding.logInOutBtn.isEnabled = true
+                update.result?.apply {
+                    binding.text1.text = getString(R.string.hello_user, user.givenName)
+                    binding.logInOutBtn.setText(R.string.main_log_out)
+                    binding.logInOutBtn.isEnabled = true
+                }
             }
             is FailureUpdate -> {
                 // Log.i?
-                val userAction: PendingIntent? =
-                    update.data?.getParcelable(BuildConfig.KEY_PENDING_INTENT)
-                userAction?.send()
-                // TODO Message when no pending intent found
                 binding.logInOutBtn.setText(R.string.main_log_in)
                 binding.logInOutBtn.isEnabled = true
+                val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
+                intent?.run { startActivityForResult(intent, ACCOUNT_REQUIRED_REQUEST_CODE) }
             }
         }
     }

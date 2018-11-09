@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.user
+package com.codepunk.core.session
 
 import android.accounts.AbstractAccountAuthenticator
 import android.accounts.Account

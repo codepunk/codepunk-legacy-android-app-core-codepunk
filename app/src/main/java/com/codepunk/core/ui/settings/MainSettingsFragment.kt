@@ -29,7 +29,7 @@ import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.ui.developer.DeveloperOptionsPasswordDialogFragment
 import com.codepunk.core.ui.developer.DisableDeveloperOptionsDialogFragment
-import com.codepunk.core.user.SessionManager
+import com.codepunk.core.session.SessionManager
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.startLaunchActivity
 import dagger.android.support.AndroidSupportInjection

@@ -21,9 +21,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.codepunk.core.CodepunkApp
+import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
-import com.codepunk.core.user.SessionManager
+import com.codepunk.core.session.SessionManager
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -66,12 +67,17 @@ object AppModule {
     @Provides
     @Singleton
     fun providesSessionManager(
-        @ApplicationContext applicationContext: Context,
         accountManager: AccountManager,
         sharedPreferences: SharedPreferences,
+        userWebservice: UserWebservice,
         userComponentBuilder: UserComponent.Builder
     ): SessionManager =
-        SessionManager(applicationContext, accountManager, sharedPreferences, userComponentBuilder)
+        SessionManager(
+            accountManager,
+            sharedPreferences,
+            userWebservice,
+            userComponentBuilder
+        )
 
     /**
      * Provides the default [SharedPreferences] for the app.

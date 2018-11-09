@@ -18,7 +18,8 @@ package com.codepunk.core.data.remote.interceptor
 
 import com.codepunk.core.data.remote.HEADER_NAME_AUTHORIZATION
 import com.codepunk.core.data.remote.HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER
-import com.codepunk.core.user.SessionManager
+import com.codepunk.core.session.SessionManager
+import dagger.Lazy
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -34,9 +35,10 @@ import javax.inject.Singleton
 class AuthorizationInterceptor @Inject constructor(
 
     /**
-     * The session manager used for managing a user session.
+     * The session manager used for managing a user session. Lazy to avoid circular reference in
+     * Dagger.
      */
-    private val sessionManager: SessionManager
+    private val lazySessionManager: Lazy<SessionManager>
 
 ) : Interceptor {
 
@@ -49,7 +51,7 @@ class AuthorizationInterceptor @Inject constructor(
      * stored in [SessionManager].
      */
     override fun intercept(chain: Interceptor.Chain): Response {
-        val authToken = sessionManager.session?.authToken ?: ""
+        val authToken = lazySessionManager.get().session?.authToken ?: ""
         val originalRequest = chain.request()
         val request = originalRequest.header(HEADER_NAME_AUTHORIZATION)?.let { value ->
             originalRequest.newBuilder()
