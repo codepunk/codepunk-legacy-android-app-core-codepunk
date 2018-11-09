@@ -81,7 +81,9 @@ class SessionManager(
      * An observable [Session] wrapped in a [DataUpdate] so observers can be notified of
      * changes to the status of the current session.
      */
-    private var liveSession = MediatorLiveData<DataUpdate<Void, Session>>()
+    private var liveSession = MediatorLiveData<DataUpdate<Void, Session>>().apply {
+        value = PendingUpdate()
+    }
 
     // endregion Properties
 
@@ -151,12 +153,12 @@ class SessionManager(
         // region Inherited methods
 
         override fun generateUpdate(vararg params: Void?): DataUpdate<Void, Session> {
-            // TODO Check for isCanceled
+            // TODO Check for isCanceled. Also error handling and why, after logging in,
+            // this system doesn't pick that up
 
             // 1) Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
             val type: String = AUTHENTICATOR_ACCOUNT_TYPE
-            val accounts =
-                accountManager.getAccountsByType(type)
+            val accounts = accountManager.getAccountsByType(type)
 
             // 2) Get the "current" account. The current account is either the account whose
             // name has been saved in shared preferences, or the sole account for the given
@@ -211,6 +213,7 @@ class SessionManager(
                 }
             )
 
+            // 4) Create a temporary session. This will be needed for the getUser call below.
             val tempSession = Session(
                 account.name,
                 account.type,
@@ -224,6 +227,8 @@ class SessionManager(
                 val response = userWebservice.getUser().execute()
                 when {
                     response.isSuccessful -> {
+                        // Create a new session from the temporary one, substituting in the
+                        // newly-fetched user
                         val user = response.body()
                         session = Session(tempSession, user)
                     }

@@ -22,6 +22,7 @@ import android.accounts.AccountManager.KEY_ACCOUNT_NAME
 import android.accounts.AccountManager.KEY_ACCOUNT_TYPE
 import android.accounts.AccountManager.KEY_PASSWORD
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.databinding.DataBindingUtil
@@ -66,6 +67,12 @@ class AuthenticateActivity :
      */
     @Inject
     lateinit var accountManager: AccountManager
+
+    /**
+     * The application [SharedPreferences].
+     */
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
 
     /**
      * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
@@ -181,11 +188,15 @@ class AuthenticateActivity :
                         val account = Account(accountName, accountType)
                         accountManager.addOrUpdateAccount(account, password)
 
+                        sharedPreferences.edit()
+                            .putString(PREF_KEY_CURRENT_ACCOUNT_NAME, accountName)
+                            .apply()
+
                         // Set the result to pass back to the calling activity
                         setResult(
                             RESULT_OK,
                             Intent().apply {
-//                                putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESULT, result)
+                                //                                putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESULT, result)
                                 putExtra(KEY_ACCOUNT, account)
                             }
                         )

@@ -16,6 +16,8 @@
 
 package com.codepunk.core.ui.main
 
+import android.accounts.Account
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -23,12 +25,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.KEY_INTENT
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
@@ -39,6 +43,11 @@ import com.codepunk.core.ui.auth.AuthViewModel
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
+
+/**
+ * Request code for manually authenticating the user when [SessionManager] encounters a problem.
+ */
+const val AUTHENTICATE_REQUEST_CODE = 1
 
 /**
  * A simple [Fragment] subclass.
@@ -113,6 +122,27 @@ class MainFragment :
 
     // region Inherited methods
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            AUTHENTICATE_REQUEST_CODE -> when (resultCode) {
+                AppCompatActivity.RESULT_OK -> {
+                    val account: Account? = data?.getParcelableExtra(BuildConfig.KEY_ACCOUNT)
+                    when (account) {
+                        null -> {
+                            // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
+                            // requireActivity().finish()
+                        }
+                        else -> sessionManager.openSession() // TODO Is this duplicating a lot of logic?
+                    }
+                }
+                Activity.RESULT_CANCELED -> { /* No op */
+                    // requireActivity().finish()
+                }
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
     /**
      * Updates the view.
      */
@@ -166,7 +196,12 @@ class MainFragment :
                 binding.logInOutBtn.setText(R.string.main_log_in)
                 binding.logInOutBtn.isEnabled = true
                 val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
-                intent?.run { startActivityForResult(intent, ACCOUNT_REQUIRED_REQUEST_CODE) }
+                intent?.run {
+                    startActivityForResult(
+                        intent,
+                        AUTHENTICATE_REQUEST_CODE
+                    )
+                }
             }
         }
     }

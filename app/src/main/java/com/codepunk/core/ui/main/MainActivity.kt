@@ -16,7 +16,6 @@
 
 package com.codepunk.core.ui.main
 
-import android.accounts.Account
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -28,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig.ACTION_SETTINGS
-import com.codepunk.core.BuildConfig.KEY_ACCOUNT
 import com.codepunk.core.R
 import com.codepunk.core.di.scope.ActivityScope
 import com.codepunk.core.session.SessionManager
@@ -38,8 +36,6 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
-
-const val ACCOUNT_REQUIRED_REQUEST_CODE = 1
 
 /**
  * The main [Activity] for the Codepunk app.
@@ -93,25 +89,6 @@ class MainActivity :
     // endregion Lifecycle methods
 
     // region Inherited methods
-
-    /**
-     * Called when an [Activity] launched with [Activity.startActivityForResult] exits.
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            ACCOUNT_REQUIRED_REQUEST_CODE -> when (resultCode) {
-                RESULT_OK -> {
-                    val account: Account? = data?.getParcelableExtra(KEY_ACCOUNT)
-                    when (account) {
-                        null -> finish() // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
-                        else -> sessionManager.openSession() /* mainViewModel.authenticate() */
-                    }
-                }
-                RESULT_CANCELED -> finish()
-            }
-            else -> super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
 
     /**
      * Creates the main options menu.
