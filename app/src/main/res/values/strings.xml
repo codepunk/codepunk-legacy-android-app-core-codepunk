@@ -153,6 +153,10 @@
 
     <string name="settings_label_main">Settings</string>
 
+    <string name="settings_log_out_dialog_message">You will be logged out of %1$s.</string>
+
+    <string name="settings_log_out_dialog_title">Are you sure?</string>
+
     <string name="settings_remote_environment_title">Remote environment</string>
 
     <!-- endregion Settings -->

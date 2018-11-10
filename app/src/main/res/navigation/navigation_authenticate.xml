@@ -28,11 +28,11 @@
         tools:layout="@layout/fragment_authenticate">
 
         <action
-            android:id="@+id/action_authenticate_to_create_account"
+            android:id="@+id/action_auth_to_create_account"
             app:destination="@id/fragment_create_account" />
 
         <action
-            android:id="@+id/action_authenticate_to_log_in"
+            android:id="@+id/action_auth_to_log_in"
             app:destination="@id/fragment_log_in" />
 
     </fragment>

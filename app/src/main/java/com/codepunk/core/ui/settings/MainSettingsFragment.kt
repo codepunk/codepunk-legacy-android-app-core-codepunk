@@ -22,13 +22,15 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.navigation.Navigation
 import androidx.preference.Preference
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.ui.developer.DeveloperOptionsPasswordDialogFragment
-import com.codepunk.core.ui.developer.DisableDeveloperOptionsDialogFragment
+import com.codepunk.core.lib.DataUpdate
+import com.codepunk.core.lib.SuccessUpdate
+import com.codepunk.core.session.Session
 import com.codepunk.core.session.SessionManager
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.startLaunchActivity
@@ -43,9 +45,14 @@ import javax.inject.Inject
 private const val DEVELOPER_PASSWORD_REQUEST_CODE = 0
 
 /**
+ * The request code used by the confirm log out dialog fragment.
+ */
+private const val CONFIRM_LOG_OUT_REQUEST_CODE = 1
+
+/**
  * The request code used by the disable developer options dialog fragment.
  */
-private const val DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE = 1
+private const val DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE = 2
 
 /**
  * The total number of clicks required to unlock developer options.
@@ -81,6 +88,13 @@ class MainSettingsFragment :
      */
     private val developerOptionsPreference by lazy {
         findPreference(PREF_KEY_DEVELOPER_OPTIONS_ENABLED) as TwoTargetSwitchPreference
+    }
+
+    /**
+     * The log out preference.
+     */
+    private val logOutPreference by lazy {
+        findPreference(PREF_KEY_LOG_OUT)
     }
 
     /**
@@ -139,6 +153,11 @@ class MainSettingsFragment :
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
+            CONFIRM_LOG_OUT_REQUEST_CODE -> {
+                when (resultCode) {
+                    Activity.RESULT_OK -> sessionManager.closeSession(true)
+                }
+            }
             DEVELOPER_PASSWORD_REQUEST_CODE -> {
                 when (resultCode) {
                     Activity.RESULT_OK -> {
@@ -176,6 +195,7 @@ class MainSettingsFragment :
         setPreferencesFromResource(R.xml.settings_main, rootKey)
         requireActivity().title = preferenceScreen.title
         aboutPreference.onPreferenceClickListener = this
+        logOutPreference.onPreferenceClickListener = this
         developerOptionsPreference.onPreferenceClickListener = this
         developerOptionsPreference.onPreferenceChangeListener = this
 
@@ -198,7 +218,13 @@ class MainSettingsFragment :
             else -> DEV_OPTS_CLICKS_TO_UNLOCK
         }
 
+        // Set initial preference visibility
         updatePreferenceScreen()
+        if (sessionManager.session == null) {
+            preferenceScreen.removePreference(logOutPreference)
+        }
+
+        sessionManager.observeSession(this, Observer { onSessionUpdate(it) })
     }
 
     // endregion Inherited methods
@@ -246,6 +272,10 @@ class MainSettingsFragment :
                 }
                 false
             }
+            logOutPreference -> {
+                showConfirmLogOutDialogFragment()
+                true
+            }
             developerOptionsPreference -> {
                 when {
                     isDeveloperOptionsEnabled -> {
@@ -269,7 +299,7 @@ class MainSettingsFragment :
 
     // endregion Implemented methods
 
-    // region Private methods
+    // region Methods
 
     /**
      * Handles when the about preference is clicked when developer options have already been
@@ -296,6 +326,28 @@ class MainSettingsFragment :
         }
     }
 
+    // TODO Consolidate these yes/no dialogs
+
+    /**
+     * Shows an OK/Cancel dialog confirming that the user wishes to disable developer options.
+     */
+    private fun showConfirmLogOutDialogFragment() {
+        with(requireFragmentManager()) {
+            if (findFragmentByTag(CONFIRM_LOG_OUT_FRAGMENT_TAG) != null) {
+                return
+            }
+
+            ConfirmLogOutDialogFragment()
+                .apply {
+                    setTargetFragment(
+                        this@MainSettingsFragment,
+                        CONFIRM_LOG_OUT_REQUEST_CODE
+                    )
+                }
+                .show(this, CONFIRM_LOG_OUT_FRAGMENT_TAG)
+        }
+    }
+
     /**
      * Shows the developer password dialog.
      */
@@ -305,7 +357,7 @@ class MainSettingsFragment :
                 return
             }
 
-            DeveloperOptionsPasswordDialogFragment.newInstance()
+            DeveloperOptionsPasswordDialogFragment()
                 .apply {
                     setTargetFragment(
                         this@MainSettingsFragment,
@@ -325,7 +377,7 @@ class MainSettingsFragment :
                 return
             }
 
-            DisableDeveloperOptionsDialogFragment.newInstance()
+            DisableDeveloperOptionsDialogFragment()
                 .apply {
                     setTargetFragment(
                         this@MainSettingsFragment,
@@ -378,9 +430,26 @@ class MainSettingsFragment :
         }
 
         // TODO Show/hide Log out preference, set summary to user name
+        sessionManager.session?.run {
+            logOutPreference.summary = accountName
+            preferenceScreen.addPreference(logOutPreference)
+        } ?: preferenceScreen.removePreference(logOutPreference)
     }
 
-    // endregion Private methods
+    /**
+     * Adds or removes the log out preference based on session state.
+     */
+    private fun onSessionUpdate(update: DataUpdate<Void, Session>) {
+        when (update) {
+            is SuccessUpdate -> {
+                logOutPreference.summary = update.result?.accountName
+                preferenceScreen.addPreference(logOutPreference)
+            }
+            else -> preferenceScreen.removePreference(logOutPreference)
+        }
+    }
+
+    // endregion Methods
 
     // region Companion object
 
@@ -389,14 +458,23 @@ class MainSettingsFragment :
         // region Properties
 
         /**
+         * The fragment tag to use for the confirm log out dialog fragment.
+         */
+        @JvmStatic
+        private val CONFIRM_LOG_OUT_FRAGMENT_TAG =
+            MainSettingsFragment::class.java.name + ".CONFIRM_LOG_OUT_DIALOG"
+
+        /**
          * The fragment tag to use for the developer password dialog fragment.
          */
+        @JvmStatic
         private val DEVELOPER_PASSWORD_DIALOG_FRAGMENT_TAG =
             MainSettingsFragment::class.java.name + ".DEVELOPER_PASSWORD_DIALOG"
 
         /**
          * The fragment tag to use for the disable developer options dialog fragment.
          */
+        @JvmStatic
         private val DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG =
             MainSettingsFragment::class.java.name + ".DISABLE_DEVELOPER_OPTIONS_DIALOG"
 

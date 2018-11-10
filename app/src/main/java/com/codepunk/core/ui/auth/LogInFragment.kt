@@ -27,7 +27,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
-import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
@@ -108,9 +107,9 @@ class LogInFragment :
             addTextInputLayouts(usernameOrEmailLayout, passwordLayout)
             addRequiredFields(usernameOrEmailEdit, passwordEdit)
         }
-        requireActivity().intent?.apply {
-            if (hasExtra(EXTRA_USERNAME)) {
-                binding.usernameOrEmailEdit.setText(getStringExtra(EXTRA_USERNAME))
+        arguments?.apply {
+            if (containsKey(EXTRA_USERNAME)) {
+                binding.usernameOrEmailEdit.setText(getString(EXTRA_USERNAME))
             }
         }
     }
@@ -141,12 +140,6 @@ class LogInFragment :
                             getString(R.string.authenticator_error_username_or_email)
                     false
                 }
-                /*
-                !Patterns.EMAIL_ADDRESS.matcher(emailEdit.text).matches() -> {
-                    emailLayout.error = getString(R.string.authenticator_error_email)
-                    false
-                }
-                */
                 TextUtils.isEmpty(passwordEdit.text) -> {
                     passwordLayout.error = getString(R.string.authenticator_error_password)
                     false

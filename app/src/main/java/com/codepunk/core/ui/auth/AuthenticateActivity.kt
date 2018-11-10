@@ -116,15 +116,7 @@ class AuthenticateActivity :
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
-        // TODO Must be a cleaner way to do this?
-        intent.categories?.let {
-            when {
-                it.contains(CATEGORY_CREATE_ACCOUNT) ->
-                    navigateTo(R.id.action_authenticate_to_create_account)
-                it.contains(CATEGORY_LOG_IN) ->
-                    navigateTo(R.id.action_authenticate_to_log_in)
-            }
-        }
+        processIntent(intent, false)
 
         authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
     }
@@ -139,7 +131,7 @@ class AuthenticateActivity :
     @Suppress("UNUSED")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        // TODO
+        processIntent(intent, true)
     }
 
     /**
@@ -163,6 +155,19 @@ class AuthenticateActivity :
     // endregion Implemented methods
 
     // region Methods
+
+    private fun processIntent(intent: Intent?, wasNewIntent: Boolean) {
+        // TODO Must be a cleaner way to do this?
+        val popUp: Boolean = !wasNewIntent
+        intent?.categories?.apply {
+            when {
+                contains(CATEGORY_CREATE_ACCOUNT) ->
+                    navigateTo(R.id.action_auth_to_create_account, popUp, intent.extras)
+                contains(CATEGORY_LOG_IN) ->
+                    navigateTo(R.id.action_auth_to_log_in, popUp, intent.extras)
+            }
+        }
+    }
 
     /**
      * Reacts to authorization data changing.
@@ -196,7 +201,7 @@ class AuthenticateActivity :
                         setResult(
                             RESULT_OK,
                             Intent().apply {
-                                //                                putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESULT, result)
+                                // putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESULT, result)
                                 putExtra(KEY_ACCOUNT, account)
                             }
                         )
@@ -247,13 +252,16 @@ class AuthenticateActivity :
     }
 
     /**
-     * Navigates to the given resId and pops up to the start destination.
+     * Navigates to the given resId and optionally pops up to the start destination.
      */
-    private fun navigateTo(resId: Int) {
-        val navOptions = NavOptions.Builder()
-            .setPopUpTo(R.id.fragment_authenticate, true)
-            .build()
-        navController.navigate(resId, null, navOptions)
+    private fun navigateTo(resId: Int, popUp: Boolean = true, args: Bundle? = null) {
+        val navOptions: NavOptions? = when (popUp) {
+            true -> NavOptions.Builder()
+                .setPopUpTo(R.id.fragment_authenticate, true)
+                .build()
+            false -> null
+        }
+        navController.navigate(resId, args, navOptions)
     }
 
     // endregion Methods

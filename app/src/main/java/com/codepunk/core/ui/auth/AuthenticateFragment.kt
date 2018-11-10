@@ -18,7 +18,10 @@ package com.codepunk.core.ui.auth
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.accounts.AccountManager.KEY_INTENT
+import android.accounts.OperationCanceledException
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -35,6 +38,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.databinding.FragmentAuthenticateBinding
@@ -167,18 +171,36 @@ class AuthenticateFragment :
             account,
             AuthTokenType.DEFAULT.value,
             null,
-            requireActivity(),
-            { future ->
-                future.result.apply {
-                    // This is the same bundle that AuthenticateActivity uses to set and finish
-                    // in onAuthUpdate(). So how to just set it now?
-                    /*
-                    val accountName = getString(KEY_ACCOUNT_NAME)
-                    val accountType = getString(KEY_ACCOUNT_TYPE)
-                    val authToken = getString(KEY_AUTHTOKEN)
-                    val refreshToken = getString(KEY_PASSWORD)
-                    */
-                    Log.d("AuthenticateFragment", "bundle=$this")
+            false,
+//            requireActivity(),
+            { future -> // TODO Maybe don't need this entire future block
+                try {
+                    future.result.apply {
+                        // This is the same bundle that AuthenticateActivity uses to set and finish
+                        // in onAuthUpdate(). So how to just set it now?
+                        /*
+                        val accountName = getString(KEY_ACCOUNT_NAME)
+                        val accountType = getString(KEY_ACCOUNT_TYPE)
+                        val authToken = getString(KEY_AUTHTOKEN)
+                        val refreshToken = getString(KEY_PASSWORD)
+                        */
+                        // Set username in intent before starting activity
+                        Log.d("AuthenticateFragment", "bundle=$this")
+                        if (containsKey(KEY_INTENT)) {
+                            (getParcelable(KEY_INTENT) as? Intent)?.apply {
+                                putExtra(EXTRA_USERNAME, account.name)
+                                startActivity(this)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    when (e) {
+                        is OperationCanceledException -> { /* No op */
+                        }
+                        else -> {
+                            // TODO Show error
+                        }
+                    }
                 }
             },
             null

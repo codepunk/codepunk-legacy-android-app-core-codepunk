@@ -159,6 +159,7 @@ class AccountAuthenticator @Inject constructor(
                 putParcelable(
                     KEY_INTENT,
                     Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                        // flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                         addCategory(CATEGORY_LOG_IN)
                         putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                         putExtra(EXTRA_USERNAME, account.name)

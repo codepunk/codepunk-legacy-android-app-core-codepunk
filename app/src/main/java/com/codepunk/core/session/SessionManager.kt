@@ -93,7 +93,10 @@ class SessionManager(
      * Executes a new [SessionTask] to authenticate a user of the application. An existing
      * task can be canceled using the [cancelExisting] option.
      */
-    fun openSession(cancelExisting: Boolean = true): LiveData<DataUpdate<Void, Session>> {
+    fun openSession(
+        cancelExisting: Boolean = true,
+        silentMode: Boolean = false
+    ): LiveData<DataUpdate<Void, Session>> {
         sessionTask?.apply {
             if (cancelExisting) {
                 this.cancel(true)
@@ -102,7 +105,7 @@ class SessionManager(
             }
         }
 
-        SessionTask().apply {
+        SessionTask(silentMode).apply {
             sessionTask = this
             liveSession.addSource(liveData) { liveSession.value = it }
             fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
@@ -148,7 +151,9 @@ class SessionManager(
      * create a new [Session] object to track that user.
      */
     @SuppressLint("StaticFieldLeak")
-    private inner class SessionTask : DataTask<Void, Void, Session>() {
+    private inner class SessionTask(
+        private val silentMode: Boolean
+    ) : DataTask<Void, Void, Session>() {
 
         // region Inherited methods
 
@@ -166,13 +171,17 @@ class SessionManager(
             val account = when (accounts.size) {
                 0 -> return FailureUpdate(
                     e = SecurityException("There are no accounts in the account manager"),
-                    data = Bundle().apply {
-                        putParcelable(
-                            KEY_INTENT,
-                            Intent(ACTION_AUTHORIZATION).apply {
-                                addCategory(CATEGORY_CREATE_ACCOUNT)
-                            }
-                        )
+                    data = if (!silentMode) {
+                        Bundle().apply {
+                            putParcelable(
+                                KEY_INTENT,
+                                Intent(ACTION_AUTHORIZATION).apply {
+                                    addCategory(CATEGORY_CREATE_ACCOUNT)
+                                }
+                            )
+                        }
+                    } else {
+                        null
                     }
                 )
                 1 -> accounts[0]
@@ -184,13 +193,17 @@ class SessionManager(
                 }
             } ?: return FailureUpdate(
                 e = SecurityException("Could not determine the current account"),
-                data = Bundle().apply {
-                    putParcelable(
-                        KEY_INTENT,
-                        Intent(ACTION_AUTHORIZATION).apply {
-                            addCategory(CATEGORY_MAIN)
-                        }
-                    )
+                data = if (!silentMode) {
+                    Bundle().apply {
+                        putParcelable(
+                            KEY_INTENT,
+                            Intent(ACTION_AUTHORIZATION).apply {
+                                addCategory(CATEGORY_MAIN)
+                            }
+                        )
+                    }
+                } else {
+                    null
                 }
             )
 
@@ -201,15 +214,18 @@ class SessionManager(
                 false
             ) ?: return FailureUpdate(
                 e = SecurityException("Authentication failed getting auth token"),
-                data = Bundle().apply {
-                    putParcelable(
-                        KEY_INTENT,
-                        Intent(ACTION_AUTHORIZATION).apply {
-                            addCategory(CATEGORY_LOG_IN)
-                            putExtra(EXTRA_USERNAME, account.name)
-                        }
-                    )
-
+                data = if (!silentMode) {
+                    Bundle().apply {
+                        putParcelable(
+                            KEY_INTENT,
+                            Intent(ACTION_AUTHORIZATION).apply {
+                                addCategory(CATEGORY_LOG_IN)
+                                putExtra(EXTRA_USERNAME, account.name)
+                            }
+                        )
+                    }
+                } else {
+                    null
                 }
             )
 

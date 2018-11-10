@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.developer
+package com.codepunk.core.ui.settings
 
 import android.animation.Animator
 import android.animation.AnimatorInflater
@@ -147,22 +147,4 @@ class DeveloperOptionsPasswordDialogFragment : AppCompatDialogFragment(),
 
     // endregion Implemented methods
 
-    // region Companion object
-
-    companion object {
-
-        // region Methods
-
-        /**
-         * Creates a new instance of the [DeveloperOptionsPasswordDialogFragment].
-         */
-        fun newInstance(): DeveloperOptionsPasswordDialogFragment {
-            return DeveloperOptionsPasswordDialogFragment()
-        }
-
-        // endregion Methods
-
-    }
-
-    // endregion Companion object
 }

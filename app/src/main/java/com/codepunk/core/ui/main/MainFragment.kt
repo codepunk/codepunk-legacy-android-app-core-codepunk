@@ -20,6 +20,9 @@ import android.accounts.Account
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.os.AsyncTask
+import android.os.AsyncTask.Status
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -34,6 +37,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.KEY_INTENT
+import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_ACCOUNT_NAME
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.lib.*
@@ -64,6 +68,12 @@ class MainFragment :
      */
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+
+    /**
+     * The application [SharedPreferences].
+     */
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
 
     /**
      * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
@@ -132,12 +142,13 @@ class MainFragment :
                             // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
                             // requireActivity().finish()
                         }
-                        else -> sessionManager.openSession() // TODO Is this duplicating a lot of logic?
+                        else -> sessionManager.openSession(
+                            true,
+                            true
+                        ) // TODO Is this duplicating a lot of logic?
                     }
                 }
-                Activity.RESULT_CANCELED -> { /* No op */
-                    // requireActivity().finish()
-                }
+                Activity.RESULT_CANCELED -> updateUI(Status.PENDING)
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
@@ -149,6 +160,14 @@ class MainFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.logInOutBtn.setOnClickListener(this)
+
+        // If we have an account saved, try to silently log into it now
+        if (savedInstanceState == null) {
+            if (sharedPreferences.contains(PREF_KEY_CURRENT_ACCOUNT_NAME)) {
+                sessionManager.openSession(true, true)
+            }
+        }
+
         sessionManager.observeSession(this, Observer { onSessionUpdate(it) })
     }
 
@@ -174,34 +193,38 @@ class MainFragment :
     private fun onSessionUpdate(update: DataUpdate<Void, Session>) {
         Log.d("MainFragment", "onSessionUpdate: update=$update")
         when (update) {
-            is PendingUpdate -> {
+            is PendingUpdate -> updateUI(Status.PENDING)
+            is ProgressUpdate -> updateUI(Status.RUNNING)
+            is SuccessUpdate -> updateUI(Status.FINISHED, update.result?.user?.givenName)
+            is FailureUpdate -> {
+                val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
+                intent?.run {
+                    updateUI(Status.RUNNING)
+                    startActivityForResult(intent, AUTHENTICATE_REQUEST_CODE)
+                } ?: updateUI(Status.PENDING)
+            }
+        }
+    }
+
+    private fun updateUI(status: AsyncTask.Status, givenName: String? = null) {
+        when (status) {
+            Status.PENDING -> {
                 binding.text1.setText(R.string.hello)
                 binding.logInOutBtn.setText(R.string.main_log_in)
                 binding.logInOutBtn.isEnabled = true
             }
-            is ProgressUpdate -> {
+            Status.RUNNING -> {
                 binding.text1.setText(R.string.main_logging_in)
                 binding.logInOutBtn.setText(R.string.main_log_in)
                 binding.logInOutBtn.isEnabled = false
             }
-            is SuccessUpdate -> {
-                update.result?.apply {
-                    binding.text1.text = getString(R.string.hello_user, user.givenName)
-                    binding.logInOutBtn.setText(R.string.main_log_out)
-                    binding.logInOutBtn.isEnabled = true
+            Status.FINISHED -> {
+                binding.text1.text = when (givenName) {
+                    null -> getString(R.string.hello)
+                    else -> getString(R.string.hello_user, givenName)
                 }
-            }
-            is FailureUpdate -> {
-                // Log.i?
-                binding.logInOutBtn.setText(R.string.main_log_in)
+                binding.logInOutBtn.setText(R.string.main_log_out)
                 binding.logInOutBtn.isEnabled = true
-                val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
-                intent?.run {
-                    startActivityForResult(
-                        intent,
-                        AUTHENTICATE_REQUEST_CODE
-                    )
-                }
             }
         }
     }

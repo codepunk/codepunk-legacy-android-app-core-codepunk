@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.developer
+package com.codepunk.core.ui.settings
 
 import android.app.Activity
 import android.app.Dialog
@@ -62,22 +62,4 @@ class DisableDeveloperOptionsDialogFragment : AppCompatDialogFragment(),
 
     // endregion Implemented methods
 
-    // region Companion object
-
-    companion object {
-
-        // region Methods
-
-        /**
-         * Creates a new instance of [DisableDeveloperOptionsDialogFragment].
-         */
-        fun newInstance(): DisableDeveloperOptionsDialogFragment {
-            return DisableDeveloperOptionsDialogFragment()
-        }
-
-        // endregion Methods
-
-    }
-
-    // endregion Companion object
 }
