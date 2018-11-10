@@ -99,9 +99,9 @@ class SessionManager(
     ): LiveData<DataUpdate<Void, Session>> {
         sessionTask?.apply {
             if (cancelExisting) {
-                this.cancel(true)
+                cancel(true)
             } else {
-                return this.liveData
+                return liveData
             }
         }
 
@@ -158,8 +158,7 @@ class SessionManager(
         // region Inherited methods
 
         override fun generateUpdate(vararg params: Void?): DataUpdate<Void, Session> {
-            // TODO Check for isCanceled. Also error handling and why, after logging in,
-            // this system doesn't pick that up
+            // TODO Check for isCanceled.
 
             // 1) Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
             val type: String = AUTHENTICATOR_ACCOUNT_TYPE

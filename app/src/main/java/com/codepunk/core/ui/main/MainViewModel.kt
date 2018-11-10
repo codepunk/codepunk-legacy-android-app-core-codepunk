@@ -24,13 +24,10 @@ import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.session.SessionManager
 import javax.inject.Inject
 
-/*
- * Author(s): Scott Slater
- */
-
 /**
  * An [AndroidViewModel] for managing primary data for the Codepunk application.
  */
+@Suppress("UNUSED")
 class MainViewModel @Inject constructor(
 
     /**

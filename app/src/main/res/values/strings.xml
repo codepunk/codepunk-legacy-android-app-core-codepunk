@@ -91,7 +91,7 @@
 
     <string name="authenticator_error_email">Enter a valid email</string>
 
-    <string name="authenticator_error_password">Enter a valid passowrd</string>
+    <string name="authenticator_error_password">Enter a valid password</string>
 
     <string name="authenticator_error_confirm_password">Confirm password</string>
 
@@ -143,7 +143,10 @@
 
     <string name="settings_developer_options_redundant_show_request">No need, developer options are already unlocked</string>
 
-    <string name="settings_developer_options_steps_from_unlocking">You are now %d steps away from unlocking developer options!</string>
+    <plurals name="settings_developer_options_steps_from_unlocking">
+        <item quantity="one">You are now %d step away from unlocking developer options!</item>
+        <item quantity="other">You are now %d steps away from unlocking developer options!</item>
+    </plurals>
 
     <string name="settings_label_about">About</string>
 

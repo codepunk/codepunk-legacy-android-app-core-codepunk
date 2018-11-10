@@ -16,12 +16,10 @@
 
 package com.codepunk.core.data.model.auth
 
-import android.accounts.AccountManager
 import android.content.Context
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import com.codepunk.core.R
-import com.codepunk.core.data.remote.webservice.AuthWebservice
 
 /**
  * Enum class representing authorization token types in accounts managed by Android.
@@ -74,6 +72,8 @@ enum class AuthTokenType(
 
     companion object {
 
+        // region Properties
+
         /**
          * A lookup map of labels to authorization token types.
          */
@@ -85,6 +85,10 @@ enum class AuthTokenType(
             }
         }
 
+        // endregion Properties
+
+        // region Methods
+
         /**
          * Returns the authorization token type associated with the given [value], or
          * [defaultValue] if no such type is found.
@@ -95,6 +99,8 @@ enum class AuthTokenType(
         ): AuthTokenType? {
             return lookupMap[value] ?: defaultValue
         }
+
+        // endregion Methods
 
     }
 

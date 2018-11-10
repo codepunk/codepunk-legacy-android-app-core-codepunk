@@ -27,6 +27,10 @@ class HttpStatusException : RuntimeException {
 
     // region Properties
 
+    /**
+     * The [HttpStatus] that resulted in this exception.
+     */
+    @Suppress("WEAKER_ACCESS")
     val httpStatus: HttpStatus
 
     // endregion Properties

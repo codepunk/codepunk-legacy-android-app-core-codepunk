@@ -20,6 +20,12 @@ import com.codepunk.core.data.model.http.ResponseMessage
 import retrofit2.Response
 import retrofit2.Retrofit
 
+/**
+ * Converts a [Response] containing a [ResponseMessage] into a ResponseMessage. This may sound
+ * trivial but when a request comes back unsuccessful, the errorBody contains a JSON string
+ * that represents a ResponseMessage, and that must be converted here.
+ */
+@Suppress("UNUSED")
 fun Response<ResponseMessage>.toMessage(retrofit: Retrofit): ResponseMessage? {
     return when {
         isSuccessful -> body()

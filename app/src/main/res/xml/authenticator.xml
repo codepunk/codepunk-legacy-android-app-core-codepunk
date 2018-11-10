@@ -15,6 +15,7 @@
   ~ limitations under the License.
   -->
 
+<!--suppress AndroidDomInspection -->
 <account-authenticator
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="@string/authenticator_account_type"

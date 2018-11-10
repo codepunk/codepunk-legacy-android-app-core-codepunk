@@ -19,11 +19,9 @@ package com.codepunk.core.ui.auth
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.AccountManager.KEY_INTENT
-import android.accounts.OperationCanceledException
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -43,6 +41,7 @@ import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.AuthTokenType
 import com.codepunk.core.databinding.FragmentAuthenticateBinding
 import com.codepunk.core.lib.CustomDividerItemDecoration
+import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -54,6 +53,12 @@ class AuthenticateFragment :
     OnClickListener {
 
     // region Properties
+
+    /**
+     * The application-level [FormattingLoginator].
+     */
+    @Inject
+    lateinit var loginator: FormattingLoginator
 
     /**
      * The [AccountManager] instance.
@@ -144,10 +149,10 @@ class AuthenticateFragment :
     override fun onClick(v: View) {
         when (v) {
             binding.createBtn -> Navigation.findNavController(v).navigate(
-                R.id.action_authenticate_to_create_account
+                R.id.action_auth_to_create_account
             )
             binding.loginBtn -> Navigation.findNavController(v).navigate(
-                R.id.action_authenticate_to_log_in
+                R.id.action_auth_to_log_in
             )
             else -> AccountViewHolder.of(v)?.run {
                 onAccountClick(this.account)
@@ -160,8 +165,6 @@ class AuthenticateFragment :
     // region Methods
 
     private fun onAccountClick(account: Account) {
-        Log.d("AuthenticateFragment", "onAccountClick: account=$account")
-
         // TODO Maybe we have a method in AuthViewModel that is like
         // authenticateWithAccount(account Account). Then we don't need spinner here.
         // AuthenticateActivity has an observer for DataUpdate<ResponseMessage????, Bundle>
@@ -172,20 +175,10 @@ class AuthenticateFragment :
             AuthTokenType.DEFAULT.value,
             null,
             false,
-//            requireActivity(),
-            { future -> // TODO Maybe don't need this entire future block
+            { future ->
                 try {
                     future.result.apply {
-                        // This is the same bundle that AuthenticateActivity uses to set and finish
-                        // in onAuthUpdate(). So how to just set it now?
-                        /*
-                        val accountName = getString(KEY_ACCOUNT_NAME)
-                        val accountType = getString(KEY_ACCOUNT_TYPE)
-                        val authToken = getString(KEY_AUTHTOKEN)
-                        val refreshToken = getString(KEY_PASSWORD)
-                        */
-                        // Set username in intent before starting activity
-                        Log.d("AuthenticateFragment", "bundle=$this")
+                        // Add username to intent before starting activity
                         if (containsKey(KEY_INTENT)) {
                             (getParcelable(KEY_INTENT) as? Intent)?.apply {
                                 putExtra(EXTRA_USERNAME, account.name)
@@ -194,13 +187,8 @@ class AuthenticateFragment :
                         }
                     }
                 } catch (e: Exception) {
-                    when (e) {
-                        is OperationCanceledException -> { /* No op */
-                        }
-                        else -> {
-                            // TODO Show error
-                        }
-                    }
+                    // This should already be handled by logic in AccountAuthenticator.
+                    loginator.w(e)
                 }
             },
             null

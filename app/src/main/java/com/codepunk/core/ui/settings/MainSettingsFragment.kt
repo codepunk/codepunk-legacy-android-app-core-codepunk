@@ -320,7 +320,11 @@ class MainSettingsFragment :
         if (steps in 1..DEV_OPTS_CLICKS_REMAINING_TOAST) {
             Toast.makeText(
                 context,
-                getString(R.string.settings_developer_options_steps_from_unlocking, steps),
+                resources.getQuantityString(
+                    R.plurals.settings_developer_options_steps_from_unlocking,
+                    steps,
+                    steps
+                ),
                 Toast.LENGTH_SHORT
             ).show()
         }

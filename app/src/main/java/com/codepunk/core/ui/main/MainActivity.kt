@@ -56,6 +56,7 @@ class MainActivity :
     /**
      * The application [SessionManager].
      */
+    @Suppress("UNUSED")
     @Inject
     lateinit var sessionManager: SessionManager
 
@@ -68,6 +69,7 @@ class MainActivity :
     /**
      * An instance of [AuthViewModel] for managing account-related data.
      */
+    @Suppress("UNUSED")
     private val mainViewModel: MainViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
     }

@@ -16,7 +16,6 @@
 
 package com.codepunk.core.di.module
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.codepunk.core.di.key.ViewModelKey

@@ -19,6 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_label_developer_options">
 
+    <!--suppress AndroidDomInspection -->
     <ListPreference
         android:key="@string/pref_key_remote_environment"
         android:title="@string/settings_remote_environment_title"

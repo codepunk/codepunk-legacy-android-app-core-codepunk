@@ -55,7 +55,18 @@ interface AppComponent : AndroidInjector<CodepunkApp> {
      * Helper class for creating an instance of [AppComponent].
      */
     @Component.Builder
-    abstract class Builder : AndroidInjector.Builder<CodepunkApp>()
+    abstract class Builder : AndroidInjector.Builder<CodepunkApp>() {
+
+        // region Methods
+
+        /**
+         * Builds an instance of type [AppComponent].
+         */
+        abstract override fun build(): AppComponent
+
+        // endregion Methods
+
+    }
 
     // endregion Nested/inner classes
 

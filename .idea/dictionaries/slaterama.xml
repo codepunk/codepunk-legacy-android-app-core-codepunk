@@ -5,11 +5,13 @@
       <w>authtoken</w>
       <w>beyls</w>
       <w>codepunk</w>
+      <w>constraintlayout</w>
       <w>datainator</w>
       <w>deps</w>
       <w>dokka</w>
       <w>doofenschmirtz</w>
       <w>ericfu</w>
+      <w>jcenter</w>
       <w>kapt</w>
       <w>laravel</w>
       <w>lateinit</w>
@@ -21,6 +23,7 @@
       <w>pluginator</w>
       <w>proxying</w>
       <w>settingslib</w>
+      <w>slaterama</w>
       <w>snackbar</w>
       <w>squareup</w>
       <w>subcomponent</w>

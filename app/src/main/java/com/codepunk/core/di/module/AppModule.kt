@@ -25,6 +25,9 @@ import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.codepunk.core.session.SessionManager
+import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.doofenschmirtz.util.loginator.LogcatLoginator
+import com.codepunk.doofenschmirtz.util.loginator.Loginator
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -49,6 +52,14 @@ object AppModule {
     @Singleton
     @ApplicationContext
     fun providesContext(app: CodepunkApp): Context = app
+
+    /**
+     * Provides the application-level [Loginator].
+     */
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun providesLoginator(): FormattingLoginator = FormattingLoginator(LogcatLoginator())
 
     /**
      * Provides an [AccountManager] instance for providing access to a centralized registry of

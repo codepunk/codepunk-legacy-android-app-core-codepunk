@@ -95,16 +95,7 @@ class AuthViewModel @Inject constructor(
         // Process the authorize endpoint result
         when (authTokenUpdate) {
             is SuccessUpdate -> {
-                // If we got a successful Authorization, add (or update) the
-                // account in the AccountManager and pass a bundle back with
-                // relevant account information
                 authTokenUpdate.result?.let {
-
-//                    sessionManager.openSession()
-
-                    // Set the auth token in authorizationInterceptor
-//                    authorizationInterceptor.authToken = it.authToken
-
                     val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
                     val username = when (isEmail) {
                         true -> {

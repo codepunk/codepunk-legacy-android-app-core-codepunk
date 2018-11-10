@@ -20,20 +20,6 @@ import android.accounts.Account
 import android.accounts.AccountManager
 
 /**
- * Returns an array of [Account]s of any type that match the given [name], or an empty array
- * if no accounts match.
- */
-fun AccountManager.getAccountsByName(name: String): Array<Account> {
-    val accounts: ArrayList<Account> = ArrayList()
-    getAccounts().forEach { account ->
-        when (account.name) {
-            name -> accounts.add(account)
-        }
-    }
-    return accounts.toTypedArray()
-}
-
-/**
  * Returns an [Account] whose name and type match the given [name] and [type], or null if
  * no accounts match.
  */
