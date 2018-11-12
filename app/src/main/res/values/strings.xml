@@ -97,6 +97,10 @@
 
     <string name="authenticator_error_passwords_do_not_match">Passwords do not match</string>
 
+    <string name="authenticator_error_invalid_credentials">The username or password is incorrect.</string>
+
+    <string name="authenticator_error_create_account">Unable to create a new account.</string>
+
     <!-- endregion Authenticator -->
 
     <!-- region Environments -->

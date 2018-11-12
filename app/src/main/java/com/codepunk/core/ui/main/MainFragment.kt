@@ -21,29 +21,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.AsyncTask
-import android.os.AsyncTask.Status
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.BuildConfig.KEY_INTENT
-import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_ACCOUNT_NAME
+import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.lib.*
 import com.codepunk.core.session.Session
 import com.codepunk.core.session.SessionManager
-import com.codepunk.core.ui.auth.AuthViewModel
-import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -53,9 +43,23 @@ import javax.inject.Inject
 const val AUTHENTICATE_REQUEST_CODE = 1
 
 /**
+ * A constant that indicates logged out state.
+ */
+private const val STATE_LOGGED_OUT = 0
+
+/**
+ * A constant that indicates logging in state.
+ */
+private const val STATE_LOGGING_IN = 1
+
+/**
+ * A constant that indicates logged in state.
+ */
+private const val STATE_LOGGED_IN = 2
+
+/**
  * A simple [Fragment] subclass.
  */
-@Suppress("unused")
 class MainFragment :
     Fragment(),
     View.OnClickListener {
@@ -63,22 +67,10 @@ class MainFragment :
     // region Properties
 
     /**
-     * Performs dependency injection on fragments.
-     */
-    @Inject
-    lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-
-    /**
      * The application [SharedPreferences].
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences
-
-    /**
-     * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
-     */
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
      * The application [SessionManager].
@@ -90,13 +82,6 @@ class MainFragment :
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentMainBinding
-
-    /**
-     * An instance of [AuthViewModel] for managing account-related data.
-     */
-    private val mainViewModel: MainViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
-    }
 
     // endregion Properties
 
@@ -144,15 +129,33 @@ class MainFragment :
                             // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
                             // requireActivity().finish()
                         }
-                        else -> sessionManager.openSession(
-                            true,
-                            true
-                        ) // TODO Is this duplicating a lot of logic?
+                        else -> sessionManager.openSession(true, true)
                     }
                 }
-                Activity.RESULT_CANCELED -> updateUI(Status.PENDING)
+                Activity.RESULT_CANCELED -> updateUI(STATE_LOGGED_OUT)
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    /**
+     * Creates the options menu.
+     */
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    /**
+     * Handles menu selections.
+     */
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.menu_settings -> {
+                startActivity(Intent(ACTION_SETTINGS))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -196,41 +199,31 @@ class MainFragment :
     // region Methods
 
     private fun onSessionUpdate(update: DataUpdate<Void, Session>) {
-        Log.d("MainFragment", "onSessionUpdate: update=$update")
         when (update) {
-            is PendingUpdate -> updateUI(Status.PENDING)
-            is ProgressUpdate -> updateUI(Status.RUNNING)
-            is SuccessUpdate -> updateUI(Status.FINISHED, update.result?.user?.givenName)
+            is PendingUpdate -> updateUI(STATE_LOGGED_OUT)
+            is ProgressUpdate -> updateUI(STATE_LOGGING_IN)
+            is SuccessUpdate -> updateUI(STATE_LOGGED_IN, update.result?.user?.givenName)
             is FailureUpdate -> {
                 val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
                 intent?.run {
-                    updateUI(Status.RUNNING)
+                    updateUI(STATE_LOGGING_IN)
                     startActivityForResult(intent, AUTHENTICATE_REQUEST_CODE)
-                } ?: updateUI(Status.PENDING)
+                } ?: updateUI(STATE_LOGGED_OUT)
             }
         }
     }
 
-    private fun updateUI(status: AsyncTask.Status, givenName: String? = null) {
-        when (status) {
-            Status.PENDING -> {
-                binding.text1.setText(R.string.hello)
-                binding.logInOutBtn.setText(R.string.main_log_in)
-                binding.logInOutBtn.isEnabled = true
-            }
-            Status.RUNNING -> {
-                binding.text1.setText(R.string.main_logging_in)
-                binding.logInOutBtn.setText(R.string.main_log_in)
-                binding.logInOutBtn.isEnabled = false
-            }
-            Status.FINISHED -> {
-                binding.text1.text = when (givenName) {
-                    null -> getString(R.string.hello)
-                    else -> getString(R.string.hello_user, givenName)
-                }
-                binding.logInOutBtn.setText(R.string.main_log_out)
-                binding.logInOutBtn.isEnabled = true
-            }
+    /**
+     * Updates the UI.
+     */
+    private fun updateUI(state: Int, givenName: String? = null) {
+        with(binding) {
+            text1.text = if (givenName.isNullOrEmpty()) getString(R.string.hello)
+            else getString(R.string.hello_user, givenName)
+            logInOutBtn.setText(
+                if (state == STATE_LOGGED_IN) R.string.main_log_out else R.string.main_log_in
+            )
+            logInOutBtn.isEnabled = (state != STATE_LOGGING_IN)
         }
     }
 

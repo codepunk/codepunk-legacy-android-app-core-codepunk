@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,8 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms
  * stored anywhere in the app; rather, the SHA-256 hashed password is stored and this class hashes
  * the user's input in order to compare it with the stored hash.
  */
-class DeveloperOptionsPasswordDialogFragment : AppCompatDialogFragment(),
+class DeveloperOptionsPasswordDialogFragment :
+    AppCompatDialogFragment(),
     DialogInterface.OnShowListener,
     View.OnClickListener {
 

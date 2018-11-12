@@ -32,6 +32,7 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.SuccessUpdate
 import com.codepunk.core.session.Session
 import com.codepunk.core.session.SessionManager
+import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.startLaunchActivity
 import dagger.android.support.AndroidSupportInjection
@@ -109,8 +110,14 @@ class MainSettingsFragment :
      */
     private var clicksToUnlockDeveloperOptions = 0
 
+    /**
+     * Indicates whether developer options are enabled.
+     */
     private var isDeveloperOptionsEnabled: Boolean = false
 
+    /**
+     * Indicates whether developer options are unlocked (i.e. visible).
+     */
     private var isDeveloperOptionsUnlocked: Boolean = false
 
     // endregion Properties
@@ -155,7 +162,8 @@ class MainSettingsFragment :
         when (requestCode) {
             CONFIRM_LOG_OUT_REQUEST_CODE -> {
                 when (resultCode) {
-                    Activity.RESULT_OK -> sessionManager.closeSession(true)
+                    SimpleDialogFragment.RESULT_POSITIVE ->
+                        sessionManager.closeSession(true)
                 }
             }
             DEVELOPER_PASSWORD_REQUEST_CODE -> {
@@ -177,7 +185,7 @@ class MainSettingsFragment :
             }
             DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE -> {
                 when (resultCode) {
-                    Activity.RESULT_OK -> {
+                    SimpleDialogFragment.RESULT_POSITIVE -> {
                         updateDeveloperOptions(true)
                         // TODO Set remote environment to "Production"
                         requireContext().startLaunchActivity()
@@ -341,14 +349,18 @@ class MainSettingsFragment :
                 return
             }
 
-            ConfirmLogOutDialogFragment()
-                .apply {
+            val appName = getString(R.string.app_name)
+            SimpleDialogFragment.Builder(requireContext())
+                .setTitle(R.string.settings_log_out_dialog_title)
+                .setMessage(getString(R.string.settings_log_out_dialog_message, appName))
+                .setPositiveButton(android.R.string.ok)
+                .setNegativeButton(android.R.string.cancel)
+                .build().apply {
                     setTargetFragment(
                         this@MainSettingsFragment,
                         CONFIRM_LOG_OUT_REQUEST_CODE
                     )
-                }
-                .show(this, CONFIRM_LOG_OUT_FRAGMENT_TAG)
+                }.show(this, CONFIRM_LOG_OUT_FRAGMENT_TAG)
         }
     }
 
@@ -381,14 +393,17 @@ class MainSettingsFragment :
                 return
             }
 
-            DisableDeveloperOptionsDialogFragment()
-                .apply {
+            SimpleDialogFragment.Builder(requireContext())
+                .setTitle(R.string.settings_developer_options_disable_dialog_title)
+                .setMessage(R.string.settings_developer_options_disable_dialog_message)
+                .setPositiveButton(android.R.string.ok)
+                .setNegativeButton(android.R.string.cancel)
+                .build().apply {
                     setTargetFragment(
                         this@MainSettingsFragment,
                         DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE
                     )
-                }
-                .show(this, DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG)
+                }.show(this, DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG)
         }
     }
 
@@ -487,4 +502,5 @@ class MainSettingsFragment :
     }
 
     // endregion Companion object
+
 }

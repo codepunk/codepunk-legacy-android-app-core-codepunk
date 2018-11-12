@@ -26,8 +26,9 @@ import retrofit2.Retrofit
  * that represents a ResponseMessage, and that must be converted here.
  */
 @Suppress("UNUSED")
-fun Response<ResponseMessage>.toMessage(retrofit: Retrofit): ResponseMessage? {
+fun Response<ResponseMessage>?.toMessage(retrofit: Retrofit): ResponseMessage? {
     return when {
+        this == null -> null
         isSuccessful -> body()
         else -> errorBody()?.run {
             retrofit.responseBodyConverter<ResponseMessage>(

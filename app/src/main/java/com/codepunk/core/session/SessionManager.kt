@@ -107,7 +107,9 @@ class SessionManager(
 
         SessionTask(silentMode).apply {
             sessionTask = this
-            liveSession.addSource(liveData) { liveSession.value = it }
+            liveSession.addSource(liveData) {
+                liveSession.value = it
+            }
             fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
 
@@ -152,7 +154,13 @@ class SessionManager(
      */
     @SuppressLint("StaticFieldLeak")
     private inner class SessionTask(
+
+        /**
+         * A flag indicating whether we are running in "silent mode" (i.e. no intents will
+         * be generated to present to the user on failure).
+         */
         private val silentMode: Boolean
+
     ) : DataTask<Void, Void, Session>() {
 
         // region Inherited methods
@@ -160,28 +168,17 @@ class SessionManager(
         override fun generateUpdate(vararg params: Void?): DataUpdate<Void, Session> {
             // TODO Check for isCanceled.
 
-            // 1) Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
+            // Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
             val type: String = AUTHENTICATOR_ACCOUNT_TYPE
             val accounts = accountManager.getAccountsByType(type)
 
-            // 2) Get the "current" account. The current account is either the account whose
-            // name has been saved in shared preferences, or the sole account for the given
-            // type if only one account has been stored via the account manager
+            // Get the "current" account. The current account is either the account whose name has
+            // been saved in shared preferences, or the sole account for the given type if only
+            // one account has been stored via the account manager
             val account = when (accounts.size) {
-                0 -> return FailureUpdate(
-                    e = SecurityException("There are no accounts in the account manager"),
-                    data = if (!silentMode) {
-                        Bundle().apply {
-                            putParcelable(
-                                KEY_INTENT,
-                                Intent(ACTION_AUTHORIZATION).apply {
-                                    addCategory(CATEGORY_CREATE_ACCOUNT)
-                                }
-                            )
-                        }
-                    } else {
-                        null
-                    }
+                0 -> return newFailureUpdate(
+                    SecurityException("There are no accounts in the account manager"),
+                    CATEGORY_CREATE_ACCOUNT
                 )
                 1 -> accounts[0]
                 else -> sharedPreferences.getString(
@@ -190,43 +187,28 @@ class SessionManager(
                 )?.let {
                     accountManager.getAccountByNameAndType(it, type)
                 }
-            } ?: return FailureUpdate(
-                e = SecurityException("Could not determine the current account"),
-                data = if (!silentMode) {
-                    Bundle().apply {
-                        putParcelable(
-                            KEY_INTENT,
-                            Intent(ACTION_AUTHORIZATION).apply {
-                                addCategory(CATEGORY_MAIN)
-                            }
-                        )
-                    }
-                } else {
-                    null
-                }
+            } ?: return newFailureUpdate(
+                SecurityException("Could not determine the current account"),
+                CATEGORY_MAIN
             )
 
             // 3) Get the auth token associated with the account
-            val authToken = accountManager.blockingGetAuthToken(
-                account,
-                AuthTokenType.DEFAULT.value,
-                false
-            ) ?: return FailureUpdate(
-                e = SecurityException("Authentication failed getting auth token"),
-                data = if (!silentMode) {
-                    Bundle().apply {
-                        putParcelable(
-                            KEY_INTENT,
-                            Intent(ACTION_AUTHORIZATION).apply {
-                                addCategory(CATEGORY_LOG_IN)
-                                putExtra(EXTRA_USERNAME, account.name)
-                            }
-                        )
-                    }
-                } else {
-                    null
-                }
-            )
+            val authToken = try {
+                accountManager.blockingGetAuthToken(
+                    account,
+                    AuthTokenType.DEFAULT.value,
+                    false
+                ) ?: return newFailureUpdate(
+                    SecurityException("Authentication failed getting auth token"),
+                    CATEGORY_LOG_IN,
+                    account.name)
+            } catch (e: Exception) {
+                return newFailureUpdate(
+                    SecurityException(e),
+                    CATEGORY_LOG_IN,
+                    account.name
+                )
+            }
 
             // 4) Create a temporary session. This will be needed for the getUser call below.
             val tempSession = Session(
@@ -257,6 +239,38 @@ class SessionManager(
         }
 
         // endregion Inherited methods
+
+        // region Methods
+
+        /**
+         * Generates a [FailureUpdate] with the supplied parameters.
+         */
+        fun newFailureUpdate(
+            e: Exception,
+            category: String,
+            username: String? = null
+        ): FailureUpdate<Void, Session> {
+            return FailureUpdate(
+                e = e,
+                data = if (silentMode) {
+                    null
+                } else {
+                    Bundle().apply {
+                        putParcelable(
+                            KEY_INTENT,
+                            Intent(ACTION_AUTHORIZATION).apply {
+                                addCategory(category)
+                                if (username != null) {
+                                    putExtra(EXTRA_USERNAME, username)
+                                }
+                            }
+                        )
+                    }
+                }
+            )
+        }
+
+        // endregion Methods
 
     }
 

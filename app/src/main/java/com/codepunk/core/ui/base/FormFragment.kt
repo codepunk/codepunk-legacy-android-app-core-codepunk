@@ -21,7 +21,9 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.codepunk.core.ui.auth.LogInFragment
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
@@ -33,6 +35,12 @@ open class FormFragment :
     TextWatcher {
 
     // region Properties
+
+    /**
+     * A set of all controls that should be automatically enabled/disabled during network
+     * operations.
+     */
+    private val controls = HashSet<View>()
 
     /**
      * A set of all [TextInputLayout]s in the fragment.
@@ -60,7 +68,40 @@ open class FormFragment :
 
     // region Inherited methods
 
+    // region Implemented methods
+
+    /**
+     * Listens for changed text and calls [checkRequiredFields].
+     */
+    override fun afterTextChanged(s: Editable?) {
+        checkRequiredFields()
+    }
+
+    /**
+     * Called before text changes.
+     */
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        // No op
+    }
+
+    /**
+     * Called after text changes.
+     */
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        // No op
+    }
+
+    // endregion Implemented methods
+
     // region Methods
+
+    /**
+     * Adds [View]s to the set. All views in this set will be enabled or disabled when
+     * [setControlsEnabled] is called.
+     */
+    protected open fun addControls(vararg views: View) {
+        controls.addAll(views)
+    }
 
     /**
      * Adds [TextInputLayout]s to the set. All layouts in this set will be cleared of errors
@@ -80,6 +121,18 @@ open class FormFragment :
             (view as? EditText)?.addTextChangedListener(this)
         }
         checkRequiredFields()
+    }
+
+    /**
+     * Enables or disables the controls in [controls].
+     */
+    open fun setControlsEnabled(enabled: Boolean) {
+        controls.forEach {
+            when (it) {
+                is TextInputLayout -> it.isEnabled = enabled
+                is TextView -> it.isEnabled = enabled
+            }
+        }
     }
 
     /**
@@ -120,29 +173,23 @@ open class FormFragment :
 
     // endregion Methods
 
-    // region Implemented methods
+    // region Companion object
 
-    /**
-     * Listens for changed text and calls [checkRequiredFields].
-     */
-    override fun afterTextChanged(s: Editable?) {
-        checkRequiredFields()
+    companion object {
+
+        // region Properties
+
+        /**
+         * The fragment tag to use for the authentication failure dialog fragment.
+         */
+        @JvmStatic
+        protected val AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG =
+            LogInFragment::class.java.name + ".AUTHENTICATION_FAILURE_DIALOG"
+
+        // endregion Properties
+
     }
 
-    /**
-     * Called before text changes.
-     */
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        // No op
-    }
-
-    /**
-     * Called after text changes.
-     */
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        // No op
-    }
-
-    // endregion Implemented methods
+    // endregion Companion object
 
 }

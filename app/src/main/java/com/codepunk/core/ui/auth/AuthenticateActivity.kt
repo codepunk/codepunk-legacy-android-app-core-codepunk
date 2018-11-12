@@ -215,7 +215,9 @@ class AuthenticateActivity :
                 finish()
             }
             is FailureUpdate -> {
+
                 // TODO Error message(s)
+
             }
         }
 

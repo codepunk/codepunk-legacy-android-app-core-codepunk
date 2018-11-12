@@ -25,13 +25,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
+import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
+import com.codepunk.core.data.model.auth.Authorization
+import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
+import com.codepunk.core.lib.*
 import com.codepunk.core.ui.base.FormFragment
 import dagger.android.support.AndroidSupportInjection
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -104,9 +110,18 @@ class CreateAccountFragment :
         binding.createBtn.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
         with(binding) {
+            addControls(
+                usernameLayout,
+                emailLayout,
+                passwordLayout,
+                confirmPasswordLayout,
+                loginBtn,
+                createBtn
+            )
             addTextInputLayouts(emailLayout, passwordLayout, confirmPasswordLayout)
             addRequiredFields(emailEdit, passwordEdit, confirmPasswordEdit)
         }
+        authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
     }
 
     /**
@@ -167,6 +182,7 @@ class CreateAccountFragment :
         with(binding) {
             when (v) {
                 createBtn -> {
+                    v.hideSoftKeyboard()
                     if (validate()) {
                         authViewModel.register(
                             usernameEdit.text.toString(),
@@ -183,5 +199,31 @@ class CreateAccountFragment :
     }
 
     // endregion Implemented methods
+
+    // region Methods
+
+    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
+        setControlsEnabled(update !is ProgressUpdate)
+        when (update) {
+            is FailureUpdate -> {
+                val responseMessage: ResponseMessage? =
+                    update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
+
+                // TODO Make this a snackbar (but only if IOException?)
+                val message: CharSequence = when (update.e) {
+                    is IOException -> "Could not connect to the network."
+                    else -> getString(R.string.authenticator_error_create_account)
+                }
+                SimpleDialogFragment.Builder(requireContext())
+                    .setTitle(R.string.account_label_create_account)
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok)
+                    .build()
+                    .show(requireFragmentManager(), AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG)
+            }
+        }
+    }
+
+    // endregion Methods
 
 }

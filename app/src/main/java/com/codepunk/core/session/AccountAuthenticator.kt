@@ -16,10 +16,7 @@
 
 package com.codepunk.core.session
 
-import android.accounts.AbstractAccountAuthenticator
-import android.accounts.Account
-import android.accounts.AccountAuthenticatorResponse
-import android.accounts.AccountManager
+import android.accounts.*
 import android.accounts.AccountManager.*
 import android.app.Activity
 import android.content.Context
@@ -140,37 +137,47 @@ class AccountAuthenticator @Inject constructor(
             var refreshToken = accountManager.getPassword(account)
 
             if (TextUtils.isEmpty(authTokenString) && !TextUtils.isEmpty(refreshToken)) {
-                val resp = authWebservice.refreshToken(refreshToken).execute()
-                when {
-                    !resp.isSuccessful || resp.body() == null -> {
-                        // TODO Handle error here
+                try {
+                    val resp = authWebservice.refreshToken(refreshToken).execute()
+                    when {
+                        !resp.isSuccessful || resp.body() == null -> {
+                            putInt(KEY_ERROR_CODE, ERROR_CODE_INVALID_RESPONSE)
+                            putString(KEY_ERROR_MESSAGE, "Unable to authenticate the account")
+                        }
+                        else -> resp.body()?.apply {
+                            authTokenString = this.authToken
+                            refreshToken = this.refreshToken
+                            accountManager.setAuthToken(account, DEFAULT.value, authTokenString)
+                            accountManager.setPassword(account, refreshToken)
+                        }
                     }
-                    else -> resp.body()?.apply {
-                        authTokenString = this.authToken
-                        refreshToken = this.refreshToken
-                        accountManager.setAuthToken(account, DEFAULT.value, authTokenString)
-                        accountManager.setPassword(account, refreshToken)
-                    }
+                } catch (e: Exception) {
+                    putInt(KEY_ERROR_CODE, ERROR_CODE_NETWORK_ERROR)
+                    putString(KEY_ERROR_MESSAGE, e.message)
                 }
             }
 
-            if (TextUtils.isEmpty(authTokenString)) {
-                // We were unable to get an auth token. We need the user to log in again.
-                putParcelable(
-                    KEY_INTENT,
-                    Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
-                        // flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        addCategory(CATEGORY_LOG_IN)
-                        putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
-                        putExtra(EXTRA_USERNAME, account.name)
-                        putExtra(EXTRA_AUTH_TOKEN_TYPE, authTokenType)
-                    }
-                )
-            } else {
-                putString(KEY_ACCOUNT_NAME, account.name)
-                putString(KEY_ACCOUNT_TYPE, account.type)
-                putString(KEY_AUTHTOKEN, authTokenString)
-                putString(KEY_PASSWORD, refreshToken)
+            when {
+                containsKey(KEY_ERROR_CODE) -> {
+                    // We've already specified an error so don't do anything else.
+                }
+                TextUtils.isEmpty(authTokenString) ->
+                    // We were unable to get an auth token. We need the user to log in again.
+                    putParcelable(
+                        KEY_INTENT,
+                        Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                            addCategory(CATEGORY_LOG_IN)
+                            putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
+                            putExtra(EXTRA_USERNAME, account.name)
+                            putExtra(EXTRA_AUTH_TOKEN_TYPE, authTokenType)
+                        }
+                    )
+                else -> {
+                    putString(KEY_ACCOUNT_NAME, account.name)
+                    putString(KEY_ACCOUNT_TYPE, account.type)
+                    putString(KEY_AUTHTOKEN, authTokenString)
+                    putString(KEY_PASSWORD, refreshToken)
+                }
             }
 
             // TODO Maybe get the user here so we can set it?

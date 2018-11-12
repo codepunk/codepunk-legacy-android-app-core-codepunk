@@ -25,7 +25,9 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
+import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.data.model.User
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
@@ -42,6 +44,11 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
 
     /**
+     * The [Retrofit] instance.
+     */
+    private val retrofit: Retrofit,
+
+    /**
      * The authorization webservice.
      */
     private val authWebservice: AuthWebservice,
@@ -50,18 +57,6 @@ class AuthViewModel @Inject constructor(
      * The user web service.
      */
     private val userWebservice: UserWebservice
-
-    /*
-    /**
-     * The authorization interception, which handles adding auth tokens to API requests.
-     */
-    private val authorizationInterceptor: AuthorizationInterceptor,
-
-    /**
-     * The [SessionManager] for managing the user session.
-     */
-    private val sessionManager: SessionManager
-    */
 
 ) : ViewModel() {
 
@@ -86,7 +81,7 @@ class AuthViewModel @Inject constructor(
         password: String
     ): DataUpdate<ResponseMessage, Authorization> {
         // TODO go through AccountAuthenticator somehow? Probably not because I need to create
-        // Account
+        // an account
 
         // Call the authorize endpoint
         val authTokenUpdate: DataUpdate<ResponseMessage, Authorization> =
@@ -157,7 +152,15 @@ class AuthViewModel @Inject constructor(
                         publishProgress(update.result)
                         getAuthToken(username, password)
                     }
-                    is FailureUpdate -> FailureUpdate(e = update.e)
+                    is FailureUpdate -> {
+                        val responseMessage = update.response.toMessage(retrofit)
+                        FailureUpdate(
+                            e = update.e,
+                            data = Bundle().apply {
+                                putParcelable(KEY_RESPONSE_MESSAGE, responseMessage)
+                            }
+                        )
+                    }
                     else -> FailureUpdate()
                 }
             }

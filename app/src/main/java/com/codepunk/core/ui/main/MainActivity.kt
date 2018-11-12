@@ -17,20 +17,11 @@
 package com.codepunk.core.ui.main
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import com.codepunk.core.BuildConfig.ACTION_SETTINGS
 import com.codepunk.core.R
 import com.codepunk.core.di.scope.ActivityScope
-import com.codepunk.core.session.SessionManager
-import com.codepunk.core.ui.auth.AuthViewModel
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -53,27 +44,6 @@ class MainActivity :
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
-    /**
-     * The application [SessionManager].
-     */
-    @Suppress("UNUSED")
-    @Inject
-    lateinit var sessionManager: SessionManager
-
-    /**
-     * A [ViewModelProvider.Factory] for creating [ViewModel] instances.
-     */
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    /**
-     * An instance of [AuthViewModel] for managing account-related data.
-     */
-    @Suppress("UNUSED")
-    private val mainViewModel: MainViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
-    }
-
     // endregion Properties
 
     // region Lifecycle methods
@@ -81,7 +51,6 @@ class MainActivity :
     /**
      * Sets the content view for the activity.
      */
-    @Suppress("UNUSED")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -89,31 +58,6 @@ class MainActivity :
     }
 
     // endregion Lifecycle methods
-
-    // region Inherited methods
-
-    /**
-     * Creates the main options menu.
-     */
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    /**
-     * Handles the various menu options.
-     */
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
-            R.id.menu_settings -> {
-                startActivity(Intent(ACTION_SETTINGS))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    // endregion Inherited methods
 
     // region Implemented methods
 

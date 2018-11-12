@@ -206,9 +206,15 @@ class AuthenticateFragment :
         val emailText: AppCompatTextView = itemView.findViewById(R.id.email_text)
         lateinit var account: Account
 
+        // region Constructors
+
         init {
             itemView.setTag(R.id.account_view_holder, this)
         }
+
+        // endregion Constructors
+
+        // region Methods
 
         fun bindAccount(account: Account) {
             this.account = account
@@ -217,12 +223,23 @@ class AuthenticateFragment :
 
         }
 
+        // endregion Methods
+
+        // region Companion object
+
         companion object {
+
+            // region Methods
 
             fun of(v: View?): AccountViewHolder? =
                 v?.getTag(R.id.account_view_holder) as? AccountViewHolder
 
+
+            // endregion Methods
+
         }
+
+        // endregion Companion object
     }
 
     private class AccountAdapter(

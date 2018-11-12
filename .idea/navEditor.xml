@@ -114,12 +114,12 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_authenticate_to_create_account">
+                            <entry key="action_auth_to_create_account">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_authenticate_to_log_in">
+                            <entry key="action_auth_to_log_in">
                               <value>
                                 <LayoutPositions />
                               </value>
