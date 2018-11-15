@@ -28,7 +28,7 @@
     tools:background="@color/colorPrimary">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@id/account_image"
+        android:id="@+id/account_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -49,13 +49,13 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@id/username_text"
+            android:id="@+id/username_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="Username"/>
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@id/email_text"
+            android:id="@+id/email_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="user@email.com"/>

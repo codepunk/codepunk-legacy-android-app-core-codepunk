@@ -23,6 +23,10 @@ import com.codepunk.core.data.model.http.ResponseMessage
 import retrofit2.Call
 
 /**
+ * TODO: Replace all CODEPUNK_LOCAL_CLIENT_ID/CODEPUNK_LOCAL_CLIENT_SECRET with current somehow
+ */
+
+/**
  * Implementation of [AuthWebservice] that allows for default arguments by wrapping another
  * instance ([base]) and passing default arguments to its methods where appropriate.
  */
@@ -100,9 +104,12 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
     override fun register(
         name: String,
         email: String,
+        givenName: String,
+        familyName: String,
         password: String,
         passwordConfirmation: String
-    ): Call<ResponseMessage> = base.register(name, email, password, passwordConfirmation)
+    ): Call<ResponseMessage> =
+        base.register(name, email, givenName, familyName, password, passwordConfirmation)
 
     // endregion Inherited methods
 

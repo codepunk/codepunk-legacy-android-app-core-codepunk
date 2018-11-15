@@ -42,7 +42,6 @@ android {
             versionNameSuffix "-DEBUG"
 
             ext.defaultRemoteEnvironment = "LOCAL"
-
         }
 
         release {
@@ -197,6 +196,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation rootProject.deps.android.animated_vector_drawable
+    implementation rootProject.deps.android.material
     implementation rootProject.deps.androidx.app_compat
     implementation rootProject.deps.androidx.constraint_layout
     implementation rootProject.deps.androidx.legacy
@@ -215,6 +215,7 @@ dependencies {
     // implementation rootProject.deps.retrofit.moshi_kotlin TODO Maybe not needed
 
     implementation project(':doofenschmirtz')
+    implementation project(':punkubator')
 
     // See https://stackoverflow.com/questions/44989650/dagger2-cannot-access-nullable-javax-annotation-nullable-not-found
     // for why this is being included

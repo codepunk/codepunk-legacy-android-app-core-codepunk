@@ -18,8 +18,8 @@ package com.codepunk.core.data.model.http
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.codepunk.core.util.toBundle
-import com.codepunk.core.util.toMap
+import com.codepunk.core.lib.toBundle
+import com.codepunk.core.lib.toMap
 
 /**
  * A response message from the server. This response contains a [message] string and
@@ -46,7 +46,7 @@ data class ResponseMessage(
      */
     constructor(parcel: Parcel) : this(
         parcel.readString(),
-        toMap(parcel.readBundle(Array<String>::class.java.classLoader))
+        parcel.readBundle(Array<String>::class.java.classLoader).toMap()
     )
 
     // endregion Constructors

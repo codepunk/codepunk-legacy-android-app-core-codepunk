@@ -15,9 +15,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
+<!-- TODO This is temporary while I code against Laravel/Homestead -->
 
-    <!-- Used for key in View.setTag(key, tag) -->
-    <item name="account_view_holder" type="id" />
-
-</resources>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.12.10</domain>
+        <domain includeSubdomains="true">codepunk.test</domain>
+    </domain-config>
+</network-security-config>

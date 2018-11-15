@@ -109,6 +109,12 @@ interface AuthWebservice {
         @Field("email")
         email: String,
 
+        @Field("given_name")
+        givenName: String,
+
+        @Field("family_name")
+        familyName: String,
+
         @Field("password")
         password: String,
 

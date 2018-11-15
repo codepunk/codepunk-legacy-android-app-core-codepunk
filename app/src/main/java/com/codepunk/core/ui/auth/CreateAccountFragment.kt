@@ -18,8 +18,6 @@ package com.codepunk.core.ui.auth
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,8 +32,14 @@ import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
-import com.codepunk.core.lib.*
-import com.codepunk.core.ui.base.FormFragment
+import com.codepunk.core.lib.DataUpdate
+import com.codepunk.core.lib.FailureUpdate
+import com.codepunk.core.lib.SimpleDialogFragment
+import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.punkubator.util.RequiredValidatinator
+import com.codepunk.punkubator.util.TextInputLayoutValidatinator
+import com.codepunk.punkubator.util.Validatinator
+import com.codepunk.punkubator.util.ValidatinatorSet
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
 import javax.inject.Inject
@@ -44,7 +48,7 @@ import javax.inject.Inject
  * A [Fragment] used to add a new account.
  */
 class CreateAccountFragment :
-    FormFragment(),
+    Fragment(),
     View.OnClickListener {
 
     // region Properties
@@ -68,6 +72,8 @@ class CreateAccountFragment :
         ViewModelProviders.of(requireActivity(), viewModelFactory)
             .get(AuthViewModel::class.java)
     }
+
+    private lateinit var validatinator: Validatinator<Void?>
 
     // endregion Properties
 
@@ -107,70 +113,24 @@ class CreateAccountFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.createBtn.setOnClickListener(this)
-        binding.loginBtn.setOnClickListener(this)
         with(binding) {
-            addControls(
-                usernameLayout,
-                emailLayout,
-                passwordLayout,
-                confirmPasswordLayout,
-                loginBtn,
-                createBtn
-            )
-            addTextInputLayouts(emailLayout, passwordLayout, confirmPasswordLayout)
-            addRequiredFields(emailEdit, passwordEdit, confirmPasswordEdit)
+            createBtn.setOnClickListener(this@CreateAccountFragment)
+            loginBtn.setOnClickListener(this@CreateAccountFragment)
         }
-        authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
-    }
 
-    /**
-     * Disables the add button when any required fields are missing.
-     */
-    override fun onRequiredFieldMissing(view: View) {
-        binding.createBtn.isEnabled = false
-    }
+        validatinator = initializeValidatinator(requireContext())
 
-    /**
-     * Enables the add button when all required fields are filled in.
-     */
-    override fun onRequiredFieldsComplete() {
-        binding.createBtn.isEnabled = true
+        authViewModel.authorizationDataUpdate.observe(
+            this,
+            Observer { onAuthorizationUpdate(it) }
+        )
     }
 
     /**
      * Validates the form.
      */
-    override fun validate(): Boolean {
-        super.validate()
-        with(binding) {
-            return when {
-                TextUtils.isEmpty(usernameEdit.text) -> {
-                    usernameLayout.error = getString(R.string.authenticator_error_username)
-                    false
-                }
-                !Patterns.EMAIL_ADDRESS.matcher(emailEdit.text).matches() -> {
-                    emailLayout.error = getString(R.string.authenticator_error_email)
-                    false
-                }
-                TextUtils.isEmpty(passwordEdit.text) -> {
-                    passwordLayout.error = getString(R.string.authenticator_error_password)
-                    false
-                }
-                TextUtils.isEmpty(confirmPasswordEdit.text) -> {
-                    confirmPasswordLayout.error =
-                            getString(R.string.authenticator_error_confirm_password)
-                    false
-                }
-                !TextUtils.equals(passwordEdit.text, confirmPasswordEdit.text) -> {
-                    confirmPasswordLayout.error =
-                            getString(R.string.authenticator_error_passwords_do_not_match)
-                    false
-                }
-                else -> true
-            }
-        }
-    }
+    private fun validate(): Boolean = validatinator.validate(null)
+
     // endregion Inherited methods
 
     // region Implemented methods
@@ -187,7 +147,10 @@ class CreateAccountFragment :
                         authViewModel.register(
                             usernameEdit.text.toString(),
                             emailEdit.text.toString(),
-                            passwordEdit.text.toString()
+                            givenNameEdit.text.toString(),
+                            familyNameEdit.text.toString(),
+                            passwordEdit.text.toString(),
+                            confirmPasswordEdit.text.toString()
                         )
                     }
                 }
@@ -202,8 +165,24 @@ class CreateAccountFragment :
 
     // region Methods
 
+    private fun initializeValidatinator(context: Context): Validatinator<Void?> {
+        val validatinator = ValidatinatorSet<Void?>()
+        validatinator.add(
+            TextInputLayoutValidatinator(
+                binding.usernameLayout,
+                RequiredValidatinator(
+                    context,
+                    getString(R.string.validation_attribute_username)
+                )
+            )
+        )
+        return validatinator
+    }
+
     private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
+        /*
         setControlsEnabled(update !is ProgressUpdate)
+        */
         when (update) {
             is FailureUpdate -> {
                 val responseMessage: ResponseMessage? =
@@ -225,5 +204,24 @@ class CreateAccountFragment :
     }
 
     // endregion Methods
+
+    // region Companion object
+
+    companion object {
+
+        // region Properties
+
+        /**
+         * The fragment tag to use for the authentication failure dialog fragment.
+         */
+        @JvmStatic
+        private val AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG =
+            LogInFragment::class.java.name + ".AUTHENTICATION_FAILURE_DIALOG"
+
+        // endregion Properties
+
+    }
+
+    // endregion Companion object
 
 }

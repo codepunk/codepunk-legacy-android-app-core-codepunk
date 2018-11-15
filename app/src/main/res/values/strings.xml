@@ -53,10 +53,6 @@
 
     <!-- region Authenticator -->
 
-    <!--
-    <string name="authenticator_account_type">com.codepunk.core</string>
-    -->
-
     <string name="authenticator_token_type_default">Default</string>
 
     <string name="authenticator_token_type_unknown">Unknown</string>
@@ -64,6 +60,10 @@
     <string name="authenticator_username">Username</string>
 
     <string name="authenticator_email">Email</string>
+
+    <string name="authenticator_family_name">Last name</string>
+
+    <string name="authenticator_given_name">First name</string>
 
     <string name="authenticator_username_or_email">Username or email</string>
 

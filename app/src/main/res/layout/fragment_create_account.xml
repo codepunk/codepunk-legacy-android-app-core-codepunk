@@ -36,7 +36,7 @@
             tools:context="com.codepunk.core.ui.auth.CreateAccountFragment">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@id/username_layout"
+                android:id="@+id/username_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
@@ -46,7 +46,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@id/username_edit"
+                    android:id="@+id/username_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/authenticator_username"/>
@@ -54,7 +54,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@id/email_layout"
+                android:id="@+id/email_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
@@ -64,7 +64,7 @@
                 app:layout_constraintTop_toBottomOf="@id/username_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@id/email_edit"
+                    android:id="@+id/email_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/authenticator_email"/>
@@ -72,18 +72,54 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@id/password_layout"
+                android:id="@+id/given_name_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/email_layout"
+                app:layout_constraintTop_toBottomOf="@id/email_layout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/given_name_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/authenticator_given_name"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/family_name_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/given_name_layout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/family_name_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/authenticator_family_name"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/password_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/family_name_layout"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@id/password_edit"
+                    android:id="@+id/password_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/authenticator_password"
@@ -92,7 +128,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@id/confirm_password_layout"
+                android:id="@+id/confirm_password_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
@@ -103,7 +139,7 @@
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@id/confirm_password_edit"
+                    android:id="@+id/confirm_password_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/authenticator_confirm_password"
@@ -112,7 +148,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@id/create_btn"
+                android:id="@+id/create_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_standard"
@@ -130,7 +166,7 @@
                 app:layout_constraintTop_toBottomOf="@id/create_btn"/>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@id/login_btn"
+                android:id="@+id/login_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_standard"

@@ -58,7 +58,7 @@
             tools:listitem="@layout/item_account"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@id/create_btn"
+            android:id="@+id/create_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_standard"
@@ -69,7 +69,7 @@
             app:layout_constraintTop_toBottomOf="@id/accounts_recycler"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@id/login_btn"
+            android:id="@+id/login_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_standard"

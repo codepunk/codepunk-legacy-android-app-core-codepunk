@@ -138,13 +138,27 @@ class AuthViewModel @Inject constructor(
      * still need to respond to the activation email.
      */
     @SuppressLint("StaticFieldLeak")
-    fun register(username: String, email: String, password: String) {
+    fun register(
+        username: String,
+        email: String,
+        givenName: String,
+        familyName: String,
+        password: String,
+        passwordConfirmation: String
+    ) {
         val task = object : DataTask<Void, ResponseMessage, Authorization>() {
             override fun generateUpdate(vararg params: Void?):
                     DataUpdate<ResponseMessage, Authorization> {
                 // First, call the register endpoint
                 val update: DataUpdate<Void, ResponseMessage> =
-                    authWebservice.register(username, email, password, password).toDataUpdate()
+                    authWebservice.register(
+                        username,
+                        email,
+                        givenName,
+                        familyName,
+                        password,
+                        passwordConfirmation
+                    ).toDataUpdate()
 
                 // Process the register endpoint result
                 return when (update) {

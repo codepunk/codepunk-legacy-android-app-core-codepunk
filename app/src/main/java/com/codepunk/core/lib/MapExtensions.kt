@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.util
+package com.codepunk.core.lib
 
 import android.os.Bundle
 import java.util.*
@@ -32,17 +32,17 @@ fun Map<String, Array<String>>?.toBundle(): Bundle? {
 }
 
 /**
- * Extension method that converts a bundle to an unmodifiable map of strings to string arrays.
+ * Extension method that converts a (nullable) bundle to an unmodifiable map of strings to
+ * string arrays.
  */
-fun toMap(bundle: Bundle?): Map<String, Array<String>>? {
-    return when (bundle) {
+fun Bundle?.toMap(): Map<String, Array<String>>? {
+    return when (this) {
         null -> null
-        else -> {
-            val keySet = bundle.keySet()
+        else -> keySet().let { keySet ->
             Collections.unmodifiableMap(
                 HashMap<String, Array<String>>(keySet.size).apply {
                     keySet.forEach { key ->
-                        this[key] = bundle.getStringArray(key) ?: emptyArray()
+                        this[key] = getStringArray(key) ?: emptyArray()
                     }
                 }
             )
