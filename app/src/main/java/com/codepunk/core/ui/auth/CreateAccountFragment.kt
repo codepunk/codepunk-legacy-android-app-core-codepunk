@@ -36,12 +36,12 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.RequiredValidatinator
-import com.codepunk.punkubator.util.TextInputLayoutValidatinator
-import com.codepunk.punkubator.util.Validatinator
-import com.codepunk.punkubator.util.ValidatinatorSet
+import com.codepunk.punkubator.util.take2.PatternRule
+import com.codepunk.punkubator.util.take2.RequiredRule
+import com.codepunk.punkubator.util.take2.RuleSet
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 /**
@@ -73,7 +73,9 @@ class CreateAccountFragment :
             .get(AuthViewModel::class.java)
     }
 
-    private lateinit var validatinator: Validatinator<Void?>
+    /*
+    private lateinit var validatinator: Validatinator<TextInputLayout>
+    */
 
     // endregion Properties
 
@@ -118,7 +120,9 @@ class CreateAccountFragment :
             loginBtn.setOnClickListener(this@CreateAccountFragment)
         }
 
+        /*
         validatinator = initializeValidatinator(requireContext())
+        */
 
         authViewModel.authorizationDataUpdate.observe(
             this,
@@ -129,7 +133,35 @@ class CreateAccountFragment :
     /**
      * Validates the form.
      */
-    private fun validate(): Boolean = validatinator.validate(null)
+    private fun validate(): Boolean {
+        // TODO TEMP
+        // Got part 1 more or less working. Rules and rule sets that act on character strings.
+        // Now, how to chain together? Or is that necessary? Can I just sort of go through
+        // a sequence of them here? Like in a map?
+        val inputName = getString(R.string.validation_attribute_username)
+        val requiredRule = RequiredRule(requireContext(), inputName)
+        val wordCharacterRule = PatternRule(
+            Pattern.compile("\\w+"),
+            requireContext(),
+            inputName,
+            R.string.validation_word_character_pattern
+        )
+        val usernameRule = RuleSet<CharSequence?>(RuleSet.Behavior.ALL).apply {
+            add(requiredRule)
+            add(wordCharacterRule)
+        }
+        val result = usernameRule.validate(binding.usernameEdit.text)
+        if (result.valid) {
+            binding.usernameLayout.error = ""
+        } else if (result.messages.isEmpty()) {
+            binding.usernameLayout.error = ""
+        } else {
+            binding.usernameLayout.error = result.messages[0]
+        }
+        // END TEMP
+
+        return false
+    }
 
     // endregion Inherited methods
 
@@ -165,8 +197,9 @@ class CreateAccountFragment :
 
     // region Methods
 
-    private fun initializeValidatinator(context: Context): Validatinator<Void?> {
-        val validatinator = ValidatinatorSet<Void?>()
+    /*
+    private fun initializeValidatinator(context: Context): Validatinator<TextInputLayout> {
+        val validatinator = ValidatinatorSet<TextInputLayout>()
         validatinator.add(
             TextInputLayoutValidatinator(
                 binding.usernameLayout,
@@ -178,6 +211,7 @@ class CreateAccountFragment :
         )
         return validatinator
     }
+    */
 
     private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
         /*

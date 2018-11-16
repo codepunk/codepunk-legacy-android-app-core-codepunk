@@ -45,7 +45,7 @@
 
     <string name="validation_required">The %1$s field is required.</string>
 
-    <string name="validation_word_character_pattern">Your %1$s may only contain alphanumeric characters and underscores.</string>
+    <string name="validation_word_character_pattern">%1$s may only contain alphanumeric characters and underscores.</string>
 
     <!-- endregion Messages -->
 
