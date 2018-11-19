@@ -113,10 +113,9 @@ class CreateAccountFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(binding) {
-            createBtn.setOnClickListener(this@CreateAccountFragment)
-            loginBtn.setOnClickListener(this@CreateAccountFragment)
-        }
+
+        binding.createBtn.setOnClickListener(this)
+        binding.loginBtn.setOnClickListener(this)
 
         authViewModel.authorizationDataUpdate.observe(
             this,
