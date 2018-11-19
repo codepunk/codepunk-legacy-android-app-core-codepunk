@@ -36,9 +36,7 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.take2.PatternRule
-import com.codepunk.punkubator.util.take2.RequiredRule
-import com.codepunk.punkubator.util.take2.RuleSet
+import com.codepunk.punkubator.util.validatinator.*
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
 import java.util.regex.Pattern
@@ -120,10 +118,6 @@ class CreateAccountFragment :
             loginBtn.setOnClickListener(this@CreateAccountFragment)
         }
 
-        /*
-        validatinator = initializeValidatinator(requireContext())
-        */
-
         authViewModel.authorizationDataUpdate.observe(
             this,
             Observer { onAuthorizationUpdate(it) }
@@ -134,31 +128,51 @@ class CreateAccountFragment :
      * Validates the form.
      */
     private fun validate(): Boolean {
-        // TODO TEMP
-        // Got part 1 more or less working. Rules and rule sets that act on character strings.
-        // Now, how to chain together? Or is that necessary? Can I just sort of go through
-        // a sequence of them here? Like in a map?
-        val inputName = getString(R.string.validation_attribute_username)
-        val requiredRule = RequiredRule(requireContext(), inputName)
-        val wordCharacterRule = PatternRule(
-            Pattern.compile("\\w+"),
-            requireContext(),
-            inputName,
-            R.string.validation_word_character_pattern
-        )
-        val usernameRule = RuleSet<CharSequence?>(RuleSet.Behavior.ALL).apply {
-            add(requiredRule)
-            add(wordCharacterRule)
+
+        val username = requireContext().getString(R.string.authenticator_username)
+
+        val requiredValidatinator = RequiredValidatinator.Builder()
+            .context(requireContext())
+            .inputName(username)
+            .build()
+
+        val wordCharValidatinator =
+            PatternValidatinator.Builder(Pattern.compile("\\w+"))
+                .context(requireContext())
+                .inputName(username)
+                .invalidMessage(
+                    requireContext().getString(
+                        R.string.validation_word_character_pattern,
+                        username
+                    )
+                )
+                .build()
+
+        val maxLengthValidatinator =
+            MaxLengthValidatinator.Builder(64)
+                .context(requireContext())
+                .inputName(username)
+                .build()
+
+        val usernameValidatinator =
+            ValidatinatorSet.Builder<CharSequence?>()
+                .context(requireContext())
+                .inputName(username)
+                .add(
+                    requiredValidatinator,
+                    wordCharValidatinator,
+                    maxLengthValidatinator)
+                .style(ValidatinatorSet.Style.ALL)
+                .validateAll(true)
+                .build()
+
+        val result =
+            usernameValidatinator.validate(binding.usernameEdit.text)
+
+        binding.usernameLayout.error = when (result.valid) {
+            true -> result.message
+            false -> result.message
         }
-        val result = usernameRule.validate(binding.usernameEdit.text)
-        if (result.valid) {
-            binding.usernameLayout.error = ""
-        } else if (result.messages.isEmpty()) {
-            binding.usernameLayout.error = ""
-        } else {
-            binding.usernameLayout.error = result.messages[0]
-        }
-        // END TEMP
 
         return false
     }
@@ -196,22 +210,6 @@ class CreateAccountFragment :
     // endregion Implemented methods
 
     // region Methods
-
-    /*
-    private fun initializeValidatinator(context: Context): Validatinator<TextInputLayout> {
-        val validatinator = ValidatinatorSet<TextInputLayout>()
-        validatinator.add(
-            TextInputLayoutValidatinator(
-                binding.usernameLayout,
-                RequiredValidatinator(
-                    context,
-                    getString(R.string.validation_attribute_username)
-                )
-            )
-        )
-        return validatinator
-    }
-    */
 
     private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
         /*
