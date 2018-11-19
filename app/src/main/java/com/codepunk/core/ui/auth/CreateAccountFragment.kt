@@ -36,10 +36,8 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.validatinator.*
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 /**
@@ -57,6 +55,9 @@ class CreateAccountFragment :
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var authValidatinators: AuthValidatinators
 
     /**
      * The binding for this fragment.
@@ -128,45 +129,8 @@ class CreateAccountFragment :
      */
     private fun validate(): Boolean {
 
-        val username = requireContext().getString(R.string.authenticator_username)
-
-        val requiredValidatinator = RequiredValidatinator.Builder()
-            .context(requireContext())
-            .inputName(username)
-            .build()
-
-        val wordCharValidatinator =
-            PatternValidatinator.Builder(Pattern.compile("\\w+"))
-                .context(requireContext())
-                .inputName(username)
-                .invalidMessage(
-                    requireContext().getString(
-                        R.string.validation_word_character_pattern,
-                        username
-                    )
-                )
-                .build()
-
-        val maxLengthValidatinator =
-            MaxLengthValidatinator.Builder(64)
-                .context(requireContext())
-                .inputName(username)
-                .build()
-
-        val usernameValidatinator =
-            ValidatinatorSet.Builder<CharSequence?>()
-                .context(requireContext())
-                .inputName(username)
-                .add(
-                    requiredValidatinator,
-                    wordCharValidatinator,
-                    maxLengthValidatinator)
-                .style(ValidatinatorSet.Style.ALL)
-                .validateAll(true)
-                .build()
-
         val result =
-            usernameValidatinator.validate(binding.usernameEdit.text)
+            authValidatinators.usernameValidatinator.validate(binding.usernameEdit.text)
 
         binding.usernameLayout.error = when (result.valid) {
             true -> result.message
