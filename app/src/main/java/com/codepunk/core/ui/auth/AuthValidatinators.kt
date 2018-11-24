@@ -38,25 +38,13 @@ class AuthValidatinators @Inject constructor(
 
     val confirmPassword = context.getString(R.string.validation_input_name_confirm_password)
 
-    val confirmPasswordRequiredValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(confirmPassword)
-        .build()
-
-    // TODO How to do the "confirm password must match" validation?
-
     val confirmPasswordInputValidatinator: TextInputLayoutValidatinator =
-        TextInputLayoutValidatinator.Builder(confirmPasswordRequiredValidatinator)
+        TextInputLayoutValidatinator.Builder(requiredValidatinator(context, confirmPassword))
             .context(context)
             .inputName(confirmPassword)
             .build()
 
     val email = context.getString(R.string.validation_input_name_email)
-
-    val emailRequiredValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(email)
-        .build()
 
     val emailFormatValidatinator =
         PatternValidatinator.Builder(Patterns.EMAIL_ADDRESS)
@@ -67,20 +55,14 @@ class AuthValidatinators @Inject constructor(
             }
             .build()
 
-    val emailMaxLengthValidatinator: MaxLengthValidatinator =
-        MaxLengthValidatinator.Builder(255)
-            .context(context)
-            .inputName(email)
-            .build()
-
     val emailValidatinator: ValidatinatorSet<CharSequence?> =
         ValidatinatorSet.Builder<CharSequence?>()
             .context(context)
             .inputName(email)
             .add(
-                emailRequiredValidatinator,
+                requiredValidatinator(context, email),
                 emailFormatValidatinator,
-                emailMaxLengthValidatinator
+                maxLengthValidatinator(context, email, 255)
             )
             .processAll(true)
             .build()
@@ -93,24 +75,13 @@ class AuthValidatinators @Inject constructor(
 
     val givenName = context.getString(R.string.validation_input_name_given_name)
 
-    val givenNameRequiredValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(givenName)
-        .build()
-
-    val givenNameMaxLengthValidatinator: MaxLengthValidatinator =
-        MaxLengthValidatinator.Builder(255)
-            .context(context)
-            .inputName(givenName)
-            .build()
-
     val givenNameValidatinator: ValidatinatorSet<CharSequence?> =
         ValidatinatorSet.Builder<CharSequence?>()
             .context(context)
             .inputName(givenName)
             .add(
-                givenNameRequiredValidatinator,
-                givenNameMaxLengthValidatinator
+                requiredValidatinator(context, givenName),
+                maxLengthValidatinator(context, givenName, 255)
             )
             .processAll(true)
             .build()
@@ -123,24 +94,13 @@ class AuthValidatinators @Inject constructor(
 
     val familyName = context.getString(R.string.validation_input_name_family_name)
 
-    val familyNameRequiredValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(familyName)
-        .build()
-
-    val familyNameMaxLengthValidatinator: MaxLengthValidatinator =
-        MaxLengthValidatinator.Builder(255)
-            .context(context)
-            .inputName(familyName)
-            .build()
-
     val familyNameValidatinator: ValidatinatorSet<CharSequence?> =
         ValidatinatorSet.Builder<CharSequence?>()
             .context(context)
             .inputName(familyName)
             .add(
-                familyNameRequiredValidatinator,
-                familyNameMaxLengthValidatinator
+                requiredValidatinator(context, familyName),
+                maxLengthValidatinator(context, familyName, 255)
             )
             .processAll(true)
             .build()
@@ -153,11 +113,6 @@ class AuthValidatinators @Inject constructor(
 
     val password = context.getString(R.string.validation_input_name_password)
 
-    val passwordRequiredValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(password)
-        .build()
-
     val passwordMinLengthValidatinator: MinLengthValidatinator =
         MinLengthValidatinator.Builder(6)
             .context(context)
@@ -169,7 +124,7 @@ class AuthValidatinators @Inject constructor(
             .context(context)
             .inputName(password)
             .add(
-                passwordRequiredValidatinator,
+                requiredValidatinator(context, password),
                 passwordMinLengthValidatinator
             )
             .processAll(true)
@@ -183,11 +138,6 @@ class AuthValidatinators @Inject constructor(
 
     val username = context.getString(R.string.validation_input_name_username)
 
-    val usernameRequiredValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(username)
-        .build()
-
     val usernameFormatValidatinator =
         PatternValidatinator.Builder(Pattern.compile("\\w+"))
             .context(context)
@@ -197,20 +147,14 @@ class AuthValidatinators @Inject constructor(
             }
             .build()
 
-    val usernameMaxLengthValidatinator: MaxLengthValidatinator =
-        MaxLengthValidatinator.Builder(64)
-            .context(context)
-            .inputName(username)
-            .build()
-
     val usernameValidatinator: ValidatinatorSet<CharSequence?> =
         ValidatinatorSet.Builder<CharSequence?>()
             .context(context)
             .inputName(username)
             .add(
-                usernameRequiredValidatinator,
+                requiredValidatinator(context, username),
                 usernameFormatValidatinator,
-                usernameMaxLengthValidatinator
+                maxLengthValidatinator(context, username, 64)
             )
             .processAll(true)
             .build()
@@ -222,5 +166,34 @@ class AuthValidatinators @Inject constructor(
             .build()
 
     // endregion Properties
+
+    // region Companion object
+
+    companion object {
+
+        // region Methods
+
+        private fun maxLengthValidatinator(
+            context: Context,
+            inputName: CharSequence?,
+            maxLength: Int
+        ): MaxLengthValidatinator = MaxLengthValidatinator.Builder(maxLength)
+            .context(context)
+            .inputName(inputName)
+            .build()
+
+        private fun requiredValidatinator(
+            context: Context,
+            inputName: CharSequence?
+        ): RequiredValidatinator = RequiredValidatinator.Builder()
+            .context(context)
+            .inputName(inputName)
+            .build()
+
+        // endregion Methods
+
+    }
+
+    // endregion Companion object
 
 }
