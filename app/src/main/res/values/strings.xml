@@ -180,7 +180,7 @@
 
     <string name="validation_invalid_pattern_word_character">%1$s may only contain alphanumeric characters and underscores.</string>
 
-    <string name="validation_invalid_passwords_do_not_match">Passwords do not match</string>
+    <string name="validation_invalid_passwords_do_not_match">The password confirmation does not match.</string>
 
     <!-- endregion Validation -->
 

@@ -36,6 +36,21 @@ class AuthValidatinators @Inject constructor(
 
     // region properties
 
+    val confirmPassword = context.getString(R.string.validation_input_name_confirm_password)
+
+    val confirmPasswordRequiredValidatinator = RequiredValidatinator.Builder()
+        .context(context)
+        .inputName(confirmPassword)
+        .build()
+
+    // TODO How to do the "confirm password must match" validation?
+
+    val confirmPasswordInputValidatinator: TextInputLayoutValidatinator =
+        TextInputLayoutValidatinator.Builder(confirmPasswordRequiredValidatinator)
+            .context(context)
+            .inputName(confirmPassword)
+            .build()
+
     val email = context.getString(R.string.validation_input_name_email)
 
     val emailRequiredValidatinator = RequiredValidatinator.Builder()
@@ -74,6 +89,96 @@ class AuthValidatinators @Inject constructor(
         TextInputLayoutValidatinator.Builder(emailValidatinator)
             .context(context)
             .inputName(email)
+            .build()
+
+    val givenName = context.getString(R.string.validation_input_name_given_name)
+
+    val givenNameRequiredValidatinator = RequiredValidatinator.Builder()
+        .context(context)
+        .inputName(givenName)
+        .build()
+
+    val givenNameMaxLengthValidatinator: MaxLengthValidatinator =
+        MaxLengthValidatinator.Builder(255)
+            .context(context)
+            .inputName(givenName)
+            .build()
+
+    val givenNameValidatinator: ValidatinatorSet<CharSequence?> =
+        ValidatinatorSet.Builder<CharSequence?>()
+            .context(context)
+            .inputName(givenName)
+            .add(
+                givenNameRequiredValidatinator,
+                givenNameMaxLengthValidatinator
+            )
+            .processAll(true)
+            .build()
+
+    val givenNameInputValidatinator: TextInputLayoutValidatinator =
+        TextInputLayoutValidatinator.Builder(givenNameValidatinator)
+            .context(context)
+            .inputName(givenName)
+            .build()
+
+    val familyName = context.getString(R.string.validation_input_name_family_name)
+
+    val familyNameRequiredValidatinator = RequiredValidatinator.Builder()
+        .context(context)
+        .inputName(familyName)
+        .build()
+
+    val familyNameMaxLengthValidatinator: MaxLengthValidatinator =
+        MaxLengthValidatinator.Builder(255)
+            .context(context)
+            .inputName(familyName)
+            .build()
+
+    val familyNameValidatinator: ValidatinatorSet<CharSequence?> =
+        ValidatinatorSet.Builder<CharSequence?>()
+            .context(context)
+            .inputName(familyName)
+            .add(
+                familyNameRequiredValidatinator,
+                familyNameMaxLengthValidatinator
+            )
+            .processAll(true)
+            .build()
+
+    val familyNameInputValidatinator: TextInputLayoutValidatinator =
+        TextInputLayoutValidatinator.Builder(familyNameValidatinator)
+            .context(context)
+            .inputName(familyName)
+            .build()
+
+    val password = context.getString(R.string.validation_input_name_password)
+
+    val passwordRequiredValidatinator = RequiredValidatinator.Builder()
+        .context(context)
+        .inputName(password)
+        .build()
+
+    val passwordMinLengthValidatinator: MinLengthValidatinator =
+        MinLengthValidatinator.Builder(6)
+            .context(context)
+            .inputName(password)
+            .build()
+
+    val passwordValidatinator: ValidatinatorSet<CharSequence?> =
+        ValidatinatorSet.Builder<CharSequence?>()
+            .context(context)
+            .inputName(password)
+            .add(
+                passwordRequiredValidatinator,
+                passwordMinLengthValidatinator
+            )
+            .processAll(true)
+            .build()
+
+    val passwordInputValidatinator: TextInputLayoutValidatinator =
+        TextInputLayoutValidatinator.Builder(passwordValidatinator)
+            .context(context)
+            .inputName(password)
             .build()
 
     val username = context.getString(R.string.validation_input_name_username)

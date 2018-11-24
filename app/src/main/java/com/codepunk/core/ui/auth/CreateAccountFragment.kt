@@ -18,6 +18,7 @@ package com.codepunk.core.ui.auth
 
 import android.content.Context
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -75,7 +76,7 @@ class CreateAccountFragment :
             .get(AuthViewModel::class.java)
     }
 
-    private val validatinatorMap = LinkedHashMap<TextInputLayout, TextInputLayoutValidatinator>()
+    private val validatinatorMap = LinkedHashMap<TextInputLayout, TextInputLayoutValidatinator?>()
 
     private val options = Options().apply {
         requestMessage = true
@@ -127,6 +128,10 @@ class CreateAccountFragment :
         validatinatorMap.apply {
             put(binding.usernameLayout, authValidatinators.usernameInputValidatinator)
             put(binding.emailLayout, authValidatinators.emailInputValidatinator)
+            put(binding.givenNameLayout, authValidatinators.givenNameInputValidatinator)
+            put(binding.familyNameLayout, authValidatinators.familyNameInputValidatinator)
+            put(binding.passwordLayout, authValidatinators.passwordInputValidatinator)
+            put(binding.confirmPasswordLayout, authValidatinators.confirmPasswordInputValidatinator)
         }
 
         authViewModel.authorizationDataUpdate.observe(
@@ -135,21 +140,32 @@ class CreateAccountFragment :
         )
     }
 
+    private fun clearErrors() {
+        for (layout in validatinatorMap.keys) {
+            layout.error = null
+        }
+    }
+
     /**
      * Validates the form.
      */
     private fun validate(): Boolean {
-        for (layout in validatinatorMap.keys) {
-            layout.error = null
-        }
+        clearErrors()
 
         for ((layout, validatinator) in validatinatorMap) {
-            if (!validatinator.validate(layout, options.clear())) {
+            if (validatinator?.validate(layout, options.clear()) == false) {
                 return false
             }
         }
 
-        return false // true
+        if (!TextUtils.equals(binding.passwordEdit.text, binding.confirmPasswordEdit.text)) {
+            binding.confirmPasswordLayout.error =
+                    resources.getString(R.string.validation_invalid_passwords_do_not_match)
+            binding.confirmPasswordLayout.requestFocus()
+            return false
+        }
+
+        return true
     }
 
     // endregion Inherited methods
