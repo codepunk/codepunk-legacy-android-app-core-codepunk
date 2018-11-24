@@ -36,12 +36,9 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.take4.PatternValidatinator
-import com.codepunk.punkubator.util.take4.RequiredValidatinator
-import com.codepunk.punkubator.util.take4.Validatinator
-import com.codepunk.punkubator.util.take4.Validatinator.Options
-import com.codepunk.punkubator.util.take4.ValidatinatorSet
-import com.codepunk.punkubator.util.validatinator.TextInputLayoutValidatinator
+import com.codepunk.punkubator.util.validatinator.*
+import com.codepunk.punkubator.util.validatinator.Validatinator.Options
+import com.codepunk.punkubator.util.validatinatorold.TextInputLayoutValidatinator
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
@@ -153,40 +150,6 @@ class CreateAccountFragment :
 
         val username = requireContext().getString(R.string.validation_attribute_username)
 
-        /*
-        // Take 3
-        val requiredValidatinator = RequiredValidatinator()
-
-        val patternValidatinator = PatternValidatinator(
-            Pattern.compile("\\w+")
-        ) { context, valid, inputName ->
-            Validatinator.composeMessage(
-                context,
-                valid,
-                inputName,
-                R.string.validation_word_character_pattern
-            )
-        }
-
-        val maxLengthValidatinator = MaxLengthValidatinator(10)
-
-        val validatinatorSet = ValidatinatorSet<CharSequence?>()
-            .add(requiredValidatinator, patternValidatinator, maxLengthValidatinator)
-        val options = Validatinator.Options.Builder()
-            .context(requireContext())
-            .inputName(username)
-            .requestMessage(true)
-            .requestTrace(true)
-            .build()
-
-        val valid = validatinatorSet.validate(binding.usernameEdit.text, options)
-
-        binding.usernameLayout.error = when (valid) {
-            true -> null
-            false -> options.outMessage
-        }
-        */
-
         val requiredValidatinator = RequiredValidatinator.Builder()
             .context(requireContext())
             .inputName(username)
@@ -201,12 +164,23 @@ class CreateAccountFragment :
                 }
                 .build()
 
-        val usernameValidatinator = ValidatinatorSet.Builder<CharSequence?>()
-            .context(requireContext())
-            .inputName(username)
-            .add(requiredValidatinator, wordCharacterValidatinator)
-            .processAll(true)
-            .build()
+        val maxLengthValidatinator: MaxLengthValidatinator =
+            MaxLengthValidatinator.Builder(64)
+                .context(requireContext())
+                .inputName(username)
+                .build()
+
+        val usernameValidatinator: ValidatinatorSet<CharSequence?> =
+            ValidatinatorSet.Builder<CharSequence?>()
+                .context(requireContext())
+                .inputName(username)
+                .add(
+                    requiredValidatinator,
+                    wordCharacterValidatinator,
+                    maxLengthValidatinator
+                )
+                .processAll(true)
+                .build()
 
         val options = Options().apply {
             requestMessage = true
