@@ -33,7 +33,7 @@
 
     <string name="validation_attribute_password">password</string>
 
-    <string name="validation_attribute_username">Username</string>
+    <string name="validation_attribute_username">The username</string>
 
     <!-- endregion Attributes -->
 
@@ -46,6 +46,8 @@
     <string name="validation_required">The %1$s field is required.</string>
 
     <string name="validation_word_character_pattern">%1$s may only contain alphanumeric characters and underscores.</string>
+
+    <string name="validation_email">The %1$s must be a valid email address.</string>
 
     <!-- endregion Messages -->
 

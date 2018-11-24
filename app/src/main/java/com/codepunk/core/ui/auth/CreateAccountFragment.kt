@@ -36,9 +36,14 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.punkubator.util.take3.*
+import com.codepunk.punkubator.util.validatinator.TextInputLayoutValidatinator
+import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
+import java.util.regex.Pattern
 import javax.inject.Inject
+import kotlin.math.max
 
 /**
  * A [Fragment] used to add a new account.
@@ -72,9 +77,8 @@ class CreateAccountFragment :
             .get(AuthViewModel::class.java)
     }
 
-    /*
-    private lateinit var validatinator: Validatinator<TextInputLayout>
-    */
+    //    private val validatinatorMap = LinkedHashMap<TextInputLayout, Validatinator<CharSequence?>>()
+    private val validatinatorMap = LinkedHashMap<TextInputLayout, TextInputLayoutValidatinator?>()
 
     // endregion Properties
 
@@ -102,6 +106,21 @@ class CreateAccountFragment :
             container,
             false
         )
+
+        /*
+        validatinatorMap.put(binding.usernameLayout, authValidatinators.usernameValidatinator)
+        validatinatorMap.put(binding.emailLayout, authValidatinators.emailValidatinator)
+        */
+
+        validatinatorMap[binding.usernameLayout] =
+                authValidatinators.usernameTextInputLayoutValidatinator
+        validatinatorMap[binding.emailLayout] =
+                authValidatinators.emailTextInputLayoutValidatinator
+        validatinatorMap[binding.givenNameLayout] = null
+        validatinatorMap[binding.familyNameLayout] = null
+        validatinatorMap[binding.passwordLayout] = null
+        validatinatorMap[binding.confirmPasswordLayout] = null
+
         return binding.root
     }
 
@@ -129,15 +148,40 @@ class CreateAccountFragment :
      */
     private fun validate(): Boolean {
 
-        val result =
-            authValidatinators.usernameValidatinator.validate(binding.usernameEdit.text)
+        // Take 3
+        val username = requireContext().getString(R.string.validation_attribute_username)
+        val requiredValidatinator = RequiredValidatinator()
 
-        binding.usernameLayout.error = when (result.valid) {
-            true -> result.message
-            false -> result.message
+        val patternValidatinator = PatternValidatinator(
+            Pattern.compile("\\w+")
+        ) { context, valid, inputName ->
+            Validatinator.composeMessage(
+                context,
+                valid,
+                inputName,
+                R.string.validation_word_character_pattern
+            )
         }
 
-        return false
+        val maxLengthValidatinator = MaxLengthValidatinator(10)
+
+        val validatinatorSet = ValidatinatorSet<CharSequence?>()
+            .add(requiredValidatinator, patternValidatinator, maxLengthValidatinator)
+        val options = Validatinator.Options.Builder()
+            .context(requireContext())
+            .inputName(username)
+            .requestMessage(true)
+            .requestTrace(true)
+            .build()
+
+        val valid = validatinatorSet.validate(binding.usernameEdit.text, options)
+
+        binding.usernameLayout.error = when (valid) {
+            true -> null
+            false -> options.outMessage
+        }
+
+        return false // valid
     }
 
     // endregion Inherited methods
