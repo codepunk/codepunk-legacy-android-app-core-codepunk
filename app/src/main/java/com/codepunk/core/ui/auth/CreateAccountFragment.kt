@@ -36,14 +36,17 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.take3.*
+import com.codepunk.punkubator.util.take4.PatternValidatinator
+import com.codepunk.punkubator.util.take4.RequiredValidatinator
+import com.codepunk.punkubator.util.take4.Validatinator
+import com.codepunk.punkubator.util.take4.Validatinator.Options
+import com.codepunk.punkubator.util.take4.ValidatinatorSet
 import com.codepunk.punkubator.util.validatinator.TextInputLayoutValidatinator
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
 import java.util.regex.Pattern
 import javax.inject.Inject
-import kotlin.math.max
 
 /**
  * A [Fragment] used to add a new account.
@@ -148,8 +151,10 @@ class CreateAccountFragment :
      */
     private fun validate(): Boolean {
 
-        // Take 3
         val username = requireContext().getString(R.string.validation_attribute_username)
+
+        /*
+        // Take 3
         val requiredValidatinator = RequiredValidatinator()
 
         val patternValidatinator = PatternValidatinator(
@@ -175,6 +180,39 @@ class CreateAccountFragment :
             .build()
 
         val valid = validatinatorSet.validate(binding.usernameEdit.text, options)
+
+        binding.usernameLayout.error = when (valid) {
+            true -> null
+            false -> options.outMessage
+        }
+        */
+
+        val requiredValidatinator = RequiredValidatinator.Builder()
+            .context(requireContext())
+            .inputName(username)
+            .build()
+
+        val wordCharacterValidatinator =
+            PatternValidatinator.Builder(Pattern.compile("\\w+"))
+                .context(requireContext())
+                .inputName(username)
+                .invalidMessage { _, _ ->
+                    resources.getString(R.string.validation_word_character_pattern, username)
+                }
+                .build()
+
+        val usernameValidatinator = ValidatinatorSet.Builder<CharSequence?>()
+            .context(requireContext())
+            .inputName(username)
+            .add(requiredValidatinator, wordCharacterValidatinator)
+            .processAll(true)
+            .build()
+
+        val options = Options().apply {
+            requestMessage = true
+            requestTrace = true
+        }
+        val valid = usernameValidatinator.validate(binding.usernameEdit.text, options)
 
         binding.usernameLayout.error = when (valid) {
             true -> null
