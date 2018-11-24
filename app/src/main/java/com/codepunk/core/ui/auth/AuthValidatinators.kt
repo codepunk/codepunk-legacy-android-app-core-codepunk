@@ -21,7 +21,7 @@ import android.content.Context
 import android.util.Patterns
 import com.codepunk.core.R
 import com.codepunk.core.di.qualifier.ApplicationContext
-import com.codepunk.punkubator.util.validatinatorold.*
+import com.codepunk.punkubator.util.validatinator.*
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,74 +34,88 @@ class AuthValidatinators @Inject constructor(
 
 ) {
 
-    val username = context.getString(R.string.authenticator_username)
-    val email = context.getString(R.string.authenticator_email)
+    // region properties
 
-    val requiredUsernameValidatinator = RequiredValidatinator.Builder()
+    val email = context.getString(R.string.validation_input_name_email)
+
+    val emailRequiredValidatinator = RequiredValidatinator.Builder()
+        .context(context)
+        .inputName(email)
+        .build()
+
+    val emailFormatValidatinator =
+        PatternValidatinator.Builder(Patterns.EMAIL_ADDRESS)
+            .context(context)
+            .inputName(email)
+            .invalidMessage { _, inputName ->
+                context.getString(R.string.validation_invalid_pattern_email, inputName)
+            }
+            .build()
+
+    val emailMaxLengthValidatinator: MaxLengthValidatinator =
+        MaxLengthValidatinator.Builder(255)
+            .context(context)
+            .inputName(email)
+            .build()
+
+    val emailValidatinator: ValidatinatorSet<CharSequence?> =
+        ValidatinatorSet.Builder<CharSequence?>()
+            .context(context)
+            .inputName(email)
+            .add(
+                emailRequiredValidatinator,
+                emailFormatValidatinator,
+                emailMaxLengthValidatinator
+            )
+            .processAll(true)
+            .build()
+
+    val emailInputValidatinator: TextInputLayoutValidatinator =
+        TextInputLayoutValidatinator.Builder(emailValidatinator)
+            .context(context)
+            .inputName(email)
+            .build()
+
+    val username = context.getString(R.string.validation_input_name_username)
+
+    val usernameRequiredValidatinator = RequiredValidatinator.Builder()
         .context(context)
         .inputName(username)
         .build()
 
-    val wordCharValidatinator =
+    val usernameFormatValidatinator =
         PatternValidatinator.Builder(Pattern.compile("\\w+"))
             .context(context)
             .inputName(username)
-            .invalidMessage(
-                context.getString(
-                    R.string.validation_word_character_pattern,
-                    username
-                )
-            )
+            .invalidMessage { _, inputName ->
+                context.getString(R.string.validation_invalid_pattern_word_character, inputName)
+            }
             .build()
 
-    val maxLengthValidatinator =
+    val usernameMaxLengthValidatinator: MaxLengthValidatinator =
         MaxLengthValidatinator.Builder(64)
             .context(context)
             .inputName(username)
             .build()
 
-    val usernameValidatinator =
+    val usernameValidatinator: ValidatinatorSet<CharSequence?> =
         ValidatinatorSet.Builder<CharSequence?>()
             .context(context)
             .inputName(username)
             .add(
-                requiredUsernameValidatinator,
-                wordCharValidatinator,
-                maxLengthValidatinator
+                usernameRequiredValidatinator,
+                usernameFormatValidatinator,
+                usernameMaxLengthValidatinator
             )
+            .processAll(true)
             .build()
 
-    val requiredEmailValidatinator = RequiredValidatinator.Builder()
-        .context(context)
-        .inputName(email)
-        .build()
-
-    val emailPatternValidatinator =
-        PatternValidatinator.Builder(Patterns.EMAIL_ADDRESS)
-            .context(context)
-            .inputName(email)
-            .invalidMessage(
-                context.getString(
-                    R.string.validation_email,
-                    email
-                )
-            )
-            .build()
-
-    val emailValidatinator =
-        ValidatinatorSet.Builder<CharSequence?>()
+    val usernameInputValidatinator: TextInputLayoutValidatinator =
+        TextInputLayoutValidatinator.Builder(usernameValidatinator)
             .context(context)
             .inputName(username)
-            .add(
-                requiredEmailValidatinator,
-                emailPatternValidatinator
-            )
             .build()
 
-    val usernameTextInputLayoutValidatinator =
-        TextInputLayoutValidatinator.Builder(usernameValidatinator).build()
-
-    val emailTextInputLayoutValidatinator =
-        TextInputLayoutValidatinator.Builder(emailValidatinator).build()
+    // endregion Properties
 
 }

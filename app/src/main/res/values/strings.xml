@@ -85,17 +85,9 @@
 
     <string name="authenticator_sent_email">We sent you an activation code! Please check your e-mail.</string>
 
-    <string name="authenticator_error_username">Enter a valid username</string>
-
     <string name="authenticator_error_username_or_email">Enter a valid username or email</string>
 
-    <string name="authenticator_error_email">Enter a valid email</string>
-
     <string name="authenticator_error_password">Enter a valid password</string>
-
-    <string name="authenticator_error_confirm_password">Confirm password</string>
-
-    <string name="authenticator_error_passwords_do_not_match">Passwords do not match</string>
 
     <string name="authenticator_error_invalid_credentials">The username or password is incorrect.</string>
 
@@ -167,6 +159,30 @@
     <string name="settings_remote_environment_title">Remote environment</string>
 
     <!-- endregion Settings -->
+
+    <!-- region Validation -->
+
+    <string name="validation_input_name_confirm_password">The password confirmation</string>
+
+    <string name="validation_input_name_email">The email</string>
+
+    <string name="validation_input_name_family_name">The last name</string>
+
+    <string name="validation_input_name_given_name">The first name</string>
+
+    <string name="validation_input_name_password">The password</string>
+
+    <string name="validation_input_name_username">The username</string>
+
+    <!-- NOTE: These validation messages are configured to match those of Laravel. -->
+
+    <string name="validation_invalid_pattern_email">%1$s must be a valid email address.</string>
+
+    <string name="validation_invalid_pattern_word_character">%1$s may only contain alphanumeric characters and underscores.</string>
+
+    <string name="validation_invalid_passwords_do_not_match">Passwords do not match</string>
+
+    <!-- endregion Validation -->
 
     <!-- region Temporary -->
 

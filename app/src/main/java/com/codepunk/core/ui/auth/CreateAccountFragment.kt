@@ -38,11 +38,9 @@ import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.punkubator.util.validatinator.*
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
-import com.codepunk.punkubator.util.validatinatorold.TextInputLayoutValidatinator
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 /**
@@ -77,8 +75,12 @@ class CreateAccountFragment :
             .get(AuthViewModel::class.java)
     }
 
-    //    private val validatinatorMap = LinkedHashMap<TextInputLayout, Validatinator<CharSequence?>>()
-    private val validatinatorMap = LinkedHashMap<TextInputLayout, TextInputLayoutValidatinator?>()
+    private val validatinatorMap = LinkedHashMap<TextInputLayout, TextInputLayoutValidatinator>()
+
+    private val options = Options().apply {
+        requestMessage = true
+        requestTrace = true
+    }
 
     // endregion Properties
 
@@ -106,21 +108,6 @@ class CreateAccountFragment :
             container,
             false
         )
-
-        /*
-        validatinatorMap.put(binding.usernameLayout, authValidatinators.usernameValidatinator)
-        validatinatorMap.put(binding.emailLayout, authValidatinators.emailValidatinator)
-        */
-
-        validatinatorMap[binding.usernameLayout] =
-                authValidatinators.usernameTextInputLayoutValidatinator
-        validatinatorMap[binding.emailLayout] =
-                authValidatinators.emailTextInputLayoutValidatinator
-        validatinatorMap[binding.givenNameLayout] = null
-        validatinatorMap[binding.familyNameLayout] = null
-        validatinatorMap[binding.passwordLayout] = null
-        validatinatorMap[binding.confirmPasswordLayout] = null
-
         return binding.root
     }
 
@@ -137,6 +124,11 @@ class CreateAccountFragment :
         binding.createBtn.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
 
+        validatinatorMap.apply {
+            put(binding.usernameLayout, authValidatinators.usernameInputValidatinator)
+            put(binding.emailLayout, authValidatinators.emailInputValidatinator)
+        }
+
         authViewModel.authorizationDataUpdate.observe(
             this,
             Observer { onAuthorizationUpdate(it) }
@@ -147,53 +139,17 @@ class CreateAccountFragment :
      * Validates the form.
      */
     private fun validate(): Boolean {
-
-        val username = requireContext().getString(R.string.validation_attribute_username)
-
-        val requiredValidatinator = RequiredValidatinator.Builder()
-            .context(requireContext())
-            .inputName(username)
-            .build()
-
-        val wordCharacterValidatinator =
-            PatternValidatinator.Builder(Pattern.compile("\\w+"))
-                .context(requireContext())
-                .inputName(username)
-                .invalidMessage { _, _ ->
-                    resources.getString(R.string.validation_word_character_pattern, username)
-                }
-                .build()
-
-        val maxLengthValidatinator: MaxLengthValidatinator =
-            MaxLengthValidatinator.Builder(64)
-                .context(requireContext())
-                .inputName(username)
-                .build()
-
-        val usernameValidatinator: ValidatinatorSet<CharSequence?> =
-            ValidatinatorSet.Builder<CharSequence?>()
-                .context(requireContext())
-                .inputName(username)
-                .add(
-                    requiredValidatinator,
-                    wordCharacterValidatinator,
-                    maxLengthValidatinator
-                )
-                .processAll(true)
-                .build()
-
-        val options = Options().apply {
-            requestMessage = true
-            requestTrace = true
-        }
-        val valid = usernameValidatinator.validate(binding.usernameEdit.text, options)
-
-        binding.usernameLayout.error = when (valid) {
-            true -> null
-            false -> options.outMessage
+        for (layout in validatinatorMap.keys) {
+            layout.error = null
         }
 
-        return false // valid
+        for ((layout, validatinator) in validatinatorMap) {
+            if (!validatinator.validate(layout, options.clear())) {
+                return false
+            }
+        }
+
+        return false // true
     }
 
     // endregion Inherited methods
