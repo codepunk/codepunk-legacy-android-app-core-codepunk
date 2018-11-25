@@ -18,7 +18,6 @@ package com.codepunk.core.ui.auth
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +36,7 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.validatinator.*
+import com.codepunk.punkubator.util.validatinator.TextInputLayoutValidatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
@@ -140,33 +139,15 @@ class CreateAccountFragment :
         )
     }
 
-    private fun clearErrors() {
-        for (layout in validatinatorMap.keys) {
-            layout.error = null
-        }
-    }
-
     /**
      * Validates the form.
      */
-    private fun validate(): Boolean {
-        clearErrors()
-
-        for ((layout, validatinator) in validatinatorMap) {
-            if (validatinator?.validate(layout, options.clear()) == false) {
-                return false
-            }
-        }
-
-        if (!TextUtils.equals(binding.passwordEdit.text, binding.confirmPasswordEdit.text)) {
-            binding.confirmPasswordLayout.error =
-                    resources.getString(R.string.validation_invalid_passwords_do_not_match)
-            binding.confirmPasswordLayout.requestFocus()
-            return false
-        }
-
-        return true
-    }
+    private fun validate(): Boolean =
+        authValidatinators.createAccountFragmentValidatinator.validate(
+            binding,
+            Options().apply {
+                requestMessage = true
+            })
 
     // endregion Inherited methods
 

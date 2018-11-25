@@ -20,6 +20,7 @@ package com.codepunk.core.ui.auth
 import android.content.Context
 import android.util.Patterns
 import com.codepunk.core.R
+import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.codepunk.punkubator.util.validatinator.*
 import java.util.regex.Pattern
@@ -164,6 +165,9 @@ class AuthValidatinators @Inject constructor(
             .context(context)
             .inputName(username)
             .build()
+
+    val createAccountFragmentValidatinator: CreateAccountFragmentValidatinator =
+        CreateAccountFragmentValidatinator.Builder(context).build()
 
     // endregion Properties
 
