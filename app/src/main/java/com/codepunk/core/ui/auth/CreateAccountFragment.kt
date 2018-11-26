@@ -36,8 +36,9 @@ import com.codepunk.core.lib.DataUpdate
 import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.punkubator.util.validatinator.TextInputLayoutValidatinator
+import com.codepunk.punkubator.util.validatinator.*
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
+import com.codepunk.punkubator.util.validatinatorold.TextInputLayoutValidatinator
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
@@ -77,7 +78,7 @@ class CreateAccountFragment :
 
     private val validatinatorMap = LinkedHashMap<TextInputLayout, TextInputLayoutValidatinator?>()
 
-    private val options = Options().apply {
+    private val options = com.codepunk.punkubator.util.validatinatorold.Validatinator.Options().apply {
         requestMessage = true
         requestTrace = true
     }
@@ -142,12 +143,38 @@ class CreateAccountFragment :
     /**
      * Validates the form.
      */
-    private fun validate(): Boolean =
-        authValidatinators.createAccountFragmentValidatinator.validate(
+    private fun validate(): Boolean {
+        val username = resources.getString(R.string.validation_input_name_username)
+
+        val options = Options().apply {
+            requestMessage = true
+        }
+
+        val validinatorSet = ValidatinatorSet<CharSequence?>(
+            context = requireContext(),
+            inputName = username
+        ).add(
+            RequiredCharSequenceValidatinator(requireContext(), username),
+            WordCharacterValidatinator(requireContext(), username),
+            MaxLengthValidatinator(requireContext(), username, 64)
+        )
+
+        val valid = validinatorSet.validate(binding.usernameEdit.text, options)
+        binding.usernameLayout.error = when (valid) {
+            true -> null
+            false -> options.outMessage
+        }
+
+        return false // valid
+
+        /*
+        return authValidatinators.createAccountFragmentValidatinator.validate(
             binding,
             Options().apply {
                 requestMessage = true
             })
+        */
+    }
 
     // endregion Inherited methods
 

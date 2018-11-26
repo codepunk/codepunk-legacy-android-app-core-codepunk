@@ -20,9 +20,8 @@ package com.codepunk.core.ui.auth
 import android.content.Context
 import android.util.Patterns
 import com.codepunk.core.R
-import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.di.qualifier.ApplicationContext
-import com.codepunk.punkubator.util.validatinator.*
+import com.codepunk.punkubator.util.validatinatorold.*
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton

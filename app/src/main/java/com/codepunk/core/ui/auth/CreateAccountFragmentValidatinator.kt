@@ -23,7 +23,7 @@ import android.util.Patterns
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.di.scope.FragmentScope
-import com.codepunk.punkubator.util.validatinator.*
+import com.codepunk.punkubator.util.validatinatorold.*
 import com.google.android.material.textfield.TextInputLayout
 import java.util.regex.Pattern
 
