@@ -32,8 +32,8 @@ import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
-import com.codepunk.core.lib.DataUpdate
-import com.codepunk.core.lib.FailureUpdate
+import com.codepunk.core.data.task.DataUpdate
+import com.codepunk.core.data.task.FailureUpdate
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.punkubator.util.validatinator.Validatinator

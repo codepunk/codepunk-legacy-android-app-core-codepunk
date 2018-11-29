@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +15,15 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
+
 apply plugin: "androidx.navigation.safeargs"
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jetbrains.dokka-android'
 
+import com.android.utils.Pair
 import com.android.build.gradle.api.BaseVariant
 
 android {
@@ -34,6 +37,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -46,10 +50,27 @@ android {
 
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' // TODO This will likely cause moshi serialization issues. Fun.
+
+            // NOTE: This will likely cause moshi serialization issues. Fun.
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             ext.defaultRemoteEnvironment = "PRODUCTION"
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "${rootProject.buildDir}/javadoc"
+        includeNonPublic = true
     }
 
     applicationVariants.all { variant ->
@@ -57,10 +78,16 @@ android {
          * Generate a set of key/value pairs that are accessible both as string resources
          * and as BuildConfig constants.
          */
-        makeConstantValues(
+        makeStringConstantValues(
                 variant,
-                "DEFAULT_REMOTE_ENVIRONMENT_VALUE", variant.buildType.ext.defaultRemoteEnvironment,
-                "AUTHENTICATOR_ACCOUNT_TYPE", variant.applicationId
+                Pair.of(
+                        "DEFAULT_REMOTE_ENVIRONMENT_VALUE",
+                        variant.buildType.ext.defaultRemoteEnvironment
+                ),
+                Pair.of(
+                        "AUTHENTICATOR_ACCOUNT_TYPE",
+                        variant.applicationId
+                )
         )
 
         /*
@@ -93,8 +120,9 @@ android {
          * Generate a set of intent actions that are accessible both as string resources
          * and as BuildConfig constants.
          */
-        makeIntentActions(
+        makeIntentEntities(
                 variant,
+                IntentEntityType.ACTION,
                 "AUTHORIZATION",
                 "MAIN",
                 "SETTINGS"
@@ -104,8 +132,9 @@ android {
          * Generate a set of intent categories that are accessible both as string resources
          * and as BuildConfig constants.
          */
-        makeIntentCategories(
+        makeIntentEntities(
                 variant,
+                IntentEntityType.CATEGORY,
                 "CREATE_ACCOUNT",
                 "DEVELOPER",
                 "LOG_IN",
@@ -116,8 +145,9 @@ android {
          * Generate a set of intent categories that are accessible both as string resources
          * and as BuildConfig constants.
          */
-        makeIntentExtras(
+        makeIntentEntities(
                 variant,
+                IntentEntityType.EXTRA,
                 "AUTH_TOKEN_TYPE",
                 "DEVELOPER_OPTIONS_PASSWORD_HASH",
                 "USERNAME"
@@ -176,73 +206,79 @@ android {
                 "/**** Define Developer Password Hash ****/ \"\""
         variant.buildConfigField("String", "DEVELOPER_OPTIONS_PASSWORD_HASH", developerOptionsPasswordHash)
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    dataBinding {
-        enabled = true
-    }
-
-    dokka {
-        outputFormat = 'html'
-        outputDirectory = "$buildDir/javadoc"
-        includeNonPublic = true
-    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation rootProject.deps.android.animated_vector_drawable
-    implementation rootProject.deps.android.material
-    implementation rootProject.deps.androidx.app_compat
-    implementation rootProject.deps.androidx.constraint_layout
-    implementation rootProject.deps.androidx.legacy
-    implementation rootProject.deps.androidx.preference
-    implementation rootProject.deps.apache.codec
-    implementation rootProject.deps.dagger.dagger
-    implementation rootProject.deps.dagger.android
-    implementation rootProject.deps.dagger.android_support
-    implementation rootProject.deps.kotlin.stdlib
-    implementation rootProject.deps.lifecycle.extensions
-    implementation rootProject.deps.lifecycle.java8
-    implementation rootProject.deps.navigation.fragment_ktx
-    implementation rootProject.deps.navigation.ui_ktx
-    implementation rootProject.deps.retrofit.runtime
-    implementation rootProject.deps.retrofit.moshi
-    // implementation rootProject.deps.retrofit.moshi_kotlin TODO Maybe not needed
+
+    implementation "android.arch.lifecycle:extensions:${rootProject.versions.lifecycle}"
+    implementation "android.arch.lifecycle:common-java8:${rootProject.versions.lifecycle}"
+    implementation "android.arch.lifecycle:runtime:${rootProject.versions.lifecycle}"
+    implementation "android.arch.persistence.room:runtime:${rootProject.versions.room}"
+    implementation "android.arch.navigation:navigation-fragment-ktx:${rootProject.versions.navigation}"
+    implementation "android.arch.navigation:navigation-ui-ktx:${rootProject.versions.navigation}"
+    implementation "androidx.appcompat:appcompat:${rootProject.versions.androidx_appcompat}"
+    implementation "androidx.constraintlayout:constraintlayout:${rootProject.versions.androidx_constraint}"
+    implementation "androidx.preference:preference:${rootProject.versions.androidx_legacy}"
+    implementation "androidx.multidex:multidex:${rootProject.versions.multidex}"
+    /* TODO Fabric/Crashlytics
+    implementation ("com.crashlytics.sdk.android:crashlytics:${rootProject.versions.crashlytics}") {
+        transitive = true
+    }
+    */
+    implementation "com.google.dagger:dagger:${rootProject.versions.dagger}"
+    implementation "com.google.dagger:dagger-android:${rootProject.versions.dagger}"
+    implementation "com.google.dagger:dagger-android-support:${rootProject.versions.dagger}"
+    /* TODO Maybe not needed
+    implementation "com.squareup.moshi:moshi-kotlin:${rootProject.version.moshi_kotlin}"
+    */
+    implementation "com.squareup.retrofit2:retrofit:${rootProject.versions.retrofit}"
+    implementation "com.squareup.retrofit2:converter-moshi:${rootProject.versions.retrofit}"
+    implementation "commons-codec:commons-codec:${rootProject.versions.apache_codec}"
+    /* TODO Fabric/Crashlytics
+    implementation "io.fabric.tools:gradle:${rootProject.versions.fabric}"
+    */
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.versions.kotlin}"
 
     implementation project(':doofenschmirtz')
     implementation project(':punkubator')
 
     // See https://stackoverflow.com/questions/44989650/dagger2-cannot-access-nullable-javax-annotation-nullable-not-found
     // for why this is being included
-    implementation rootProject.deps.findbugs
+    implementation "com.google.code.findbugs:jsr305:${rootProject.versions.findbugs}"
 
-    kapt rootProject.deps.dagger.android_support_compiler
-    kapt rootProject.deps.dagger.compiler
-    kapt rootProject.deps.kotlin.compiler
+    kapt "android.arch.lifecycle:compiler:${rootProject.versions.lifecycle}"
+    kapt "android.arch.persistence.room:compiler:${rootProject.versions.room}"
+    kapt "com.google.dagger:dagger-android-processor:${rootProject.versions.dagger}"
+    kapt "com.google.dagger:dagger-compiler:${rootProject.versions.dagger}"
 
-    testImplementation rootProject.deps.junit
+    testImplementation "junit:junit:${rootProject.versions.junit}"
 
-    androidTestImplementation rootProject.deps.atsl.runner
-    androidTestImplementation rootProject.deps.espresso.core
-    androidTestImplementation rootProject.deps.lifecycle.testing
+    androidTestImplementation "android.arch.navigation:navigation-testing-ktx:${rootProject.versions.navigation_testing}"
+    androidTestImplementation "android.arch.persistence.room:testing:${rootProject.versions.room}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:${rootProject.versions.test_espresso_core}"
+    androidTestImplementation "com.android.support.test:runner:${rootProject.versions.test_runner}"
 }
 
 // region Methods
 
-static def makeConstantValues(BaseVariant variant, String... values) {
-    0.step(values.length, 2) { i ->
-        if (i + 1 < values.length) {
-            def buildConfigValue = "\"${values[i + 1]}\""
-            variant.buildConfigField("String", values[i], buildConfigValue)
+static def makeIntConstantValues(BaseVariant variant, Pair<String, Integer>... pairs) {
+    pairs.each { pair ->
+        def buildConfigValue = "${pair.second}"
+        variant.buildConfigField("int", pair.first, buildConfigValue)
 
-            def resourceName = values[i].toLowerCase(Locale.US)
-            variant.resValue("string", resourceName, values[i + 1])
-        }
+        def resourceName = pair.first.toLowerCase(Locale.US)
+        variant.resValue("integer", resourceName, pair.second.toString())
+    }
+}
+
+static def makeStringConstantValues(BaseVariant variant, Pair<String, String>... pairs) {
+    pairs.each { pair ->
+        def buildConfigValue = "\"${pair.second}\""
+        variant.buildConfigField("String", pair.first, buildConfigValue)
+
+        def resourceName = pair.first.toLowerCase(Locale.US)
+        variant.resValue("string", resourceName, pair.second)
     }
 }
 
@@ -254,22 +290,29 @@ static def makeKeys(BaseVariant variant, String... keys) {
     }
 }
 
+
 static def makePreferenceKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
-        def full_key = "PREF_KEY_$key"
-        def buildConfigValue = "\"${variant.applicationId}.$full_key\""
-        variant.buildConfigField("String", full_key, buildConfigValue)
+        def fullKey = "PREF_KEY_$key"
+        def buildConfigValue = "\"${variant.applicationId}.$fullKey\""
+        variant.buildConfigField("String", fullKey, buildConfigValue)
 
-        def resourceName = full_key.toLowerCase(Locale.US)
-        def resourceValue = "${variant.applicationId}.$full_key"
+        def resourceName = fullKey.toLowerCase(Locale.US)
+        def resourceValue = "${variant.applicationId}.$fullKey"
         variant.resValue("string", resourceName, resourceValue)
     }
 }
 
-static def makeIntentEntities(BaseVariant variant, String type, String... names) {
+def enum IntentEntityType {
+    ACTION,
+    CATEGORY,
+    EXTRA
+}
+
+static def makeIntentEntities(BaseVariant variant, IntentEntityType type, String... names) {
     names.each { name ->
-        def lowerType = type.toLowerCase(Locale.US)
-        def buildConfigName = "${type}_$name"
+        def lowerType = type.toString().toLowerCase(Locale.US)
+        def buildConfigName = "${type.toString()}_$name"
         def buildConfigValue = "\"${variant.applicationId}.intent.$lowerType.$name\""
         variant.buildConfigField("String", buildConfigName, buildConfigValue)
 
@@ -277,18 +320,6 @@ static def makeIntentEntities(BaseVariant variant, String type, String... names)
         def resourceValue = "${variant.applicationId}.intent.$lowerType.$name"
         variant.resValue("string", resourceName, resourceValue)
     }
-}
-
-static def makeIntentActions(BaseVariant variant, String... names) {
-    makeIntentEntities(variant, "ACTION", names)
-}
-
-static def makeIntentCategories(BaseVariant variant, String... names) {
-    makeIntentEntities(variant, "CATEGORY", names)
-}
-
-static def makeIntentExtras(BaseVariant variant, String... names) {
-    makeIntentEntities(variant, "EXTRA", names)
 }
 
 // endregion Methods

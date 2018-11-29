@@ -33,6 +33,7 @@ import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.lib.*
+import com.codepunk.core.data.task.*
 import java.io.IOException
 import javax.inject.Singleton
 

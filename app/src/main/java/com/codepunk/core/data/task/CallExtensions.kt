@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +15,11 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.lib
+package com.codepunk.core.data.task
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData
+import com.codepunk.core.lib.HttpStatusException
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException

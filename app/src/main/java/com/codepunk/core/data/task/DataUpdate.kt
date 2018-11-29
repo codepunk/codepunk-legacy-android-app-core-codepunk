@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.lib
+package com.codepunk.core.data.task
 
 import android.os.Bundle
 import retrofit2.Response

@@ -25,7 +25,6 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
-import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
 import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.data.model.User
@@ -33,7 +32,12 @@ import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
-import com.codepunk.core.lib.*
+import com.codepunk.core.data.task.toDataUpdate
+import com.codepunk.core.data.task.DataTask
+import com.codepunk.core.data.task.DataUpdate
+import com.codepunk.core.data.task.FailureUpdate
+import com.codepunk.core.data.task.SuccessUpdate
+import com.codepunk.core.lib.toMessage
 import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject

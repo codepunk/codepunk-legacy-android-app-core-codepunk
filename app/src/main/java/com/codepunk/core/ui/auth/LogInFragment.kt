@@ -32,6 +32,9 @@ import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.task.DataUpdate
+import com.codepunk.core.data.task.FailureUpdate
+import com.codepunk.core.data.task.ProgressUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.lib.*
 import com.codepunk.core.ui.base.FormFragment
