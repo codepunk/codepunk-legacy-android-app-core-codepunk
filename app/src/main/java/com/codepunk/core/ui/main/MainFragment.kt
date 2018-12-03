@@ -26,6 +26,7 @@ import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.*
@@ -205,11 +206,13 @@ class MainFragment :
             is ProgressUpdate -> updateUI(STATE_LOGGING_IN)
             is SuccessUpdate -> updateUI(STATE_LOGGED_IN, update.result?.user?.givenName)
             is FailureUpdate -> {
-                val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
-                intent?.run {
-                    updateUI(STATE_LOGGING_IN)
-                    startActivityForResult(intent, AUTHENTICATE_REQUEST_CODE)
-                } ?: updateUI(STATE_LOGGED_OUT)
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
+                    intent?.run {
+                        updateUI(STATE_LOGGING_IN)
+                        startActivityForResult(intent, AUTHENTICATE_REQUEST_CODE)
+                    } ?: updateUI(STATE_LOGGED_OUT)
+                }
             }
         }
     }

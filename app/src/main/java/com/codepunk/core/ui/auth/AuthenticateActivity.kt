@@ -31,8 +31,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
@@ -113,6 +113,10 @@ class AuthenticateActivity :
         }
     }
 
+    private val navHostFragment: NavHostFragment by lazy {
+        supportFragmentManager.findFragmentById(R.id.authenticate_nav_fragment) as NavHostFragment
+    }
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -126,9 +130,16 @@ class AuthenticateActivity :
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
-        if (savedInstanceState == null) {
-            processIntent(intent, false)
+        // Set the navigation start destination
+        val navInflater = navHostFragment.navController.navInflater
+        val navGraph = navInflater.inflate(R.navigation.navigation_authenticate)
+        navGraph.setDefaultArguments(intent.extras)
+        navGraph.startDestination = when {
+            intent.categories.contains(CATEGORY_CREATE_ACCOUNT) -> R.id.fragment_create_account
+            intent.categories.contains(CATEGORY_LOG_IN) -> R.id.fragment_log_in
+            else -> R.id.fragment_authenticate
         }
+        navHostFragment.navController.graph = navGraph
 
         authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
     }
@@ -143,7 +154,14 @@ class AuthenticateActivity :
     @Suppress("UNUSED")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        processIntent(intent, true)
+        intent?.categories?.apply {
+            when {
+                contains(CATEGORY_CREATE_ACCOUNT) ->
+                    navController.navigate(R.id.action_auth_to_create_account, intent.extras)
+                contains(CATEGORY_LOG_IN) ->
+                    navController.navigate(R.id.action_auth_to_log_in, intent.extras)
+            }
+        }
     }
 
     /**
@@ -167,22 +185,6 @@ class AuthenticateActivity :
     // endregion Implemented methods
 
     // region Methods
-
-    /**
-     * Processes an intent sent to this activity, whether via onCreate or onNewIntent.
-     */
-    private fun processIntent(intent: Intent?, wasNewIntent: Boolean) {
-        // TODO Must be a cleaner way to do this?
-        val popUp: Boolean = !wasNewIntent
-        intent?.categories?.apply {
-            when {
-                contains(CATEGORY_CREATE_ACCOUNT) ->
-                    navigateTo(R.id.action_auth_to_create_account, popUp, intent.extras)
-                contains(CATEGORY_LOG_IN) ->
-                    navigateTo(R.id.action_auth_to_log_in, popUp, intent.extras)
-            }
-        }
-    }
 
     /**
      * Reacts to authorization data changing.
@@ -237,19 +239,6 @@ class AuthenticateActivity :
             else -> HttpStatus.lookup(response.code())
         }
         loginator.d("httpStatus=$httpStatus, update=$update")
-    }
-
-    /**
-     * Navigates to the given resId and optionally pops up to the start destination.
-     */
-    private fun navigateTo(resId: Int, popUp: Boolean = true, args: Bundle? = null) {
-        val navOptions: NavOptions? = when (popUp) {
-            true -> NavOptions.Builder()
-                .setPopUpTo(R.id.fragment_authenticate, true)
-                .build()
-            false -> null
-        }
-        navController.navigate(resId, args, navOptions)
     }
 
     // endregion Methods
