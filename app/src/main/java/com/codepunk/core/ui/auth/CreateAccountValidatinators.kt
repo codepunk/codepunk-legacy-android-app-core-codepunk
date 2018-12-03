@@ -19,20 +19,21 @@ package com.codepunk.core.ui.auth
 
 import android.content.Context
 import com.codepunk.core.R
+import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.codepunk.punkubator.util.validatinator.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthValidatinators @Inject constructor(
+class CreateAccountValidatinators @Inject constructor(
 
     @ApplicationContext
     val context: Context
 
 ) {
 
-    // region properties
+    // region Properties
 
     val username = context.getString(R.string.validation_input_name_username)
     val usernameValidatinator = ValidatinatorSet<CharSequence?>(
@@ -46,6 +47,11 @@ class AuthValidatinators @Inject constructor(
             username,
             64
         )
+    )
+    val usernameInputValidatinator = TextInputLayoutValidatinator(
+        context,
+        username,
+        usernameValidatinator
     )
 
     val email = context.getString(R.string.validation_input_name_email)
@@ -61,6 +67,11 @@ class AuthValidatinators @Inject constructor(
             255
         )
     )
+    val emailInputValidatinator = TextInputLayoutValidatinator(
+        context,
+        username,
+        emailValidatinator
+    )
 
     val givenName = context.getString(R.string.validation_input_name_given_name)
     val givenNameValidatinator = ValidatinatorSet<CharSequence?>(
@@ -73,6 +84,11 @@ class AuthValidatinators @Inject constructor(
             givenName,
             255
         )
+    )
+    val givenNameInputValidatinator = TextInputLayoutValidatinator(
+        context,
+        username,
+        givenNameValidatinator
     )
 
     val familyName = context.getString(R.string.validation_input_name_family_name)
@@ -87,6 +103,11 @@ class AuthValidatinators @Inject constructor(
             255
         )
     )
+    val familyNameInputValidatinator = TextInputLayoutValidatinator(
+        context,
+        username,
+        familyNameValidatinator
+    )
 
     val password = context.getString(R.string.validation_input_name_password)
     val passwordValidatinator = ValidatinatorSet<CharSequence?>(
@@ -96,15 +117,53 @@ class AuthValidatinators @Inject constructor(
         RequiredCharSequenceValidatinator(context, password),
         MinLengthValidatinator(context, password, 6)
     )
-
-    val confirmPassword = context.getString(R.string.validation_input_name_confirm_password)
-    val confirmPasswordValidatinator = MatchValueValidatinator(
+    val passwordInputValidatinator = TextInputLayoutValidatinator(
         context,
-        confirmPassword
+        username,
+        passwordValidatinator
     )
 
-    // endregion Properties
+    val confirmPassword = context.getString(R.string.validation_input_name_confirm_password)
+    val confirmPasswordValidatinator = RequiredCharSequenceValidatinator(context, confirmPassword)
+    val confirmPasswordInputValidatinator = TextInputLayoutMatchValidatinator(
+        context,
+        confirmPassword,
+        confirmPasswordValidatinator
+    )
 
-    // endregion Companion object
+    val createAccountValidatinator =
+        object : Validatinator<FragmentCreateAccountBinding>(context) {
+
+            override fun isValid(input: FragmentCreateAccountBinding, options: Options): Boolean {
+                input.usernameLayout.error = null
+                input.emailLayout.error = null
+                input.givenNameLayout.error = null
+                input.familyNameLayout.error = null
+                input.passwordLayout.error = null
+                input.confirmPasswordLayout.error = null
+                return usernameInputValidatinator.validate(
+                    input.usernameLayout, options.clear()
+                ) && emailInputValidatinator.validate(
+                    input.emailLayout,
+                    options.clear()
+                ) && givenNameInputValidatinator.validate(
+                    input.givenNameLayout,
+                    options.clear()
+                ) && familyNameInputValidatinator.validate(
+                    input.familyNameLayout,
+                    options.clear()
+                ) && passwordInputValidatinator.validate(
+                    input.passwordLayout,
+                    options.clear()
+                ) && confirmPasswordInputValidatinator.validate(
+                    input.confirmPasswordLayout,
+                    input.passwordLayout.editText?.text,
+                    options.clear()
+                )
+            }
+
+        }
+
+    // endregion Properties
 
 }

@@ -18,6 +18,7 @@ package com.codepunk.core.ui.auth
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,20 +32,20 @@ import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.data.task.DataUpdate
 import com.codepunk.core.data.task.FailureUpdate
+import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
-import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
 import javax.inject.Inject
 
 /**
- * A [Fragment] used to add a new account.
+ * A [Fragment] used to create a new account.
  */
 class CreateAccountFragment :
     Fragment(),
@@ -53,14 +54,23 @@ class CreateAccountFragment :
     // region Properties
 
     /**
+     * A [FormattingLoginator] for writing log messages.
+     */
+    @Inject
+    lateinit var loginator: FormattingLoginator
+
+    /**
      * The injected [ViewModelProvider.Factory] that we will use to get an instance of
      * [AuthViewModel].
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    /**
+     * A set of authorization [Validatinator]s for validating the form.
+     */
     @Inject
-    lateinit var authValidatinators: AuthValidatinators
+    lateinit var validatinators: CreateAccountValidatinators
 
     /**
      * The binding for this fragment.
@@ -75,7 +85,12 @@ class CreateAccountFragment :
             .get(AuthViewModel::class.java)
     }
 
-    private val fieldMap = LinkedHashMap<TextInputLayout, Validatinator<CharSequence?>>()
+    /**
+     * The default [Options] used to validate the form.
+     */
+    private val options = Options().apply {
+        requestMessage = true
+    }
 
     // endregion Properties
 
@@ -119,51 +134,10 @@ class CreateAccountFragment :
         binding.createBtn.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
 
-        fieldMap[binding.usernameLayout] = authValidatinators.usernameValidatinator
-        fieldMap[binding.emailLayout] = authValidatinators.emailValidatinator
-        fieldMap[binding.givenNameLayout] = authValidatinators.givenNameValidatinator
-        fieldMap[binding.familyNameLayout] = authValidatinators.familyNameValidatinator
-        fieldMap[binding.passwordLayout] = authValidatinators.passwordValidatinator
-
         authViewModel.authorizationDataUpdate.observe(
             this,
             Observer { onAuthorizationUpdate(it) }
         )
-    }
-
-    /**
-     * Validates the form.
-     */
-    private fun validate(): Boolean {
-        val options = Options().apply {
-            requestMessage = true
-        }
-
-        // Clear all field errors
-        for (field in fieldMap.keys) {
-            field.error = null
-        }
-        binding.confirmPasswordLayout.error = null
-
-        // Validate each field
-        for ((field, validatinator) in fieldMap) {
-            if (!validatinator.validate(field.editText?.text, options.clear())) {
-                field.error = options.outMessage
-                return false
-            }
-        }
-
-        // Validate confirm password field
-        if (!authValidatinators.confirmPasswordValidatinator.validate(
-                Pair(binding.confirmPasswordEdit.text, binding.passwordEdit.text),
-                options.clear()
-            )
-        ) {
-            binding.confirmPasswordLayout.error = options.outMessage
-            return false
-        }
-
-        return false // TODO return valid
     }
 
     // endregion Inherited methods
@@ -208,6 +182,9 @@ class CreateAccountFragment :
             is FailureUpdate -> {
                 val responseMessage: ResponseMessage? =
                     update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
+                if (loginator.isLoggable(Log.DEBUG)) {
+                    loginator.d("responseMessage=$responseMessage")
+                }
 
                 // TODO Make this a snackbar (but only if IOException?)
                 val message: CharSequence = when (update.e) {
@@ -222,6 +199,16 @@ class CreateAccountFragment :
                     .show(requireFragmentManager(), AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG)
             }
         }
+    }
+
+    /**
+     * Validates the form.
+     */
+    private fun validate(): Boolean {
+        return validatinators.createAccountValidatinator.validate(
+            binding,
+            options.clear()
+        )
     }
 
     // endregion Methods

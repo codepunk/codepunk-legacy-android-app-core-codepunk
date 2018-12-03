@@ -18,7 +18,7 @@ package com.codepunk.core.ui.auth
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,15 +29,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
+import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.task.DataUpdate
 import com.codepunk.core.data.task.FailureUpdate
-import com.codepunk.core.data.task.ProgressUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
-import com.codepunk.core.lib.*
-import com.codepunk.core.ui.base.FormFragment
+import com.codepunk.core.lib.SimpleDialogFragment
+import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.punkubator.util.validatinator.Validatinator
+import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import dagger.android.support.AndroidSupportInjection
 import java.io.IOException
 import javax.inject.Inject
@@ -46,10 +49,16 @@ import javax.inject.Inject
  * A [Fragment] used to log into an existing account.
  */
 class LogInFragment :
-    FormFragment(),
+    Fragment(),
     View.OnClickListener {
 
     // region Properties
+
+    /**
+     * A [FormattingLoginator] for writing log messages.
+     */
+    @Inject
+    lateinit var loginator: FormattingLoginator
 
     /**
      * The injected [ViewModelProvider.Factory] that we will use to get an instance of
@@ -57,6 +66,12 @@ class LogInFragment :
      */
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    /**
+     * A set of authorization [Validatinator]s for validating the form.
+     */
+    @Inject
+    lateinit var validatinators: LogInValidatinators
 
     /**
      * The binding for this fragment.
@@ -71,6 +86,13 @@ class LogInFragment :
             .get(AuthViewModel::class.java)
     }
 
+    /**
+     * The default [Options] used to validate the form.
+     */
+    private val options = Options().apply {
+        requestMessage = true
+    }
+    
     // endregion Properties
 
     // region Lifecycle methods
@@ -109,56 +131,21 @@ class LogInFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.loginBtn.setOnClickListener(this)
         binding.createBtn.setOnClickListener(this)
-        with(binding) {
-            addControls(usernameOrEmailLayout, passwordLayout, loginBtn, createBtn)
-            addTextInputLayouts(usernameOrEmailLayout, passwordLayout)
-            addRequiredFields(usernameOrEmailEdit, passwordEdit)
-        }
+
         arguments?.apply {
             if (containsKey(EXTRA_USERNAME)) {
                 binding.usernameOrEmailEdit.setText(getString(EXTRA_USERNAME))
             }
         }
-        authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
-    }
 
-    /**
-     * Disables the create button when any required fields are missing.
-     */
-    override fun onRequiredFieldMissing(view: View) {
-        binding.loginBtn.isEnabled = false
+        authViewModel.authorizationDataUpdate.observe(
+            this,
+            Observer { onAuthorizationUpdate(it) }
+        )
     }
-
-    /**
-     * Enables the create button when all required fields are filled in.
-     */
-    override fun onRequiredFieldsComplete() {
-        binding.loginBtn.isEnabled = true
-    }
-
-    /**
-     * Validates the form.
-     */
-    override fun validate(): Boolean {
-        super.validate()
-        with(binding) {
-            return when {
-                TextUtils.isEmpty(usernameOrEmailEdit.text) -> {
-                    usernameOrEmailLayout.error =
-                            getString(R.string.authenticator_error_username_or_email)
-                    false
-                }
-                TextUtils.isEmpty(passwordEdit.text) -> {
-                    passwordLayout.error = getString(R.string.authenticator_error_password)
-                    false
-                }
-                else -> true
-            }
-        }
-    }
-    // endregion Inherited methods
 
     // region Implemented methods
 
@@ -189,9 +176,17 @@ class LogInFragment :
     // region Methods
 
     private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
+        /*
         setControlsEnabled(update !is ProgressUpdate)
+        */
         when (update) {
             is FailureUpdate -> {
+                val responseMessage: ResponseMessage? =
+                    update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
+                if (loginator.isLoggable(Log.DEBUG)) {
+                    loginator.d("responseMessage=$responseMessage")
+                }
+
                 // TODO Make this a snackbar (but only if IOException?)
                 val message: CharSequence = when (update.e) {
                     is IOException -> "Could not connect to the network."
@@ -207,6 +202,35 @@ class LogInFragment :
         }
     }
 
+    /**
+     * Validates the form.
+     */
+    private fun validate(): Boolean {
+        return validatinators.logInValidatinator.validate(
+            binding,
+            options.clear()
+        )
+    }
+
     // endregion Methods
+
+    // region Companion object
+
+    companion object {
+
+        // region Properties
+
+        /**
+         * The fragment tag to use for the authentication failure dialog fragment.
+         */
+        @JvmStatic
+        private val AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG =
+            LogInFragment::class.java.name + ".AUTHENTICATION_FAILURE_DIALOG"
+
+        // endregion Properties
+
+    }
+
+    // endregion Companion object
 
 }

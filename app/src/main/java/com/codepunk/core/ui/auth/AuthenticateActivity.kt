@@ -126,7 +126,9 @@ class AuthenticateActivity :
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
-        processIntent(intent, false)
+        if (savedInstanceState == null) {
+            processIntent(intent, false)
+        }
 
         authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
     }
