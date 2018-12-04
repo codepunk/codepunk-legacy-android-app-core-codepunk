@@ -33,8 +33,8 @@ import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.data.task.DataUpdate
-import com.codepunk.core.data.task.FailureUpdate
+import com.codepunk.core.lib.DataUpdate
+import com.codepunk.core.lib.FailureUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
@@ -42,6 +42,7 @@ import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import dagger.android.support.AndroidSupportInjection
+import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
@@ -175,7 +176,7 @@ class LogInFragment :
 
     // region Methods
 
-    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Response<Authorization>>) {
         /*
         setControlsEnabled(update !is ProgressUpdate)
         */

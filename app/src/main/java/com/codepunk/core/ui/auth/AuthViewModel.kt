@@ -32,12 +32,7 @@ import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
-import com.codepunk.core.data.task.toDataUpdate
-import com.codepunk.core.data.task.DataTask
-import com.codepunk.core.data.task.DataUpdate
-import com.codepunk.core.data.task.FailureUpdate
-import com.codepunk.core.data.task.SuccessUpdate
-import com.codepunk.core.lib.toMessage
+import com.codepunk.core.lib.*
 import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -69,7 +64,8 @@ class AuthViewModel @Inject constructor(
     /**
      * A [LiveData] holding the [Authorization] relating to the current authorization attempt.
      */
-    val authorizationDataUpdate = MediatorLiveData<DataUpdate<ResponseMessage, Authorization>>()
+    val authorizationDataUpdate =
+        MediatorLiveData<DataUpdate<ResponseMessage, Response<Authorization>>>()
 
     // endregion Properties
 
@@ -83,25 +79,26 @@ class AuthViewModel @Inject constructor(
     private fun getAuthToken(
         usernameOrEmail: String,
         password: String
-    ): DataUpdate<ResponseMessage, Authorization> {
+    ): ResultUpdate<ResponseMessage, Response<Authorization>> {
         // TODO go through AccountAuthenticator somehow? Probably not because I need to create
         // an account
 
         // Call the authorize endpoint
-        val authTokenUpdate: DataUpdate<ResponseMessage, Authorization> =
-            authWebservice.authorize(usernameOrEmail, password).toDataUpdate()
+        val authTokenUpdate: ResultUpdate<ResponseMessage, Response<Authorization>> =
+            authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
 
         // Process the authorize endpoint result
         when (authTokenUpdate) {
             is SuccessUpdate -> {
-                authTokenUpdate.result?.let {
+                authTokenUpdate.result?.body()?.let {
                     val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
                     val username = when (isEmail) {
                         true -> {
-                            val userUpdate: DataUpdate<Void, User> =
-                                userWebservice.getUser().toDataUpdate()
+                            val userUpdate: ResultUpdate<Void, Response<User>> =
+                                userWebservice.getUser().getResultUpdate()
+                            val user = userUpdate.result?.body()
                             when (userUpdate) {
-                                is SuccessUpdate -> userUpdate.result?.username
+                                is SuccessUpdate -> user?.username
                                     ?: return FailureUpdate() // TODO ??
                                 is FailureUpdate -> return FailureUpdate() // TODO
                                 else -> return FailureUpdate() // TODO
@@ -127,9 +124,9 @@ class AuthViewModel @Inject constructor(
      */
     @SuppressLint("StaticFieldLeak")
     fun authenticate(usernameOrEmail: String, password: String) {
-        val task = object : DataTask<Void, ResponseMessage, Authorization>() {
-            override fun generateUpdate(vararg params: Void?):
-                    DataUpdate<ResponseMessage, Authorization> =
+        val task = object : DataTask<Void, ResponseMessage, Response<Authorization>>() {
+            override fun doInBackground(vararg params: Void?):
+                    ResultUpdate<ResponseMessage, Response<Authorization>> =
                 getAuthToken(usernameOrEmail, password)
         }
         authorizationDataUpdate.addSource(task.fetchOnExecutor()) {
@@ -150,11 +147,12 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
-        val task = object : DataTask<Void, ResponseMessage, Authorization>() {
-            override fun generateUpdate(vararg params: Void?):
-                    DataUpdate<ResponseMessage, Authorization> {
-                // First, call the register endpoint
-                val update: DataUpdate<Void, ResponseMessage> =
+        val task = object : DataTask<Void, ResponseMessage, Response<Authorization>>() {
+            override fun doInBackground(vararg params: Void?):
+                    ResultUpdate<ResponseMessage, Response<Authorization>> {
+
+                // Call the register endpoint
+                val update: ResultUpdate<Void, Response<ResponseMessage>> =
                     authWebservice.register(
                         username,
                         email,
@@ -162,16 +160,17 @@ class AuthViewModel @Inject constructor(
                         familyName,
                         password,
                         passwordConfirmation
-                    ).toDataUpdate()
+                    ).getResultUpdate()
 
                 // Process the register endpoint result
                 return when (update) {
                     is SuccessUpdate -> {
-                        publishProgress(update.result)
+                        publishProgress(update.result?.body())
                         getAuthToken(username, password)
                     }
                     is FailureUpdate -> {
-                        val responseMessage = update.response.toMessage(retrofit)
+                        val responseMessage =
+                            ResponseMessage("BAD!") // TODO TEMP update.response.toMessage(retrofit)
                         FailureUpdate(
                             e = update.e,
                             data = Bundle().apply {

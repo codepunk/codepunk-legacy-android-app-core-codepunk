@@ -33,7 +33,6 @@ import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.lib.*
-import com.codepunk.core.data.task.*
 import java.io.IOException
 import javax.inject.Singleton
 
@@ -166,7 +165,7 @@ class SessionManager(
 
         // region Inherited methods
 
-        override fun generateUpdate(vararg params: Void?): DataUpdate<Void, Session> {
+        override fun doInBackground(vararg params: Void?): ResultUpdate<Void, Session> {
             // TODO Check for isCanceled.
 
             // Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
@@ -230,7 +229,11 @@ class SessionManager(
                         val user = response.body()
                         session = Session(tempSession, user)
                     }
-                    else -> return FailureUpdate(e = HttpStatusException(response.code()))
+                    else -> return FailureUpdate(
+                        e = HttpStatusException(
+                            response.code()
+                        )
+                    )
                 }
             } catch (e: IOException) {
                 return FailureUpdate(e = e)

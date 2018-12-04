@@ -15,49 +15,48 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.task
+package com.codepunk.core.lib
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData
-import com.codepunk.core.lib.HttpStatusException
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
 
 /**
  * Extension function that takes a [Response] from executing a [Call] and converts it into a
- * [DataUpdate].
+ * [ResultUpdate].
  *
  * This allows for ultra-concise code, such as the following example in [DataTask.doInBackground]:
  *
  * ```kotlin
  * override fun doInBackground(vararg params: Void?): DataUpdate<Void, User>? =
- *     myWebservice.getMyData().toDataUpdate()
+ *     myWebservice.getMyData().getResultUpdate()
  * ```
  *
  * In the above example, doInBackground will return an appropriate instance of
  * DataUpdate<Void, User>. This value will be stored in the DataTask's [LiveData], which can be
  * observed from an Activity or other observer.
  */
-fun <Progress, Result> Call<Result>.toDataUpdate(data: Bundle? = null):
-        DataUpdate<Progress, Result> {
+fun <Progress, Result> Call<Result>.getResultUpdate(data: Bundle? = null):
+        ResultUpdate<Progress, Response<Result>> {
     return try {
         val response = execute()
         when {
             response.isSuccessful ->
-                SuccessUpdate<Progress, Result>(response.body(), response).apply {
+                SuccessUpdate<Progress, Response<Result>>(response).apply {
                     this.data = data
                 }
-            else -> FailureUpdate<Progress, Result>( // TODO Try to process response.errorBody()?.string()? Or can I just do that in the observer?
-                response.body(),
-                HttpStatusException(response.code()),
-                response
+            else -> FailureUpdate<Progress, Response<Result>>(
+                // TODO Try to process response.errorBody()?.string()? Or can I just do that in the observer?
+                response,
+                HttpStatusException(response.code())
             ).apply {
                 this.data = data
             }
         }
     } catch (e: IOException) {
-        FailureUpdate<Progress, Result>(null, e).apply {
+        FailureUpdate<Progress, Response<Result>>(null, e).apply {
             this.data = data
         }
     }

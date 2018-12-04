@@ -37,10 +37,10 @@ import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.data.task.DataUpdate
-import com.codepunk.core.data.task.FailureUpdate
-import com.codepunk.core.data.task.ProgressUpdate
-import com.codepunk.core.data.task.SuccessUpdate
+import com.codepunk.core.lib.DataUpdate
+import com.codepunk.core.lib.FailureUpdate
+import com.codepunk.core.lib.ProgressUpdate
+import com.codepunk.core.lib.SuccessUpdate
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
@@ -48,6 +48,7 @@ import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
+import retrofit2.Response
 import javax.inject.Inject
 
 /**
@@ -189,7 +190,7 @@ class AuthenticateActivity :
     /**
      * Reacts to authorization data changing.
      */
-    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Authorization>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Response<Authorization>>) {
         when (update) {
             is ProgressUpdate -> {
                 // TODO Loading dialog (show and hide)
@@ -230,8 +231,8 @@ class AuthenticateActivity :
         }
 
         val response = when (update) {
-            is SuccessUpdate -> update.response
-            is FailureUpdate -> update.response
+            is SuccessUpdate -> update.result
+            is FailureUpdate -> update.result
             else -> null
         }
         val httpStatus = when (response) {
