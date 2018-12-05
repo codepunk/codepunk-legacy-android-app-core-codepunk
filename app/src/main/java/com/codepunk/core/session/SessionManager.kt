@@ -33,6 +33,7 @@ import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.lib.*
+import com.codepunk.doofenschmirtz.util.taskinator.*
 import java.io.IOException
 import javax.inject.Singleton
 
@@ -75,7 +76,7 @@ class SessionManager(
     /**
      * Any currently-running session task.
      */
-    private var sessionTask: DataTask<Void, Void, Session>? = null
+    private var sessionTaskinator: DataTaskinator<Void, Void, Session>? = null
 
     /**
      * An observable [Session] wrapped in a [DataUpdate] so observers can be notified of
@@ -90,14 +91,14 @@ class SessionManager(
     // region Methods
 
     /**
-     * Executes a new [SessionTask] to authenticate a user of the application. An existing
+     * Executes a new [SessionTaskinator] to authenticate a user of the application. An existing
      * task can be canceled using the [cancelExisting] option.
      */
     fun openSession(
         cancelExisting: Boolean = true,
         silentMode: Boolean = false
     ): LiveData<DataUpdate<Void, Session>> {
-        sessionTask?.apply {
+        sessionTaskinator?.apply {
             if (cancelExisting) {
                 cancel(true)
             } else {
@@ -105,8 +106,8 @@ class SessionManager(
             }
         }
 
-        SessionTask(silentMode).apply {
-            sessionTask = this
+        SessionTaskinator(silentMode).apply {
+            sessionTaskinator = this
             liveSession.addSource(liveData) {
                 liveSession.value = it
             }
@@ -149,11 +150,11 @@ class SessionManager(
     // region Nested/inner classes
 
     /**
-     * A [DataTask] that works with [AccountManager] to authenticate a user in the system and
+     * A [DataTaskinator] that works with [AccountManager] to authenticate a user in the system and
      * create a new [Session] object to track that user.
      */
     @SuppressLint("StaticFieldLeak")
-    private inner class SessionTask(
+    private inner class SessionTaskinator(
 
         /**
          * A flag indicating whether we are running in "silent mode" (i.e. no intents will
@@ -161,7 +162,7 @@ class SessionManager(
          */
         private val silentMode: Boolean
 
-    ) : DataTask<Void, Void, Session>() {
+    ) : DataTaskinator<Void, Void, Session>() {
 
         // region Inherited methods
 

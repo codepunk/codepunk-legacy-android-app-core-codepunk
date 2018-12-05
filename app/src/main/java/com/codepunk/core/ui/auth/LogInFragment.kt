@@ -33,8 +33,8 @@ import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.lib.DataUpdate
-import com.codepunk.core.lib.FailureUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard

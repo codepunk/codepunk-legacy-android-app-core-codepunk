@@ -37,10 +37,10 @@ import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.data.model.auth.Authorization
 import com.codepunk.core.data.model.http.ResponseMessage
-import com.codepunk.core.lib.DataUpdate
-import com.codepunk.core.lib.FailureUpdate
-import com.codepunk.core.lib.ProgressUpdate
-import com.codepunk.core.lib.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator

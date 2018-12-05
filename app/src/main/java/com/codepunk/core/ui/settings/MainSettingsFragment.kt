@@ -28,8 +28,8 @@ import androidx.navigation.Navigation
 import androidx.preference.Preference
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.lib.DataUpdate
-import com.codepunk.core.lib.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.core.session.Session
 import com.codepunk.core.session.SessionManager
 import com.codepunk.core.lib.SimpleDialogFragment

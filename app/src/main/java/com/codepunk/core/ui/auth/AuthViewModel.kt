@@ -33,6 +33,7 @@ import com.codepunk.core.data.model.http.ResponseMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.lib.*
+import com.codepunk.doofenschmirtz.util.taskinator.*
 import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -124,7 +125,7 @@ class AuthViewModel @Inject constructor(
      */
     @SuppressLint("StaticFieldLeak")
     fun authenticate(usernameOrEmail: String, password: String) {
-        val task = object : DataTask<Void, ResponseMessage, Response<Authorization>>() {
+        val task = object : DataTaskinator<Void, ResponseMessage, Response<Authorization>>() {
             override fun doInBackground(vararg params: Void?):
                     ResultUpdate<ResponseMessage, Response<Authorization>> =
                 getAuthToken(usernameOrEmail, password)
@@ -147,7 +148,7 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
-        val task = object : DataTask<Void, ResponseMessage, Response<Authorization>>() {
+        val task = object : DataTaskinator<Void, ResponseMessage, Response<Authorization>>() {
             override fun doInBackground(vararg params: Void?):
                     ResultUpdate<ResponseMessage, Response<Authorization>> {
 
