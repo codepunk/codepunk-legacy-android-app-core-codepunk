@@ -29,19 +29,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import com.codepunk.core.BuildConfig.*
-import com.codepunk.core.data.mapper.RemoteUserToDomainUserMapper
+import com.codepunk.core.data.mapper.toUserOrNull
 import com.codepunk.core.data.remote.entity.RemoteUser
-import com.codepunk.core.domain.model.auth.AuthTokenType
-import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
-import com.codepunk.core.domain.model.User
+import com.codepunk.core.domain.model.auth.AuthTokenType
+import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.lib.getAccountByNameAndType
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/* **************************************************
+ *  TODO This is in the domain package but SessionTaskinator knows about
+ *  data (!) So I need to employ UseCases in there instead of doing it directly (
+ ***************************************************/
 
 /**
  * Class that manages any currently-logged in user session.
@@ -67,12 +71,7 @@ class SessionManager @Inject constructor(
     /**
      * A [UserComponent.Builder] for creating a [UserComponent] instance.
      */
-    private val userComponentBuilder: UserComponent.Builder,
-
-    /**
-     * A mapper for converting a [RemoteUser] to a domain [User].
-     */
-    private val remoteUserToDomainUserMapper: RemoteUserToDomainUserMapper
+    private val userComponentBuilder: UserComponent.Builder
 
 ) {
 
@@ -240,10 +239,7 @@ class SessionManager @Inject constructor(
                         // Create a new session from the temporary one, substituting in the
                         // newly-fetched user
                         val remoteUser: RemoteUser? = response.body()
-                        val user: User? = remoteUser?.let {
-                            remoteUserToDomainUserMapper.map(remoteUser)
-                        }
-                        session = Session(tempSession, user)
+                        session = Session(tempSession, remoteUser.toUserOrNull())
                     }
                     else -> return FailureUpdate(
                         e = HttpStatusException(

@@ -15,18 +15,32 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.util
+package com.codepunk.core.data.mapper
 
-/**
- * Abstract class that facilitates the mapping of a source data entity ([S]) to a destination
- * data entity ([D]). For example, a class that represents a locally-cached User might need to be
- * mapped to a User domain model for use in the app.
- */
-abstract class Mapper<in S, D> {
+import com.codepunk.core.data.remote.entity.RemoteUser
+import com.codepunk.core.domain.model.User
 
-    /**
-     * Takes a source instance of type [S] and maps it to a new destination instance of type [D].
-     */
-    abstract fun map(source: S): D
+fun RemoteUser.toUser(): User = User(
+    id,
+    username,
+    email,
+    familyName,
+    givenName,
+    active,
+    createdAt,
+    updatedAt
+)
 
+fun RemoteUser?.toUserOrNull(): User? = when (this) {
+    null -> null
+    else -> User(
+        id,
+        username,
+        email,
+        familyName,
+        givenName,
+        active,
+        createdAt,
+        updatedAt
+    )
 }
