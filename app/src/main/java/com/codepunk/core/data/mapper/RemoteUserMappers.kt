@@ -20,6 +20,10 @@ package com.codepunk.core.data.mapper
 import com.codepunk.core.data.remote.entity.RemoteUser
 import com.codepunk.core.domain.model.User
 
+/**
+ * Converts a [RemoteUser] to a domain [User].
+ */
+@Suppress("UNUSED")
 fun RemoteUser.toUser(): User = User(
     id,
     username,
@@ -31,16 +35,18 @@ fun RemoteUser.toUser(): User = User(
     updatedAt
 )
 
-fun RemoteUser?.toUserOrNull(): User? = when (this) {
-    null -> null
-    else -> User(
-        id,
-        username,
-        email,
-        familyName,
-        givenName,
-        active,
-        createdAt,
-        updatedAt
+/**
+ * Converts a nullable [RemoteUser] to a nullable domain [User].
+ */
+fun RemoteUser?.toUserOrNull(): User? = this?.let {
+    User(
+        it.id,
+        it.username,
+        it.email,
+        it.familyName,
+        it.givenName,
+        it.active,
+        it.createdAt,
+        it.updatedAt
     )
 }
