@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.model.auth
+package com.codepunk.core.domain.model.auth
 
 import com.squareup.moshi.Json
 
@@ -36,7 +37,7 @@ enum class TokenType {
     BEARER,
 
     /**
-     * Message Authorization Code: A security token with the property that provides a method for
+     * Message RemoteAuthorization Code: A security token with the property that provides a method for
      * making authenticated HTTP requests with partial cryptographic verification of the request,
      * covering the HTTP method, request URI, host, and in some cases the request body.
      */

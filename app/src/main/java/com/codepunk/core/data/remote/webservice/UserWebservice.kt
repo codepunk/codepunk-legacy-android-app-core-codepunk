@@ -16,9 +16,9 @@
 
 package com.codepunk.core.data.remote.webservice
 
-import com.codepunk.core.data.model.User
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
 import com.codepunk.core.data.remote.HEADER_AUTHORIZATION_BEARER
+import com.codepunk.core.data.remote.entity.RemoteUser
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -38,7 +38,7 @@ interface UserWebservice {
         HEADER_ACCEPT_APPLICATION_JSON,
         HEADER_AUTHORIZATION_BEARER
     )
-    fun getUser(): Call<User>
+    fun getUser(): Call<RemoteUser>
 
     // endregion Methods
 

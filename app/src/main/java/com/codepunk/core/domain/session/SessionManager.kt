@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.session
+package com.codepunk.core.domain.session
 
 import android.accounts.Account
 import android.accounts.AccountManager
@@ -28,20 +29,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import com.codepunk.core.BuildConfig.*
-import com.codepunk.core.data.model.auth.AuthTokenType
-import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
+import com.codepunk.core.data.mapper.RemoteUserToDomainUserMapper
+import com.codepunk.core.data.remote.entity.RemoteUser
+import com.codepunk.core.domain.model.auth.AuthTokenType
+import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
-import com.codepunk.core.lib.*
+import com.codepunk.core.domain.model.User
+import com.codepunk.core.lib.getAccountByNameAndType
+import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import java.io.IOException
+import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Class that manages any currently-logged in user session.
  */
 @Singleton
-class SessionManager(
+class SessionManager @Inject constructor(
 
     /**
      * The account manager.
@@ -61,7 +67,12 @@ class SessionManager(
     /**
      * A [UserComponent.Builder] for creating a [UserComponent] instance.
      */
-    private val userComponentBuilder: UserComponent.Builder
+    private val userComponentBuilder: UserComponent.Builder,
+
+    /**
+     * A mapper for converting a [RemoteUser] to a domain [User].
+     */
+    private val remoteUserToDomainUserMapper: RemoteUserToDomainUserMapper
 
 ) {
 
@@ -111,7 +122,7 @@ class SessionManager(
             liveSession.addSource(liveData) {
                 liveSession.value = it
             }
-            fetchOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            executeOnExecutorAsLiveData(AsyncTask.THREAD_POOL_EXECUTOR)
         }
 
         return liveSession
@@ -169,11 +180,11 @@ class SessionManager(
         override fun doInBackground(vararg params: Void?): ResultUpdate<Void, Session> {
             // TODO Check for isCanceled.
 
-            // Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
+            // 1) Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
             val type: String = AUTHENTICATOR_ACCOUNT_TYPE
             val accounts = accountManager.getAccountsByType(type)
 
-            // Get the "current" account. The current account is either the account whose name has
+            // 2) Get the "current" account. The current account is either the account whose name has
             // been saved in shared preferences, or the sole account for the given type if only
             // one account has been stored via the account manager
             val account = when (accounts.size) {
@@ -202,7 +213,8 @@ class SessionManager(
                 ) ?: return newFailureUpdate(
                     SecurityException("Authentication failed getting auth token"),
                     CATEGORY_LOG_IN,
-                    account.name)
+                    account.name
+                )
             } catch (e: Exception) {
                 return newFailureUpdate(
                     SecurityException(e),
@@ -227,7 +239,10 @@ class SessionManager(
                     response.isSuccessful -> {
                         // Create a new session from the temporary one, substituting in the
                         // newly-fetched user
-                        val user = response.body()
+                        val remoteUser: RemoteUser? = response.body()
+                        val user: User? = remoteUser?.let {
+                            remoteUserToDomainUserMapper.map(remoteUser)
+                        }
                         session = Session(tempSession, user)
                     }
                     else -> return FailureUpdate(

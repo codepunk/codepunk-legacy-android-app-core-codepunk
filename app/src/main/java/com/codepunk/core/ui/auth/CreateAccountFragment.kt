@@ -30,8 +30,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.Authorization
-import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.http.RemoteMessage
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
@@ -175,16 +175,16 @@ class CreateAccountFragment :
 
     // region Methods
 
-    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Response<Authorization>>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<RemoteMessage, Response<RemoteAuthorization>>) {
         /*
         setControlsEnabled(update !is ProgressUpdate)
         */
         when (update) {
             is FailureUpdate -> {
-                val responseMessage: ResponseMessage? =
+                val remoteMessage: RemoteMessage? =
                     update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
                 if (loginator.isLoggable(Log.DEBUG)) {
-                    loginator.d("responseMessage=$responseMessage")
+                    loginator.d("responseMessage=$remoteMessage")
                 }
 
                 // TODO Make this a snackbar (but only if IOException?)

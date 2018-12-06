@@ -31,8 +31,8 @@ import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
-import com.codepunk.core.session.Session
-import com.codepunk.core.session.SessionManager
+import com.codepunk.core.domain.session.Session
+import com.codepunk.core.domain.session.SessionManager
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject

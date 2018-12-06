@@ -15,25 +15,26 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.util
+package com.codepunk.core.data.mapper
 
-import android.content.SharedPreferences
-import com.codepunk.core.data.remote.RemoteEnvironment
-import java.lang.IllegalArgumentException
+import com.codepunk.core.data.remote.entity.RemoteUser
+import com.codepunk.core.data.util.Mapper
+import com.codepunk.core.domain.model.User
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * Retrieves an [RemoteEnvironment] value from the preferences if it exists, or [defValue]
- * otherwise.
- */
-fun SharedPreferences.getEnvironment(
-    key: String,
-    defValue: RemoteEnvironment? = null
-): RemoteEnvironment? {
-    return try {
-        getString(key, null)?.let {
-            RemoteEnvironment.valueOf(it)
-        } ?: defValue
-    } catch (e: IllegalArgumentException) {
-        defValue
-    }
+@Singleton
+class RemoteUserToDomainUserMapper @Inject constructor() : Mapper<RemoteUser, User>() {
+
+    override fun map(source: RemoteUser): User = User(
+        source.id,
+        source.username,
+        source.email,
+        source.familyName,
+        source.givenName,
+        source.active,
+        source.createdAt,
+        source.updatedAt
+    )
+
 }

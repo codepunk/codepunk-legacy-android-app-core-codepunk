@@ -21,10 +21,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.codepunk.core.CodepunkApp
-import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
-import com.codepunk.core.session.SessionManager
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.loginator.LogcatLoginator
 import com.codepunk.doofenschmirtz.util.loginator.Loginator
@@ -70,25 +68,6 @@ object AppModule {
     @Singleton
     fun providesAccountManager(@ApplicationContext context: Context): AccountManager =
         AccountManager.get(context)
-
-    /**
-     * Provides a [SessionManager] instance for managing a user session.
-     */
-    @JvmStatic
-    @Provides
-    @Singleton
-    fun providesSessionManager(
-        accountManager: AccountManager,
-        sharedPreferences: SharedPreferences,
-        userWebservice: UserWebservice,
-        userComponentBuilder: UserComponent.Builder
-    ): SessionManager =
-        SessionManager(
-            accountManager,
-            sharedPreferences,
-            userWebservice,
-            userComponentBuilder
-        )
 
     /**
      * Provides the default [SharedPreferences] for the app.

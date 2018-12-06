@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +15,18 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.di.module
-
-import com.codepunk.core.di.scope.ServiceScope
-import com.codepunk.core.domain.account.AuthenticatorService
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
+package com.codepunk.core.data.util
 
 /**
- * The [Module] used for dependency injection into all activities in the app.
+ * Abstract class that facilitates the mapping of a source data entity ([S]) to a destination
+ * data entity ([D]). For example, a class that represents a locally-cached User might need to be
+ * mapped to a User domain model for use in the app.
  */
-@Module
-interface ServiceBuildersModule {
-
-    // region Methods
+abstract class Mapper<in S, D> {
 
     /**
-     * Contributes an AndroidInjector to [AuthenticatorService].
+     * Takes a source instance of type [S] and maps it to a new destination instance of type [D].
      */
-    @ServiceScope
-    @ContributesAndroidInjector //(modules = [AuthenticatorServiceModule::class])
-    fun contributeAuthenticatorServiceInjector(): AuthenticatorService
-
-    // endregion methods
+    abstract fun map(source: S): D
 
 }

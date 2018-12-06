@@ -16,9 +16,9 @@
 
 package com.codepunk.core.data.remote.webservice
 
-import com.codepunk.core.data.model.auth.Authorization
-import com.codepunk.core.data.model.auth.GrantType
-import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
+import com.codepunk.core.domain.model.auth.GrantType
+import com.codepunk.core.data.remote.entity.http.RemoteMessage
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
 import retrofit2.Call
 import retrofit2.http.Field
@@ -58,17 +58,17 @@ interface AuthWebservice {
 
         @Field("scope")
         scope: String
-    ): Call<Authorization>
+    ): Call<RemoteAuthorization>
 
     /**
      * Gets an authorization token using default values.
      */
-    fun authorize(username: String, password: String, scope: String): Call<Authorization>
+    fun authorize(username: String, password: String, scope: String): Call<RemoteAuthorization>
 
     /**
      * Gets an authorization token using default values.
      */
-    fun authorize(username: String, password: String): Call<Authorization>
+    fun authorize(username: String, password: String): Call<RemoteAuthorization>
 
     /**
      * Gets an authorization token from an existing [refreshToken].
@@ -88,12 +88,12 @@ interface AuthWebservice {
 
         @Field("refresh_token")
         refreshToken: String
-    ): Call<Authorization>
+    ): Call<RemoteAuthorization>
 
     /**
      * Gets an authorization token from an existing [refreshToken].
      */
-    fun refreshToken(refreshToken: String): Call<Authorization>
+    fun refreshToken(refreshToken: String): Call<RemoteAuthorization>
 
     /**
      * Registers a new account. // TODO Move this to an "account" webservice? Hmm. It's not
@@ -120,7 +120,7 @@ interface AuthWebservice {
 
         @Field("password_confirmation")
         passwordConfirmation: String
-    ): Call<ResponseMessage>
+    ): Call<RemoteMessage>
 
     // endregion Methods
 

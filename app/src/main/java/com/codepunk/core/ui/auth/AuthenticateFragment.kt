@@ -38,7 +38,7 @@ import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.AuthTokenType
+import com.codepunk.core.domain.model.auth.AuthTokenType
 import com.codepunk.core.databinding.FragmentAuthenticateBinding
 import com.codepunk.core.lib.CustomDividerItemDecoration
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
@@ -167,7 +167,7 @@ class AuthenticateFragment :
     private fun onAccountClick(account: Account) {
         // TODO Maybe we have a method in AuthViewModel that is like
         // authenticateWithAccount(account Account). Then we don't need spinner here.
-        // AuthenticateActivity has an observer for DataUpdate<ResponseMessage????, Bundle>
+        // AuthenticateActivity has an observer for DataUpdate<RemoteMessage????, Bundle>
 
         // TODO Spinner?
         accountManager.getAuthToken(

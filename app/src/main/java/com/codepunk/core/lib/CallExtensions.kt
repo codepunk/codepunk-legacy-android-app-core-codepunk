@@ -19,6 +19,7 @@ package com.codepunk.core.lib
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData
+import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate

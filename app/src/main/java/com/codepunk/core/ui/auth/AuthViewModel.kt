@@ -27,9 +27,9 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
 import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
-import com.codepunk.core.data.model.User
-import com.codepunk.core.data.model.auth.Authorization
-import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.remote.entity.RemoteUser
+import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.http.RemoteMessage
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.lib.*
@@ -63,10 +63,10 @@ class AuthViewModel @Inject constructor(
     // region Properties
 
     /**
-     * A [LiveData] holding the [Authorization] relating to the current authorization attempt.
+     * A [LiveData] holding the [RemoteAuthorization] relating to the current authorization attempt.
      */
     val authorizationDataUpdate =
-        MediatorLiveData<DataUpdate<ResponseMessage, Response<Authorization>>>()
+        MediatorLiveData<DataUpdate<RemoteMessage, Response<RemoteAuthorization>>>()
 
     // endregion Properties
 
@@ -80,12 +80,12 @@ class AuthViewModel @Inject constructor(
     private fun getAuthToken(
         usernameOrEmail: String,
         password: String
-    ): ResultUpdate<ResponseMessage, Response<Authorization>> {
+    ): ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> {
         // TODO go through AccountAuthenticator somehow? Probably not because I need to create
         // an account
 
         // Call the authorize endpoint
-        val authTokenUpdate: ResultUpdate<ResponseMessage, Response<Authorization>> =
+        val authTokenUpdate: ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> =
             authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
 
         // Process the authorize endpoint result
@@ -95,7 +95,7 @@ class AuthViewModel @Inject constructor(
                     val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
                     val username = when (isEmail) {
                         true -> {
-                            val userUpdate: ResultUpdate<Void, Response<User>> =
+                            val userUpdate: ResultUpdate<Void, Response<RemoteUser>> =
                                 userWebservice.getUser().getResultUpdate()
                             val user = userUpdate.result?.body()
                             when (userUpdate) {
@@ -125,12 +125,13 @@ class AuthViewModel @Inject constructor(
      */
     @SuppressLint("StaticFieldLeak")
     fun authenticate(usernameOrEmail: String, password: String) {
-        val task = object : DataTaskinator<Void, ResponseMessage, Response<Authorization>>() {
-            override fun doInBackground(vararg params: Void?):
-                    ResultUpdate<ResponseMessage, Response<Authorization>> =
-                getAuthToken(usernameOrEmail, password)
-        }
-        authorizationDataUpdate.addSource(task.fetchOnExecutor()) {
+        val task =
+            object : DataTaskinator<Void, RemoteMessage, Response<RemoteAuthorization>>() {
+                override fun doInBackground(vararg params: Void?):
+                        ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> =
+                    getAuthToken(usernameOrEmail, password)
+            }
+        authorizationDataUpdate.addSource(task.executeOnExecutorAsLiveData()) {
             authorizationDataUpdate.value = it
         }
     }
@@ -148,42 +149,42 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
-        val task = object : DataTaskinator<Void, ResponseMessage, Response<Authorization>>() {
-            override fun doInBackground(vararg params: Void?):
-                    ResultUpdate<ResponseMessage, Response<Authorization>> {
+        val task =
+            object : DataTaskinator<Void, RemoteMessage, Response<RemoteAuthorization>>() {
+                override fun doInBackground(vararg params: Void?):
+                        ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> {
+                    // Call the register endpoint
+                    val update: ResultUpdate<Void, Response<RemoteMessage>> =
+                        authWebservice.register(
+                            username,
+                            email,
+                            givenName,
+                            familyName,
+                            password,
+                            passwordConfirmation
+                        ).getResultUpdate()
 
-                // Call the register endpoint
-                val update: ResultUpdate<Void, Response<ResponseMessage>> =
-                    authWebservice.register(
-                        username,
-                        email,
-                        givenName,
-                        familyName,
-                        password,
-                        passwordConfirmation
-                    ).getResultUpdate()
-
-                // Process the register endpoint result
-                return when (update) {
-                    is SuccessUpdate -> {
-                        publishProgress(update.result?.body())
-                        getAuthToken(username, password)
+                    // Process the register endpoint result
+                    return when (update) {
+                        is SuccessUpdate -> {
+                            publishProgress(update.result?.body())
+                            getAuthToken(username, password)
+                        }
+                        is FailureUpdate -> {
+                            val remoteMessage =
+                                RemoteMessage("BAD!") // TODO TEMP update.response.toMessage(retrofit)
+                            FailureUpdate(
+                                e = update.e,
+                                data = Bundle().apply {
+                                    putParcelable(KEY_RESPONSE_MESSAGE, remoteMessage)
+                                }
+                            )
+                        }
+                        else -> FailureUpdate()
                     }
-                    is FailureUpdate -> {
-                        val responseMessage =
-                            ResponseMessage("BAD!") // TODO TEMP update.response.toMessage(retrofit)
-                        FailureUpdate(
-                            e = update.e,
-                            data = Bundle().apply {
-                                putParcelable(KEY_RESPONSE_MESSAGE, responseMessage)
-                            }
-                        )
-                    }
-                    else -> FailureUpdate()
                 }
             }
-        }
-        authorizationDataUpdate.addSource(task.fetchOnExecutor()) {
+        authorizationDataUpdate.addSource(task.executeOnExecutorAsLiveData()) {
             authorizationDataUpdate.value = it
         }
     }
@@ -197,19 +198,19 @@ class AuthViewModel @Inject constructor(
         // region Methods
 
         /**
-         * Extracts a [ResponseMessage] from a [Response], or converts the error body message
-         * to a [ResponseMessage].
+         * Extracts a [RemoteMessage] from a [Response], or converts the error body message
+         * to a [RemoteMessage].
          */
         @Suppress("UNUSED")
         private fun toMessage(
-            response: Response<ResponseMessage>,
+            response: Response<RemoteMessage>,
             retrofit: Retrofit
-        ): ResponseMessage? {
+        ): RemoteMessage? {
             return when {
                 response.isSuccessful -> response.body()
                 else -> response.errorBody()?.run {
-                    retrofit.responseBodyConverter<ResponseMessage>(
-                        ResponseMessage::class.java,
+                    retrofit.responseBodyConverter<RemoteMessage>(
+                        RemoteMessage::class.java,
                         arrayOf()
                     ).convert(this)
                 }

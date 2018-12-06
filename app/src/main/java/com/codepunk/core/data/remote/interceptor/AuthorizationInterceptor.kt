@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@ package com.codepunk.core.data.remote.interceptor
 
 import com.codepunk.core.data.remote.HEADER_NAME_AUTHORIZATION
 import com.codepunk.core.data.remote.HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER
-import com.codepunk.core.session.SessionManager
+import com.codepunk.core.domain.session.SessionManager
 import dagger.Lazy
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -27,7 +28,7 @@ import javax.inject.Singleton
 
 /**
  * Singleton class that intercepts Retrofit requests and looks for a header with a name
- * of [HEADER_NAME_AUTHORIZATION] ("Authorization"). If found, any instance in the value matching
+ * of [HEADER_NAME_AUTHORIZATION] ("RemoteAuthorization"). If found, any instance in the value matching
  * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] will be replaced with the authToken (if any) currently
  * stored in [SessionManager].
  */
@@ -46,7 +47,7 @@ class AuthorizationInterceptor @Inject constructor(
 
     /**
      * Implementation of [Interceptor]. Looks for a header with a name of
-     * [HEADER_NAME_AUTHORIZATION] ("Authorization") and replaces any instance of
+     * [HEADER_NAME_AUTHORIZATION] ("RemoteAuthorization") and replaces any instance of
      * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] in the value with the authToken (if any) currently
      * stored in [SessionManager].
      */

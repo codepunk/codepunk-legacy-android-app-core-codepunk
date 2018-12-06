@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.model
+package com.codepunk.core.domain.model
 
 import com.codepunk.core.data.remote.annotation.BooleanInt
 import com.squareup.moshi.Json

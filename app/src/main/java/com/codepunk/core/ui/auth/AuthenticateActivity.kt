@@ -35,14 +35,15 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.Authorization
-import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.http.RemoteMessage
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.*
+import com.codepunk.doofenschmirtz.util.http.HttpStatus
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -190,7 +191,7 @@ class AuthenticateActivity :
     /**
      * Reacts to authorization data changing.
      */
-    private fun onAuthorizationUpdate(update: DataUpdate<ResponseMessage, Response<Authorization>>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<RemoteMessage, Response<RemoteAuthorization>>) {
         when (update) {
             is ProgressUpdate -> {
                 // TODO Loading dialog (show and hide)

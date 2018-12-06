@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.model.auth
+package com.codepunk.core.domain.model.auth
 
 import com.squareup.moshi.Json
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.session
+package com.codepunk.core.domain.contract
 
-import android.accounts.Account
-import android.accounts.AccountManager
-
-/**
- * Returns an [Account] whose name and type match the given [name] and [type], or null if
- * no accounts match.
- */
-fun AccountManager.getAccountByNameAndType(name: String?, type: String): Account? {
-    getAccountsByType(type).forEach { account ->
-        when (account.name) {
-            name -> return account
-        }
-    }
-    return null
+interface UserRepository {
 }

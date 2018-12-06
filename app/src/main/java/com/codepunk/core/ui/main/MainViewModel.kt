@@ -21,7 +21,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import com.codepunk.core.CodepunkApp
 import com.codepunk.core.data.remote.webservice.UserWebservice
-import com.codepunk.core.session.SessionManager
+import com.codepunk.core.domain.session.SessionManager
 import javax.inject.Inject
 
 /**

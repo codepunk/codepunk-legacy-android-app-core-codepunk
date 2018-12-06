@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ package com.codepunk.core.data.remote
 const val HEADER_NAME_ACCEPT = "Accept"
 
 /**
- * The "Authorization" API header name.
+ * The "RemoteAuthorization" API header name.
  */
 const val HEADER_NAME_AUTHORIZATION = "Authorization"
 

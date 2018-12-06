@@ -30,8 +30,8 @@ import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
-import com.codepunk.core.session.Session
-import com.codepunk.core.session.SessionManager
+import com.codepunk.core.domain.session.Session
+import com.codepunk.core.domain.session.SessionManager
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.startLaunchActivity

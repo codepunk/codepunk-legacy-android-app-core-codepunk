@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +15,15 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.model.auth
+package com.codepunk.core.data.remote.entity.auth
 
+import com.codepunk.core.domain.model.auth.TokenType
 import com.squareup.moshi.Json
 
 /**
  * A data class representing an OAuth2 authorization.
  */
-data class Authorization(
+data class RemoteAuthorization(
 
     /**
      * The type of auth token, which provides the client with the information required to
@@ -57,8 +59,12 @@ data class Authorization(
      * A version of [toString] that truncates [authToken] and [refreshToken].
      */
     override fun toString(): String {
-        return "Authorization(tokenType=$tokenType, authToken='${ellipsize(authToken)}', " +
-                "refreshToken='${ellipsize(refreshToken)}', expiresIn=$expiresIn)"
+        return "RemoteAuthorization(tokenType=$tokenType, authToken='${ellipsize(
+            authToken
+        )}', " +
+                "refreshToken='${ellipsize(
+                    refreshToken
+                )}', expiresIn=$expiresIn)"
     }
 
     // endregion Inherited methods

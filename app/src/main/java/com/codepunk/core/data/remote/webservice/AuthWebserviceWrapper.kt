@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +18,9 @@
 package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.data.model.auth.Authorization
-import com.codepunk.core.data.model.auth.GrantType
-import com.codepunk.core.data.model.http.ResponseMessage
+import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
+import com.codepunk.core.domain.model.auth.GrantType
+import com.codepunk.core.data.remote.entity.http.RemoteMessage
 import retrofit2.Call
 
 /**
@@ -30,7 +31,8 @@ import retrofit2.Call
  * Implementation of [AuthWebservice] that allows for default arguments by wrapping another
  * instance ([base]) and passing default arguments to its methods where appropriate.
  */
-class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
+class AuthWebserviceWrapper(private val base: AuthWebservice) :
+    AuthWebservice {
 
     // region Inherited methods
 
@@ -41,7 +43,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         username: String,
         password: String,
         scope: String
-    ): Call<Authorization> = base.authorize(
+    ): Call<RemoteAuthorization> = base.authorize(
         grantType,
         clientId,
         clientSecret,
@@ -57,7 +59,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         username: String,
         password: String,
         scope: String
-    ): Call<Authorization> {
+    ): Call<RemoteAuthorization> {
         return base.authorize(
             GrantType.PASSWORD,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
@@ -72,7 +74,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
     /**
      * Gets an authorization token using default values.
      */
-    override fun authorize(username: String, password: String): Call<Authorization> {
+    override fun authorize(username: String, password: String): Call<RemoteAuthorization> {
         return base.authorize(
             GrantType.PASSWORD,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
@@ -88,13 +90,13 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         clientId: String,
         clientSecret: String,
         refreshToken: String
-    ): Call<Authorization> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
+    ): Call<RemoteAuthorization> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
 
     /**
      * Gets an authorization token from an existing [refreshToken] by passing default arguments to
      * the base implementation.
      */
-    override fun refreshToken(refreshToken: String): Call<Authorization> = base.refreshToken(
+    override fun refreshToken(refreshToken: String): Call<RemoteAuthorization> = base.refreshToken(
         GrantType.REFRESH_TOKEN,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,
@@ -108,7 +110,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) : AuthWebservice {
         familyName: String,
         password: String,
         passwordConfirmation: String
-    ): Call<ResponseMessage> =
+    ): Call<RemoteMessage> =
         base.register(name, email, givenName, familyName, password, passwordConfirmation)
 
     // endregion Inherited methods

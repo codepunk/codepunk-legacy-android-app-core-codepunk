@@ -38,3 +38,16 @@ fun AccountManager.addOrUpdateAccount(
         }
     }
 }
+
+/**
+ * Returns an [Account] whose name and type match the given [name] and [type], or null if
+ * no accounts match.
+ */
+fun AccountManager.getAccountByNameAndType(name: String?, type: String): Account? {
+    getAccountsByType(type).forEach { account ->
+        when (account.name) {
+            name -> return account
+        }
+    }
+    return null
+}

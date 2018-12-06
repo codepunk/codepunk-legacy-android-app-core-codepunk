@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.model.http
+package com.codepunk.core.data.remote.entity.http
 
 import android.os.Parcel
 import android.os.Parcelable
@@ -25,7 +26,7 @@ import com.codepunk.core.lib.toMap
  * A response message from the server. This response contains a [message] string and
  * optional [errors] detailing any issues discovered during the request.
  */
-data class ResponseMessage(
+data class RemoteMessage(
 
     /**
      * A string message.
@@ -72,9 +73,9 @@ data class ResponseMessage(
     // region Companion object
 
     /**
-     * A public CREATOR field that generates instances of [ResponseMessage] from a [Parcel].
+     * A public CREATOR field that generates instances of [RemoteMessage] from a [Parcel].
      */
-    companion object CREATOR : Parcelable.Creator<ResponseMessage> {
+    companion object CREATOR : Parcelable.Creator<RemoteMessage> {
 
         // region Inherited methods
 
@@ -82,12 +83,13 @@ data class ResponseMessage(
          * Create a new instance of the [Parcelable] class, instantiating it from the given
          * [Parcel] whose data had previously been written by [Parcelable.writeToParcel].
          */
-        override fun createFromParcel(parcel: Parcel): ResponseMessage = ResponseMessage(parcel)
+        override fun createFromParcel(parcel: Parcel): RemoteMessage =
+            RemoteMessage(parcel)
 
         /**
-         * Create a new array of [ResponseMessage].
+         * Create a new array of [RemoteMessage].
          */
-        override fun newArray(size: Int): Array<ResponseMessage?> = arrayOfNulls(size)
+        override fun newArray(size: Int): Array<RemoteMessage?> = arrayOfNulls(size)
 
         // endregion Inherited methods
 

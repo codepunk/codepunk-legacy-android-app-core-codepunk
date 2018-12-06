@@ -17,22 +17,20 @@
 package com.codepunk.core.data.repository
 
 import com.codepunk.core.data.remote.webservice.UserWebservice
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.codepunk.core.domain.contract.UserRepository
 
 /**
  * A repository for accessing and manipulating user-related data.
  */
 @Suppress("UNUSED")
-@Singleton
-class UserRepository @Inject constructor(
+class UserRepositoryImpl(
 
     /**
      * An instance of [UserWebservice] for making user-related API calls.
      */
     private val userWebservice: UserWebservice
 
-) {
+) : UserRepository {
 
     // region Methods
 

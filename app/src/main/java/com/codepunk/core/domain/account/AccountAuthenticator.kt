@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.session
+package com.codepunk.core.domain.account
 
 import android.accounts.*
 import android.accounts.AccountManager.*
@@ -30,14 +31,12 @@ import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
 import com.codepunk.core.BuildConfig.EXTRA_AUTH_TOKEN_TYPE
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
-import com.codepunk.core.data.model.auth.AuthTokenType
-import com.codepunk.core.data.model.auth.AuthTokenType.DEFAULT
+import com.codepunk.core.domain.model.auth.AuthTokenType
+import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-
-// TODO Add documentation
 
 /**
  * Implementation of [AbstractAccountAuthenticator] that authenticates Codepunk accounts.
