@@ -32,20 +32,20 @@
 
     <!--suppress AndroidDomInspection -->
     <Preference
-        android:key="@string/pref_key_log_out"
-        android:icon="@drawable/ic_preference_log_out"
-        android:title="@string/settings_label_log_out"
-        android:selectable="true"
-        android:enabled="true"
-        android:order="300" />
-
-    <!--suppress AndroidDomInspection -->
-    <Preference
         android:key="@string/pref_key_about"
         android:icon="@drawable/ic_preference_info"
         android:title="@string/settings_label_about"
         android:selectable="true"
         android:enabled="true"
         android:order="500" />
+
+    <!--suppress AndroidDomInspection -->
+    <Preference
+        android:key="@string/pref_key_log_out"
+        android:icon="@drawable/ic_preference_log_out"
+        android:title="@string/settings_label_log_out"
+        android:selectable="true"
+        android:enabled="true"
+        android:order="1000" />
 
 </PreferenceScreen>

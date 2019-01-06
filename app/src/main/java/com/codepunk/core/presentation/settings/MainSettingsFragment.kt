@@ -448,7 +448,6 @@ class MainSettingsFragment :
             preferenceScreen.removePreference(developerOptionsPreference)
         }
 
-        // TODO Show/hide Log out preference, set summary to user name
         sessionManager.session?.run {
             logOutPreference.summary = accountName
             preferenceScreen.addPreference(logOutPreference)

@@ -96,6 +96,14 @@ class MainFragment :
     }
 
     /**
+     * Indicates that this fragment has an options menu.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    /**
      * Inflates the view.
      */
     override fun onCreateView(
