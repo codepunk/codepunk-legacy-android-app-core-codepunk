@@ -234,6 +234,7 @@ class MainFragment :
                 if (state == STATE_LOGGED_IN) R.string.main_log_out else R.string.main_log_in
             )
             logInOutBtn.isEnabled = (state != STATE_LOGGING_IN)
+            logInOutBtn.visibility = if (state == STATE_LOGGED_IN) View.INVISIBLE else View.VISIBLE
         }
     }
 
