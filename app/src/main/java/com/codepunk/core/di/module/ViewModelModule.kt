@@ -20,8 +20,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.codepunk.core.di.key.ViewModelKey
 import com.codepunk.core.di.provider.InjectingViewModelFactory
-import com.codepunk.core.ui.auth.AuthViewModel
-import com.codepunk.core.ui.main.MainViewModel
+import com.codepunk.core.presentation.auth.AuthViewModel
+import com.codepunk.core.presentation.main.MainViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

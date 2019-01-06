@@ -17,9 +17,9 @@
 package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.ActivityScope
-import com.codepunk.core.ui.auth.AuthenticateActivity
-import com.codepunk.core.ui.main.MainActivity
-import com.codepunk.core.ui.settings.SettingsActivity
+import com.codepunk.core.presentation.auth.AuthenticateActivity
+import com.codepunk.core.presentation.main.MainActivity
+import com.codepunk.core.presentation.settings.SettingsActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

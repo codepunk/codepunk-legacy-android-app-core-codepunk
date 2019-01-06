@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.settings
+package com.codepunk.core.presentation.settings
 
 import android.app.Activity
 import android.content.Intent
@@ -64,7 +64,7 @@ class SettingsActivity : AppCompatActivity(),
      */
     private val navController: NavController by lazy {
         Navigation.findNavController(this, R.id.settings_nav_fragment).apply {
-            addOnNavigatedListener { _, destination ->
+            addOnDestinationChangedListener { _, destination, _ ->
                 title = destination.label
             }
         }

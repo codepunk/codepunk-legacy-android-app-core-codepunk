@@ -23,7 +23,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.auth.AuthenticateActivity">
+        tools:context=".presentation.auth.AuthenticateActivity">
 
         <fragment
             android:id="@+id/authenticate_nav_fragment"

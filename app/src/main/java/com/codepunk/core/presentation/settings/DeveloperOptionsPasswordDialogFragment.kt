@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.settings
+package com.codepunk.core.presentation.settings
 
 import android.animation.Animator
 import android.animation.AnimatorInflater

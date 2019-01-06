@@ -17,9 +17,9 @@
 package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.FragmentScope
-import com.codepunk.core.ui.settings.DeveloperOptionsSettingsFragment
-import com.codepunk.core.ui.settings.MainSettingsFragment
-import com.codepunk.core.ui.settings.SettingsActivity
+import com.codepunk.core.presentation.settings.DeveloperOptionsSettingsFragment
+import com.codepunk.core.presentation.settings.MainSettingsFragment
+import com.codepunk.core.presentation.settings.SettingsActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

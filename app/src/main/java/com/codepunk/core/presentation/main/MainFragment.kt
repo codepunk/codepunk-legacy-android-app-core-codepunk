@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.main
+package com.codepunk.core.presentation.main
 
 import android.accounts.Account
 import android.app.Activity

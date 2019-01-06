@@ -49,8 +49,8 @@ versions.material = "1.1.0-alpha01"
 /* TODO Maybe not needed
 versions.moshi_kotlin = "1.8.0"
  */
-versions.multidex = "2.0.0"
-versions.navigation = "1.0.0-alpha07"
+versions.multidex = "2.0.1"
+versions.navigation = "1.0.0-alpha09"
 versions.navigation_testing = "1.0.0-alpha06"
 versions.retrofit = "2.4.0"
 versions.room = "1.1.1"

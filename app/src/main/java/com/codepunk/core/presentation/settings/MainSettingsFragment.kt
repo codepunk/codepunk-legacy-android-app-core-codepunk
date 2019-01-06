@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.settings
+package com.codepunk.core.presentation.settings
 
 import android.app.Activity
 import android.content.Context

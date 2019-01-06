@@ -17,8 +17,8 @@
 package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.FragmentScope
-import com.codepunk.core.ui.main.MainActivity
-import com.codepunk.core.ui.main.MainFragment
+import com.codepunk.core.presentation.main.MainActivity
+import com.codepunk.core.presentation.main.MainFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

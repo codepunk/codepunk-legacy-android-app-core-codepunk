@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/fragment_main"
-        android:name="com.codepunk.core.ui.main.MainFragment"
+        android:name="com.codepunk.core.presentation.main.MainFragment"
         android:label="@string/app_name"
         tools:layout="@layout/fragment_main" />
 

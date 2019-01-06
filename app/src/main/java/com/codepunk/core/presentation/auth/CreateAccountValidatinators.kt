@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.auth
+package com.codepunk.core.presentation.auth
 
 import android.content.Context
 import com.codepunk.core.R

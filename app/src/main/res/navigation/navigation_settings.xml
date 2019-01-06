@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/fragment_main_settings"
-        android:name="com.codepunk.core.ui.settings.MainSettingsFragment"
+        android:name="com.codepunk.core.presentation.settings.MainSettingsFragment"
         android:label="@string/settings_label_main"
         tools:layout="@android:layout/preference_list_fragment">
 
@@ -36,7 +36,7 @@
 
     <fragment
         android:id="@+id/fragment_developer_options_settings"
-        android:name="com.codepunk.core.ui.settings.DeveloperOptionsSettingsFragment"
+        android:name="com.codepunk.core.presentation.settings.DeveloperOptionsSettingsFragment"
         android:label="@string/settings_label_developer_options"
         tools:layout="@android:layout/preference_list_fragment"/>
 

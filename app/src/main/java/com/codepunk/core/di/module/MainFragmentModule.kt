@@ -16,7 +16,7 @@
 
 package com.codepunk.core.di.module
 
-import com.codepunk.core.ui.main.MainFragment
+import com.codepunk.core.presentation.main.MainFragment
 import dagger.Module
 
 /**

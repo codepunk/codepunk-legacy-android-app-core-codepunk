@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.ui.auth
+package com.codepunk.core.presentation.auth
 
 import android.os.Bundle
 import android.view.LayoutInflater

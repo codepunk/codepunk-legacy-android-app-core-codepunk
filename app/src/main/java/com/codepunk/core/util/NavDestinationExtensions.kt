@@ -17,23 +17,22 @@
 
 package com.codepunk.core.util
 
-import android.content.SharedPreferences
-import com.codepunk.core.data.remote.RemoteEnvironment
-import java.lang.IllegalArgumentException
+import android.os.Bundle
+import androidx.navigation.NavArgument
+import androidx.navigation.NavDestination
 
 /**
- * Retrieves an [RemoteEnvironment] value from the preferences if it exists, or [defValue]
- * otherwise.
+ * Adds default arguments to a [NavDestination] using a [Bundle].
  */
-fun SharedPreferences.getEnvironment(
-    key: String,
-    defValue: RemoteEnvironment? = null
-): RemoteEnvironment? {
-    return try {
-        getString(key, null)?.let {
-            RemoteEnvironment.valueOf(it)
-        } ?: defValue
-    } catch (e: IllegalArgumentException) {
-        defValue
+fun NavDestination.addDefaultArgumentsFromBundle(bundle: Bundle?) {
+    bundle?.keySet()?.forEach { key ->
+        try {
+            addArgument(
+                key,
+                NavArgument.Builder().setDefaultValue(bundle[key]).build()
+            )
+        } catch (e: IllegalArgumentException) {
+            // No op
+        }
     }
 }

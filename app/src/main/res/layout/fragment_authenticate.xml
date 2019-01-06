@@ -29,7 +29,7 @@
         android:paddingEnd="@dimen/margin_horizontal"
         android:paddingRight="@dimen/margin_horizontal"
         android:paddingBottom="@dimen/margin_vertical"
-        tools:context="com.codepunk.core.ui.auth.AbsAuthenticateFragment">
+        tools:context="com.codepunk.core.presentation.auth.AbsAuthenticateFragment">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/choose_account_label"
