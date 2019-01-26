@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
  * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +15,21 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.domain.contract
+package com.codepunk.core.lib.room
 
-import androidx.lifecycle.LiveData
-import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Update
 
-/**
- * A data repository that defines user-related data access methods.
- */
-interface UserRepository {
+abstract class BaseDao<T> {
 
-    // region Methods
+    @Insert
+    abstract fun insert(vararg obj: T)
 
-    /**
-     * Gets [LiveData] updates related to the current user, if one exists.
-     */
-    fun authenticateUser(
-        forceRefresh: Boolean = true,
-        silentMode: Boolean = true
-    ): LiveData<DataUpdate<Any, User>>
+    @Update
+    abstract fun update(vararg obj: T)
 
-    // endregion Methods
+    @Delete
+    abstract fun delete(vararg obj: T)
 
 }

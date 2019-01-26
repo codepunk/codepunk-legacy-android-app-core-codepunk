@@ -22,8 +22,9 @@ import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.scope.UserScope
 import java.util.*
 
-private val PENDING_USER = Date(0L).let {
-    User(-1, "", "", "", "", false, it, it)
+private val PENDING_USER: User by lazy {
+    val date = Date(0L)
+    User(-1, "", "", "", "", false, date, date)
 }
 
 /**

@@ -33,6 +33,7 @@ import com.codepunk.core.data.mapper.toUserOrNull
 import com.codepunk.core.data.remote.entity.RemoteUser
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
+import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.model.auth.AuthTokenType
 import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.core.lib.getAccountByNameAndType
@@ -101,7 +102,7 @@ class SessionManager @Inject constructor(
     // region Methods
 
     /**
-     * Executes a new [SessionTaskinator] to authenticate a user of the application. An existing
+     * Executes a new [SessionTaskinator] to openSession a user of the application. An existing
      * task can be canceled using the [cancelExisting] option.
      */
     fun openSession(
@@ -159,8 +160,10 @@ class SessionManager @Inject constructor(
 
     // region Nested/inner classes
 
+    // TODO Should this be part of a Repository?
+
     /**
-     * A [DataTaskinator] that works with [AccountManager] to authenticate a user in the system and
+     * A [DataTaskinator] that works with [AccountManager] to openSession a user in the system and
      * create a new [Session] object to track that user.
      */
     @SuppressLint("StaticFieldLeak")
@@ -222,24 +225,29 @@ class SessionManager @Inject constructor(
                 )
             }
 
-            // 4) Create a temporary session. This will be needed for the getUser call below.
-            val tempSession = Session(
-                account.name,
-                account.type,
-                authToken,
-                accountManager.getPassword(account),
-                userComponentBuilder.build()
-            )
-            session = tempSession
-
+            // 4) Get the remote user
             try {
-                val response = userWebservice.getUser().execute()
+                val response =
+                    userWebservice.getUser(authToken).execute()
                 when {
                     response.isSuccessful -> {
                         // Create a new session from the temporary one, substituting in the
                         // newly-fetched user
-                        val remoteUser: RemoteUser? = response.body()
-                        session = Session(tempSession, remoteUser.toUserOrNull())
+                        val user: User? = response.body().toUserOrNull()
+                        session = user?.let {
+                            Session(
+                                account.name,
+                                account.type,
+                                authToken,
+                                accountManager.getPassword(account),
+                                userComponentBuilder.build(),
+                                it
+                            )
+                        } ?: return newFailureUpdate(
+                            SecurityException("Authentication failed getting remote user"),
+                            CATEGORY_MAIN,
+                            account.name
+                        )
                     }
                     else -> return FailureUpdate(
                         e = HttpStatusException(

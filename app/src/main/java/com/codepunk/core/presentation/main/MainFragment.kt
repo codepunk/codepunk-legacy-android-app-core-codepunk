@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -31,8 +32,10 @@ import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
+import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
+import com.codepunk.core.domain.session.SessionManager2
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -77,6 +80,12 @@ class MainFragment :
      */
     @Inject
     lateinit var sessionManager: SessionManager
+
+    /**
+     * The application [SessionManager2].
+     */
+    @Inject
+    lateinit var sessionManager2: SessionManager2
 
     /**
      * The binding for this fragment.
@@ -134,7 +143,7 @@ class MainFragment :
                     val account: Account? = data?.getParcelableExtra(BuildConfig.KEY_ACCOUNT)
                     when (account) {
                         null -> {
-                            // TODO Show error message then finish? OR show the msg in authenticate activity dismiss?
+                            // TODO Show error message then finish? OR show the msg in openSession activity dismiss?
                             // requireActivity().finish()
                         }
                         else -> sessionManager.openSession(true, true)
@@ -174,6 +183,11 @@ class MainFragment :
         super.onViewCreated(view, savedInstanceState)
         binding.logInOutBtn.setOnClickListener(this)
 
+//        sessionManager2.authenticateUser().observe(this, Observer { onUserUpdate(it) })
+        sessionManager2.authenticate(false).observeForever {
+            Log.d("MainFragment", "update=$it")
+        }
+
         // If we have an account saved, try to silently log into it now
         if (savedInstanceState == null) {
             if (sharedPreferences.contains(PREF_KEY_CURRENT_ACCOUNT_NAME)) {
@@ -205,6 +219,10 @@ class MainFragment :
     // endregion Implemented methods
 
     // region Methods
+
+    private fun onUserUpdate(update: DataUpdate<User, User>) {
+
+    }
 
     private fun onSessionUpdate(update: DataUpdate<Void, Session>) {
         when (update) {

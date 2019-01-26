@@ -96,7 +96,7 @@ class AuthViewModel @Inject constructor(
                     val username = when (isEmail) {
                         true -> {
                             val userUpdate: ResultUpdate<Void, Response<RemoteUser>> =
-                                userWebservice.getUser().getResultUpdate()
+                                userWebservice.getUser(it.authToken).getResultUpdate()
                             val user = userUpdate.result?.body()
                             when (userUpdate) {
                                 is SuccessUpdate -> user?.username

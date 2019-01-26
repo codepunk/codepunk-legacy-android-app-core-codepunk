@@ -110,8 +110,7 @@ class NetModule {
     @Singleton
     fun providesAuthWebservice(
         retrofit: Retrofit
-    ): AuthWebservice =
-        AuthWebserviceWrapper(retrofit.create(AuthWebservice::class.java))
+    ): AuthWebservice = AuthWebserviceWrapper(retrofit.create(AuthWebservice::class.java))
 
     /**
      * Provides an instance of [UserWebservice] for making user API calls.

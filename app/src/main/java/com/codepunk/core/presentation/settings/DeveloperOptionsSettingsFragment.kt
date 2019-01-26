@@ -31,7 +31,7 @@ import dagger.android.support.AndroidSupportInjection
 /**
  * A preference fragment that displays developer options preferences to the user. By default,
  * developer options are not available to the user until they unlock the developer options
- * preference and authenticate themselves as a developer.
+ * preference and openSession themselves as a developer.
  */
 class DeveloperOptionsSettingsFragment :
     BaseSettingsFragment() {

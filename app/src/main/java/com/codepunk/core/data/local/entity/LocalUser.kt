@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
  * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,23 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote.entity
+package com.codepunk.core.data.local.entity
 
-import com.codepunk.core.data.remote.annotation.BooleanInt
-import com.squareup.moshi.Json
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
 /**
- * A data class representing a remote user.
+ * A data class representing a local user.
  */
-data class RemoteUser(
+@Entity(tableName = "users")
+data class LocalUser(
 
     /**
      * The user id.
      */
+    @PrimaryKey
     val id: Long,
 
     /**
@@ -44,32 +47,31 @@ data class RemoteUser(
     /**
      * The user's family name.
      */
-    @field:Json(name = "family_name")
+    @ColumnInfo(name = "family_name")
     val familyName: String,
 
     /**
      * The user's given name.
      */
-    @field:Json(name = "given_name")
+    @ColumnInfo(name = "given_name")
     val givenName: String,
 
     /**
      * Whether the user is active.
      */
-    @field:Json(name = "active")
-    @field:BooleanInt
+    @ColumnInfo(name = "active")
     val active: Boolean,
 
     /**
      * The date the user was created.
      */
-    @field:Json(name = "created_at")
+    @ColumnInfo(name = "created_at")
     val createdAt: Date,
 
     /**
      * The date the user was last updated.
      */
-    @field:Json(name = "updated_at")
+    @ColumnInfo(name = "updated_at")
     val updatedAt: Date
 
 )

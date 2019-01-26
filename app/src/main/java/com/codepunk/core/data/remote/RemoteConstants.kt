@@ -29,6 +29,12 @@ package com.codepunk.core.data.remote
 const val HEADER_NAME_ACCEPT = "Accept"
 
 /**
+ * A custom header name that supplies an auth token. This will be converted to the "Authorization"
+ * header via an interceptor.
+ */
+const val HEADER_NAME_TEMP_AUTH_TOKEN = "Temp-Auth-Token"
+
+/**
  * The "RemoteAuthorization" API header name.
  */
 const val HEADER_NAME_AUTHORIZATION = "Authorization"
@@ -46,6 +52,11 @@ const val HEADER_NAME_CONTENT_TYPE = "Content-Type"
 const val HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER = "\$authToken"
 
 /**
+ * A placeholder for an auth token in endpoints that require authentication.
+ */
+const val HEADER_VALUE_AUTHORIZATION = "Bearer $HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER"
+
+/**
  * The "application/json" header value.
  */
 const val HEADER_VALUE_APPLICATION_JSON = "application/json"
@@ -60,8 +71,7 @@ const val HEADER_ACCEPT_APPLICATION_JSON = "$HEADER_NAME_ACCEPT: $HEADER_VALUE_A
 /**
  * A name/value pair for bearer authorization header.
  */
-const val HEADER_AUTHORIZATION_BEARER =
-    "$HEADER_NAME_AUTHORIZATION: Bearer $HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER"
+const val HEADER_AUTHORIZATION_BEARER = "$HEADER_NAME_AUTHORIZATION: $HEADER_VALUE_AUTHORIZATION"
 
 /**
  * A name/value pair for specifying application/json Content-Type.

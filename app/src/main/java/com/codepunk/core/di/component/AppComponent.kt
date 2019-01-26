@@ -32,7 +32,9 @@ import javax.inject.Singleton
         ActivityBuildersModule::class,
         AndroidSupportInjectionModule::class,
         AppModule::class,
+        DataModule::class,
         NetModule::class,
+        PersistenceModule::class,
         ViewModelModule::class,
         ServiceBuildersModule::class
     ]

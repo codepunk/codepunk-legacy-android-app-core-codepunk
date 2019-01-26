@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
  * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,23 +19,13 @@ package com.codepunk.core.domain.contract
 
 import androidx.lifecycle.LiveData
 import com.codepunk.core.domain.model.User
+import com.codepunk.core.domain.session.Session
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 
-/**
- * A data repository that defines user-related data access methods.
- */
-interface UserRepository {
+interface SessionRepository {
 
-    // region Methods
-
-    /**
-     * Gets [LiveData] updates related to the current user, if one exists.
-     */
-    fun authenticateUser(
-        forceRefresh: Boolean = true,
-        silentMode: Boolean = true
-    ): LiveData<DataUpdate<Any, User>>
-
-    // endregion Methods
+    fun openSession(
+        silentMode: Boolean
+    ): LiveData<DataUpdate<User, Session>>
 
 }

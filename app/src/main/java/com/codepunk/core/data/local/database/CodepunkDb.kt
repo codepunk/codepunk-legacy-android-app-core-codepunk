@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
  * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,26 +15,37 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.domain.contract
+package com.codepunk.core.data.local.database
 
-import androidx.lifecycle.LiveData
-import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.codepunk.core.data.local.dao.UserDao
+import com.codepunk.core.data.local.entity.LocalUser
+import com.codepunk.core.lib.room.DateConverter
 
 /**
- * A data repository that defines user-related data access methods.
+ * The Codepunk database.
  */
-interface UserRepository {
+@Database(
+    entities = [
+        LocalUser::class
+    ],
+    version = 1,
+    exportSchema = true
+)
+@TypeConverters(
+    DateConverter::class
+)
+abstract class CodepunkDb : RoomDatabase() {
 
     // region Methods
 
     /**
-     * Gets [LiveData] updates related to the current user, if one exists.
+     * A [Dao] for the [LocalUser] class.
      */
-    fun authenticateUser(
-        forceRefresh: Boolean = true,
-        silentMode: Boolean = true
-    ): LiveData<DataUpdate<Any, User>>
+    abstract fun userDao(): UserDao
 
     // endregion Methods
 

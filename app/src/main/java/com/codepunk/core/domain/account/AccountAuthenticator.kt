@@ -141,7 +141,7 @@ class AccountAuthenticator @Inject constructor(
                     when {
                         !resp.isSuccessful || resp.body() == null -> {
                             putInt(KEY_ERROR_CODE, ERROR_CODE_INVALID_RESPONSE)
-                            putString(KEY_ERROR_MESSAGE, "Unable to authenticate the account")
+                            putString(KEY_ERROR_MESSAGE, "Unable to openSession the account")
                         }
                         else -> resp.body()?.apply {
                             authTokenString = this.authToken
