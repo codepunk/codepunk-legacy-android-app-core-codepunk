@@ -23,9 +23,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.local.dao.UserDao
 import com.codepunk.core.data.mapper.toLocalUser
@@ -44,6 +42,10 @@ import com.codepunk.core.lib.getResultUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import retrofit2.Response
 
+/**
+ * Implementation of [SessionRepository] that attempts to open a session (i.e. authenticate a
+ * user).
+ */
 class SessionRepositoryImpl(
 
     /**
@@ -75,62 +77,34 @@ class SessionRepositoryImpl(
 
     // region Properties
 
-    private val sessionLiveData: MediatorLiveData<DataUpdate<User, Session>> = MediatorLiveData()
-
     private var sessionTask: SessionTask? = null
 
     // endregion Properties
 
     // region Implemented methods
 
-    override fun openSession(
-        silentMode: Boolean
+    override fun getSession(
+        silentMode: Boolean,
+        refresh: Boolean
     ): LiveData<DataUpdate<User, Session>> {
-        sessionTask?.apply {
-            sessionLiveData.removeSource(liveData)
-            if (!isCancelled) {
-                cancel(true)
-            }
-            sessionTask = null
-        }
-        /*
-        when {
-            alwaysRefresh -> {
-                sessionTask?.apply {
-                    sessionLiveData.removeSource(liveData)
-                    if (!isCancelled) {
-                        cancel(true)
-                    }
-                    sessionTask = null
-                }
-            }
-            sessionTask?.isCancelled == true -> {
-                sessionTask?.apply {
-                    sessionLiveData.removeSource(liveData)
-                    sessionTask = null
-                }
-            }
-        }
-        */
-
-        if (sessionTask == null) {
-            sessionTask = SessionTask(
-                sharedPreferences,
-                userDao,
-                accountManager,
-                userWebservice,
-                userComponentBuilder
-            ).apply {
-                sessionLiveData.addSource(liveData) { update ->
-                    // TODO Check cancelled here? Or just let it happen?
-                    Log.d("SessionRepositoryImpl", "update=$update")
-                    sessionLiveData.value = update
-                }
-                executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, silentMode)
+        sessionTask?.run {
+            if (refresh) {
+                this.cancel(true)
+            } else {
+                return this.liveData
             }
         }
 
-        return sessionLiveData
+        return SessionTask(
+            sharedPreferences,
+            userDao,
+            accountManager,
+            userWebservice,
+            userComponentBuilder
+        ).let {
+            sessionTask = it
+            it.executeOnExecutorAsLiveData(AsyncTask.THREAD_POOL_EXECUTOR, silentMode)
+        }
     }
 
     // endregion Implemented methods
@@ -154,9 +128,6 @@ class SessionRepositoryImpl(
         // region Inherited methods
 
         override fun doInBackground(vararg params: Boolean?): ResultUpdate<User, Session> {
-            // TODO NEXT This might be ResultUpdate<User, Session> because I might want to
-            // cache/retrieve the last known authenticated user
-
             // TODO Check for isCanceled
 
             val silentMode = params.getOrNull(0) ?: true
@@ -287,6 +258,8 @@ class SessionRepositoryImpl(
             null,
             e,
             if (silentMode) {
+                null
+            } else {
                 Bundle().apply {
                     putParcelable(
                         BuildConfig.KEY_INTENT,
@@ -298,8 +271,6 @@ class SessionRepositoryImpl(
                         }
                     )
                 }
-            } else {
-                null
             }
         )
 

@@ -17,15 +17,27 @@
 
 package com.codepunk.core.domain.contract
 
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 
+/**
+ * A repository that opens a session (i.e. authenticates a user).
+ */
 interface SessionRepository {
 
-    fun openSession(
-        silentMode: Boolean
+    /**
+     * Gets a [Session] or opens one (i.e. authenticates a user) if no session exists. If
+     * [silentMode] is false, authentication failures will be set in the resulting LiveData with
+     * an [Intent] that will allow the appropriate authentication activity to be presented.
+     * If [refresh] is set, then a new [Session] will be opened regardless of whether an existing
+     * session is currently open.
+     */
+    fun getSession(
+        silentMode: Boolean,
+        refresh: Boolean = false
     ): LiveData<DataUpdate<User, Session>>
 
 }

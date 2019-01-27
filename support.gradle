@@ -43,7 +43,7 @@ versions.fabric = "1.+"
 */
 versions.findbugs = "3.0.2"
 versions.junit = "4.12"
-versions.kotlin = "1.3.10"
+versions.kotlin = "1.3.20"
 versions.lifecycle = "2.0.0-rc01"
 versions.material = "1.1.0-alpha01"
 /* TODO Maybe not needed

@@ -20,17 +20,11 @@ package com.codepunk.core.domain.session
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.scope.UserScope
-import java.util.*
-
-private val PENDING_USER: User by lazy {
-    val date = Date(0L)
-    User(-1, "", "", "", "", false, date, date)
-}
 
 /**
  * A class with information about the current user session.
  */
-class Session(
+data class Session(
 
     /**
      * The name of the authenticated account.
@@ -62,27 +56,6 @@ class Session(
     /**
      * The authenticated user.
      */
-    val user: User = PENDING_USER
+    val user: User
 
-) {
-
-    // region Constructors
-
-    /**
-     * Copy constructor that optionally replaces the supplied [user].
-     */
-    constructor(session: Session, user: User? = null) : this(
-        session.accountName,
-        session.accountType,
-        session.authToken,
-        session.refreshToken,
-        session.userComponent,
-        when (user) {
-            null -> session.user
-            else -> user
-        }
-    )
-
-    // endregion Constructors
-
-}
+)

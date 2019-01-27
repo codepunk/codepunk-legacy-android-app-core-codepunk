@@ -28,6 +28,7 @@ import androidx.navigation.Navigation
 import androidx.preference.Preference
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
+import com.codepunk.core.domain.model.User
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.core.domain.session.Session
@@ -431,7 +432,7 @@ class MainSettingsFragment :
      */
     private fun updatePreferenceScreen() {
         isDeveloperOptionsUnlocked =
-                sharedPreferences.getBoolean(PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED, false)
+            sharedPreferences.getBoolean(PREF_KEY_DEVELOPER_OPTIONS_UNLOCKED, false)
         isDeveloperOptionsEnabled = when {
             !isDeveloperOptionsUnlocked -> false
             sharedPreferences.getString(
@@ -441,7 +442,7 @@ class MainSettingsFragment :
             else -> true
         }
         developerOptionsPreference.isChecked =
-                isDeveloperOptionsUnlocked && isDeveloperOptionsEnabled
+            isDeveloperOptionsUnlocked && isDeveloperOptionsEnabled
         if (isDeveloperOptionsUnlocked) {
             preferenceScreen.addPreference(developerOptionsPreference)
         } else {
@@ -457,7 +458,7 @@ class MainSettingsFragment :
     /**
      * Adds or removes the log out preference based on session state.
      */
-    private fun onSessionUpdate(update: DataUpdate<Void, Session>) {
+    private fun onSessionUpdate(update: DataUpdate<User, Session>) {
         when (update) {
             is SuccessUpdate -> {
                 logOutPreference.summary = update.result?.accountName
