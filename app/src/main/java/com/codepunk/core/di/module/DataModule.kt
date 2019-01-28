@@ -43,7 +43,7 @@ class DataModule {
      */
     @Provides
     @Singleton
-    fun providesAccountRepository(
+    fun providesSessionRepository(
         sharedPreferences: SharedPreferences,
         userDao: UserDao,
         accountManager: AccountManager,

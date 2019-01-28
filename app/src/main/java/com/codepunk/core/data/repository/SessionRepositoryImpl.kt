@@ -83,6 +83,13 @@ class SessionRepositoryImpl(
 
     // region Implemented methods
 
+    /**
+     * Gets a [Session] or opens one (i.e. authenticates a user) if no session exists. If
+     * [silentMode] is false, authentication failures will be set in the resulting LiveData with
+     * an [Intent] that will allow the appropriate authentication activity to be presented.
+     * If [refresh] is set, then a new [Session] will be opened regardless of whether an existing
+     * session is currently open.
+     */
     override fun getSession(
         silentMode: Boolean,
         refresh: Boolean
@@ -104,6 +111,22 @@ class SessionRepositoryImpl(
         ).let {
             sessionTask = it
             it.executeOnExecutorAsLiveData(AsyncTask.THREAD_POOL_EXECUTOR, silentMode)
+        }
+    }
+
+    /**
+     * Closes a session if one is open. Returns true if there was an existing session that was
+     * closed and false otherwise. If [logOut] is set, the user's tokens will also be cleared,
+     * meaning that the next time the user attempts to log on, they will have to re-enter their
+     * credentials.
+     */
+    override fun closeSession(session: Session, logOut: Boolean) {
+        sharedPreferences.edit().remove(BuildConfig.PREF_KEY_CURRENT_ACCOUNT_NAME).apply()
+        if (logOut) {
+            Account(session.accountName, session.accountType).apply {
+                accountManager.setAuthToken(this, AuthTokenType.DEFAULT.value, null)
+                accountManager.setPassword(this, null)
+            }
         }
     }
 

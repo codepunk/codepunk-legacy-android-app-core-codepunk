@@ -130,15 +130,8 @@ class SessionManager @Inject constructor(
      * credentials.
      */
     fun closeSession(logOut: Boolean): Boolean {
-        // TODO Log out? Call a closeSession method on Repository?
         return session?.let {
-            sharedPreferences.edit().remove(PREF_KEY_CURRENT_ACCOUNT_NAME).apply()
-            if (logOut) {
-                Account(it.accountName, it.accountType).apply {
-                    accountManager.setAuthToken(this, DEFAULT.value, null)
-                    accountManager.setPassword(this, null)
-                }
-            }
+            sessionRepository.closeSession(it, logOut)
             liveSession.value = PendingUpdate()
             session = null
             true

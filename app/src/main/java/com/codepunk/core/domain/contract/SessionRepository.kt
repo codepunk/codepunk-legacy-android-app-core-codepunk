@@ -40,4 +40,12 @@ interface SessionRepository {
         refresh: Boolean = false
     ): LiveData<DataUpdate<User, Session>>
 
+    /**
+     * Closes a session if one is open. Returns true if there was an existing session that was
+     * closed and false otherwise. If [logOut] is set, the user's tokens will also be cleared,
+     * meaning that the next time the user attempts to log on, they will have to re-enter their
+     * credentials.
+     */
+    fun closeSession(session: Session, logOut: Boolean)
+
 }
