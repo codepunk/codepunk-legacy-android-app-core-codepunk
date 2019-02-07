@@ -27,7 +27,7 @@ build_versions.build_tools = "28.0.3"
 ext.build_versions = build_versions
 
 def versions = [:]
-versions.android_gradle_plugin = "3.4.0-alpha08"
+versions.android_gradle_plugin = "3.4.0-beta03"
 versions.android_support_design = "28.0.0"
 versions.androidx_appcompat = "1.0.2"
 versions.androidx_constraint = "1.1.3"

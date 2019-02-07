@@ -144,8 +144,6 @@ class AuthViewModel @Inject constructor(
     fun register(
         username: String,
         email: String,
-        givenName: String,
-        familyName: String,
         password: String,
         passwordConfirmation: String
     ) {
@@ -158,8 +156,6 @@ class AuthViewModel @Inject constructor(
                         authWebservice.register(
                             username,
                             email,
-                            givenName,
-                            familyName,
                             password,
                             passwordConfirmation
                         ).getResultUpdate()

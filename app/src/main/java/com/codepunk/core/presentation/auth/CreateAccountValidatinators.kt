@@ -73,42 +73,6 @@ class CreateAccountValidatinators @Inject constructor(
         emailValidatinator
     )
 
-    val givenName = context.getString(R.string.validation_input_name_given_name)
-    val givenNameValidatinator = ValidatinatorSet<CharSequence?>(
-        context,
-        givenName
-    ).add(
-        RequiredCharSequenceValidatinator(context, givenName),
-        com.codepunk.punkubator.util.validatinator.MaxLengthValidatinator(
-            context,
-            givenName,
-            255
-        )
-    )
-    val givenNameInputValidatinator = TextInputLayoutValidatinator(
-        context,
-        username,
-        givenNameValidatinator
-    )
-
-    val familyName = context.getString(R.string.validation_input_name_family_name)
-    val familyNameValidatinator = ValidatinatorSet<CharSequence?>(
-        context,
-        familyName
-    ).add(
-        RequiredCharSequenceValidatinator(context, familyName),
-        com.codepunk.punkubator.util.validatinator.MaxLengthValidatinator(
-            context,
-            familyName,
-            255
-        )
-    )
-    val familyNameInputValidatinator = TextInputLayoutValidatinator(
-        context,
-        username,
-        familyNameValidatinator
-    )
-
     val password = context.getString(R.string.validation_input_name_password)
     val passwordValidatinator = ValidatinatorSet<CharSequence?>(
         context,
@@ -137,20 +101,12 @@ class CreateAccountValidatinators @Inject constructor(
             override fun isValid(input: FragmentCreateAccountBinding, options: Options): Boolean {
                 input.usernameLayout.error = null
                 input.emailLayout.error = null
-                input.givenNameLayout.error = null
-                input.familyNameLayout.error = null
                 input.passwordLayout.error = null
                 input.confirmPasswordLayout.error = null
                 return usernameInputValidatinator.validate(
                     input.usernameLayout, options.clear()
                 ) && emailInputValidatinator.validate(
                     input.emailLayout,
-                    options.clear()
-                ) && givenNameInputValidatinator.validate(
-                    input.givenNameLayout,
-                    options.clear()
-                ) && familyNameInputValidatinator.validate(
-                    input.familyNameLayout,
                     options.clear()
                 ) && passwordInputValidatinator.validate(
                     input.passwordLayout,

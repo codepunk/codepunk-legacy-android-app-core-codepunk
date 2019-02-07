@@ -37,6 +37,10 @@ import javax.inject.Singleton
 
 private const val CACHE_SIZE: Long = 10 * 1024 * 1024
 
+private const val BASE_URL: String = "https://a882ab77.ngrok.io"
+//private const val BASE_URL: String = "http://192.168.12.10"
+//private const val BASE_URL: String = "https://codepunk.test"
+
 /**
  * A [Module] that provides network-specific instances for dependency injection.
  */
@@ -98,7 +102,7 @@ class NetModule {
         moshiEnumConverterFactory: MoshiEnumConverterFactory
     ): Retrofit = Retrofit.Builder()
         .client(okHttpClient)
-        .baseUrl("http://192.168.12.10") /* TODO "https://codepunk.test" */
+        .baseUrl(BASE_URL)
         .addConverterFactory(moshiConverterFactory)
         .addConverterFactory(moshiEnumConverterFactory)
         .build()

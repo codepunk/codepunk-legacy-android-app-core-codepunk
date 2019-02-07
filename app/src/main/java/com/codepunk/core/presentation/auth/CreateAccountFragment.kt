@@ -157,8 +157,6 @@ class CreateAccountFragment :
                         authViewModel.register(
                             usernameEdit.text.toString(),
                             emailEdit.text.toString(),
-                            givenNameEdit.text.toString(),
-                            familyNameEdit.text.toString(),
                             passwordEdit.text.toString(),
                             confirmPasswordEdit.text.toString()
                         )
@@ -175,7 +173,9 @@ class CreateAccountFragment :
 
     // region Methods
 
-    private fun onAuthorizationUpdate(update: DataUpdate<RemoteMessage, Response<RemoteAuthorization>>) {
+    private fun onAuthorizationUpdate(
+        update: DataUpdate<RemoteMessage, Response<RemoteAuthorization>>
+    ) {
         /*
         setControlsEnabled(update !is ProgressUpdate)
         */

@@ -23,7 +23,7 @@
     <dimen name="margin_xlarge">24dp</dimen>
     <dimen name="margin_xxlarge">48dp</dimen>
 
-    <dimen name="margin_horizontal">@dimen/margin_large</dimen>
-    <dimen name="margin_vertical">@dimen/margin_large</dimen>
+    <dimen name="margin_horizontal">@dimen/margin_xlarge</dimen>
+    <dimen name="margin_vertical">@dimen/margin_xlarge</dimen>
 
 </resources>

@@ -106,12 +106,10 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
     override fun register(
         name: String,
         email: String,
-        givenName: String,
-        familyName: String,
         password: String,
         passwordConfirmation: String
     ): Call<RemoteMessage> =
-        base.register(name, email, givenName, familyName, password, passwordConfirmation)
+        base.register(name, email, password, passwordConfirmation)
 
     // endregion Inherited methods
 

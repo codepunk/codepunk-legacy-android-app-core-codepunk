@@ -103,17 +103,11 @@ interface AuthWebservice {
     @FormUrlEncoded
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
     fun register(
-        @Field("name")
+        @Field("username")
         name: String,
 
         @Field("email")
         email: String,
-
-        @Field("given_name")
-        givenName: String,
-
-        @Field("family_name")
-        familyName: String,
 
         @Field("password")
         password: String,
