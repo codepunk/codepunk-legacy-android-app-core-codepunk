@@ -45,13 +45,13 @@ data class User(
      * The user's family name.
      */
     @field:Json(name = "family_name")
-    val familyName: String,
+    val familyName: String?,
 
     /**
      * The user's given name.
      */
     @field:Json(name = "given_name")
-    val givenName: String,
+    val givenName: String?,
 
     /**
      * Whether the user is active.

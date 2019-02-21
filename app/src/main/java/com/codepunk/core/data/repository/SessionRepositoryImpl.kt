@@ -26,15 +26,15 @@ import android.os.Bundle
 import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.local.dao.UserDao
-import com.codepunk.core.data.mapper.toLocalUser
-import com.codepunk.core.data.mapper.toUser
-import com.codepunk.core.data.mapper.toUserOrNull
+import com.codepunk.core.data.mapper.toLocal
+import com.codepunk.core.data.mapper.toDomain
+import com.codepunk.core.data.mapper.toDomainOrNull
 import com.codepunk.core.data.remote.entity.RemoteUser
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.model.User
-import com.codepunk.core.domain.model.auth.AuthTokenType
+import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.lib.exception.AuthenticationException
 import com.codepunk.core.lib.getAccountByNameAndType
@@ -162,7 +162,7 @@ class SessionRepositoryImpl(
             // 1) Get any cached authenticated user
             val user: User? = accountName?.run {
                 val localUser = userDao.retrieveByUsername(this)
-                localUser.toUserOrNull().apply {
+                localUser.toDomainOrNull().apply {
                     publishProgress(this)
                 }
             }
@@ -223,7 +223,7 @@ class SessionRepositoryImpl(
                 when (update) {
                     is SuccessUpdate -> {
                         update.result?.body()?.run {
-                            val localUser = toLocalUser()
+                            val localUser = toLocal()
                             if (user == null || userDao.update(localUser) == 0) {
                                 userDao.insert(localUser)
                             }
@@ -236,7 +236,7 @@ class SessionRepositoryImpl(
                                         authToken,
                                         accountManager.getPassword(account),
                                         userComponentBuilder.build(),
-                                        localUser.toUser()
+                                        localUser.toDomain()
                                     )
                                 )
                             }

@@ -79,9 +79,13 @@
 
     <string name="authenticator_create">Create account</string>
 
+    <string name="authenticator_inactive">You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.</string>
+
     <string name="authenticator_log_in">Log in</string>
 
     <string name="authenticator_or">Or:</string>
+
+    <string name="authenticator_send_again">Send again</string>
 
     <string name="authenticator_sent_email">We sent you an activation code! Please check your e-mail.</string>
 

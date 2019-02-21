@@ -16,23 +16,23 @@
 
 package com.codepunk.core.lib
 
-import com.codepunk.core.data.remote.entity.http.RemoteMessage
+import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import retrofit2.Response
 import retrofit2.Retrofit
 
 /**
- * Converts a [Response] containing a [RemoteMessage] into a RemoteMessage. This may sound
+ * Converts a [Response] containing a [RemoteNetworkResponse] into a RemoteNetworkResponse. This may sound
  * trivial but when a request comes back unsuccessful, the errorBody contains a JSON string
- * that represents a RemoteMessage, and that must be converted here.
+ * that represents a RemoteNetworkResponse, and that must be converted here.
  */
 @Suppress("UNUSED")
-fun Response<RemoteMessage>?.toMessage(retrofit: Retrofit): RemoteMessage? {
+fun Response<RemoteNetworkResponse>?.toRemoteNetworkResponse(retrofit: Retrofit): RemoteNetworkResponse? {
     return when {
         this == null -> null
         isSuccessful -> body()
         else -> errorBody()?.run {
-            retrofit.responseBodyConverter<RemoteMessage>(
-                RemoteMessage::class.java,
+            retrofit.responseBodyConverter<RemoteNetworkResponse>(
+                RemoteNetworkResponse::class.java,
                 arrayOf()
             ).convert(this)
         }

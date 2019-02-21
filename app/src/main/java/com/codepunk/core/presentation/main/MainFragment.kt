@@ -18,7 +18,9 @@ package com.codepunk.core.presentation.main
 
 import android.accounts.Account
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -35,6 +37,7 @@ import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
 import com.codepunk.core.R
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -60,11 +63,18 @@ private const val STATE_LOGGING_IN = 1
 private const val STATE_LOGGED_IN = 2
 
 /**
+ * A constant that indicates a user that has not been activated.
+ */
+private const val STATE_INACTIVE = 3
+
+/**
  * A simple [Fragment] subclass.
  */
 class MainFragment :
     Fragment(),
-    View.OnClickListener {
+    View.OnClickListener,
+    AlertDialogFragment.OnBuildAlertDialogListener,
+    DialogInterface.OnClickListener {
 
     // region Properties
 
@@ -85,6 +95,11 @@ class MainFragment :
      */
     private lateinit var binding: FragmentMainBinding
 
+    /**
+     * The Requires Validation dialog fragment.
+     */
+    private var requiresValidationDialogFragment: AlertDialogFragment? = null
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -103,6 +118,9 @@ class MainFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        requiresValidationDialogFragment = requireFragmentManager().findFragmentByTag(
+            REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG
+        ) as? AlertDialogFragment
     }
 
     /**
@@ -217,6 +235,23 @@ class MainFragment :
         }
     }
 
+    /**
+     * Supplies arguments to the Requires Activation dialog.
+     */
+    override fun onBuildAlertDialog(fragment: AlertDialogFragment, builder: AlertDialog.Builder) {
+        // TODO Can I somehow figure out the difference between having just registered
+        // ("We sent you an activation code! Please check your e-mail.") and logging in to
+        // inactive account? ("You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.")
+        builder.setTitle(R.string.authenticator_log_in)
+            .setMessage(R.string.authenticator_sent_email)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNeutralButton(R.string.authenticator_send_again, this)
+    }
+
+    override fun onClick(dialog: DialogInterface?, which: Int) {
+        TODO("not implemented")
+    }
+
     // endregion Implemented methods
 
     // region Methods
@@ -229,7 +264,17 @@ class MainFragment :
         when (update) {
             is PendingUpdate -> updateUI(STATE_LOGGED_OUT)
             is ProgressUpdate -> updateUI(STATE_LOGGING_IN)
-            is SuccessUpdate -> updateUI(STATE_LOGGED_IN, update.result?.user?.givenName)
+            is SuccessUpdate -> {
+                val user = update.result?.user
+                when {
+                    user == null -> updateUI(STATE_LOGGED_OUT)
+                    user.active -> updateUI(STATE_LOGGED_IN, user)
+                    else -> {
+                        sessionManager.closeSession(true)
+                        updateUI(STATE_INACTIVE)
+                    }
+                }
+            }
             is FailureUpdate -> {
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                     val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
@@ -245,18 +290,74 @@ class MainFragment :
     /**
      * Updates the UI.
      */
-    private fun updateUI(state: Int, givenName: String? = null) {
+    private fun updateUI(state: Int, user: User? = null) {
+        when (state) {
+            STATE_LOGGING_IN -> {
+                binding.text1.text = null
+                binding.logInOutBtn.isEnabled = false
+                binding.logInOutBtn.setText(R.string.main_logging_in)
+                binding.logInOutBtn.visibility = View.VISIBLE
+            }
+            STATE_LOGGED_IN -> {
+                binding.text1.text = when (user) {
+                    null -> getString(R.string.hello)
+                    else -> getString(R.string.hello_user, user.givenName)
+                }
+                binding.logInOutBtn.isEnabled = true
+                binding.logInOutBtn.setText(R.string.main_log_out)
+                binding.logInOutBtn.visibility = View.INVISIBLE
+            }
+            STATE_INACTIVE -> {
+                binding.text1.text = null
+                binding.logInOutBtn.isEnabled = true
+                binding.logInOutBtn.setText(R.string.main_log_in)
+                binding.logInOutBtn.visibility = View.VISIBLE
+                if (requiresValidationDialogFragment == null) {
+                    requiresValidationDialogFragment = AlertDialogFragment.show(
+                        REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG,
+                        this
+                    )
+                }
+            }
+            else -> {
+                binding.text1.text = null
+                binding.logInOutBtn.isEnabled = true
+                binding.logInOutBtn.setText(R.string.main_log_in)
+                binding.logInOutBtn.visibility = View.VISIBLE
+            }
+        }
+
+        /*
         with(binding) {
-            text1.text = if (givenName.isNullOrEmpty()) getString(R.string.hello)
-            else getString(R.string.hello_user, givenName)
+            text1.text = user?.givenName?.let {
+                getString(R.string.hello_user, it)
+            }?.let {
+                getString(R.string.hello)
+            }
             logInOutBtn.setText(
                 if (state == STATE_LOGGED_IN) R.string.main_log_out else R.string.main_log_in
             )
             logInOutBtn.isEnabled = (state != STATE_LOGGING_IN)
             logInOutBtn.visibility = if (state == STATE_LOGGED_IN) View.INVISIBLE else View.VISIBLE
         }
+        */
     }
 
     // endregion Methods
+
+    // region Companion object
+
+    companion object {
+
+        // region Properties
+
+        private val REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG =
+            MainFragment::class.java.name + ".REQUIRES_ACTIVATION_DIALOG"
+
+        // endregion Properties
+
+    }
+
+    // endregion Companion object
 
 }

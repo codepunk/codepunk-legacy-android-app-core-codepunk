@@ -18,16 +18,23 @@
 package com.codepunk.core.di.module
 
 import android.accounts.AccountManager
+import android.content.Context
 import android.content.SharedPreferences
 import com.codepunk.core.data.local.dao.UserDao
+import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
+import com.codepunk.core.data.repository.AuthRepositoryImpl
 import com.codepunk.core.data.repository.SessionRepositoryImpl
 import com.codepunk.core.data.repository.UserRepositoryImpl
 import com.codepunk.core.di.component.UserComponent
+import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.contract.UserRepository
+import com.codepunk.core.util.NetworkTranslator
 import dagger.Module
 import dagger.Provides
+import retrofit2.Retrofit
 import javax.inject.Singleton
 
 /**
@@ -37,6 +44,21 @@ import javax.inject.Singleton
 class DataModule {
 
     // region Methods
+
+    /**
+     * Provides an instance of [AuthRepository] for dependency injections.
+     */
+    @Provides
+    @Singleton
+    fun providesAuthRepository(
+        authWebservice: AuthWebservice,
+        retrofit: Retrofit,
+        networkTranslator: NetworkTranslator
+    ): AuthRepository = AuthRepositoryImpl(
+        authWebservice,
+        retrofit,
+        networkTranslator
+    )
 
     /**
      * Provides an instance of [SessionRepository] for dependency injection.

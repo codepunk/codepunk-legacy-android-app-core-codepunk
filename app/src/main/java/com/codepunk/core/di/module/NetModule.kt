@@ -25,6 +25,7 @@ import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.AuthWebserviceWrapper
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.core.util.NetworkTranslator
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -37,8 +38,8 @@ import javax.inject.Singleton
 
 private const val CACHE_SIZE: Long = 10 * 1024 * 1024
 
-private const val BASE_URL: String = "https://a882ab77.ngrok.io"
-//private const val BASE_URL: String = "http://192.168.12.10"
+//private const val BASE_URL: String = "https://d5357798.ngrok.io"
+private const val BASE_URL: String = "http://192.168.12.10"
 //private const val BASE_URL: String = "https://codepunk.test"
 
 /**
@@ -124,6 +125,14 @@ class NetModule {
     fun providesUserWebservice(
         retrofit: Retrofit
     ): UserWebservice = retrofit.create(UserWebservice::class.java)
+
+    /**
+     * Provides an instance of [NetworkTranslator] for translating messages from the network.
+     */
+    @Provides
+    @Singleton
+    fun providesNetworkTranslator(@ApplicationContext context: Context): NetworkTranslator =
+        NetworkTranslator(context)
 
     // endregion Methods
 

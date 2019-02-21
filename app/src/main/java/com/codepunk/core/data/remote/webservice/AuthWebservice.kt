@@ -16,9 +16,9 @@
 
 package com.codepunk.core.data.remote.webservice
 
-import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
-import com.codepunk.core.domain.model.auth.GrantType
-import com.codepunk.core.data.remote.entity.http.RemoteMessage
+import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.domain.model.GrantType
+import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
 import retrofit2.Call
 import retrofit2.http.Field
@@ -104,7 +104,7 @@ interface AuthWebservice {
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
     fun register(
         @Field("username")
-        name: String,
+        username: String,
 
         @Field("email")
         email: String,
@@ -114,7 +114,7 @@ interface AuthWebservice {
 
         @Field("password_confirmation")
         passwordConfirmation: String
-    ): Call<RemoteMessage>
+    ): Call<RemoteNetworkResponse>
 
     // endregion Methods
 

@@ -24,7 +24,7 @@ import com.codepunk.core.domain.model.User
 /**
  * Converts a [RemoteUser] to a locally-cached [LocalUser].
  */
-fun RemoteUser.toLocalUser(): LocalUser = LocalUser(
+fun RemoteUser.toLocal(): LocalUser = LocalUser(
     id,
     username,
     email,
@@ -38,24 +38,13 @@ fun RemoteUser.toLocalUser(): LocalUser = LocalUser(
 /**
  * Converts a nullable [RemoteUser] to a nullable locally-cached [LocalUser].
  */
-fun RemoteUser?.toLocalUserOrNull(): LocalUser? = this?.let {
-    LocalUser(
-        it.id,
-        it.username,
-        it.email,
-        it.familyName,
-        it.givenName,
-        it.active,
-        it.createdAt,
-        it.updatedAt
-    )
-}
+fun RemoteUser?.toLocalOrNull(): LocalUser? = this?.toLocal()
 
 /**
  * Converts a [RemoteUser] to a domain [User].
  */
 @Suppress("UNUSED")
-fun RemoteUser.toUser(): User = User(
+fun RemoteUser.toDomain(): User = User(
     id,
     username,
     email,
@@ -69,23 +58,12 @@ fun RemoteUser.toUser(): User = User(
 /**
  * Converts a nullable [RemoteUser] to a nullable domain [User].
  */
-fun RemoteUser?.toUserOrNull(): User? = this?.let {
-    User(
-        it.id,
-        it.username,
-        it.email,
-        it.familyName,
-        it.givenName,
-        it.active,
-        it.createdAt,
-        it.updatedAt
-    )
-}
+fun RemoteUser?.toDomainOrNull(): User? = this?.toDomain()
 
 /**
  * Converts a [LocalUser] to a domain [User].
  */
-fun LocalUser.toUser(): User = User(
+fun LocalUser.toDomain(): User = User(
     id,
     username,
     email,
@@ -99,15 +77,4 @@ fun LocalUser.toUser(): User = User(
 /**
  * Converts a nullable [LocalUser] to a nullable domain [User].
  */
-fun LocalUser?.toUserOrNull(): User? = this?.let {
-    User(
-        it.id,
-        it.username,
-        it.email,
-        it.familyName,
-        it.givenName,
-        it.active,
-        it.createdAt,
-        it.updatedAt
-    )
-}
+fun LocalUser?.toDomainOrNull(): User? = this?.toDomain()

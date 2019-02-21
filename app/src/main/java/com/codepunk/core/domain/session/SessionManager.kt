@@ -17,19 +17,16 @@
 
 package com.codepunk.core.domain.session
 
-import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.SharedPreferences
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import com.codepunk.core.BuildConfig.PREF_KEY_CURRENT_ACCOUNT_NAME
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.model.User
-import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.PendingUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate

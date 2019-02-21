@@ -48,13 +48,13 @@ data class LocalUser(
      * The user's family name.
      */
     @ColumnInfo(name = "family_name")
-    val familyName: String,
+    val familyName: String?,
 
     /**
      * The user's given name.
      */
     @ColumnInfo(name = "given_name")
-    val givenName: String,
+    val givenName: String?,
 
     /**
      * Whether the user is active.

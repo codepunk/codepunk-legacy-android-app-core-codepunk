@@ -26,11 +26,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.data.local.dao.UserDao
-import com.codepunk.core.data.mapper.toUserOrNull
+import com.codepunk.core.data.mapper.toDomainOrNull
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.UserRepository
 import com.codepunk.core.domain.model.User
-import com.codepunk.core.domain.model.auth.AuthTokenType
+import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.lib.exception.AuthenticationException
 import com.codepunk.core.lib.getAccountByNameAndType
 import com.codepunk.doofenschmirtz.util.taskinator.DataTaskinator
@@ -142,7 +142,7 @@ class UserRepositoryImpl(
             var cachedUser: User? = null
             accountName?.run {
                 val localUser = userDao.retrieveByUsername(this)
-                cachedUser = localUser.toUserOrNull()
+                cachedUser = localUser.toDomainOrNull()
             }
             cachedUser?.run {
                 publishProgress(cachedUser)

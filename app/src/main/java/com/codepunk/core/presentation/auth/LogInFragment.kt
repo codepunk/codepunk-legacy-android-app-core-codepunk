@@ -31,8 +31,8 @@ import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
-import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
-import com.codepunk.core.data.remote.entity.http.RemoteMessage
+import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
@@ -176,16 +176,16 @@ class LogInFragment :
 
     // region Methods
 
-    private fun onAuthorizationUpdate(update: DataUpdate<RemoteMessage, Response<RemoteAuthorization>>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>) {
         /*
         setControlsEnabled(update !is ProgressUpdate)
         */
         when (update) {
             is FailureUpdate -> {
-                val remoteMessage: RemoteMessage? =
+                val remoteNetworkResponse: RemoteNetworkResponse? =
                     update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
                 if (loginator.isLoggable(Log.DEBUG)) {
-                    loginator.d("responseMessage=$remoteMessage")
+                    loginator.d("remoteResponse=$remoteNetworkResponse")
                 }
 
                 // TODO Make this a snackbar (but only if IOException?)

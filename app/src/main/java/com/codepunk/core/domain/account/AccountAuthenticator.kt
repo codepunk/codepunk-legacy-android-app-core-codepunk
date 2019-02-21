@@ -31,8 +31,8 @@ import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
 import com.codepunk.core.BuildConfig.EXTRA_AUTH_TOKEN_TYPE
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
-import com.codepunk.core.domain.model.auth.AuthTokenType
-import com.codepunk.core.domain.model.auth.AuthTokenType.DEFAULT
+import com.codepunk.core.domain.model.AuthTokenType
+import com.codepunk.core.domain.model.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
 import javax.inject.Inject

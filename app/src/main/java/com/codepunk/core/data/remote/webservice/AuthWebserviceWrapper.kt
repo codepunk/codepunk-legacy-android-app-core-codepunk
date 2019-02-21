@@ -18,9 +18,9 @@
 package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
-import com.codepunk.core.domain.model.auth.GrantType
-import com.codepunk.core.data.remote.entity.http.RemoteMessage
+import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.domain.model.GrantType
+import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import retrofit2.Call
 
 /**
@@ -104,12 +104,12 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
     )
 
     override fun register(
-        name: String,
+        username: String,
         email: String,
         password: String,
         passwordConfirmation: String
-    ): Call<RemoteMessage> =
-        base.register(name, email, password, passwordConfirmation)
+    ): Call<RemoteNetworkResponse> =
+        base.register(username, email, password, passwordConfirmation)
 
     // endregion Inherited methods
 

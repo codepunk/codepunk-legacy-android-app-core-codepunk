@@ -28,15 +28,19 @@ import androidx.lifecycle.ViewModel
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
 import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.data.remote.entity.RemoteUser
-import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
-import com.codepunk.core.data.remote.entity.http.RemoteMessage
+import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
+import com.codepunk.core.domain.contract.AuthRepository
+import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.*
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
+
+// TODO Convert objects to classes to avoid static field leak warnings
 
 /**
  * A [ViewModel] for managing account-related data.
@@ -47,6 +51,11 @@ class AuthViewModel @Inject constructor(
      * The [Retrofit] instance.
      */
     private val retrofit: Retrofit,
+
+    /**
+     * The authorization repository.
+     */
+    private val authRepository: AuthRepository,
 
     /**
      * The authorization webservice.
@@ -66,7 +75,7 @@ class AuthViewModel @Inject constructor(
      * A [LiveData] holding the [RemoteAuthorization] relating to the current authorization attempt.
      */
     val authorizationDataUpdate =
-        MediatorLiveData<DataUpdate<RemoteMessage, Response<RemoteAuthorization>>>()
+        MediatorLiveData<DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>>()
 
     // endregion Properties
 
@@ -80,12 +89,12 @@ class AuthViewModel @Inject constructor(
     private fun getAuthToken(
         usernameOrEmail: String,
         password: String
-    ): ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> {
+    ): ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> {
         // TODO go through AccountAuthenticator somehow? Probably not because I need to create
         // an account
 
         // Call the authorize endpoint
-        val authTokenUpdate: ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> =
+        val authTokenUpdate: ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> =
             authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
 
         // Process the authorize endpoint result
@@ -126,9 +135,9 @@ class AuthViewModel @Inject constructor(
     @SuppressLint("StaticFieldLeak")
     fun authenticate(usernameOrEmail: String, password: String) {
         val task =
-            object : DataTaskinator<Void, RemoteMessage, Response<RemoteAuthorization>>() {
+            object : DataTaskinator<Void, RemoteNetworkResponse, Response<RemoteAuthorization>>() {
                 override fun doInBackground(vararg params: Void?):
-                        ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> =
+                        ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> =
                     getAuthToken(usernameOrEmail, password)
             }
         authorizationDataUpdate.addSource(task.executeOnExecutorAsLiveData()) {
@@ -147,12 +156,20 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
+        val update2: LiveData<DataUpdate<Void, NetworkResponse>> =
+            authRepository.register(
+                username,
+                email,
+                password,
+                passwordConfirmation
+            )
+
         val task =
-            object : DataTaskinator<Void, RemoteMessage, Response<RemoteAuthorization>>() {
+            object : DataTaskinator<Void, RemoteNetworkResponse, Response<RemoteAuthorization>>() {
                 override fun doInBackground(vararg params: Void?):
-                        ResultUpdate<RemoteMessage, Response<RemoteAuthorization>> {
+                        ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> {
                     // Call the register endpoint
-                    val update: ResultUpdate<Void, Response<RemoteMessage>> =
+                    val update: ResultUpdate<Void, Response<RemoteNetworkResponse>> =
                         authWebservice.register(
                             username,
                             email,
@@ -167,8 +184,9 @@ class AuthViewModel @Inject constructor(
                             getAuthToken(username, password)
                         }
                         is FailureUpdate -> {
+                            val text = update.result.toRemoteNetworkResponse(retrofit)
                             val remoteMessage =
-                                RemoteMessage("BAD!") // TODO TEMP update.response.toMessage(retrofit)
+                                RemoteNetworkResponse("BAD!") // TODO TEMP update.response.toRemoteNetworkResponse(retrofit)
                             FailureUpdate(
                                 e = update.e,
                                 data = Bundle().apply {
@@ -194,19 +212,19 @@ class AuthViewModel @Inject constructor(
         // region Methods
 
         /**
-         * Extracts a [RemoteMessage] from a [Response], or converts the error body message
-         * to a [RemoteMessage].
+         * Extracts a [RemoteNetworkResponse] from a [Response], or converts the error body message
+         * to a [RemoteNetworkResponse].
          */
         @Suppress("UNUSED")
         private fun toMessage(
-            response: Response<RemoteMessage>,
+            response: Response<RemoteNetworkResponse>,
             retrofit: Retrofit
-        ): RemoteMessage? {
+        ): RemoteNetworkResponse? {
             return when {
                 response.isSuccessful -> response.body()
                 else -> response.errorBody()?.run {
-                    retrofit.responseBodyConverter<RemoteMessage>(
-                        RemoteMessage::class.java,
+                    retrofit.responseBodyConverter<RemoteNetworkResponse>(
+                        RemoteNetworkResponse::class.java,
                         arrayOf()
                     ).convert(this)
                 }

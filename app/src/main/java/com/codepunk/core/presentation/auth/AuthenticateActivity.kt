@@ -33,8 +33,8 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.data.remote.entity.auth.RemoteAuthorization
-import com.codepunk.core.data.remote.entity.http.RemoteMessage
+import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.addOrUpdateAccount
@@ -192,7 +192,7 @@ class AuthenticateActivity :
     /**
      * Reacts to authorization data changing.
      */
-    private fun onAuthorizationUpdate(update: DataUpdate<RemoteMessage, Response<RemoteAuthorization>>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>) {
         when (update) {
             is ProgressUpdate -> {
                 // TODO Loading dialog (show and hide)
@@ -241,6 +241,10 @@ class AuthenticateActivity :
             null -> null
             else -> HttpStatus.lookup(response.code())
         }
+
+        // TODO If I get here, I might have a ProgressUpdate with a RemoteNetworkResponse of
+        // "We sent you an activation code! Please check your e-mail."
+        // and null errors. How do I best "catch" it?
         loginator.d("httpStatus=$httpStatus, update=$update")
     }
 

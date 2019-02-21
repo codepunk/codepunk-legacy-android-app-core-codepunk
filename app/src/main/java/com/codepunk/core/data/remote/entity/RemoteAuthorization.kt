@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
  * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote.entity.auth
+package com.codepunk.core.data.remote.entity
 
-import com.codepunk.core.domain.model.auth.TokenType
+import com.codepunk.core.domain.model.TokenType
+import com.codepunk.core.domain.model.UNKNOWN
+import com.codepunk.core.util.ellipsize
 import com.squareup.moshi.Json
 
 /**
@@ -56,46 +58,15 @@ data class RemoteAuthorization(
     // region Inherited methods
 
     /**
-     * A version of [toString] that truncates [authToken] and [refreshToken].
+     * A version of [toString] that ellipsizes [authToken] and [refreshToken].
      */
-    override fun toString(): String {
-        return "RemoteAuthorization(tokenType=$tokenType, authToken='${ellipsize(
-            authToken
-        )}', " +
-                "refreshToken='${ellipsize(
-                    refreshToken
-                )}', expiresIn=$expiresIn)"
-    }
+    override fun toString(): String =
+        "RemoteAuthorization(" +
+                "tokenType=$tokenType, " +
+                "authToken='${authToken.ellipsize()}', " +
+                "refreshToken='${refreshToken.ellipsize()}', " +
+                "expiresIn=$expiresIn)"
 
     // endregion Inherited methods
 
-    // region Companion object
-
-    companion object {
-
-        // region Properties
-
-        private const val ELLIPSIZE_LENGTH: Int = 10
-
-        /**
-         * A constant indicating an unknown "expires in" value.
-         */
-        const val UNKNOWN: Long = -1L
-
-        // endregion Properties
-
-        // region Methods
-
-        private fun ellipsize(string: String, length: Int = ELLIPSIZE_LENGTH): String {
-            return when (string.length) {
-                in 0..length -> string
-                else -> string.substring(0 until (length - 1)) + "…"
-            }
-        }
-
-        // endregion Methods
-
-    }
-
-    // endregion Companion object
 }

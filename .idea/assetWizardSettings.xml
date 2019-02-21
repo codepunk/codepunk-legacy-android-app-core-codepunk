@@ -147,10 +147,13 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="737373" />
-                            <entry key="outputName" value="ic_preference_log_out" />
+                            <entry key="height" value="25" />
+                            <entry key="outputName" value="ic_codepunk_logo" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/assets/ic_launcher_foreground.svg" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../../Assets/Codepunk/codepunk_logo.svg" />
+                            <entry key="width" value="128" />
                           </map>
                         </option>
                       </PersistentState>
