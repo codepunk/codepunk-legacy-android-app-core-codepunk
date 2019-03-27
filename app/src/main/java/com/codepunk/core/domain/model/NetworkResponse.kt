@@ -33,4 +33,13 @@ data class NetworkResponse(
      */
     val errors: Map<String, Array<String>>? = null
 
-)
+) {
+
+    // region Properties
+
+    val defaultMessage: String?
+        get() = errors?.entries?.firstOrNull()?.value?.firstOrNull() ?: message
+
+    // endregion Properties
+
+}

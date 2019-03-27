@@ -25,16 +25,15 @@ import retrofit2.Retrofit
  * trivial but when a request comes back unsuccessful, the errorBody contains a JSON string
  * that represents a RemoteNetworkResponse, and that must be converted here.
  */
-@Suppress("UNUSED")
 fun Response<RemoteNetworkResponse>?.toRemoteNetworkResponse(retrofit: Retrofit): RemoteNetworkResponse? {
     return when {
         this == null -> null
         isSuccessful -> body()
-        else -> errorBody()?.run {
+        else -> errorBody()?.let { errorBody ->
             retrofit.responseBodyConverter<RemoteNetworkResponse>(
                 RemoteNetworkResponse::class.java,
                 arrayOf()
-            ).convert(this)
+            ).convert(errorBody)
         }
     }
 }

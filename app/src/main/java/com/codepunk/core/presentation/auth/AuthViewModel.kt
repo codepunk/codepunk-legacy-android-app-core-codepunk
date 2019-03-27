@@ -26,15 +26,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
-import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
-import com.codepunk.core.data.remote.entity.RemoteUser
 import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
+import com.codepunk.core.data.remote.entity.RemoteUser
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.NetworkResponse
-import com.codepunk.core.lib.*
+import com.codepunk.core.lib.getResultUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -70,6 +69,12 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
 
     // region Properties
+
+    /**
+     * A [LiveData] holding the result of attempting to register (i.e. create a new account).
+     */
+    val registerDataUpdate =
+        MediatorLiveData<DataUpdate<Void, NetworkResponse>>()
 
     /**
      * A [LiveData] holding the [RemoteAuthorization] relating to the current authorization attempt.
@@ -156,15 +161,30 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
-        val update2: LiveData<DataUpdate<Void, NetworkResponse>> =
+
+        // TODO NEXT NEXT NEXT
+        // I need to scrap "source" below because I'm calling authRepository here.
+        // HOWEVER - authRepository.register is creating a LiveData<DataUpdate<Void, NetworkResponse>>,
+        // while "task".executeOnExecutorAsLiveData is producing a LiveData<DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>>.
+        // Why??
+
+        // Thoughts:
+        // AuthenticateActivity is doing a ton of work decoding the Response<RemoteAuthorization> etc.
+        // That should probably happen here and return an appropriate DataUpdate with possible failures etc.
+
+        val source: LiveData<DataUpdate<Void, NetworkResponse>> =
             authRepository.register(
                 username,
                 email,
                 password,
                 passwordConfirmation
             )
+        registerDataUpdate.addSource(source) {
+            registerDataUpdate.value = it
+        }
 
-        val task =
+        /*
+        val source =
             object : DataTaskinator<Void, RemoteNetworkResponse, Response<RemoteAuthorization>>() {
                 override fun doInBackground(vararg params: Void?):
                         ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> {
@@ -197,14 +217,17 @@ class AuthViewModel @Inject constructor(
                         else -> FailureUpdate()
                     }
                 }
-            }
-        authorizationDataUpdate.addSource(task.executeOnExecutorAsLiveData()) {
+            }.executeOnExecutorAsLiveData()
+
+        authorizationDataUpdate.addSource(source) {
             authorizationDataUpdate.value = it
         }
+        */
     }
 
     // endregion methods
 
+    /*
     // region Companion object
 
     companion object {
@@ -236,5 +259,6 @@ class AuthViewModel @Inject constructor(
     }
 
     // endregion Companion object
+    */
 
 }

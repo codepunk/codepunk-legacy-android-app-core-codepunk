@@ -290,7 +290,6 @@ static def makeKeys(BaseVariant variant, String... keys) {
     }
 }
 
-
 static def makePreferenceKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
         def fullKey = "PREF_KEY_$key"

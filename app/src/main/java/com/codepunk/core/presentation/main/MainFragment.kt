@@ -235,6 +235,7 @@ class MainFragment :
         }
     }
 
+    /*
     /**
      * Supplies arguments to the Requires Activation dialog.
      */
@@ -246,6 +247,27 @@ class MainFragment :
             .setMessage(R.string.authenticator_sent_email)
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.authenticator_send_again, this)
+    }
+    */
+
+    /**
+     * Supplies arguments to the Requires Activation dialog.
+     */
+    override fun onBuildAlertDialog(requestCode: Int, builder: AlertDialog.Builder) {
+        // TODO Can I somehow figure out the difference between having just registered
+        // ("We sent you an activation code! Please check your e-mail.") and logging in to
+        // inactive account? ("You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.")
+        builder.setTitle(R.string.authenticator_log_in)
+            .setMessage(R.string.authenticator_sent_email)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNeutralButton(R.string.authenticator_send_again, this)
+    }
+
+    /**
+     * Processes result dialog results.
+     */
+    override fun onAlertDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        // No op
     }
 
     override fun onClick(dialog: DialogInterface?, which: Int) {
@@ -314,8 +336,8 @@ class MainFragment :
                 binding.logInOutBtn.visibility = View.VISIBLE
                 if (requiresValidationDialogFragment == null) {
                     requiresValidationDialogFragment = AlertDialogFragment.show(
-                        REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG,
-                        this
+                        this,
+                        REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG
                     )
                 }
             }

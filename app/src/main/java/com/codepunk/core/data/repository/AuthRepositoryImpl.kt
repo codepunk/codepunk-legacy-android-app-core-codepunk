@@ -17,8 +17,6 @@
 
 package com.codepunk.core.data.repository
 
-import android.os.AsyncTask.THREAD_POOL_EXECUTOR
-import android.util.Log
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.mapper.toDomainOrNull
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
@@ -64,7 +62,7 @@ class AuthRepositoryImpl(
     // region Implemented methods
 
     override fun register(
-        name: String,
+        username: String,
         email: String,
         password: String,
         passwordConfirmation: String
@@ -73,16 +71,14 @@ class AuthRepositoryImpl(
         return RegisterTask(
             authWebservice,
             retrofit,
-            networkTranslator
-        ).apply {
-            registerTask = this
-        }.executeOnExecutorAsLiveData(
-            THREAD_POOL_EXECUTOR,
-            name,
+            networkTranslator,
+            username,
             email,
             password,
             passwordConfirmation
-        )
+        ).apply {
+            registerTask = this
+        }.executeOnExecutorAsLiveData()
     }
 
     // endregion Implemented methods
@@ -95,39 +91,44 @@ class AuthRepositoryImpl(
 
         private val retrofit: Retrofit,
 
-        private val networkTranslator: NetworkTranslator
+        private val networkTranslator: NetworkTranslator,
 
-    ) : DataTaskinator<String, Void, NetworkResponse>() {
+        private val username: String,
+
+        private val email: String,
+
+        private val password: String,
+
+        private val passwordConfirmation: String
+
+    ) : DataTaskinator<Void, Void, NetworkResponse>() {
 
         // region Inherited methods
 
-        override fun doInBackground(vararg params: String?): ResultUpdate<Void, NetworkResponse> {
-
-            // Extract arguments from params
-            val username = params.getOrNull(0) ?: ""
-            val email = params.getOrNull(1) ?: ""
-            val password = params.getOrNull(2) ?: ""
-            val confirmPassword = params.getOrNull(3) ?: ""
+        override fun doInBackground(vararg params: Void?): ResultUpdate<Void, NetworkResponse> {
 
             val update: ResultUpdate<Void, Response<RemoteNetworkResponse>> =
                 authWebservice.register(
                     username,
                     email,
                     password,
-                    confirmPassword
+                    passwordConfirmation
                 ).getResultUpdate()
-            when (update) {
-                is SuccessUpdate -> {
-                    Log.d("AuthRepositoryImpl", "doInBackground: update=$update")
-                }
+
+            return when (update) {
                 is FailureUpdate -> {
-                    val remoteNetworkResponse = update.result.toRemoteNetworkResponse(retrofit)
-                    val networkResponse = remoteNetworkResponse.toDomainOrNull(networkTranslator)
-                    return FailureUpdate(networkResponse)
+                    val remoteNetworkResponse =
+                        update.result.toRemoteNetworkResponse(retrofit)
+                    val networkResponse =
+                        remoteNetworkResponse.toDomainOrNull(networkTranslator)
+                    FailureUpdate(networkResponse, update.e)
+                }
+                else -> {
+                    val networkResponse =
+                        update.result?.body().toDomainOrNull(networkTranslator)
+                    SuccessUpdate(networkResponse)
                 }
             }
-
-            TODO("not implemented")
         }
 
         // endregion Inherited methods

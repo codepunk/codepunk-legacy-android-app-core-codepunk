@@ -15,30 +15,16 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.domain.contract
+package com.codepunk.core.lib
 
-import androidx.lifecycle.LiveData
-import com.codepunk.core.domain.model.NetworkResponse
+import androidx.lifecycle.MutableLiveData
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.PendingUpdate
 
 /**
- * A data repository that defines auth-related methods.
+ * A convenience method to reset a [MutableLiveData] that wraps a [DataUpdate] back to
+ * an instance of [PendingUpdate].
  */
-interface AuthRepository {
-
-    // region Methods
-
-    fun register(
-        username: String,
-        email: String,
-        password: String,
-        passwordConfirmation: String
-    ): LiveData<DataUpdate<Void, NetworkResponse>>
-
-    /*
-    fun refreshToken(refreshToken: String): LiveData<DataUpdate<Void, RemoteA>>
-    */
-
-    // endregion Methods
-
+fun <Progress, Result> MutableLiveData<DataUpdate<Progress, Result>>.reset() {
+    value = PendingUpdate()
 }
