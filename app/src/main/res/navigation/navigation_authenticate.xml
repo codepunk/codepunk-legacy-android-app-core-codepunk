@@ -24,7 +24,7 @@
     <fragment
         android:id="@+id/fragment_authenticate"
         android:name="com.codepunk.core.presentation.auth.AuthenticateFragment"
-        android:label="@string/account_label_authentication"
+        android:label="@string/authenticate_label_sign_in"
         tools:layout="@layout/fragment_authenticate">
 
         <action
@@ -40,7 +40,7 @@
     <fragment
         android:id="@+id/fragment_create_account"
         android:name="com.codepunk.core.presentation.auth.CreateAccountFragment"
-        android:label="@string/account_label_create_account"
+        android:label="@string/authenticate_label_create_account"
         tools:layout="@layout/fragment_create_account">
 
         <action
@@ -52,13 +52,13 @@
     <fragment
         android:id="@+id/fragment_forgot_password"
         android:name="com.codepunk.core.presentation.auth.ForgotPasswordFragment"
-        android:label="@string/account_label_forgot_password"
+        android:label="@string/authenticate_label_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
 
     <fragment
         android:id="@+id/fragment_log_in"
         android:name="com.codepunk.core.presentation.auth.LogInFragment"
-        android:label="@string/account_label_log_in"
+        android:label="@string/authenticate_label_log_in"
         tools:layout="@layout/fragment_log_in">
 
         <action

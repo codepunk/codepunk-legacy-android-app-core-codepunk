@@ -109,19 +109,19 @@
 
     <!-- endregion Environments -->
 
-    <!-- region Accounts -->
+    <!-- region Authentication -->
 
-    <string name="account_label_authenticating">Authenticating…</string>
+    <string name="authenticate_label_authenticating">Authenticating…</string>
 
-    <string name="account_label_authentication">Sign in to Codepunk</string>
+    <string name="authenticate_label_create_account">Create account</string>
 
-    <string name="account_label_create_account">Create account</string>
+    <string name="authenticate_label_forgot_password">Forgot password</string>
 
-    <string name="account_label_forgot_password">Forgot password</string>
+    <string name="authenticate_label_log_in">Log in</string>
 
-    <string name="account_label_log_in">Log in</string>
+    <string name="authenticate_label_sign_in">Sign in to Codepunk</string>
 
-    <!-- endregion Accounts -->
+    <!-- endregion Authentication -->
 
     <!-- region Settings -->
 
@@ -194,7 +194,7 @@
 
     <string name="alert_dialog_connect_exception_message">Not connected to the internet. Please check your connection and try again.</string>
 
-    <string name="alert_dialog_connect_exception_neutral_button">Retry</string>
+    <string name="alert_dialog_retry">Retry</string>
 
     <string name="alert_dialog_timeout_exception_message">The operation timed out. Please try again later.</string>
 

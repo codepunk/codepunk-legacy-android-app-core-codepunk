@@ -194,7 +194,7 @@ class LogInFragment :
                     else -> getString(R.string.authenticator_error_invalid_credentials)
                 }
                 SimpleDialogFragment.Builder(requireContext())
-                    .setTitle(R.string.account_label_log_in)
+                    .setTitle(R.string.authenticate_label_log_in)
                     .setMessage(message)
                     .setPositiveButton(android.R.string.ok)
                     .build()

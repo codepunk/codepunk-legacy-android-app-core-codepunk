@@ -19,6 +19,6 @@
 
     <string name="app_name">👽 Codepunk</string>
 
-    <string name="account_label_authentication">Sign in to 👽 Codepunk</string>
+    <string name="authenticate_label_sign_in">Sign in to 👽 Codepunk</string>
 
 </resources>

@@ -18,6 +18,7 @@ package com.codepunk.core.presentation.auth
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -35,40 +35,19 @@ import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.lib.reset
-import com.codepunk.doofenschmirtz.app.AlertDialogFragment
+import com.codepunk.core.presentation.base.AlertDialogFragment
+import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
+import com.codepunk.core.presentation.base.AlertDialogFragment.Companion.RESULT_NEUTRAL
+import com.codepunk.core.presentation.base.AlertDialogFragmentHelper
+import com.codepunk.core.presentation.base.AlertDialogFragmentHelper.Companion.REQUEST_CODE_CONNECT_EXCEPTION
+import com.codepunk.core.presentation.base.AlertDialogFragmentHelper.Companion.REQUEST_CODE_FIRST_USER
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import dagger.android.support.AndroidSupportInjection
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.util.concurrent.TimeoutException
 import javax.inject.Inject
-
-// TODO NEXT NEXT NEXT
-// xxxxx 1. Save/restore alertDialogMessage in instance state
-// xxxxx 1.5. Save/restore requestCode in AlertDialogFragment
-// 2. Create appropriate alert dialog request code(s)
-// xxxxx 3. In onRegisterUpdate, only show (new) alert dialog if it doesn't already exist
-// 4. Navigate to login fragment when success alert closes
-// 5. Handle failures, including recognizing Network error(s)
-// xxxxx 6. If you've already dismissed the dialog, don't show it again after orientation. (i.e. maybe only listen after click/attempt)
-
-// TODO How do I genericize error reporting?
-// It comes down to a DataUpdate.
-// processUpdate(update)?
-// Can I have different responses (alert dialog, snackbar, loading indicator etc.) depending on
-// the types of updates?
-// i.e. ProgressUpdate might show ProgressBar, etc.
-// Maybe what I need is something that ties a data update to a request code
-// A DataUpdateHandler could respond to DataUpdates generically
-//
-
-private const val REGISTER_REQUEST_CODE = 1
 
 /**
  * A [Fragment] used to create a new account.
@@ -76,7 +55,7 @@ private const val REGISTER_REQUEST_CODE = 1
 class CreateAccountFragment :
     Fragment(),
     View.OnClickListener,
-    AlertDialogFragment.OnBuildAlertDialogListener {
+    AlertDialogFragmentListener {
 
     // region Properties
 
@@ -100,6 +79,12 @@ class CreateAccountFragment :
     lateinit var validatinators: CreateAccountValidatinators
 
     /**
+     * An [AlertDialogFragmentHelper.Factory] to create an instance of [AlertDialogFragmentHelper].
+     */
+    @Inject
+    lateinit var alertDialogFragmentHelperFactory: AlertDialogFragmentHelper.Factory
+
+    /**
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentCreateAccountBinding
@@ -117,6 +102,15 @@ class CreateAccountFragment :
      */
     private val options = Options().apply {
         requestMessage = true
+    }
+
+    /**
+     * An [AlertDialogFragmentHelper] to help manage dialog fragments.
+     */
+    private val alertDialogFragmentHelper: AlertDialogFragmentHelper by lazy {
+        alertDialogFragmentHelperFactory.create(requireContext()).apply {
+            setDefaultTitle(R.string.authenticate_label_create_account)
+        }
     }
 
     // endregion Properties
@@ -157,10 +151,8 @@ class CreateAccountFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.createBtn.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
-
         authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
     }
 
@@ -169,7 +161,7 @@ class CreateAccountFragment :
     // region Implemented methods
 
     /**
-     * Submits the new account.
+     * Implementation of [View.OnClickListener]. Submits the new account.
      */
     override fun onClick(v: View?) {
         with(binding) {
@@ -181,63 +173,39 @@ class CreateAccountFragment :
         }
     }
 
-    // TODO Figure out what can be genericized in this method (if anything)
-    override fun onBuildAlertDialog(requestCode: Int, builder: AlertDialog.Builder) {
-        builder.setTitle(R.string.account_label_create_account)
+    /**
+     * Implementation of [AlertDialogFragmentListener]. Binds alert dialogs presented by this
+     * fragment.
+     */
+    override fun onBuildAlertDialog(
+        requestCode: Int,
+        builder: AlertDialog.Builder,
+        defaultOnClickListener: DialogInterface.OnClickListener
+    ) {
         when (requestCode) {
-            REGISTER_REQUEST_CODE -> {
-                val update = authViewModel.registerDataUpdate.value
-                when (update) {
-                    is FailureUpdate -> {
-                        when (update.e) {
-                            is ConnectException -> {
-                                builder
-                                    .setMessage(R.string.alert_dialog_connect_exception_message)
-                                    .setPositiveButton(android.R.string.ok, null)
-                                    .setNeutralButton(R.string.alert_dialog_connect_exception_neutral_button) { _, _ ->
-                                        view?.post { register() }
-                                    }
-                                return
-                            }
-                            is SocketTimeoutException -> { // TODO Is this only because mail didn't work?
-                                builder
-                                    .setMessage(R.string.alert_dialog_timeout_exception_message)
-                                    .setPositiveButton(android.R.string.ok, null)
-                                    .setNeutralButton(R.string.alert_dialog_connect_exception_neutral_button) { _, _ ->
-                                        view?.post { register() }
-                                    }
-                                return
-                            }
-                        }
-                    }
-                    is SuccessUpdate -> {
-                        update.result?.message?.also {
-                            builder.setMessage(it)
-                        } ?: also {
-                            builder
-                                .setMessage(R.string.alert_dialog_unknown_message)
-                                .setPositiveButton(android.R.string.ok) { _, _ ->
-                                    Navigation.findNavController(view!!)
-                                        .navigate(R.id.action_create_account_to_log_in)
-                                }
-                        }
-                        return
-                    }
-                }
-                // TODO Since we're configuring the builder/dialog here, we don't need onAlertDialogResult.
-                // Set set cancel/button listeners here in this fragment. BUT THEN how do we know
-                // which dialog it is? Maybe just inline them all.
-                // TODO SuccessUpdate (!!)
-                builder.setMessage("Success message?")
-                builder.setPositiveButton(android.R.string.ok, null)
+            REGISTER_SUCCESS_REQUEST_CODE -> {
+                // TODO
             }
+            else -> alertDialogFragmentHelper.onBuildAlertDialog(
+                requestCode,
+                builder,
+                defaultOnClickListener
+            )
         }
     }
 
-    override fun onAlertDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    /**
+     * Implementation of [AlertDialogFragmentListener]. Processes results produced by
+     * [AlertDialogFragment]s.
+     */
+    override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        loginator.i("requestCode=$requestCode, resultCode=$resultCode, data=$data")
         when (requestCode) {
-            REGISTER_REQUEST_CODE -> {
+            REQUEST_CODE_CONNECT_EXCEPTION -> {
                 authViewModel.registerDataUpdate.reset()
+                when (resultCode) {
+                    RESULT_NEUTRAL -> register()
+                }
             }
         }
     }
@@ -258,16 +226,17 @@ class CreateAccountFragment :
         }
     }
 
-    private fun onRegisterUpdate(
-        update: DataUpdate<Void, NetworkResponse>
-    ) {
+    private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
         when (update) {
+            // TODO Pending, Loading, etc.
             is ResultUpdate -> {
-                AlertDialogFragment.show(
-                    this,
-                    REGISTER_RESULT_DIALOG_FRAGMENT_TAG,
-                    REGISTER_REQUEST_CODE
-                )
+                // TODO Success vs. Failure vs. different exceptions
+                requireFragmentManager().findFragmentByTag(REGISTER_RESULT_FRAGMENT_TAG)
+                    ?: AlertDialogFragment.showDialogFragmentForResult(
+                        this,
+                        REGISTER_RESULT_FRAGMENT_TAG,
+                        REQUEST_CODE_CONNECT_EXCEPTION
+                    )
             }
         }
     }
@@ -275,10 +244,8 @@ class CreateAccountFragment :
     /**
      * Validates the form.
      */
-    private fun validate(): Boolean = validatinators.createAccountValidatinator.validate(
-        binding,
-        options.clear()
-    )
+    private fun validate(): Boolean =
+        validatinators.createAccountValidatinator.validate(binding, options.clear())
 
     // endregion Methods
 
@@ -289,10 +256,16 @@ class CreateAccountFragment :
         // region Properties
 
         /**
+         * A request code indicating a successful registration (i.e. account creation).
+         */
+        @JvmStatic
+        private val REGISTER_SUCCESS_REQUEST_CODE = REQUEST_CODE_FIRST_USER
+
+        /**
          * The fragment tag to use for the register result dialog fragment.
          */
         @JvmStatic
-        private val REGISTER_RESULT_DIALOG_FRAGMENT_TAG =
+        private val REGISTER_RESULT_FRAGMENT_TAG =
             LogInFragment::class.java.name + ".REGISTER_RESULT"
 
         // endregion Properties

@@ -162,6 +162,8 @@ android {
                 "DEVELOPER_OPTIONS_CLICKS_REMAINING",
                 "FIRST_TIME",
                 "INTENT",
+                "LISTENER_SOURCE",
+                "REQUEST_CODE",
                 "RESPONSE_MESSAGE"
         )
 
