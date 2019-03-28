@@ -18,11 +18,12 @@ package com.codepunk.core.presentation.auth
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
+import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -38,9 +39,9 @@ import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.core.presentation.base.AlertDialogFragment.Companion.RESULT_NEUTRAL
-import com.codepunk.core.presentation.base.AlertDialogFragmentHelper
-import com.codepunk.core.presentation.base.AlertDialogFragmentHelper.Companion.REQUEST_CODE_CONNECT_EXCEPTION
-import com.codepunk.core.presentation.base.AlertDialogFragmentHelper.Companion.REQUEST_CODE_FIRST_USER
+import com.codepunk.core.presentation.base.DialogHelper
+import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_CONNECT_EXCEPTION
+import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_FIRST_USER
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
@@ -54,7 +55,7 @@ import javax.inject.Inject
  */
 class CreateAccountFragment :
     Fragment(),
-    View.OnClickListener,
+    OnClickListener,
     AlertDialogFragmentListener {
 
     // region Properties
@@ -79,10 +80,10 @@ class CreateAccountFragment :
     lateinit var validatinators: CreateAccountValidatinators
 
     /**
-     * An [AlertDialogFragmentHelper.Factory] to create an instance of [AlertDialogFragmentHelper].
+     * An [DialogHelper.Factory] to create an instance of [DialogHelper].
      */
     @Inject
-    lateinit var alertDialogFragmentHelperFactory: AlertDialogFragmentHelper.Factory
+    lateinit var dialogHelperFactory: DialogHelper.Factory
 
     /**
      * The binding for this fragment.
@@ -105,10 +106,10 @@ class CreateAccountFragment :
     }
 
     /**
-     * An [AlertDialogFragmentHelper] to help manage dialog fragments.
+     * An [DialogHelper] to help build [AlertDialog]s.
      */
-    private val alertDialogFragmentHelper: AlertDialogFragmentHelper by lazy {
-        alertDialogFragmentHelperFactory.create(requireContext()).apply {
+    private val dialogHelper: DialogHelper by lazy {
+        dialogHelperFactory.create(requireContext()).apply {
             setDefaultTitle(R.string.authenticate_label_create_account)
         }
     }
@@ -161,7 +162,7 @@ class CreateAccountFragment :
     // region Implemented methods
 
     /**
-     * Implementation of [View.OnClickListener]. Submits the new account.
+     * Implementation of [OnClickListener]. Submits the new account.
      */
     override fun onClick(v: View?) {
         with(binding) {
@@ -180,16 +181,16 @@ class CreateAccountFragment :
     override fun onBuildAlertDialog(
         requestCode: Int,
         builder: AlertDialog.Builder,
-        defaultOnClickListener: DialogInterface.OnClickListener
+        onClickListener: DialogOnClickListener
     ) {
         when (requestCode) {
             REGISTER_SUCCESS_REQUEST_CODE -> {
                 // TODO
             }
-            else -> alertDialogFragmentHelper.onBuildAlertDialog(
+            else -> dialogHelper.onBuildAlertDialog(
                 requestCode,
                 builder,
-                defaultOnClickListener
+                onClickListener
             )
         }
     }

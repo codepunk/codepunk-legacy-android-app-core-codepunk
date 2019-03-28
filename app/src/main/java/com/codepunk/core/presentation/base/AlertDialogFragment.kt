@@ -21,6 +21,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 import android.content.DialogInterface.BUTTON_NEGATIVE
 import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.content.DialogInterface.BUTTON_POSITIVE
@@ -38,7 +39,7 @@ import com.codepunk.core.R
 
 open class AlertDialogFragment :
     DialogFragment(),
-    DialogInterface.OnClickListener {
+    DialogOnClickListener {
 
     // region Properties
 
@@ -224,13 +225,15 @@ open class AlertDialogFragment :
     }
 
     interface AlertDialogFragmentListener {
+
         fun onBuildAlertDialog(
             requestCode: Int,
             builder: AlertDialog.Builder,
-            defaultOnClickListener: DialogInterface.OnClickListener
+            onClickListener: DialogOnClickListener
         )
 
         fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?)
+
     }
 
     // endregion Nested/inner classes

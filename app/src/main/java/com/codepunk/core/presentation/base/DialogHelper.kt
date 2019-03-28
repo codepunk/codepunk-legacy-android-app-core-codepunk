@@ -19,23 +19,25 @@ package com.codepunk.core.presentation.base
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
+import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 import androidx.annotation.StringRes
 import com.codepunk.core.R
 import java.net.ConnectException
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * A helper class for [AlertDialogFragment] that builds common alert dialogs.
  */
-open class AlertDialogFragmentHelper(private val context: Context) {
+open class DialogHelper(private val context: Context) {
 
     // region Properties
 
     /**
-     * A default title for all [AlertDialog]s created by this helper.
+     * The default title displayed in [AlertDialog]s created by this helper.
      */
-    protected var _defaultTitle: String = context.getString(R.string.app_name)
+    @Suppress("WEAKER_ACCESS")
+    protected var defaultTitle: String = context.getString(R.string.app_name)
 
     // endregion Properties
 
@@ -47,14 +49,14 @@ open class AlertDialogFragmentHelper(private val context: Context) {
     fun onBuildAlertDialog(
         requestCode: Int,
         builder: AlertDialog.Builder,
-        defaultOnClickListener: DialogInterface.OnClickListener
+        onClickListener: DialogOnClickListener
     ) {
-        builder.setTitle(_defaultTitle)
+        builder.setTitle(defaultTitle)
         when (requestCode) {
             REQUEST_CODE_CONNECT_EXCEPTION -> {
                 builder.setMessage(R.string.alert_dialog_connect_exception_message)
-                builder.setPositiveButton(android.R.string.ok, defaultOnClickListener)
-                builder.setNeutralButton(R.string.alert_dialog_retry, defaultOnClickListener)
+                builder.setPositiveButton(android.R.string.ok, onClickListener)
+                builder.setNeutralButton(R.string.alert_dialog_retry, onClickListener)
             }
         }
     }
@@ -64,14 +66,7 @@ open class AlertDialogFragmentHelper(private val context: Context) {
      * [titleId].
      */
     fun setDefaultTitle(@StringRes titleId: Int) {
-        _defaultTitle = context.getString(titleId)
-    }
-
-    /**
-     * Sets the default [title] displayed in [AlertDialog]s created by this helper.
-     */
-    fun setDefaultTitle(title: String) {
-        _defaultTitle = title
+        defaultTitle = context.getString(titleId)
     }
 
     // endregion Methods
@@ -86,7 +81,7 @@ open class AlertDialogFragmentHelper(private val context: Context) {
          */
         @JvmStatic
         private val REQUEST_CODE_FIRST: Int =
-            AlertDialogFragmentHelper::class.java.name.hashCode()
+            DialogHelper::class.java.name.hashCode()
 
         /**
          * A request code corresponding to a [ConnectException].
@@ -106,11 +101,18 @@ open class AlertDialogFragmentHelper(private val context: Context) {
 
     // region Nested/inner classes
 
+    /**
+     * Factory class for creating new instances of [DialogHelper].
+     */
+    @Singleton
     class Factory @Inject constructor() {
 
         // region Methods
 
-        fun create(context: Context): AlertDialogFragmentHelper = AlertDialogFragmentHelper(context)
+        /**
+         * Factory method for creating a new instance of [DialogHelper].
+         */
+        fun create(context: Context): DialogHelper = DialogHelper(context)
 
         // endregion Methods
 
