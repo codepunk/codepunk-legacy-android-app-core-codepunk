@@ -84,16 +84,22 @@ open class DialogHelper(private val context: Context) {
             DialogHelper::class.java.name.hashCode()
 
         /**
+         * A request code corresponding to an unknown error.
+         */
+        @JvmStatic
+        val REQUEST_CODE_UNKNOWN_ERROR: Int = REQUEST_CODE_FIRST
+
+        /**
          * A request code corresponding to a [ConnectException].
          */
         @JvmStatic
-        val REQUEST_CODE_CONNECT_EXCEPTION: Int = REQUEST_CODE_FIRST
+        val REQUEST_CODE_CONNECT_EXCEPTION: Int = REQUEST_CODE_FIRST + 1
 
         /**
          * The start of user-defined request codes.
          */
         @JvmStatic
-        val REQUEST_CODE_FIRST_USER = REQUEST_CODE_CONNECT_EXCEPTION + 1
+        val REQUEST_CODE_FIRST_USER = REQUEST_CODE_CONNECT_EXCEPTION + 2
 
     }
 

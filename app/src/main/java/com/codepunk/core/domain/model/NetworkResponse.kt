@@ -35,11 +35,17 @@ data class NetworkResponse(
 
 ) {
 
-    // region Properties
+    // region Methods
 
-    val defaultMessage: String?
-        get() = errors?.entries?.firstOrNull()?.value?.firstOrNull() ?: message
+    fun firstErrorOrNull(): Pair<String, String>? {
+        val entry = errors?.entries?.firstOrNull()
+        return entry?.let {
+            Pair(entry.key, it.value.getOrElse(0) {
+                message ?: ""
+            })
+        }
+    }
 
-    // endregion Properties
+    // endregion Methods
 
 }

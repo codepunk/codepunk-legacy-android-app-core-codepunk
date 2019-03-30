@@ -25,6 +25,8 @@
     <color name="colorAccentLight">#6effff</color>
     <color name="colorBackgroundDark">#303030</color>
 
+    <color name="colorTitleText">@android:color/white</color>
+
     <color name="colorIconForeground">@android:color/white</color>
     <color name="colorIconBackground">@color/colorPrimary</color>
 </resources>

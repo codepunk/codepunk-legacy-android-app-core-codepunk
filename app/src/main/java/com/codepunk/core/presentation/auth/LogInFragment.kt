@@ -38,6 +38,8 @@ import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
@@ -75,6 +77,20 @@ class LogInFragment :
     lateinit var validatinators: LogInValidatinators
 
     /**
+     * This fragment's activity cast to a [ContentLoadingProgressBarOwner].
+     */
+    private val contentLoadingProgressBarOwner: ContentLoadingProgressBarOwner? by lazy {
+        activity as? ContentLoadingProgressBarOwner
+    }
+
+    /**
+     * This fragment's activity cast to a [FloatingActionButtonOwner].
+     */
+    private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
+        activity as? FloatingActionButtonOwner
+    }
+
+    /**
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentLogInBinding
@@ -93,7 +109,7 @@ class LogInFragment :
     private val options = Options().apply {
         requestMessage = true
     }
-    
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -123,6 +139,14 @@ class LogInFragment :
         return binding.root
     }
 
+    /**
+     * Listens for floating action button click events.
+     */
+    override fun onResume() {
+        super.onResume()
+        floatingActionButtonOwner?.floatingActionButton?.setOnClickListener(this)
+    }
+
     // endregion Lifecycle methods
 
     // region Inherited methods
@@ -133,7 +157,6 @@ class LogInFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.loginBtn.setOnClickListener(this)
         binding.createBtn.setOnClickListener(this)
 
         arguments?.apply {
@@ -154,27 +177,26 @@ class LogInFragment :
      * Attempts to log in.
      */
     override fun onClick(v: View?) {
-        with(binding) {
-            when (v) {
-                loginBtn -> {
-                    v.hideSoftKeyboard()
-                    if (validate()) {
-                        authViewModel.authenticate(
-                            usernameOrEmailEdit.text.toString(),
-                            passwordEdit.text.toString()
-                        )
-                    }
-                }
-                createBtn -> {
-                    Navigation.findNavController(v).navigate(R.id.action_log_in_to_create_account)
-                }
-            }
+        when (v) {
+            floatingActionButtonOwner?.floatingActionButton -> login()
+            binding.createBtn ->
+                Navigation.findNavController(v).navigate(R.id.action_log_in_to_create_account)
         }
     }
 
     // endregion Implemented methods
 
     // region Methods
+
+    private fun login() {
+        view?.hideSoftKeyboard()
+        if (validate()) {
+            authViewModel.authenticate(
+                binding.usernameOrEmailEdit.text.toString(),
+                binding.passwordEdit.text.toString()
+            )
+        }
+    }
 
     private fun onAuthorizationUpdate(update: DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>) {
         /*

@@ -22,6 +22,8 @@ import android.accounts.AccountManager.*
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -38,6 +40,8 @@ import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.addOrUpdateAccount
+import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.addDefaultArgumentsFromBundle
 import com.codepunk.doofenschmirtz.util.http.HttpStatus
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
@@ -45,6 +49,7 @@ import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -58,7 +63,27 @@ import javax.inject.Inject
  */
 class AuthenticateActivity :
     AccountAuthenticatorAppCompatActivity(),
-    HasSupportFragmentInjector {
+    HasSupportFragmentInjector,
+    ContentLoadingProgressBarOwner,
+    FloatingActionButtonOwner {
+
+    // region Implemented properties
+
+    /**
+     * Implementation of [ContentLoadingProgressBarOwner]. Returns the content loading progress bar.
+     */
+    override val contentLoadingProgressBar: ContentLoadingProgressBar by lazy {
+        binding.loadingProgress
+    }
+
+    /**
+     * Implementation of [FloatingActionButtonOwner]. Returns the floating action button.
+     */
+    override val floatingActionButton: FloatingActionButton by lazy {
+        binding.fab
+    }
+
+    // endregion Implemented properties
 
     // region Properties
 
@@ -105,7 +130,7 @@ class AuthenticateActivity :
     private lateinit var binding: ActivityAuthenticateBinding
 
     /**
-     * The navigation controller for the activity.
+     * The [NavController] for the activity.
      */
     private val navController: NavController by lazy {
         Navigation.findNavController(this, R.id.authenticate_nav_fragment).apply {
@@ -115,6 +140,9 @@ class AuthenticateActivity :
         }
     }
 
+    /**
+     * The [NavHostFragment] for the activity.
+     */
     private val navHostFragment: NavHostFragment by lazy {
         supportFragmentManager.findFragmentById(R.id.authenticate_nav_fragment) as NavHostFragment
     }
@@ -131,6 +159,9 @@ class AuthenticateActivity :
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         // Set the navigation start destination
         val navInflater = navHostFragment.navController.navInflater

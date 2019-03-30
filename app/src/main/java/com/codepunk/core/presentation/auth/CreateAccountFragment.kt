@@ -42,9 +42,10 @@ import com.codepunk.core.presentation.base.AlertDialogFragment.Companion.RESULT_
 import com.codepunk.core.presentation.base.DialogHelper
 import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_CONNECT_EXCEPTION
 import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_FIRST_USER
+import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import dagger.android.support.AndroidSupportInjection
@@ -84,6 +85,20 @@ class CreateAccountFragment :
      */
     @Inject
     lateinit var dialogHelperFactory: DialogHelper.Factory
+
+    /**
+     * This fragment's activity cast to a [ContentLoadingProgressBarOwner].
+     */
+    private val contentLoadingProgressBarOwner: ContentLoadingProgressBarOwner? by lazy {
+        activity as? ContentLoadingProgressBarOwner
+    }
+
+    /**
+     * This fragment's activity cast to a [FloatingActionButtonOwner].
+     */
+    private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
+        activity as? FloatingActionButtonOwner
+    }
 
     /**
      * The binding for this fragment.
@@ -152,9 +167,16 @@ class CreateAccountFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.createBtn.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
         authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
+    }
+
+    /**
+     * Listens for floating action button click events.
+     */
+    override fun onResume() {
+        super.onResume()
+        floatingActionButtonOwner?.floatingActionButton?.setOnClickListener(this)
     }
 
     // endregion Inherited methods
@@ -165,12 +187,10 @@ class CreateAccountFragment :
      * Implementation of [OnClickListener]. Submits the new account.
      */
     override fun onClick(v: View?) {
-        with(binding) {
-            when (v) {
-                createBtn -> register()
-                loginBtn -> Navigation.findNavController(v)
-                    .navigate(R.id.action_create_account_to_log_in)
-            }
+        when (v) {
+            floatingActionButtonOwner?.floatingActionButton -> register()
+            binding.loginBtn -> Navigation.findNavController(v)
+                .navigate(R.id.action_create_account_to_log_in)
         }
     }
 
@@ -183,9 +203,14 @@ class CreateAccountFragment :
         builder: AlertDialog.Builder,
         onClickListener: DialogOnClickListener
     ) {
+        builder.setTitle(R.string.authenticate_label_create_account)
         when (requestCode) {
-            REGISTER_SUCCESS_REQUEST_CODE -> {
-                // TODO
+            REQUEST_CODE_REGISTER_SUCCESS, REQUEST_CODE_REGISTER_FAILURE -> {
+                val message =
+                    (authViewModel.registerDataUpdate.value as? ResultUpdate)?.result?.message
+                if (message != null) {
+                    builder.setMessage(message)
+                }
             }
             else -> dialogHelper.onBuildAlertDialog(
                 requestCode,
@@ -228,16 +253,52 @@ class CreateAccountFragment :
     }
 
     private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
+
+        // TODO NEXT NEXT NEXT When ResultUpdate, send the update to DialogHelper.
+        // MAYBE rename that to ResultUpdateHelper? Because it's all about that.
+        // So helper can parse the ResultUpdate and display the appropriate dialog and/or
+        // issue a callback?
+
         when (update) {
-            // TODO Pending, Loading, etc.
+            // TODO Pending, Progress, etc.
+            is PendingUpdate -> {
+                // Enable everything
+                // Remove dialogs?
+                contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
+            }
+            is ProgressUpdate -> {
+                // Disable everything
+                // Show loading dots in button? Or elsewhere?
+                contentLoadingProgressBarOwner?.contentLoadingProgressBar?.show()
+            }
             is ResultUpdate -> {
-                // TODO Success vs. Failure vs. different exceptions
-                requireFragmentManager().findFragmentByTag(REGISTER_RESULT_FRAGMENT_TAG)
-                    ?: AlertDialogFragment.showDialogFragmentForResult(
-                        this,
-                        REGISTER_RESULT_FRAGMENT_TAG,
-                        REQUEST_CODE_CONNECT_EXCEPTION
-                    )
+                contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
+                val dialogRequestCode: Int? = when (update) {
+                    is SuccessUpdate -> REQUEST_CODE_REGISTER_SUCCESS
+                    is FailureUpdate -> {
+                        val error = update.result?.firstErrorOrNull()
+                        when (error) {
+                            null -> REQUEST_CODE_REGISTER_FAILURE
+                            else -> {
+                                when (error.first) {
+                                    "username" -> binding.usernameLayout.error = error.second
+                                    "email" -> binding.emailLayout.error = error.second
+                                    "password" -> binding.passwordLayout.error = error.second
+                                }
+                                null
+                            }
+                        }
+                    }
+                    else -> null
+                }
+                dialogRequestCode?.also { requestCode ->
+                    requireFragmentManager().findFragmentByTag(REGISTER_RESULT_FRAGMENT_TAG)
+                        ?: AlertDialogFragment.showDialogFragmentForResult(
+                            this,
+                            REGISTER_RESULT_FRAGMENT_TAG,
+                            requestCode
+                        )
+                }
             }
         }
     }
@@ -245,8 +306,14 @@ class CreateAccountFragment :
     /**
      * Validates the form.
      */
-    private fun validate(): Boolean =
-        validatinators.createAccountValidatinator.validate(binding, options.clear())
+    private fun validate(): Boolean {
+        binding.usernameLayout.error = null
+        binding.emailLayout.error = null
+        binding.passwordLayout.error = null
+        binding.confirmPasswordLayout.error = null
+        return true
+        // return validatinators.createAccountValidatinator.validate(binding, options.clear())
+    }
 
     // endregion Methods
 
@@ -260,7 +327,13 @@ class CreateAccountFragment :
          * A request code indicating a successful registration (i.e. account creation).
          */
         @JvmStatic
-        private val REGISTER_SUCCESS_REQUEST_CODE = REQUEST_CODE_FIRST_USER
+        private val REQUEST_CODE_REGISTER_SUCCESS = REQUEST_CODE_FIRST_USER
+
+        /**
+         * A request code indicating an unsuccessful registration.
+         */
+        @JvmStatic
+        private val REQUEST_CODE_REGISTER_FAILURE = REQUEST_CODE_FIRST_USER + 1
 
         /**
          * The fragment tag to use for the register result dialog fragment.

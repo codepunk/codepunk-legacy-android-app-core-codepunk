@@ -58,6 +58,7 @@
                 android:id="@+id/email_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_standard"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -77,6 +78,7 @@
                 android:id="@+id/password_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_standard"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -97,6 +99,7 @@
                 android:id="@+id/confirm_password_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_standard"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -113,32 +116,28 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/create_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_standard"
-                android:text="@string/authenticator_create"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/confirm_password_layout"/>
-
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/already_have_account_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_large"
+                android:layout_marginTop="@dimen/space_l"
                 android:text="@string/authenticator_already_have_account"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/create_btn"/>
+                app:layout_constraintTop_toBottomOf="@id/confirm_password_layout"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/login_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_standard"
+                android:layout_marginTop="@dimen/space_standard"
+                android:background="?android:attr/selectableItemBackground"
+                android:minWidth="0dp"
+                android:minHeight="48dp"
+                android:padding="@dimen/space_standard"
                 android:text="@string/authenticator_log_in"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/already_have_account_txt"/>
+                android:textAllCaps="false"
+                app:layout_constraintBaseline_toBaselineOf="@id/already_have_account_txt"
+                app:layout_constraintStart_toEndOf="@id/already_have_account_txt"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
