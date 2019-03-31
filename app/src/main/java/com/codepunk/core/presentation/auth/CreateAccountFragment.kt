@@ -44,6 +44,7 @@ import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_C
 import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_FIRST_USER
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.NetworkResponseDataUpdateResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.codepunk.punkubator.util.validatinator.Validatinator
@@ -128,6 +129,8 @@ class CreateAccountFragment :
             setDefaultTitle(R.string.authenticate_label_create_account)
         }
     }
+
+    private val resolver = RegisterResolver()
 
     // endregion Properties
 
@@ -259,6 +262,8 @@ class CreateAccountFragment :
         // So helper can parse the ResultUpdate and display the appropriate dialog and/or
         // issue a callback?
 
+        resolver.resolve(update, REGISTER_RESULT_FRAGMENT_TAG, REQUEST_CODE_REGISTER)
+
         when (update) {
             // TODO Pending, Progress, etc.
             is PendingUpdate -> {
@@ -317,6 +322,48 @@ class CreateAccountFragment :
 
     // endregion Methods
 
+    // region Nested/inner classes
+
+    private class RegisterResolver : NetworkResponseDataUpdateResolver<Void>() {
+
+        override fun onPending(data: Bundle?, tag: String, requestCode: Int): Boolean {
+            return super.onPending(data, tag, requestCode)
+        }
+
+        override fun onProgress(
+            data: Bundle?,
+            progress: Array<out Void?>,
+            tag: String,
+            requestCode: Int
+        ): Boolean {
+            return super.onProgress(data, progress, tag, requestCode)
+        }
+
+        override fun onSuccess(
+            data: Bundle?,
+            msg: String?,
+            tag: String,
+            requestCode: Int
+        ): Boolean {
+            return super.onSuccess(data, msg, tag, requestCode)
+        }
+
+        override fun onFailure(
+            data: Bundle?,
+            msg: String?,
+            errorKey: String?,
+            errorValue: String?,
+            e: Exception?,
+            tag: String,
+            requestCode: Int
+        ): Boolean {
+            return super.onFailure(data, msg, errorKey, errorValue, e, tag, requestCode)
+        }
+
+    }
+
+    // endregion Nested/inner classes
+
     // region Companion object
 
     companion object {
@@ -334,6 +381,12 @@ class CreateAccountFragment :
          */
         @JvmStatic
         private val REQUEST_CODE_REGISTER_FAILURE = REQUEST_CODE_FIRST_USER + 1
+
+        /**
+         * A request code indicating an unsuccessful registration.
+         */
+        @JvmStatic
+        private val REQUEST_CODE_REGISTER = REQUEST_CODE_FIRST_USER + 2
 
         /**
          * The fragment tag to use for the register result dialog fragment.
