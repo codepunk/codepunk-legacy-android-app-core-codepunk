@@ -53,6 +53,8 @@
 
     <!-- region Authenticator -->
 
+    <!-- TODO Rename these to auth_ maybe? -->
+
     <string name="authenticator_token_type_default">Default</string>
 
     <string name="authenticator_token_type_unknown">Unknown</string>
@@ -192,13 +194,19 @@
 
     <!-- region Alert Dialog messages (maybe move to Doofenschmirtz) -->
 
-    <string name="alert_dialog_connect_exception_message">Not connected to the internet. Please check your connection and try again.</string>
+    <string name="alert_connect_exception_message">Please check your connection and try again.</string>
 
-    <string name="alert_dialog_retry">Retry</string>
+    <string name="alert_connect_exception_title">Could not connect</string>
 
-    <string name="alert_dialog_timeout_exception_message">The operation timed out. Please try again later.</string>
+    <string name="alert_error">Error</string>
 
-    <string name="alert_dialog_unknown_message">An unknown error occurred.</string>
+    <string name="alert_retry">Retry</string>
+
+    <string name="alert_success">Success</string>
+
+    <string name="alert_timeout_exception_message">The connection timed out. Please try again later.</string>
+
+    <string name="alert_unknown_error_message">An unknown error occurred.</string>
 
     <!-- endregion Alert Dialog messages (maybe move to Doofenschmirtz) -->
 

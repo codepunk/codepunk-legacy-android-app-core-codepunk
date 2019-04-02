@@ -143,7 +143,7 @@ open class AlertDialogFragment :
     protected fun defaultAlertDialogBuilder() =
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.app_name)
-            .setMessage(R.string.alert_dialog_unknown_message)
+            .setMessage(R.string.alert_unknown_error_message)
             .setPositiveButton(android.R.string.ok, this)
 
     // endregion Methods

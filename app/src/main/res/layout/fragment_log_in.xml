@@ -27,11 +27,11 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/margin_horizontal"
             android:paddingStart="@dimen/margin_horizontal"
+            android:paddingLeft="@dimen/margin_horizontal"
             android:paddingTop="@dimen/margin_vertical"
-            android:paddingRight="@dimen/margin_horizontal"
             android:paddingEnd="@dimen/margin_horizontal"
+            android:paddingRight="@dimen/margin_horizontal"
             android:paddingBottom="@dimen/margin_vertical"
             tools:context="com.codepunk.core.presentation.auth.LogInFragment">
 
@@ -49,7 +49,8 @@
                     android:id="@+id/username_or_email_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/authenticator_username_or_email"/>
+                    android:hint="@string/authenticator_username_or_email"
+                    android:inputType="textVisiblePassword|textNoSuggestions"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 

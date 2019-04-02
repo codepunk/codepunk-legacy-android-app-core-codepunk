@@ -18,7 +18,7 @@ package com.codepunk.core.presentation.auth
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface.OnClickListener as DialogOnClickListener
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -39,18 +39,17 @@ import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.core.presentation.base.AlertDialogFragment.Companion.RESULT_NEUTRAL
-import com.codepunk.core.presentation.base.DialogHelper
-import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_CONNECT_EXCEPTION
-import com.codepunk.core.presentation.base.DialogHelper.Companion.REQUEST_CODE_FIRST_USER
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.util.NetworkResponseDataUpdateResolver
+import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
+import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
+import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 
 /**
  * A [Fragment] used to create a new account.
@@ -80,12 +79,6 @@ class CreateAccountFragment :
      */
     @Inject
     lateinit var validatinators: CreateAccountValidatinators
-
-    /**
-     * An [DialogHelper.Factory] to create an instance of [DialogHelper].
-     */
-    @Inject
-    lateinit var dialogHelperFactory: DialogHelper.Factory
 
     /**
      * This fragment's activity cast to a [ContentLoadingProgressBarOwner].
@@ -121,16 +114,7 @@ class CreateAccountFragment :
         requestMessage = true
     }
 
-    /**
-     * An [DialogHelper] to help build [AlertDialog]s.
-     */
-    private val dialogHelper: DialogHelper by lazy {
-        dialogHelperFactory.create(requireContext()).apply {
-            setDefaultTitle(R.string.authenticate_label_create_account)
-        }
-    }
-
-    private val resolver = RegisterResolver()
+    private val registerResolver = RegisterResolver()
 
     // endregion Properties
 
@@ -206,21 +190,7 @@ class CreateAccountFragment :
         builder: AlertDialog.Builder,
         onClickListener: DialogOnClickListener
     ) {
-        builder.setTitle(R.string.authenticate_label_create_account)
-        when (requestCode) {
-            REQUEST_CODE_REGISTER_SUCCESS, REQUEST_CODE_REGISTER_FAILURE -> {
-                val message =
-                    (authViewModel.registerDataUpdate.value as? ResultUpdate)?.result?.message
-                if (message != null) {
-                    builder.setMessage(message)
-                }
-            }
-            else -> dialogHelper.onBuildAlertDialog(
-                requestCode,
-                builder,
-                onClickListener
-            )
-        }
+        registerResolver.onBuildAlertDialog(requestCode, builder, onClickListener)
     }
 
     /**
@@ -228,15 +198,7 @@ class CreateAccountFragment :
      * [AlertDialogFragment]s.
      */
     override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        loginator.i("requestCode=$requestCode, resultCode=$resultCode, data=$data")
-        when (requestCode) {
-            REQUEST_CODE_CONNECT_EXCEPTION -> {
-                authViewModel.registerDataUpdate.reset()
-                when (resultCode) {
-                    RESULT_NEUTRAL -> register()
-                }
-            }
-        }
+        registerResolver.onDialogResult(requestCode, resultCode, data)
     }
 
     // endregion Implemented methods
@@ -255,58 +217,8 @@ class CreateAccountFragment :
         }
     }
 
-    private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
-
-        // TODO NEXT NEXT NEXT When ResultUpdate, send the update to DialogHelper.
-        // MAYBE rename that to ResultUpdateHelper? Because it's all about that.
-        // So helper can parse the ResultUpdate and display the appropriate dialog and/or
-        // issue a callback?
-
-        resolver.resolve(update, REGISTER_RESULT_FRAGMENT_TAG, REQUEST_CODE_REGISTER)
-
-        when (update) {
-            // TODO Pending, Progress, etc.
-            is PendingUpdate -> {
-                // Enable everything
-                // Remove dialogs?
-                contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
-            }
-            is ProgressUpdate -> {
-                // Disable everything
-                // Show loading dots in button? Or elsewhere?
-                contentLoadingProgressBarOwner?.contentLoadingProgressBar?.show()
-            }
-            is ResultUpdate -> {
-                contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
-                val dialogRequestCode: Int? = when (update) {
-                    is SuccessUpdate -> REQUEST_CODE_REGISTER_SUCCESS
-                    is FailureUpdate -> {
-                        val error = update.result?.firstErrorOrNull()
-                        when (error) {
-                            null -> REQUEST_CODE_REGISTER_FAILURE
-                            else -> {
-                                when (error.first) {
-                                    "username" -> binding.usernameLayout.error = error.second
-                                    "email" -> binding.emailLayout.error = error.second
-                                    "password" -> binding.passwordLayout.error = error.second
-                                }
-                                null
-                            }
-                        }
-                    }
-                    else -> null
-                }
-                dialogRequestCode?.also { requestCode ->
-                    requireFragmentManager().findFragmentByTag(REGISTER_RESULT_FRAGMENT_TAG)
-                        ?: AlertDialogFragment.showDialogFragmentForResult(
-                            this,
-                            REGISTER_RESULT_FRAGMENT_TAG,
-                            requestCode
-                        )
-                }
-            }
-        }
-    }
+    private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) =
+        registerResolver.resolve(update)
 
     /**
      * Validates the form.
@@ -324,41 +236,93 @@ class CreateAccountFragment :
 
     // region Nested/inner classes
 
-    private class RegisterResolver : NetworkResponseDataUpdateResolver<Void>() {
+    private inner class RegisterResolver : DataUpdateResolver<Void, NetworkResponse>() {
 
-        override fun onPending(data: Bundle?, tag: String, requestCode: Int): Boolean {
-            return super.onPending(data, tag, requestCode)
+        // region Inherited methods
+
+        override fun onPending(update: PendingUpdate<Void, NetworkResponse>): Int {
+            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
+            return super.onPending(update)
         }
 
-        override fun onProgress(
-            data: Bundle?,
-            progress: Array<out Void?>,
-            tag: String,
-            requestCode: Int
-        ): Boolean {
-            return super.onProgress(data, progress, tag, requestCode)
+        override fun onProgress(update: ProgressUpdate<Void, NetworkResponse>): Int {
+            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.show()
+            return super.onProgress(update)
         }
 
-        override fun onSuccess(
-            data: Bundle?,
-            msg: String?,
-            tag: String,
-            requestCode: Int
-        ): Boolean {
-            return super.onSuccess(data, msg, tag, requestCode)
+        override fun onSuccess(update: SuccessUpdate<Void, NetworkResponse>): Int {
+            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
+            return super.onSuccess(update)
         }
 
-        override fun onFailure(
-            data: Bundle?,
-            msg: String?,
-            errorKey: String?,
-            errorValue: String?,
-            e: Exception?,
-            tag: String,
-            requestCode: Int
-        ): Boolean {
-            return super.onFailure(data, msg, errorKey, errorValue, e, tag, requestCode)
+        override fun onFailure(update: FailureUpdate<Void, NetworkResponse>): Int {
+            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
+            update.result?.firstErrorOrNull()?.also { error ->
+                view?.findViewWithTag<TextInputLayout>(error.first)?.also { layout ->
+                    layout.error = error.second
+                    return REQUEST_NONE
+                }
+            }
+            return super.onFailure(update) //REQUEST_REGISTER_FAILURE
         }
+
+        override fun onAction(update: DataUpdate<Void, NetworkResponse>, action: Int) {
+            registerResolver.showAlertDialog(
+                this@CreateAccountFragment,
+                REGISTER_FRAGMENT_TAG,
+                action
+            )
+        }
+
+        override fun onBuildAlertDialog(
+            requestCode: Int,
+            builder: AlertDialog.Builder,
+            onClickListener: DialogInterface.OnClickListener
+        ) {
+            when (requestCode) {
+                REQUEST_SUCCESS -> {
+                    builder.setTitle(R.string.authenticate_label_create_account)
+                        .setPositiveButton(android.R.string.ok, onClickListener)
+                    val message =
+                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
+                    message?.also {
+                        builder.setMessage(it)
+                    } ?: also {
+                        builder.setMessage(R.string.alert_success)
+                    }
+                }
+                REQUEST_FAILURE -> {
+
+                }
+                else -> super.onBuildAlertDialog(requestCode, builder, onClickListener)
+            }
+        }
+
+        // endregion Inherited methods
+
+        // region Methods
+
+        fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            authViewModel.registerDataUpdate.reset()
+            when (requestCode) {
+                REQUEST_SUCCESS -> view?.also {
+                    // Pop back to log in fragment (or first destination in the graph
+                    // if not found)
+                    val controller = Navigation.findNavController(it)
+                    if (!controller.popBackStack(R.id.fragment_log_in, false)) {
+                        controller.popBackStack(controller.graph.startDestination, false)
+                    }
+                }
+                REQUEST_CONNECT_EXCEPTION,
+                REQUEST_TIMEOUT_EXCEPTION -> {
+                    when (resultCode) {
+                        RESULT_NEUTRAL -> register()
+                    }
+                }
+            }
+        }
+
+        // endregion Methods
 
     }
 
@@ -371,28 +335,10 @@ class CreateAccountFragment :
         // region Properties
 
         /**
-         * A request code indicating a successful registration (i.e. account creation).
-         */
-        @JvmStatic
-        private val REQUEST_CODE_REGISTER_SUCCESS = REQUEST_CODE_FIRST_USER
-
-        /**
-         * A request code indicating an unsuccessful registration.
-         */
-        @JvmStatic
-        private val REQUEST_CODE_REGISTER_FAILURE = REQUEST_CODE_FIRST_USER + 1
-
-        /**
-         * A request code indicating an unsuccessful registration.
-         */
-        @JvmStatic
-        private val REQUEST_CODE_REGISTER = REQUEST_CODE_FIRST_USER + 2
-
-        /**
          * The fragment tag to use for the register result dialog fragment.
          */
         @JvmStatic
-        private val REGISTER_RESULT_FRAGMENT_TAG =
+        private val REGISTER_FRAGMENT_TAG =
             LogInFragment::class.java.name + ".REGISTER_RESULT"
 
         // endregion Properties
