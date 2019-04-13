@@ -168,6 +168,8 @@ class AuthViewModel @Inject constructor(
         // while "task".executeOnExecutorAsLiveData is producing a LiveData<DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>>.
         // Why??
 
+        // Also TODO: delete the "old" source first?
+
         // Thoughts:
         // AuthenticateActivity is doing a ton of work decoding the Response<RemoteAuthorization> etc.
         // That should probably happen here and return an appropriate DataUpdate with possible failures etc.

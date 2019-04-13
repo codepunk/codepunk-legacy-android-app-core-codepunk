@@ -19,10 +19,12 @@ package com.codepunk.core.util
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.view.View
 import androidx.fragment.app.Fragment
 import com.codepunk.core.R
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
 
@@ -98,6 +100,45 @@ abstract class DataUpdateResolver<Progress, Result> {
     open fun showAlertDialog(fragment: Fragment, tag: String, requestCode: Int) =
         fragment.requireFragmentManager().findFragmentByTag(tag)
             ?: AlertDialogFragment.showDialogFragmentForResult(fragment, tag, requestCode)
+
+    open fun showSnackbar(view: View, requestCode: Int) {
+        Snackbar.make(
+            view,
+            "",
+            Snackbar.LENGTH_LONG
+        ).apply {
+            onBuildSnackbar(requestCode, this)
+        }.show()
+    }
+
+    open fun onBuildSnackbar(
+        requestCode: Int,
+        snackbar: Snackbar
+    ) {
+        // TODO Can I streamline this?
+        when (requestCode) {
+            REQUEST_CONNECT_EXCEPTION -> {
+                snackbar.setText(R.string.alert_connect_exception_message)
+                /*
+                .setPositiveButton(android.R.string.ok, onClickListener)
+                .setNeutralButton(R.string.alert_retry, onClickListener)
+                */
+            }
+            REQUEST_TIMEOUT_EXCEPTION -> {
+                snackbar.setText(R.string.alert_timeout_exception_message)
+                /*
+                .setPositiveButton(android.R.string.ok, onClickListener)
+                .setNeutralButton(R.string.alert_retry, onClickListener)
+                */
+            }
+            REQUEST_FAILURE -> {
+                snackbar.setText(R.string.alert_unknown_error_message)
+                /*
+                .setPositiveButton(android.R.string.ok, onClickListener)
+                */
+            }
+        }
+    }
 
     open fun onBuildAlertDialog(
         requestCode: Int,

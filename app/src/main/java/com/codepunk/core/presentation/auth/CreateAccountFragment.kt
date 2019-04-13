@@ -16,10 +16,7 @@
 
 package com.codepunk.core.presentation.auth
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,26 +24,17 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
-import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.core.lib.reset
-import com.codepunk.core.presentation.base.AlertDialogFragment
-import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
-import com.codepunk.core.presentation.base.AlertDialogFragment.Companion.RESULT_NEUTRAL
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
-import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 import android.content.DialogInterface.OnClickListener as DialogOnClickListener
@@ -57,7 +45,8 @@ import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 class CreateAccountFragment :
     Fragment(),
     OnClickListener,
-    AlertDialogFragmentListener {
+    AuthenticateActivity.AuthenticateActivityListener /*,
+    AlertDialogFragmentListener */ {
 
     // region Properties
 
@@ -114,7 +103,9 @@ class CreateAccountFragment :
         requestMessage = true
     }
 
+    /*
     private val registerResolver = RegisterResolver()
+    */
 
     // endregion Properties
 
@@ -126,6 +117,7 @@ class CreateAccountFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        (activity as? AuthenticateActivity)?.authenticateActivityListener = this
     }
 
     /**
@@ -145,6 +137,11 @@ class CreateAccountFragment :
         return binding.root
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        (activity as? AuthenticateActivity)?.authenticateActivityListener = null
+    }
+
     // endregion Lifecycle methods
 
     // region Inherited methods
@@ -155,7 +152,7 @@ class CreateAccountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.loginBtn.setOnClickListener(this)
-        authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
+        // authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
     }
 
     /**
@@ -181,6 +178,7 @@ class CreateAccountFragment :
         }
     }
 
+    /*
     /**
      * Implementation of [AlertDialogFragmentListener]. Binds alert dialogs presented by this
      * fragment.
@@ -200,6 +198,9 @@ class CreateAccountFragment :
     override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
         registerResolver.onDialogResult(requestCode, resultCode, data)
     }
+    */
+
+    override fun onRegisterRetry() = register()
 
     // endregion Implemented methods
 
@@ -217,8 +218,10 @@ class CreateAccountFragment :
         }
     }
 
+    /*
     private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) =
         registerResolver.resolve(update)
+    */
 
     /**
      * Validates the form.
@@ -234,6 +237,7 @@ class CreateAccountFragment :
 
     // endregion Methods
 
+    /*
     // region Nested/inner classes
 
     private inner class RegisterResolver : DataUpdateResolver<Void, NetworkResponse>() {
@@ -266,12 +270,39 @@ class CreateAccountFragment :
             return super.onFailure(update) //REQUEST_REGISTER_FAILURE
         }
 
+        override fun onException(e: Exception, update: FailureUpdate<Void, NetworkResponse>): Int {
+            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide() // TODO Maybe?
+            return super.onException(e, update)
+        }
+
         override fun onAction(update: DataUpdate<Void, NetworkResponse>, action: Int) {
-            registerResolver.showAlertDialog(
+            view?.also {
+                showSnackbar(it, action)
+            }
+            /*
+            showAlertDialog(
                 this@CreateAccountFragment,
                 REGISTER_FRAGMENT_TAG,
                 action
             )
+            */
+        }
+
+        override fun onBuildSnackbar(requestCode: Int, snackbar: Snackbar) {
+            when (requestCode) {
+                REQUEST_SUCCESS -> {
+                    snackbar.setText(R.string.authenticate_label_create_account)
+                    //    .setPositiveButton(android.R.string.ok, onClickListener)
+                    val message =
+                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
+                    message?.also {
+                        snackbar.setText(it)
+                    } ?: also {
+                        snackbar.setText(R.string.alert_success)
+                    }
+                }
+                else -> super.onBuildSnackbar(requestCode, snackbar)
+            }
         }
 
         override fun onBuildAlertDialog(
@@ -290,9 +321,6 @@ class CreateAccountFragment :
                     } ?: also {
                         builder.setMessage(R.string.alert_success)
                     }
-                }
-                REQUEST_FAILURE -> {
-
                 }
                 else -> super.onBuildAlertDialog(requestCode, builder, onClickListener)
             }
@@ -346,5 +374,6 @@ class CreateAccountFragment :
     }
 
     // endregion Companion object
+    */
 
 }

@@ -20,9 +20,9 @@
     <color name="colorPrimaryDark">#870000</color>
     <color name="colorPrimaryMediumLight">#d84315</color>
     <color name="colorPrimaryLight">#f9683a</color>
-    <color name="colorAccent">#00e5ff</color>
-    <color name="colorAccentDark">#00b2cc</color>
-    <color name="colorAccentLight">#6effff</color>
+    <color name="colorAccent">#ffa000</color>
+    <color name="colorAccentDark">#c67100</color>
+    <color name="colorAccentLight">#ffd149</color>
     <color name="colorBackgroundDark">#303030</color>
 
     <color name="colorTitleText">@android:color/white</color>
