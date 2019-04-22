@@ -17,15 +17,7 @@
 
 <resources>
 
-    <!--
-    <dimen name="space_s">4dp</dimen>
-    <dimen name="space_standard">8dp</dimen>
-    <dimen name="space_l">16dp</dimen>
-    <dimen name="space_xl">24dp</dimen>
-    <dimen name="space_xxl">48dp</dimen>
-    -->
-
-    <dimen name="margin_horizontal">@dimen/space_xl</dimen>
-    <dimen name="margin_vertical">@dimen/space_xl</dimen>
+    <dimen name="margin_horizontal">@dimen/size_xlarge</dimen>
+    <dimen name="margin_vertical">@dimen/size_xlarge</dimen>
 
 </resources>

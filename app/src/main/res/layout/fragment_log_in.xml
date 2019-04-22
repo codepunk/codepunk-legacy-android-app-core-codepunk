@@ -49,6 +49,9 @@
                     android:id="@+id/username_or_email_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_person_white_24dp"
+                    android:drawableLeft="@drawable/ic_person_white_24dp"
+                    android:drawablePadding="@dimen/size_small"
                     android:hint="@string/authenticator_username_or_email"
                     android:inputType="textVisiblePassword|textNoSuggestions"/>
 
@@ -58,7 +61,7 @@
                 android:id="@+id/password_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_standard"
+                android:layout_marginTop="@dimen/size_standard"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -70,6 +73,9 @@
                     android:id="@+id/password_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_lock_white_24dp"
+                    android:drawableLeft="@drawable/ic_lock_white_24dp"
+                    android:drawablePadding="@dimen/size_small"
                     android:hint="@string/authenticator_password"
                     android:inputType="textPassword"/>
 
@@ -79,24 +85,61 @@
                 android:id="@+id/new_user_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_l"
+                android:layout_marginTop="@dimen/size_large"
                 android:text="@string/authenticator_new_user"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/password_layout"/>
+
+            <Space
+                android:id="@+id/new_user_space"
+                android:layout_width="@dimen/size_med_large"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="@id/new_user_txt"
+                app:layout_constraintEnd_toEndOf="@id/new_user_txt"
+                app:layout_constraintTop_toTopOf="@id/new_user_txt"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/create_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_standard"
+                android:layout_marginTop="@dimen/size_standard"
                 android:background="?android:attr/selectableItemBackground"
-                android:minWidth="0dp"
                 android:minHeight="48dp"
-                android:padding="@dimen/space_standard"
                 android:text="@string/authenticator_create"
                 android:textAllCaps="false"
                 app:layout_constraintBaseline_toBaselineOf="@id/new_user_txt"
-                app:layout_constraintStart_toEndOf="@id/new_user_txt"/>
+                app:layout_constraintStart_toStartOf="@id/new_user_space"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/choose_account_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_standard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/create_btn">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/choose_account_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/size_standard"
+                    android:text="@string/authenticator_choose_account_below_colon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <LinearLayout
+                    android:id="@+id/account_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/size_standard"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/choose_account_txt"
+                    tools:layout_height="150dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

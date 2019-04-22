@@ -79,6 +79,8 @@
 
     <string name="authenticator_choose_account_colon">Choose an account:</string>
 
+    <string name="authenticator_choose_account_below_colon">Or, choose an existing account below:</string>
+
     <string name="authenticator_confirm_password">Confirm password</string>
 
     <string name="authenticator_create">Sign up</string>
@@ -87,7 +89,7 @@
 
     <string name="authenticator_log_in">Log in</string>
 
-    <string name="authenticator_new_user">New user?</string>
+    <string name="authenticator_new_user">Don\'t have an account?</string>
 
     <string name="authenticator_send_again">Send again</string>
 

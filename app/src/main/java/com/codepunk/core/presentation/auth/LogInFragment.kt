@@ -16,12 +16,17 @@
 
 package com.codepunk.core.presentation.auth
 
+import android.accounts.Account
+import android.accounts.AccountManager
+import android.accounts.OnAccountsUpdateListener
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -33,19 +38,21 @@ import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
 import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import dagger.android.support.AndroidSupportInjection
 import retrofit2.Response
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -53,9 +60,16 @@ import javax.inject.Inject
  */
 class LogInFragment :
     Fragment(),
-    View.OnClickListener {
+    View.OnClickListener,
+    OnAccountsUpdateListener {
 
     // region Properties
+
+    /**
+     * The system [AccountManager].
+     */
+    @Inject
+    lateinit var accountManager: AccountManager
 
     /**
      * A [FormattingLoginator] for writing log messages.
@@ -144,7 +158,18 @@ class LogInFragment :
      */
     override fun onResume() {
         super.onResume()
+        setSupportActionBarTitle(R.string.authenticate_label_log_in)
         floatingActionButtonOwner?.floatingActionButton?.setOnClickListener(this)
+        accountManager.addOnAccountsUpdatedListener(
+            this,
+            null,
+            true
+        )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        accountManager.removeOnAccountsUpdatedListener(this)
     }
 
     // endregion Lifecycle methods
@@ -174,6 +199,49 @@ class LogInFragment :
     // region Implemented methods
 
     /**
+     * Listens to account updates and updates the list accordingly.
+     */
+    override fun onAccountsUpdated(accounts: Array<out Account>?) {
+        when (accounts?.size) {
+            null -> binding.chooseAccountLayout.visibility = View.INVISIBLE
+            0 -> binding.chooseAccountLayout.visibility = View.INVISIBLE
+            else -> {
+                binding.chooseAccountLayout.visibility = View.VISIBLE
+                binding.accountLayout.removeAllViews()
+                accounts.sortedWith(
+                    kotlin.Comparator { account1, account2 ->
+                        when {
+                            account1.name < account2.name -> -1
+                            account1.name > account2.name -> 1
+                            else -> 0
+                        }
+                    }
+                ).forEach { account ->
+                    layoutInflater.inflate(
+                        R.layout.item_account,
+                        binding.accountLayout,
+                        false
+                    ).apply {
+                        val accountImage: AppCompatImageView = findViewById(R.id.account_image)
+                        // TODO Set image
+
+                        val usernameText: AppCompatTextView = findViewById(R.id.username_text)
+                        usernameText.text = account.name
+
+                        val emailText: AppCompatTextView = findViewById(R.id.email_text)
+                        // TODO Do something with email?
+                        emailText.visibility = View.GONE
+
+                        setTag(R.id.account, account)
+                        setOnClickListener(this@LogInFragment)
+                        binding.accountLayout.addView(this)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Attempts to log in.
      */
     override fun onClick(v: View?) {
@@ -181,6 +249,14 @@ class LogInFragment :
             floatingActionButtonOwner?.floatingActionButton -> login()
             binding.createBtn ->
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_create_account)
+            else -> when (v?.id) {
+                R.id.account_item -> {
+                    val account = v.getTag(R.id.account) as? Account
+                    account?.also {
+                        onAccountClick(it)
+                    }
+                }
+            }
         }
     }
 
@@ -233,6 +309,10 @@ class LogInFragment :
             binding,
             options.clear()
         )
+    }
+
+    private fun onAccountClick(account: Account) {
+        loginator.d("account=$account")
     }
 
     // endregion Methods

@@ -50,6 +50,9 @@
                     android:id="@+id/username_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_person_white_24dp"
+                    android:drawableLeft="@drawable/ic_person_white_24dp"
+                    android:drawablePadding="@dimen/size_small"
                     android:hint="@string/authenticator_username"
                     android:inputType="textVisiblePassword|textNoSuggestions"/>
 
@@ -59,7 +62,7 @@
                 android:id="@+id/email_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_standard"
+                android:layout_marginTop="@dimen/size_standard"
                 android:tag="email"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
@@ -71,6 +74,9 @@
                     android:id="@+id/email_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_mail_white_24dp"
+                    android:drawableLeft="@drawable/ic_mail_white_24dp"
+                    android:drawablePadding="@dimen/size_small"
                     android:hint="@string/authenticator_email"
                     android:inputType="textEmailAddress"/>
 
@@ -80,7 +86,7 @@
                 android:id="@+id/password_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_standard"
+                android:layout_marginTop="@dimen/size_standard"
                 android:tag="password"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
@@ -93,6 +99,9 @@
                     android:id="@+id/password_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_lock_white_24dp"
+                    android:drawableLeft="@drawable/ic_lock_white_24dp"
+                    android:drawablePadding="@dimen/size_small"
                     android:hint="@string/authenticator_password"
                     android:inputType="textPassword"/>
 
@@ -102,7 +111,7 @@
                 android:id="@+id/confirm_password_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_standard"
+                android:layout_marginTop="@dimen/size_standard"
                 android:tag="confirm_password"
                 app:errorEnabled="true"
                 app:hintEnabled="true"
@@ -115,6 +124,9 @@
                     android:id="@+id/confirm_password_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_lock_white_24dp"
+                    android:drawableLeft="@drawable/ic_lock_white_24dp"
+                    android:drawablePadding="@dimen/size_small"
                     android:hint="@string/authenticator_confirm_password"
                     android:inputType="textPassword"/>
 
@@ -124,24 +136,31 @@
                 android:id="@+id/already_have_account_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_l"
+                android:layout_marginTop="@dimen/size_large"
                 android:text="@string/authenticator_already_have_account"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/confirm_password_layout"/>
+
+            <Space
+                android:id="@+id/already_have_account_space"
+                android:layout_width="@dimen/size_med_large"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="@id/already_have_account_txt"
+                app:layout_constraintEnd_toEndOf="@id/already_have_account_txt"
+                app:layout_constraintTop_toTopOf="@id/already_have_account_txt"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/login_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_standard"
+                android:layout_marginTop="@dimen/size_standard"
                 android:background="?android:attr/selectableItemBackground"
-                android:minWidth="0dp"
                 android:minHeight="48dp"
-                android:padding="@dimen/space_standard"
+                android:padding="@dimen/size_standard"
                 android:text="@string/authenticator_log_in"
                 android:textAllCaps="false"
                 app:layout_constraintBaseline_toBaselineOf="@id/already_have_account_txt"
-                app:layout_constraintStart_toEndOf="@id/already_have_account_txt"/>
+                app:layout_constraintStart_toStartOf="@id/already_have_account_space"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -25,6 +25,7 @@
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
+    android:padding="@dimen/size_standard"
     tools:background="@color/colorPrimary">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -42,8 +43,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/space_standard"
-        android:layout_marginLeft="@dimen/space_standard"
+        android:layout_marginStart="@dimen/size_standard"
+        android:layout_marginLeft="@dimen/size_standard"
         android:layout_toEndOf="@id/account_image"
         android:layout_toRightOf="@id/account_image"
         android:orientation="vertical">

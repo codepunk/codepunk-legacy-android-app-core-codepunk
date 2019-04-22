@@ -51,7 +51,6 @@ import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.DataUpdateResolver
-import com.codepunk.core.util.addDefaultArgumentsFromBundle
 import com.codepunk.doofenschmirtz.util.http.HttpStatus
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.*
@@ -181,17 +180,27 @@ class AuthenticateActivity :
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        // Set the navigation start destination
-        val navInflater = navHostFragment.navController.navInflater
-        val navGraph = navInflater.inflate(R.navigation.navigation_authenticate)
-        navGraph.startDestination = when {
-            intent.categories.contains(CATEGORY_CREATE_ACCOUNT) -> R.id.fragment_create_account
-            intent.categories.contains(CATEGORY_LOG_IN) -> R.id.fragment_log_in
-            else -> R.id.fragment_authenticate
+        if (savedInstanceState == null) {
+            // If the supplied intent specifies it, navigate to an alternate destination
+            // and pop up inclusive to that new destination
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.fragment_authenticate, true)
+                .build()
+            val navController =
+                Navigation.findNavController(this, R.id.authenticate_nav_fragment)
+            when {
+                intent.categories.contains(CATEGORY_CREATE_ACCOUNT) -> navController.navigate(
+                    R.id.action_auth_to_create_account,
+                    intent.extras,
+                    navOptions
+                )
+                intent.categories.contains(CATEGORY_LOG_IN) -> navController.navigate(
+                    R.id.action_auth_to_log_in,
+                    intent.extras,
+                    navOptions
+                )
+            }
         }
-
-        navGraph.findNode(navGraph.startDestination)?.addDefaultArgumentsFromBundle(intent?.extras)
-        navHostFragment.navController.graph = navGraph
 
         authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
         authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
@@ -364,7 +373,7 @@ class AuthenticateActivity :
 
         override fun onAction(update: DataUpdate<Void, NetworkResponse>, action: Int) {
             when (action) {
-                DataUpdateResolver.REQUEST_SUCCESS -> {
+                REQUEST_SUCCESS -> {
                     // Pop back to log in fragment (or first destination in the graph
                     // if log in fragment not found)
 

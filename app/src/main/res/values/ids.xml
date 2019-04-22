@@ -18,6 +18,7 @@
 <resources>
 
     <!-- Used for key in View.setTag(key, tag) -->
-    <item name="account_view_holder" type="id" />
+    <item name="account_view_holder" type="id"/>
+    <item name="account" type="id"/>
 
 </resources>

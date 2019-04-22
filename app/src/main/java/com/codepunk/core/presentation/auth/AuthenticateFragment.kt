@@ -128,7 +128,7 @@ class AuthenticateFragment :
             }
         binding.accountsRecycler.addItemDecoration(itemDecoration)
         binding.accountsRecycler.layoutManager =
-                LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         adapter = AccountAdapter(binding.accountsRecycler.context, accountManager, this)
         binding.accountsRecycler.adapter = adapter
 

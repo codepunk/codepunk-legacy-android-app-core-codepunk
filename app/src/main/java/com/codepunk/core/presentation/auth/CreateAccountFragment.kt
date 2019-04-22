@@ -32,6 +32,7 @@ import com.codepunk.core.databinding.FragmentCreateAccountBinding
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
@@ -160,6 +161,7 @@ class CreateAccountFragment :
      */
     override fun onResume() {
         super.onResume()
+        setSupportActionBarTitle(R.string.authenticate_label_create_account)
         floatingActionButtonOwner?.floatingActionButton?.setOnClickListener(this)
     }
 
