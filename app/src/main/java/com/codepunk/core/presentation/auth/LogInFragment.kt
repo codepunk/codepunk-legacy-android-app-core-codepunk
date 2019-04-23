@@ -39,10 +39,13 @@ import com.codepunk.core.R
 import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.databinding.FragmentLogInBinding
+import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
@@ -88,6 +91,12 @@ class LogInFragment :
      */
     @Inject
     lateinit var validatinators: LogInValidatinators
+
+    /**
+     * An instance of [NetworkTranslator] for translating messages from the network.
+     */
+    @Inject
+    lateinit var networkTranslator: NetworkTranslator
 
     /**
      * This fragment's activity cast to a [ContentLoadingProgressBarOwner].
@@ -273,10 +282,11 @@ class LogInFragment :
         }
     }
 
-    private fun onAuthorizationUpdate(update: DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
         /*
         setControlsEnabled(update !is ProgressUpdate)
         */
+        // TODO NEXT Move this to AuthenticateActivity?
         when (update) {
             is FailureUpdate -> {
                 val remoteNetworkResponse: RemoteNetworkResponse? =
@@ -288,7 +298,12 @@ class LogInFragment :
                 // TODO Make this a snackbar (but only if IOException?)
                 val message: CharSequence = when (update.e) {
                     is IOException -> "Could not connect to the network."
-                    else -> getString(R.string.authenticator_error_invalid_credentials)
+                    else -> {
+                        val rawMessage: String? = null //update.result?.errorBody()?.string()
+                        rawMessage?.let {
+                            networkTranslator.translate(it)
+                        } ?: getString(R.string.authenticator_error_invalid_credentials)
+                    }
                 }
                 SimpleDialogFragment.Builder(requireContext())
                     .setTitle(R.string.authenticate_label_log_in)

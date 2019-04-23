@@ -18,6 +18,7 @@
 package com.codepunk.core.domain.contract
 
 import androidx.lifecycle.LiveData
+import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 
@@ -28,16 +29,17 @@ interface AuthRepository {
 
     // region Methods
 
+    fun authenticate(
+        username: String,
+        password: String
+    ): LiveData<DataUpdate<NetworkResponse, Authorization>>
+
     fun register(
         username: String,
         email: String,
         password: String,
         passwordConfirmation: String
     ): LiveData<DataUpdate<Void, NetworkResponse>>
-
-    /*
-    fun refreshToken(refreshToken: String): LiveData<DataUpdate<Void, RemoteA>>
-    */
 
     // endregion Methods
 

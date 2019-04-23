@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +18,18 @@
 package com.codepunk.core.lib
 
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
-import retrofit2.Response
+import okhttp3.ResponseBody
 import retrofit2.Retrofit
 
 /**
- * Converts a [Response] containing a [RemoteNetworkResponse] into a RemoteNetworkResponse. This may sound
- * trivial but when a request comes back unsuccessful, the errorBody contains a JSON string
- * that represents a RemoteNetworkResponse, and that must be converted here.
+ * Converts a nullable [ResponseBody] into a nullable RemoteNetworkResponse.
  */
-fun Response<RemoteNetworkResponse>?.toRemoteNetworkResponse(retrofit: Retrofit): RemoteNetworkResponse? {
-    return when {
-        this == null -> null
-        isSuccessful -> body()
-        else -> errorBody().toRemoteNetworkResponse(retrofit)
+fun ResponseBody?.toRemoteNetworkResponse(retrofit: Retrofit): RemoteNetworkResponse? {
+    return when (this) {
+        null -> null
+        else -> retrofit.responseBodyConverter<RemoteNetworkResponse>(
+            RemoteNetworkResponse::class.java,
+            arrayOf()
+        ).convert(this)
     }
 }

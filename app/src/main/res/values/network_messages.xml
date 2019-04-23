@@ -42,12 +42,14 @@
     <string name="translator_string_input_invalid">The given data was invalid.</string>
     <string name="translator_string_input_password">password</string>
     <string name="translator_string_input_sent_activation_code">We sent you an activation code! Please check your e-mail.</string>
+    <string name="translator_string_input_sent_activation_code_when_you_registered">You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.</string>
     <string name="translator_string_input_username">username</string>
 
     <string name="translator_string_output_email">email</string>
     <string name="translator_string_output_invalid">The given data was invalid.</string>
     <string name="translator_string_output_password">password</string>
     <string name="translator_string_output_sent_activation_code">We sent you an activation code! Please check your e-mail.</string>
+    <string name="translator_string_output_sent_activation_code_when_you_registered">You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.</string>
     <string name="translator_string_output_username">username</string>
 
 </resources>

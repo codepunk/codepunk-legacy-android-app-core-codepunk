@@ -18,7 +18,6 @@ package com.codepunk.core.presentation.auth
 
 import android.accounts.AccountManager
 import android.accounts.AccountManager.*
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Patterns
 import androidx.annotation.WorkerThread
@@ -32,9 +31,13 @@ import com.codepunk.core.data.remote.entity.RemoteUser
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
+import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.getResultUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -79,8 +82,12 @@ class AuthViewModel @Inject constructor(
     /**
      * A [LiveData] holding the [RemoteAuthorization] relating to the current authorization attempt.
      */
-    val authorizationDataUpdate =
+    val oldAuthorizationDataUpdate =
         MediatorLiveData<DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>>()
+
+
+    val authorizationDataUpdate =
+        MediatorLiveData<DataUpdate<NetworkResponse, Authorization>>()
 
     // endregion Properties
 
@@ -137,24 +144,37 @@ class AuthViewModel @Inject constructor(
     /**
      * Authenticates using username (or email) and password.
      */
-    @SuppressLint("StaticFieldLeak")
     fun authenticate(usernameOrEmail: String, password: String) {
+
+        // Also TODO: delete the "old" source first?
+
+        val source: LiveData<DataUpdate<NetworkResponse, Authorization>> =
+            authRepository.authenticate(usernameOrEmail, password)
+        authorizationDataUpdate.addSource(source) {
+            authorizationDataUpdate.value = it
+        }
+
+        /*
         val task =
             object : DataTaskinator<Void, RemoteNetworkResponse, Response<RemoteAuthorization>>() {
                 override fun doInBackground(vararg params: Void?):
                         ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> =
                     getAuthToken(usernameOrEmail, password)
             }
+
+        // NEXT NEXT NEXT Need to examine user here
+        // !!!
+
         authorizationDataUpdate.addSource(task.executeOnExecutorAsLiveData()) {
             authorizationDataUpdate.value = it
         }
+        */
     }
 
     /**
      * Registers a new user. Note that this user will not be activated as the user will
      * still need to respond to the activation email.
      */
-    @SuppressLint("StaticFieldLeak")
     fun register(
         username: String,
         email: String,

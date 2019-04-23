@@ -43,6 +43,7 @@ import com.codepunk.core.R
 import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
+import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.addOrUpdateAccount
@@ -264,7 +265,7 @@ class AuthenticateActivity :
     /**
      * Reacts to authorization data changing.
      */
-    private fun onAuthorizationUpdate(update: DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>) {
+    private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
@@ -277,6 +278,9 @@ class AuthenticateActivity :
                 when (result) {
                     null -> setResult(RESULT_CANCELED)
                     else -> {
+                        // TODO I need to either check the user here (for active) or change the
+                        // endpoint to return something different if we log in and the user is NOT active
+
                         // Set accountAuthenticatorResult so accountAuthenticatorResponse can
                         // react to it
                         accountAuthenticatorResult = update.data
@@ -312,10 +316,13 @@ class AuthenticateActivity :
             is FailureUpdate -> update.result
             else -> null
         }
+
+        /*
         val httpStatus = when (response) {
             null -> null
             else -> HttpStatus.lookup(response.code())
         }
+        */
 
         /*
         // TODO If I get here, I might have a ProgressUpdate with a RemoteNetworkResponse of

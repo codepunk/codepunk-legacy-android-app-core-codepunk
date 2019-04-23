@@ -19,9 +19,11 @@ package com.codepunk.core.data.repository
 
 import androidx.lifecycle.LiveData
 import com.codepunk.core.data.mapper.toDomainOrNull
+import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.domain.contract.AuthRepository
+import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.getResultUpdate
 import com.codepunk.core.lib.toRemoteNetworkResponse
@@ -55,11 +57,29 @@ class AuthRepositoryImpl(
 
     // region Properties
 
+    private var authenticateTask: AuthenticateTask? = null
+
     private var registerTask: RegisterTask? = null
 
     // endregion Properties
 
     // region Implemented methods
+
+    override fun authenticate(
+        username: String,
+        password: String
+    ): LiveData<DataUpdate<NetworkResponse, Authorization>> {
+        authenticateTask?.cancel(true)
+        return AuthenticateTask(
+            authWebservice,
+            retrofit,
+            networkTranslator,
+            username,
+            password
+        ).apply {
+            authenticateTask = this
+        }.executeOnExecutorAsLiveData()
+    }
 
     override fun register(
         username: String,
@@ -84,6 +104,65 @@ class AuthRepositoryImpl(
     // endregion Implemented methods
 
     // region Nested/inner classes
+
+    private class AuthenticateTask(
+
+        private val authWebservice: AuthWebservice,
+
+        private val retrofit: Retrofit,
+
+        private val networkTranslator: NetworkTranslator,
+
+        private val username: String,
+
+        private val password: String
+
+    ) : DataTaskinator<Void, NetworkResponse, Authorization>() {
+
+        // region Inherited methods
+
+        override fun doInBackground(vararg params: Void?):
+                ResultUpdate<NetworkResponse, Authorization> {
+            val update: ResultUpdate<Void, Response<RemoteAuthorization>> =
+                authWebservice.authorize(username, password).getResultUpdate()
+
+            return when (update) {
+                is FailureUpdate -> {
+                    /*
+                    val remoteNetworkResponse = update.result?.errorBody()?.let { errorBody ->
+                        retrofit.responseBodyConverter<RemoteNetworkResponse>(
+                            RemoteNetworkResponse::class.java,
+                            arrayOf()
+                        ).convert(errorBody)
+                    }
+                    val networkResponse =
+                        remoteNetworkResponse.toDomainOrNull(networkTranslator)
+                    */
+
+                    val errorBody = update.result?.errorBody()
+                    val networkResponse = errorBody
+                        .toRemoteNetworkResponse(retrofit)
+                        .toDomainOrNull(networkTranslator)
+
+                    /*
+                    val remoteNetworkResponse =
+                        update.result.toRemoteNetworkResponse(retrofit)
+                    val networkResponse =
+                        remoteNetworkResponse.toDomainOrNull(networkTranslator)
+                    */
+                    FailureUpdate(null, update.e) // TODO !!!
+                }
+                else -> {
+                    val networkResponse =
+                        update.result?.body().toDomainOrNull()
+                    SuccessUpdate(networkResponse)
+                }
+            }
+        }
+
+        // endregion Inherited methods
+
+    }
 
     private class RegisterTask(
 

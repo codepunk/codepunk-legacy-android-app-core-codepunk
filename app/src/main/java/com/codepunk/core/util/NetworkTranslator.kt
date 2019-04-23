@@ -76,6 +76,7 @@ class NetworkTranslator(private val context: Context) {
         R.string.translator_string_input_invalid,
         R.string.translator_string_input_password,
         R.string.translator_string_input_sent_activation_code,
+        R.string.translator_string_input_sent_activation_code_when_you_registered,
         R.string.translator_string_input_username
     )
 
@@ -88,6 +89,7 @@ class NetworkTranslator(private val context: Context) {
         R.string.translator_string_output_invalid,
         R.string.translator_string_output_password,
         R.string.translator_string_output_sent_activation_code,
+        R.string.translator_string_output_sent_activation_code_when_you_registered,
         R.string.translator_string_output_username
     )
 
