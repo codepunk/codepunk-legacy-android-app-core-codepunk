@@ -26,7 +26,9 @@ import com.codepunk.core.util.NetworkTranslator
  */
 fun RemoteNetworkResponse.toDomain(networkTranslator: NetworkTranslator): NetworkResponse =
     NetworkResponse(
-        networkTranslator.translate(this.message),
+        networkTranslator.translate(message),
+        error,
+        errorDescription,
         errors?.mapValues { entry ->
             entry.value.map {
                 networkTranslator.translate(it) ?: ""

@@ -20,6 +20,7 @@ package com.codepunk.core.presentation.base
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 import android.content.DialogInterface.BUTTON_NEGATIVE
@@ -85,6 +86,13 @@ open class AlertDialogFragment :
     // endregion Properties
 
     // region Lifecycle methods
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (listenerSource ==  ListenerSource.ACTIVITY) {
+            _listener = activity as? AlertDialogFragmentListener
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

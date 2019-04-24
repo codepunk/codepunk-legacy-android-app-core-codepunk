@@ -21,6 +21,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.codepunk.core.R
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.doofenschmirtz.util.taskinator.*
@@ -100,6 +101,10 @@ abstract class DataUpdateResolver<Progress, Result> {
     open fun showAlertDialog(fragment: Fragment, tag: String, requestCode: Int) =
         fragment.requireFragmentManager().findFragmentByTag(tag)
             ?: AlertDialogFragment.showDialogFragmentForResult(fragment, tag, requestCode)
+
+    open fun showAlertDialog(activity: FragmentActivity, tag: String, requestCode: Int) =
+        activity.supportFragmentManager.findFragmentByTag(tag)
+            ?: AlertDialogFragment.showDialogFragmentForResult(activity, tag, requestCode)
 
     open fun showSnackbar(view: View, requestCode: Int) {
         Snackbar.make(

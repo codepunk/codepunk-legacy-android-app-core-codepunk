@@ -21,7 +21,6 @@ import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,32 +28,21 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
-import com.codepunk.core.BuildConfig.KEY_RESPONSE_MESSAGE
 import com.codepunk.core.R
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.databinding.FragmentLogInBinding
-import com.codepunk.core.domain.model.Authorization
-import com.codepunk.core.domain.model.NetworkResponse
-import com.codepunk.core.lib.SimpleDialogFragment
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import dagger.android.support.AndroidSupportInjection
-import retrofit2.Response
-import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -198,10 +186,12 @@ class LogInFragment :
             }
         }
 
+        /*
         authViewModel.authorizationDataUpdate.observe(
             this,
             Observer { onAuthorizationUpdate(it) }
         )
+        */
     }
 
     // region Implemented methods
@@ -282,6 +272,7 @@ class LogInFragment :
         }
     }
 
+    /*
     private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
         /*
         setControlsEnabled(update !is ProgressUpdate)
@@ -290,7 +281,7 @@ class LogInFragment :
         when (update) {
             is FailureUpdate -> {
                 val remoteNetworkResponse: RemoteNetworkResponse? =
-                    update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
+                    null //  update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
                 if (loginator.isLoggable(Log.DEBUG)) {
                     loginator.d("remoteResponse=$remoteNetworkResponse")
                 }
@@ -314,6 +305,7 @@ class LogInFragment :
             }
         }
     }
+    */
 
     /**
      * Validates the form.

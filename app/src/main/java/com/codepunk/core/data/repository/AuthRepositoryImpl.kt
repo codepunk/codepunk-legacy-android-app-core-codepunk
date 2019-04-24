@@ -17,7 +17,9 @@
 
 package com.codepunk.core.data.repository
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.mapper.toDomainOrNull
 import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
@@ -128,29 +130,15 @@ class AuthRepositoryImpl(
 
             return when (update) {
                 is FailureUpdate -> {
-                    /*
-                    val remoteNetworkResponse = update.result?.errorBody()?.let { errorBody ->
-                        retrofit.responseBodyConverter<RemoteNetworkResponse>(
-                            RemoteNetworkResponse::class.java,
-                            arrayOf()
-                        ).convert(errorBody)
-                    }
-                    val networkResponse =
-                        remoteNetworkResponse.toDomainOrNull(networkTranslator)
-                    */
-
                     val errorBody = update.result?.errorBody()
                     val networkResponse = errorBody
                         .toRemoteNetworkResponse(retrofit)
                         .toDomainOrNull(networkTranslator)
+                    val data = Bundle().apply {
+                        putParcelable(BuildConfig.KEY_NETWORK_RESPONSE, networkResponse)
+                    }
 
-                    /*
-                    val remoteNetworkResponse =
-                        update.result.toRemoteNetworkResponse(retrofit)
-                    val networkResponse =
-                        remoteNetworkResponse.toDomainOrNull(networkTranslator)
-                    */
-                    FailureUpdate(null, update.e) // TODO !!!
+                    FailureUpdate(null, update.e, data) // TODO !!!
                 }
                 else -> {
                     val networkResponse =

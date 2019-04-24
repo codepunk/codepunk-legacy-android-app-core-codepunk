@@ -163,8 +163,8 @@ android {
                 "FIRST_TIME",
                 "INTENT",
                 "LISTENER_SOURCE",
-                "REQUEST_CODE",
-                "RESPONSE_MESSAGE"
+                "NETWORK_RESPONSE",
+                "REQUEST_CODE"
         )
 
         /*

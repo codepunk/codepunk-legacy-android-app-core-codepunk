@@ -17,10 +17,7 @@
 
 package com.codepunk.core.data.remote.entity
 
-import android.os.Parcel
-import android.os.Parcelable
-import com.codepunk.core.lib.toBundle
-import com.codepunk.core.lib.toMap
+import com.squareup.moshi.Json
 
 /**
  * A response message from the server. This response contains a [message] string and
@@ -34,67 +31,19 @@ data class RemoteNetworkResponse(
     val message: String?,
 
     /**
-     * Any errors that were discovered during the request.
+     * An optional error code.
+     */
+    val error: String?,
+
+    /**
+     * An optional error description.
+     */
+    @field:Json(name = "error_description")
+    val errorDescription: String?,
+
+    /**
+     * Any errors (relating to specific keys) that were discovered during the request.
      */
     val errors: Map<String, Array<String>>? = null
 
-) : Parcelable {
-
-    // region Constructors
-
-    /**
-     * Constructor that takes a [Parcel].
-     */
-    constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.readBundle(Array<String>::class.java.classLoader).toMap()
-    )
-
-    // endregion Constructors
-
-    // region Implemented methods
-
-    /**
-     * Flattens this object in to the supplied [parcel]. Implementation of [Parcelable].
-     */
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(message)
-        parcel.writeBundle(errors.toBundle())
-    }
-
-    /**
-     * Describes the kinds of special objects contained in this [Parcelable] instance's marshaled
-     * representation. Implementation of [Parcelable].
-     */
-    override fun describeContents(): Int = 0
-
-    // endregion Implemented methods
-
-    // region Companion object
-
-    /**
-     * A public CREATOR field that generates instances of [RemoteNetworkResponse] from a [Parcel].
-     */
-    companion object CREATOR : Parcelable.Creator<RemoteNetworkResponse> {
-
-        // region Inherited methods
-
-        /**
-         * Create a new instance of the [Parcelable] class, instantiating it from the given
-         * [Parcel] whose data had previously been written by [Parcelable.writeToParcel].
-         */
-        override fun createFromParcel(parcel: Parcel): RemoteNetworkResponse =
-            RemoteNetworkResponse(parcel)
-
-        /**
-         * Create a new array of [RemoteNetworkResponse].
-         */
-        override fun newArray(size: Int): Array<RemoteNetworkResponse?> = arrayOfNulls(size)
-
-        // endregion Inherited methods
-
-    }
-
-    // endregion Companion object
-
-}
+)

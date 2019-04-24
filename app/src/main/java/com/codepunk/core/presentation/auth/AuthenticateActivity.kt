@@ -16,9 +16,7 @@
 
 package com.codepunk.core.presentation.auth
 
-import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.AccountManager.*
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -40,19 +38,15 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
-import com.codepunk.core.lib.addOrUpdateAccount
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.DataUpdateResolver
-import com.codepunk.doofenschmirtz.util.http.HttpStatus
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -63,7 +57,6 @@ import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
-import retrofit2.Response
 import javax.inject.Inject
 
 /**
@@ -159,6 +152,11 @@ class AuthenticateActivity :
     }
 
     /**
+     * A [DataUpdateResolver] for handling authenticate updates.
+     */
+    private val authenticateResolver = AuthenticateResolver()
+
+    /**
      * A [DataUpdateResolver] for handling register updates.
      */
     private val registerResolver = RegisterResolver()
@@ -245,11 +243,12 @@ class AuthenticateActivity :
     override fun supportFragmentInjector(): AndroidInjector<Fragment> =
         fragmentDispatchingAndroidInjector
 
+    // TODO Here's the thing. This method needs to know which resolver to call >:(
     override fun onBuildAlertDialog(
         requestCode: Int,
         builder: AlertDialog.Builder,
         onClickListener: DialogInterface.OnClickListener
-    ) = registerResolver.onBuildAlertDialog(requestCode, builder, onClickListener)
+    ) = authenticateResolver.onBuildAlertDialog(requestCode, builder, onClickListener)
 
     override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) =
         registerResolver.onDialogResult(requestCode, resultCode, data)
@@ -269,6 +268,8 @@ class AuthenticateActivity :
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
+        authenticateResolver.resolve(update)
+        /*
         when (update) {
             is ProgressUpdate -> {
                 // TODO Loading dialog (show and hide)
@@ -307,6 +308,10 @@ class AuthenticateActivity :
             is FailureUpdate -> {
 
                 // TODO Error message(s)
+                val networkMessage =
+                    update.data?.getParcelable(KEY_NETWORK_RESPONSE) as NetworkResponse?
+
+                loginator.d("update=$update")
 
             }
         }
@@ -316,6 +321,7 @@ class AuthenticateActivity :
             is FailureUpdate -> update.result
             else -> null
         }
+        */
 
         /*
         val httpStatus = when (response) {
@@ -342,6 +348,89 @@ class AuthenticateActivity :
     // endregion Methods
 
     // region Nested/inner classes
+
+    private inner class AuthenticateResolver :
+        DataUpdateResolver<NetworkResponse, Authorization>() {
+
+        // region Inherited methods
+
+        override fun onPending(update: PendingUpdate<NetworkResponse, Authorization>): Int {
+            contentLoadingProgressBar.hide()
+            return super.onPending(update)
+        }
+
+        override fun onProgress(update: ProgressUpdate<NetworkResponse, Authorization>): Int {
+            contentLoadingProgressBar.show()
+            return super.onProgress(update)
+        }
+
+        override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authorization>): Int {
+            contentLoadingProgressBar.hide()
+            return super.onSuccess(update)
+        }
+
+        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>): Int {
+            contentLoadingProgressBar.hide()
+            return super.onFailure(update)
+        }
+
+        override fun onException(
+            e: Exception,
+            update: FailureUpdate<NetworkResponse, Authorization>
+        ): Int {
+            contentLoadingProgressBar.hide() // TODO Maybe?
+            return super.onException(e, update)
+        }
+
+        override fun onAction(update: DataUpdate<NetworkResponse, Authorization>, action: Int) {
+            when (action) {
+                REQUEST_FAILURE -> showAlertDialog(
+                    this@AuthenticateActivity,
+                    AUTHENTICATE_DIALOG_FRAGMENT_TAG,
+                    action
+                )
+                else -> showSnackbar(binding.coordinatorLayout, action)
+            }
+        }
+
+        override fun onBuildAlertDialog(
+            requestCode: Int,
+            builder: AlertDialog.Builder,
+            onClickListener: DialogInterface.OnClickListener
+        ) {
+            when (requestCode) {
+                REQUEST_FAILURE -> {
+                    builder.setTitle(R.string.authenticate_label_create_account)
+                        .setPositiveButton(android.R.string.ok, onClickListener)
+                    val data = (authViewModel.authorizationDataUpdate.value as? ResultUpdate)?.data
+                    val networkResponse =
+                        data?.getParcelable<NetworkResponse>(KEY_NETWORK_RESPONSE)
+                    networkResponse?.message?.also {
+                        builder.setMessage(it)
+                    } ?: also {
+                        builder.setMessage(R.string.alert_error)
+                    }
+                }
+                /*
+                REQUEST_SUCCESS -> {
+                    builder.setTitle(R.string.authenticate_label_create_account)
+                        .setPositiveButton(android.R.string.ok, onClickListener)
+                    val message =
+                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
+                    message?.also {
+                        builder.setMessage(it)
+                    } ?: also {
+                        builder.setMessage(R.string.alert_success)
+                    }
+                }
+                */
+                else -> super.onBuildAlertDialog(requestCode, builder, onClickListener)
+            }
+        }
+
+        // endregion Inherited methods
+
+    }
 
     private inner class RegisterResolver : DataUpdateResolver<Void, NetworkResponse>() {
 
@@ -502,7 +591,13 @@ class AuthenticateActivity :
 
     companion object {
 
-        // region
+        // region Properties
+
+        @JvmStatic
+        private val AUTHENTICATE_DIALOG_FRAGMENT_TAG =
+            AuthenticateActivity::class.java.name + ".AUTHENTICATE_DIALOG_FRAGMENT_TAG"
+
+        // endregion Properties
 
     }
 

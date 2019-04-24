@@ -17,6 +17,11 @@
 
 package com.codepunk.core.domain.model
 
+import android.os.Parcel
+import android.os.Parcelable
+import com.codepunk.core.lib.toBundle
+import com.codepunk.core.lib.toMap
+
 /**
  * A response message from a server. This response contains a [message] string and
  * optional [errors] detailing any issues discovered during the request.
@@ -29,11 +34,55 @@ data class NetworkResponse(
     val message: String?,
 
     /**
-     * Any errors that were discovered during the request.
+     * An optional error code.
+     */
+    val error: String?,
+
+    /**
+     * An optional error description.
+     */
+    val errorDescription: String?,
+
+    /**
+     * Any errors (relating to specific keys) that were discovered during the request.
      */
     val errors: Map<String, Array<String>>? = null
 
-) {
+) : Parcelable {
+
+    // region Constructors
+
+    /**
+     * Constructor that takes a [Parcel].
+     */
+    constructor(parcel: Parcel) : this(
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readBundle(Array<String>::class.java.classLoader).toMap()
+    )
+
+    // endregion Constructors
+
+    // region Implemented methods
+
+    /**
+     * Flattens this object in to the supplied [parcel]. Implementation of [Parcelable].
+     */
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(message)
+        parcel.writeString(error)
+        parcel.writeString(errorDescription)
+        parcel.writeBundle(errors.toBundle())
+    }
+
+    /**
+     * Describes the kinds of special objects contained in this [Parcelable] instance's marshaled
+     * representation. Implementation of [Parcelable].
+     */
+    override fun describeContents(): Int = 0
+
+    // endregion Implemented methods
 
     // region Methods
 
@@ -47,5 +96,32 @@ data class NetworkResponse(
     }
 
     // endregion Methods
+
+    // region Companion object
+
+    /**
+     * A public CREATOR field that generates instances of [NetworkResponse] from a [Parcel].
+     */
+    companion object CREATOR : Parcelable.Creator<NetworkResponse> {
+
+        // region Inherited methods
+
+        /**
+         * Create a new instance of the [Parcelable] class, instantiating it from the given
+         * [Parcel] whose data had previously been written by [Parcelable.writeToParcel].
+         */
+        override fun createFromParcel(parcel: Parcel): NetworkResponse =
+            NetworkResponse(parcel)
+
+        /**
+         * Create a new array of [NetworkResponse].
+         */
+        override fun newArray(size: Int): Array<NetworkResponse?> = arrayOfNulls(size)
+
+        // endregion Inherited methods
+
+    }
+
+    // endregion Companion object
 
 }
