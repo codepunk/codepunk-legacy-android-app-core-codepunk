@@ -36,7 +36,7 @@ data class NetworkResponse(
     /**
      * An optional error code.
      */
-    val error: String?,
+    val error: NetworkError?,
 
     /**
      * An optional error description.
@@ -57,7 +57,7 @@ data class NetworkResponse(
      */
     constructor(parcel: Parcel) : this(
         parcel.readString(),
-        parcel.readString(),
+        parcel.readParcelable<NetworkError>(NetworkError::class.java.classLoader),
         parcel.readString(),
         parcel.readBundle(Array<String>::class.java.classLoader).toMap()
     )
@@ -71,7 +71,7 @@ data class NetworkResponse(
      */
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(message)
-        parcel.writeString(error)
+        parcel.writeParcelable(error, flags)
         parcel.writeString(errorDescription)
         parcel.writeBundle(errors.toBundle())
     }

@@ -19,12 +19,14 @@ package com.codepunk.core.di.module
 import android.content.Context
 import com.codepunk.core.data.remote.adapter.BooleanIntAdapter
 import com.codepunk.core.data.remote.adapter.DateJsonAdapter
+import com.codepunk.core.data.remote.adapter.NetworkErrorJsonAdapter
 import com.codepunk.core.data.remote.converter.MoshiEnumConverterFactory
 import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.AuthWebserviceWrapper
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.core.domain.model.NetworkError
 import com.codepunk.core.util.NetworkTranslator
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -78,10 +80,12 @@ class NetModule {
     @Singleton
     fun providesMoshi(
         booleanIntAdapter: BooleanIntAdapter,
-        dateJsonAdapter: DateJsonAdapter
+        dateJsonAdapter: DateJsonAdapter,
+        networkErrorJsonAdapter: NetworkErrorJsonAdapter
     ): Moshi = Moshi.Builder()
         .add(booleanIntAdapter)
         .add(Date::class.java, dateJsonAdapter)
+        .add(NetworkError::class.java, networkErrorJsonAdapter)
         .build()
 
     /**

@@ -36,23 +36,19 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
-import com.codepunk.core.BuildConfig.*
+import com.codepunk.core.BuildConfig.CATEGORY_CREATE_ACCOUNT
+import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
 import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
-import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputLayout
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -151,16 +147,6 @@ class AuthenticateActivity :
         supportFragmentManager.findFragmentById(R.id.authenticate_nav_fragment) as NavHostFragment
     }
 
-    /**
-     * A [DataUpdateResolver] for handling authenticate updates.
-     */
-    private val authenticateResolver = AuthenticateResolver()
-
-    /**
-     * A [DataUpdateResolver] for handling register updates.
-     */
-    private val registerResolver = RegisterResolver()
-
     var authenticateActivityListener: AuthenticateActivityListener? = null
 
     // endregion Properties
@@ -248,10 +234,13 @@ class AuthenticateActivity :
         requestCode: Int,
         builder: AlertDialog.Builder,
         onClickListener: DialogInterface.OnClickListener
-    ) = authenticateResolver.onBuildAlertDialog(requestCode, builder, onClickListener)
+    ) {
 
-    override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) =
-        registerResolver.onDialogResult(requestCode, resultCode, data)
+    }
+
+    override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+    }
 
     override fun onClick(v: View?) {
         loginator.i("onClick: v=$v")
@@ -268,312 +257,17 @@ class AuthenticateActivity :
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
-        authenticateResolver.resolve(update)
-        /*
-        when (update) {
-            is ProgressUpdate -> {
-                // TODO Loading dialog (show and hide)
-            }
-            is SuccessUpdate -> {
-                val result = update.data
-                when (result) {
-                    null -> setResult(RESULT_CANCELED)
-                    else -> {
-                        // TODO I need to either check the user here (for active) or change the
-                        // endpoint to return something different if we log in and the user is NOT active
-
-                        // Set accountAuthenticatorResult so accountAuthenticatorResponse can
-                        // react to it
-                        accountAuthenticatorResult = update.data
-
-                        // Update accountManager with the account
-                        val accountName = result.getString(KEY_ACCOUNT_NAME)
-                        val accountType = result.getString(KEY_ACCOUNT_TYPE)
-                        val password = result.getString(KEY_PASSWORD)
-                        val account = Account(accountName, accountType)
-                        accountManager.addOrUpdateAccount(account, password)
-
-                        sharedPreferences.edit()
-                            .putString(PREF_KEY_CURRENT_ACCOUNT_NAME, accountName)
-                            .apply()
-
-                        // Set the result to pass back to the calling activity
-                        val data = Intent()
-                        data.putExtra(KEY_ACCOUNT, account)
-                        setResult(RESULT_OK, data)
-                    }
-                }
-                finish()
-            }
-            is FailureUpdate -> {
-
-                // TODO Error message(s)
-                val networkMessage =
-                    update.data?.getParcelable(KEY_NETWORK_RESPONSE) as NetworkResponse?
-
-                loginator.d("update=$update")
-
-            }
-        }
-
-        val response = when (update) {
-            is SuccessUpdate -> update.result
-            is FailureUpdate -> update.result
-            else -> null
-        }
-        */
-
-        /*
-        val httpStatus = when (response) {
-            null -> null
-            else -> HttpStatus.lookup(response.code())
-        }
-        */
-
-        /*
-        // TODO If I get here, I might have a ProgressUpdate with a RemoteNetworkResponse of
-        // "We sent you an activation code! Please check your e-mail."
-        // and null errors. How do I best "catch" it?
-        loginator.d("httpStatus=$httpStatus, update=$update")
-        */
     }
 
     private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
-        registerResolver.resolve(update)
     }
 
     // endregion Methods
 
     // region Nested/inner classes
-
-    private inner class AuthenticateResolver :
-        DataUpdateResolver<NetworkResponse, Authorization>() {
-
-        // region Inherited methods
-
-        override fun onPending(update: PendingUpdate<NetworkResponse, Authorization>): Int {
-            contentLoadingProgressBar.hide()
-            return super.onPending(update)
-        }
-
-        override fun onProgress(update: ProgressUpdate<NetworkResponse, Authorization>): Int {
-            contentLoadingProgressBar.show()
-            return super.onProgress(update)
-        }
-
-        override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authorization>): Int {
-            contentLoadingProgressBar.hide()
-            return super.onSuccess(update)
-        }
-
-        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>): Int {
-            contentLoadingProgressBar.hide()
-            return super.onFailure(update)
-        }
-
-        override fun onException(
-            e: Exception,
-            update: FailureUpdate<NetworkResponse, Authorization>
-        ): Int {
-            contentLoadingProgressBar.hide() // TODO Maybe?
-            return super.onException(e, update)
-        }
-
-        override fun onAction(update: DataUpdate<NetworkResponse, Authorization>, action: Int) {
-            when (action) {
-                REQUEST_FAILURE -> showAlertDialog(
-                    this@AuthenticateActivity,
-                    AUTHENTICATE_DIALOG_FRAGMENT_TAG,
-                    action
-                )
-                else -> showSnackbar(binding.coordinatorLayout, action)
-            }
-        }
-
-        override fun onBuildAlertDialog(
-            requestCode: Int,
-            builder: AlertDialog.Builder,
-            onClickListener: DialogInterface.OnClickListener
-        ) {
-            when (requestCode) {
-                REQUEST_FAILURE -> {
-                    builder.setTitle(R.string.authenticate_label_create_account)
-                        .setPositiveButton(android.R.string.ok, onClickListener)
-                    val data = (authViewModel.authorizationDataUpdate.value as? ResultUpdate)?.data
-                    val networkResponse =
-                        data?.getParcelable<NetworkResponse>(KEY_NETWORK_RESPONSE)
-                    networkResponse?.message?.also {
-                        builder.setMessage(it)
-                    } ?: also {
-                        builder.setMessage(R.string.alert_error)
-                    }
-                }
-                /*
-                REQUEST_SUCCESS -> {
-                    builder.setTitle(R.string.authenticate_label_create_account)
-                        .setPositiveButton(android.R.string.ok, onClickListener)
-                    val message =
-                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
-                    message?.also {
-                        builder.setMessage(it)
-                    } ?: also {
-                        builder.setMessage(R.string.alert_success)
-                    }
-                }
-                */
-                else -> super.onBuildAlertDialog(requestCode, builder, onClickListener)
-            }
-        }
-
-        // endregion Inherited methods
-
-    }
-
-    private inner class RegisterResolver : DataUpdateResolver<Void, NetworkResponse>() {
-
-        // region Inherited methods
-
-        override fun onPending(update: PendingUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBar.hide()
-            return super.onPending(update)
-        }
-
-        override fun onProgress(update: ProgressUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBar.show()
-            return super.onProgress(update)
-        }
-
-        override fun onSuccess(update: SuccessUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBar.hide()
-            return super.onSuccess(update)
-        }
-
-        override fun onFailure(update: FailureUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBar.hide()
-            update.result?.firstErrorOrNull()?.also { error ->
-                binding.content.findViewWithTag<TextInputLayout>(error.first)?.also { layout ->
-                    layout.error = error.second
-                    return REQUEST_NONE
-                }
-            }
-            return super.onFailure(update) //REQUEST_REGISTER_FAILURE
-        }
-
-        override fun onException(e: Exception, update: FailureUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBar.hide() // TODO Maybe?
-            return super.onException(e, update)
-        }
-
-        override fun onAction(update: DataUpdate<Void, NetworkResponse>, action: Int) {
-            when (action) {
-                REQUEST_SUCCESS -> {
-                    // Pop back to log in fragment (or first destination in the graph
-                    // if log in fragment not found)
-
-                    // TODO NEXT: Only want to do this the first time! Not every time after rotation
-
-                    val controller = Navigation.findNavController(
-                        this@AuthenticateActivity,
-                        R.id.authenticate_nav_fragment
-                    )
-
-                    val navOptions: NavOptions = NavOptions.Builder()
-                        .setPopUpTo(R.id.navigation_account, true)
-                        .build()
-
-                    controller.navigate(
-                        CreateAccountFragmentDirections.actionCreateAccountToLogIn(),
-                        navOptions
-                    )
-
-                    showSnackbar(binding.coordinatorLayout, action)
-                }
-                else -> showSnackbar(binding.coordinatorLayout, action)
-            }
-
-            /*
-            showAlertDialog(
-                this@CreateAccountFragment,
-                REGISTER_FRAGMENT_TAG,
-                action
-            )
-            */
-        }
-
-        override fun onBuildSnackbar(requestCode: Int, snackbar: Snackbar) {
-            when (requestCode) {
-                REQUEST_SUCCESS -> {
-                    snackbar/*.setText(R.string.authenticate_label_create_account)*/
-                        .setAction(R.string.app_got_it, this@AuthenticateActivity)
-                    //    .setPositiveButton(android.R.string.ok, onClickListener)
-                    snackbar.duration = BaseTransientBottomBar.LENGTH_INDEFINITE
-                    val message =
-                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
-                    message?.also {
-                        snackbar.setText(it)
-                    } ?: also {
-                        snackbar.setText(R.string.alert_success)
-                    }
-                }
-                else -> super.onBuildSnackbar(requestCode, snackbar)
-            }
-        }
-
-        override fun onBuildAlertDialog(
-            requestCode: Int,
-            builder: AlertDialog.Builder,
-            onClickListener: DialogInterface.OnClickListener
-        ) {
-            when (requestCode) {
-                REQUEST_SUCCESS -> {
-                    builder.setTitle(R.string.authenticate_label_create_account)
-                        .setPositiveButton(android.R.string.ok, onClickListener)
-                    val message =
-                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
-                    message?.also {
-                        builder.setMessage(it)
-                    } ?: also {
-                        builder.setMessage(R.string.alert_success)
-                    }
-                }
-                else -> super.onBuildAlertDialog(requestCode, builder, onClickListener)
-            }
-        }
-
-        // endregion Inherited methods
-
-        // region Methods
-
-        fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            authViewModel.registerDataUpdate.reset()
-            when (requestCode) {
-                REQUEST_SUCCESS -> {
-                    // Pop back to log in fragment (or first destination in the graph
-                    // if not found)
-                    val controller = Navigation.findNavController(
-                        this@AuthenticateActivity,
-                        R.id.authenticate_nav_fragment
-                    )
-                    if (!controller.popBackStack(R.id.fragment_log_in, false)) {
-                        controller.popBackStack(controller.graph.startDestination, false)
-                    }
-                }
-                REQUEST_CONNECT_EXCEPTION,
-                REQUEST_TIMEOUT_EXCEPTION -> {
-                    when (resultCode) {
-                        AlertDialogFragment.RESULT_NEUTRAL ->
-                            authenticateActivityListener?.onRegisterRetry()
-                    }
-                }
-            }
-        }
-
-        // endregion Methods
-
-    }
 
     interface AuthenticateActivityListener {
 
@@ -586,21 +280,5 @@ class AuthenticateActivity :
     }
 
     // endregion Nested/inner classes
-
-    // region Companion object
-
-    companion object {
-
-        // region Properties
-
-        @JvmStatic
-        private val AUTHENTICATE_DIALOG_FRAGMENT_TAG =
-            AuthenticateActivity::class.java.name + ".AUTHENTICATE_DIALOG_FRAGMENT_TAG"
-
-        // endregion Properties
-
-    }
-
-    // endregion Companion object
 
 }
