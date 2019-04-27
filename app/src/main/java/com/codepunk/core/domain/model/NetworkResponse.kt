@@ -34,9 +34,14 @@ data class NetworkResponse(
     val message: String?,
 
     /**
+     * A localized string message.
+     */
+    val localizedMessage: String?,
+
+    /**
      * An optional error code.
      */
-    val error: NetworkError?,
+    val error: String?,
 
     /**
      * An optional error description.
@@ -57,7 +62,8 @@ data class NetworkResponse(
      */
     constructor(parcel: Parcel) : this(
         parcel.readString(),
-        parcel.readParcelable<NetworkError>(NetworkError::class.java.classLoader),
+        parcel.readString(),
+        parcel.readString(),
         parcel.readString(),
         parcel.readBundle(Array<String>::class.java.classLoader).toMap()
     )
@@ -71,7 +77,8 @@ data class NetworkResponse(
      */
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(message)
-        parcel.writeParcelable(error, flags)
+        parcel.writeString(localizedMessage)
+        parcel.writeString(error)
         parcel.writeString(errorDescription)
         parcel.writeBundle(errors.toBundle())
     }
@@ -99,26 +106,41 @@ data class NetworkResponse(
 
     // region Companion object
 
-    /**
-     * A public CREATOR field that generates instances of [NetworkResponse] from a [Parcel].
-     */
-    companion object CREATOR : Parcelable.Creator<NetworkResponse> {
+    companion object {
 
-        // region Inherited methods
+        // region Properties
 
         /**
-         * Create a new instance of the [Parcelable] class, instantiating it from the given
-         * [Parcel] whose data had previously been written by [Parcelable.writeToParcel].
+         * A constant that corresponds to an attempt to log in to (or get an auth token for) a
+         * user account that has never been activated.
          */
-        override fun createFromParcel(parcel: Parcel): NetworkResponse =
-            NetworkResponse(parcel)
+        val INVALID_USER = "codepunk::activatinator.inactive"
 
         /**
-         * Create a new array of [NetworkResponse].
+         * A public CREATOR field that generates instances of [NetworkResponse] from a [Parcel].
          */
-        override fun newArray(size: Int): Array<NetworkResponse?> = arrayOfNulls(size)
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<NetworkResponse> {
 
-        // endregion Inherited methods
+            // region Inherited methods
+
+            /**
+             * Create a new instance of the [Parcelable] class, instantiating it from the given
+             * [Parcel] whose data had previously been written by [Parcelable.writeToParcel].
+             */
+            override fun createFromParcel(parcel: Parcel): NetworkResponse =
+                NetworkResponse(parcel)
+
+            /**
+             * Create a new array of [NetworkResponse].
+             */
+            override fun newArray(size: Int): Array<NetworkResponse?> = arrayOfNulls(size)
+
+            // endregion Inherited methods
+
+        }
+
+        // endregion Properties
 
     }
 

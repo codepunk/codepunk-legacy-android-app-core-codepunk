@@ -17,7 +17,6 @@
 
 package com.codepunk.core.data.remote.entity
 
-import com.codepunk.core.domain.model.NetworkError
 import com.squareup.moshi.Json
 
 /**
@@ -34,7 +33,7 @@ data class RemoteNetworkResponse(
     /**
      * An optional error code.
      */
-    val error: NetworkError?,
+    val error: String?,
 
     /**
      * An optional error description.

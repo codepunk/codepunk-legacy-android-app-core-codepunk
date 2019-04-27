@@ -17,197 +17,87 @@
 
 package com.codepunk.core.util
 
-import android.app.AlertDialog
-import android.content.DialogInterface
+import android.app.Activity
+import android.content.Context
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
+import android.widget.Toast
 import com.codepunk.core.R
-import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException
-import java.util.concurrent.TimeoutException
+import java.net.SocketTimeoutException
 
 abstract class DataUpdateResolver<Progress, Result> {
 
+    // region Properties
+
+    private val context: Context
+
+    private var view: View? = null
+
+    // endregion Properties
+
+    // region Constructors
+
+    constructor(activity: Activity) {
+        context = activity
+    }
+
+    // endregion Constructors
+
     // region Methods
 
-    fun resolve(update: DataUpdate<Progress, Result>) {
-        val requestCode = when (update) {
-            is PendingUpdate -> onPending(update).let { request ->
-                when (request) {
-                    REQUEST_DEFAULT -> REQUEST_NONE
-                    else -> request
-                }
-            }
-            is ProgressUpdate -> onProgress(update).let { request ->
-                when (request) {
-                    REQUEST_DEFAULT -> REQUEST_NONE
-                    else -> request
-                }
-            }
-            is SuccessUpdate -> onSuccess(update).let { request ->
-                when (request) {
-                    REQUEST_DEFAULT -> REQUEST_SUCCESS
-                    else -> request
-                }
-            }
+    fun with(view: View): DataUpdateResolver<Progress, Result> {
+        this.view = view
+        return this
+    }
+
+    open fun resolve(update: DataUpdate<Progress, Result>) {
+        when (update) {
+            is PendingUpdate -> onPending(update)
+            is ProgressUpdate -> onProgress(update)
+            is SuccessUpdate -> onSuccess(update)
             is FailureUpdate -> {
-                val exceptionRequest = update.e?.let { e ->
-                    resolveException(e, update)
-                } ?: REQUEST_DEFAULT
-                when (exceptionRequest) {
-                    REQUEST_DEFAULT -> onFailure(update).let { request ->
-                        when (request) {
-                            REQUEST_DEFAULT -> REQUEST_FAILURE
-                            else -> request
-                        }
-                    }
-                    else -> exceptionRequest
+                when (update.e) {
+                    is ConnectException,
+                    is SocketTimeoutException -> onException(update)
+                    else -> onFailure(update)
                 }
             }
-            else -> REQUEST_NONE
-        }
-
-        if (requestCode != REQUEST_NONE) {
-            onAction(update, requestCode)
         }
     }
 
-    private fun resolveException(e: Exception, update: FailureUpdate<Progress, Result>): Int =
-        onException(e, update).let { request ->
-            when (request) {
-                REQUEST_DEFAULT -> getRequestCode(e)
-                else -> request
+    open fun onPending(update: PendingUpdate<Progress, Result>) {}
+
+    open fun onProgress(update: ProgressUpdate<Progress, Result>) {}
+
+    open fun onSuccess(update: SuccessUpdate<Progress, Result>) {}
+
+    open fun onFailure(update: FailureUpdate<Progress, Result>) {}
+
+    open fun onException(update: FailureUpdate<Progress, Result>) {
+        when (update.e) {
+            is ConnectException -> {
+                view?.also {
+                    Snackbar.make(
+                        it,
+                        R.string.alert_connect_exception_message,
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
-        }
-
-    abstract fun onAction(update: DataUpdate<Progress, Result>, action: Int)
-
-    open fun onPending(update: PendingUpdate<Progress, Result>): Int = REQUEST_DEFAULT
-
-    open fun onProgress(update: ProgressUpdate<Progress, Result>): Int = REQUEST_DEFAULT
-
-    open fun onSuccess(update: SuccessUpdate<Progress, Result>): Int = REQUEST_DEFAULT
-
-    open fun onFailure(update: FailureUpdate<Progress, Result>): Int = REQUEST_DEFAULT
-
-    open fun onException(
-        e: Exception,
-        update: FailureUpdate<Progress, Result>
-    ): Int = REQUEST_DEFAULT
-
-    open fun showAlertDialog(fragment: Fragment, tag: String, requestCode: Int) =
-        fragment.requireFragmentManager().findFragmentByTag(tag)
-            ?: AlertDialogFragment.showDialogFragmentForResult(fragment, tag, requestCode)
-
-    open fun showAlertDialog(activity: FragmentActivity, tag: String, requestCode: Int) =
-        activity.supportFragmentManager.findFragmentByTag(tag)
-            ?: AlertDialogFragment.showDialogFragmentForResult(activity, tag, requestCode)
-
-    open fun showSnackbar(view: View, requestCode: Int) {
-        Snackbar.make(
-            view,
-            "",
-            Snackbar.LENGTH_LONG
-        ).apply {
-            onBuildSnackbar(requestCode, this)
-        }.show()
-    }
-
-    open fun onBuildSnackbar(
-        requestCode: Int,
-        snackbar: Snackbar
-    ) {
-        // TODO Can I streamline this?
-        when (requestCode) {
-            REQUEST_CONNECT_EXCEPTION -> {
-                snackbar.setText(R.string.alert_connect_exception_message)
-                /*
-                .setPositiveButton(android.R.string.ok, onClickListener)
-                .setNeutralButton(R.string.alert_retry, onClickListener)
-                */
-            }
-            REQUEST_TIMEOUT_EXCEPTION -> {
-                snackbar.setText(R.string.alert_timeout_exception_message)
-                /*
-                .setPositiveButton(android.R.string.ok, onClickListener)
-                .setNeutralButton(R.string.alert_retry, onClickListener)
-                */
-            }
-            REQUEST_FAILURE -> {
-                snackbar.setText(R.string.alert_unknown_error_message)
-                /*
-                .setPositiveButton(android.R.string.ok, onClickListener)
-                */
-            }
-        }
-    }
-
-    open fun onBuildAlertDialog(
-        requestCode: Int,
-        builder: AlertDialog.Builder,
-        onClickListener: DialogInterface.OnClickListener
-    ) {
-        when (requestCode) {
-            REQUEST_CONNECT_EXCEPTION -> {
-                builder.setTitle(R.string.alert_connect_exception_title)
-                    .setMessage(R.string.alert_connect_exception_message)
-                    .setPositiveButton(android.R.string.ok, onClickListener)
-                    .setNeutralButton(R.string.alert_retry, onClickListener)
-            }
-            REQUEST_TIMEOUT_EXCEPTION -> {
-                builder.setTitle(R.string.alert_error)
-                    .setMessage(R.string.alert_timeout_exception_message)
-                    .setPositiveButton(android.R.string.ok, onClickListener)
-                    .setNeutralButton(R.string.alert_retry, onClickListener)
-            }
-            REQUEST_FAILURE -> {
-                builder.setTitle(R.string.alert_error)
-                    .setMessage(R.string.alert_unknown_error_message)
-                    .setPositiveButton(android.R.string.ok, onClickListener)
+            is SocketTimeoutException -> {
+                view?.also {
+                    Snackbar.make(
+                        it,
+                        R.string.alert_timeout_exception_message,
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
 
     // endregion Methods
-
-    // region Companion object
-
-    companion object {
-
-        // region Properties
-
-        const val REQUEST_NONE = Integer.MIN_VALUE
-
-        private const val REQUEST_FIRST: Int = -0xDAADAE
-
-        const val REQUEST_DEFAULT = REQUEST_FIRST
-
-        const val REQUEST_SUCCESS = REQUEST_FIRST + 1
-
-        const val REQUEST_FAILURE = REQUEST_FIRST + 2
-
-        const val REQUEST_CONNECT_EXCEPTION = REQUEST_FIRST + 3
-
-        const val REQUEST_TIMEOUT_EXCEPTION = REQUEST_FIRST + 4
-
-        // endregion Properties
-
-        // region Methods
-
-        @JvmStatic
-        private fun getRequestCode(e: Exception): Int = when (e) {
-            is ConnectException -> REQUEST_CONNECT_EXCEPTION
-            is TimeoutException -> REQUEST_TIMEOUT_EXCEPTION
-            else -> REQUEST_DEFAULT
-        }
-
-        // endregion Methods
-
-    }
-
-    // endregion Companion object
 
 }

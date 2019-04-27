@@ -242,7 +242,7 @@ class CreateAccountFragment :
     /*
     // region Nested/inner classes
 
-    private inner class RegisterResolver : DataUpdateResolver<Void, NetworkResponse>() {
+    private inner class RegisterResolver : DataUpdateResolverOld<Void, NetworkResponse>() {
 
         // region Inherited methods
 

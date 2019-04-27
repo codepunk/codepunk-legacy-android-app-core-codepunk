@@ -24,14 +24,15 @@ import com.codepunk.core.util.NetworkTranslator
 /**
  * Converts a [RemoteNetworkResponse] to a domain [NetworkResponse].
  */
-fun RemoteNetworkResponse.toDomain(networkTranslator: NetworkTranslator): NetworkResponse =
+fun RemoteNetworkResponse.toDomain(networkTranslator: NetworkTranslator? = null): NetworkResponse =
     NetworkResponse(
-        networkTranslator.translate(message),
+        message,
+        networkTranslator?.translate(message) ?: message,
         error,
         errorDescription,
         errors?.mapValues { entry ->
             entry.value.map {
-                networkTranslator.translate(it) ?: ""
+                networkTranslator?.translate(it) ?: it
             }.toTypedArray()
         }
     )

@@ -27,6 +27,7 @@ import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
+import com.codepunk.core.lib.exception.InactiveUserException
 import com.codepunk.core.lib.getResultUpdate
 import com.codepunk.core.lib.toRemoteNetworkResponse
 import com.codepunk.core.util.NetworkTranslator
@@ -134,16 +135,24 @@ class AuthRepositoryImpl(
                     val networkResponse = errorBody
                         .toRemoteNetworkResponse(retrofit)
                         .toDomainOrNull(networkTranslator)
+                    val e = when (networkResponse?.error) {
+                        NetworkResponse.INVALID_USER -> InactiveUserException(
+                            networkResponse.localizedMessage,
+                            update.e
+                        )
+                        else -> update.e
+                    }
+
                     val data = Bundle().apply {
                         putParcelable(BuildConfig.KEY_NETWORK_RESPONSE, networkResponse)
                     }
 
-                    FailureUpdate(null, update.e, data) // TODO !!!
+                    FailureUpdate(null, e, data)
                 }
                 else -> {
-                    val networkResponse =
+                    val authorization =
                         update.result?.body().toDomainOrNull()
-                    SuccessUpdate(networkResponse)
+                    SuccessUpdate(authorization)
                 }
             }
         }

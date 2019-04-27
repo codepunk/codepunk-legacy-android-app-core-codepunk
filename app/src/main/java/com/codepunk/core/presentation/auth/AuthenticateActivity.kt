@@ -24,6 +24,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
@@ -46,8 +47,9 @@ import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -148,6 +150,8 @@ class AuthenticateActivity :
     }
 
     var authenticateActivityListener: AuthenticateActivityListener? = null
+
+    var authenticateResolver: AuthenticateResolver = AuthenticateResolver()
 
     // endregion Properties
 
@@ -257,17 +261,78 @@ class AuthenticateActivity :
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
+
+        authenticateResolver
+            .with(binding.coordinatorLayout)
+            .resolve(update)
+
+        /*
+        when (update) {
+            is ProgressUpdate -> binding.loadingProgress.show() // TODO Tell fragments to enable/disable controls
+            is SuccessUpdate -> {
+                binding.loadingProgress.hide()
+            }
+            is FailureUpdate -> {
+                binding.loadingProgress.hide()
+                Toast.makeText(
+                    this,
+                    update.e?.localizedMessage ?: "",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            else -> binding.loadingProgress.hide()
+        }
+        */
     }
 
     private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
+
+        when (update) {
+            is ProgressUpdate -> binding.loadingProgress.show()
+            is SuccessUpdate -> binding.loadingProgress.hide()
+            is FailureUpdate -> binding.loadingProgress.hide()
+            else -> binding.loadingProgress.hide()
+        }
     }
 
     // endregion Methods
 
     // region Nested/inner classes
+
+    inner class AuthenticateResolver :
+        DataUpdateResolver<NetworkResponse, Authorization>(this) {
+
+        // region Inherited methods
+
+        override fun resolve(update: DataUpdate<NetworkResponse, Authorization>) {
+            val loading = (update is ProgressUpdate)
+            if (loading) {
+                binding.loadingProgress.show()
+                // TODO disable controls (or at least the button)
+            } else {
+                binding.loadingProgress.hide()
+                // TODO enable controls
+            }
+            super.resolve(update)
+        }
+
+        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>) {
+            // TODO Make this a DialogFragment
+            val message =
+                update.e?.localizedMessage ?: getString(R.string.alert_unknown_error_message)
+            Toast.makeText(
+                this@AuthenticateActivity,
+                message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        // endregion Inherited methods
+
+    }
 
     interface AuthenticateActivityListener {
 
