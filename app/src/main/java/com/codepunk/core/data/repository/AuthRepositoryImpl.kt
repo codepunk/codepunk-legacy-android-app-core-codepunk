@@ -28,6 +28,7 @@ import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.exception.InactiveUserException
+import com.codepunk.core.lib.exception.InvalidCredentialsException
 import com.codepunk.core.lib.getResultUpdate
 import com.codepunk.core.lib.toRemoteNetworkResponse
 import com.codepunk.core.util.NetworkTranslator
@@ -136,7 +137,11 @@ class AuthRepositoryImpl(
                         .toRemoteNetworkResponse(retrofit)
                         .toDomainOrNull(networkTranslator)
                     val e = when (networkResponse?.error) {
-                        NetworkResponse.INVALID_USER -> InactiveUserException(
+                        NetworkResponse.INVALID_CREDENTIALS -> InvalidCredentialsException(
+                            networkResponse.localizedMessage,
+                            update.e
+                        )
+                        NetworkResponse.INACTIVE_USER -> InactiveUserException(
                             networkResponse.localizedMessage,
                             update.e
                         )

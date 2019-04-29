@@ -44,7 +44,7 @@
             android:name=".presentation.auth.AuthenticateActivity"
             android:label="@string/app_account"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
 

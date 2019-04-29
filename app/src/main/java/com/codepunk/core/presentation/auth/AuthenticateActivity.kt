@@ -39,23 +39,37 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import com.codepunk.core.BuildConfig.CATEGORY_CREATE_ACCOUNT
 import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
+import com.codepunk.core.BuildConfig.FRAGMENT_TAG_AUTH_DIALOG
 import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
+import com.codepunk.core.lib.exception.InactiveUserException
+import com.codepunk.core.lib.exception.InvalidCredentialsException
+import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
+import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
+
+// region Constants
+
+private const val AUTH_DIALOG_REQUEST_CODE = 1
+
+// endregion Constants
 
 /**
  * An Activity that handles all actions relating to creating, selecting, and authenticating
@@ -66,7 +80,6 @@ class AuthenticateActivity :
     HasSupportFragmentInjector,
     ContentLoadingProgressBarOwner,
     FloatingActionButtonOwner,
-    AlertDialogFragment.AlertDialogFragmentListener,
     View.OnClickListener {
 
     // region Implemented properties
@@ -166,6 +179,9 @@ class AuthenticateActivity :
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
 
+        // Prevent soft keyboard from auto-popping up
+        //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -193,6 +209,10 @@ class AuthenticateActivity :
 
         authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
         authViewModel.authorizationDataUpdate.observe(this, Observer { onAuthorizationUpdate(it) })
+
+        if (savedInstanceState != null) {
+            authenticateResolver.restoreListeners()
+        }
     }
 
     // endregion Lifecycle methods
@@ -233,19 +253,6 @@ class AuthenticateActivity :
     override fun supportFragmentInjector(): AndroidInjector<Fragment> =
         fragmentDispatchingAndroidInjector
 
-    // TODO Here's the thing. This method needs to know which resolver to call >:(
-    override fun onBuildAlertDialog(
-        requestCode: Int,
-        builder: AlertDialog.Builder,
-        onClickListener: DialogInterface.OnClickListener
-    ) {
-
-    }
-
-    override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-    }
-
     override fun onClick(v: View?) {
         loginator.i("onClick: v=$v")
     }
@@ -255,46 +262,20 @@ class AuthenticateActivity :
     // region Methods
 
     /**
-     * Reacts to authorization data changing.
+     * Reacts to authorization data changes.
      */
     private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
-        if (loginator.isLoggable(Log.INFO)) {
-            loginator.i("update=$update")
-        }
-
         authenticateResolver
             .with(binding.coordinatorLayout)
             .resolve(update)
-
-        /*
-        when (update) {
-            is ProgressUpdate -> binding.loadingProgress.show() // TODO Tell fragments to enable/disable controls
-            is SuccessUpdate -> {
-                binding.loadingProgress.hide()
-            }
-            is FailureUpdate -> {
-                binding.loadingProgress.hide()
-                Toast.makeText(
-                    this,
-                    update.e?.localizedMessage ?: "",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            else -> binding.loadingProgress.hide()
-        }
-        */
     }
 
+    /**
+     * Reacts to register data changes.
+     */
     private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
-        }
-
-        when (update) {
-            is ProgressUpdate -> binding.loadingProgress.show()
-            is SuccessUpdate -> binding.loadingProgress.hide()
-            is FailureUpdate -> binding.loadingProgress.hide()
-            else -> binding.loadingProgress.hide()
         }
     }
 
@@ -303,6 +284,7 @@ class AuthenticateActivity :
     // region Nested/inner classes
 
     inner class AuthenticateResolver :
+        AlertDialogFragmentListener,
         DataUpdateResolver<NetworkResponse, Authorization>(this) {
 
         // region Inherited methods
@@ -320,17 +302,88 @@ class AuthenticateActivity :
         }
 
         override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>) {
-            // TODO Make this a DialogFragment
-            val message =
-                update.e?.localizedMessage ?: getString(R.string.alert_unknown_error_message)
+            update.e?.also { e ->
+                when (e) {
+                    is InactiveUserException -> {
+                        supportFragmentManager.findFragmentByTag(
+                            FRAGMENT_TAG_AUTH_DIALOG
+                        ) ?: AlertDialogFragment.showDialogFragmentForResult(
+                            supportFragmentManager,
+                            FRAGMENT_TAG_AUTH_DIALOG,
+                            AUTH_DIALOG_REQUEST_CODE,
+                            this
+                        )
+                        return
+                    }
+                    is InvalidCredentialsException -> {
+                        val text =
+                            update.e?.localizedMessage
+                                ?: getString(R.string.alert_unknown_error_message)
+                        Snackbar.make(
+                            binding.coordinatorLayout,
+                            text,
+                            Snackbar.LENGTH_LONG
+                        ).apply {
+                            addCallback(object : Snackbar.Callback() {
+                                override fun onDismissed(
+                                    transientBottomBar: Snackbar?,
+                                    event: Int
+                                ) {
+                                    authViewModel.authorizationDataUpdate.reset()
+                                }
+                            })
+                        }.show()
+                        return
+
+                    }
+                }
+            }
+
+            // TODO Should all errors be dialog fragments? Or Snackbars?
             Toast.makeText(
                 this@AuthenticateActivity,
-                message,
+                R.string.alert_unknown_error_message,
                 Toast.LENGTH_LONG
             ).show()
         }
 
         // endregion Inherited methods
+
+        // region Implemented methods
+
+        override fun onBuildAlertDialog(
+            requestCode: Int,
+            builder: AlertDialog.Builder,
+            onClickListener: DialogInterface.OnClickListener
+        ) {
+            val update =
+                authViewModel.authorizationDataUpdate.value as
+                        FailureUpdate<NetworkResponse, Authorization>?
+            val message =
+                update?.e?.localizedMessage ?: getString(R.string.alert_unknown_error_message)
+            builder
+                .setTitle(R.string.authenticate_label_log_in)
+                .setMessage(message)
+                .setPositiveButton(R.string.app_got_it, onClickListener)
+        }
+
+        override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            authViewModel.authorizationDataUpdate.reset()
+        }
+
+        // endregion Implemented methods
+
+        // region Methods
+
+        /**
+         * Restores listeners post-configuration change as needed.
+         */
+        fun restoreListeners() {
+            (supportFragmentManager.findFragmentByTag(FRAGMENT_TAG_AUTH_DIALOG)
+                    as? AlertDialogFragment)?.listener = this
+        }
+
+        // endregion Methods
 
     }
 

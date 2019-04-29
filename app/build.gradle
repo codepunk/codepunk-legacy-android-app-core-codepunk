@@ -167,6 +167,11 @@ android {
                 "REQUEST_CODE"
         )
 
+        makeFragmentTags(
+                variant,
+                "AUTH_DIALOG"
+        )
+
         /*
          * Pull private values from gradle.properties
          * (See http://www.rainbowbreeze.it/environmental-variables-api-key-and-secret-buildconfig-and-android-studio/)
@@ -288,6 +293,14 @@ static def makeKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
         def buildConfigName = "KEY_$key"
         def buildConfigValue = "\"${variant.applicationId}.$key\""
+        variant.buildConfigField("String", buildConfigName, buildConfigValue)
+    }
+}
+
+static def makeFragmentTags(BaseVariant variant, String... tags) {
+    tags.each { tag ->
+        def buildConfigName = "FRAGMENT_TAG_$tag"
+        def buildConfigValue = "\"${variant.applicationId}.$tag\""
         variant.buildConfigField("String", buildConfigName, buildConfigValue)
     }
 }

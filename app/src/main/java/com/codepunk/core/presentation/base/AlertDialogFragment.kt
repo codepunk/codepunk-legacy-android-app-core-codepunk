@@ -56,16 +56,16 @@ open class AlertDialogFragment :
             }
         }
 
-    var _listener: AlertDialogFragmentListener? = null
-    var listener: AlertDialogFragmentListener? = _listener
+    private var _listener: AlertDialogFragmentListener? = null
+    var listener: AlertDialogFragmentListener?
         get() = _listener
         set(value) {
-            if (field != value) {
-                field = value
-                listenerSource = when (field) {
+            if (_listener != value) {
+                listenerSource = when (_listener) {
                     null -> ListenerSource.NONE
                     else -> ListenerSource.CUSTOM
                 }
+                _listener = value
             }
         }
 

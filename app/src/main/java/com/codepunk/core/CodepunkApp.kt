@@ -32,6 +32,12 @@ import dagger.android.HasActivityInjector
 import dagger.android.HasServiceInjector
 import javax.inject.Inject
 
+/*
+ * TODO Maybe Change "DataUpdate" / "SuccessUpdate" etc.
+ * to "Resource", "ResourceSuccess", "ResourceResult", "ResourcePending" etc.?
+ * (and also instead of "LiveDataUpdate" it could just be "LiveResource" as a variable name?)
+ */
+
 /**
  * The main Codepunk [Application].
  */
@@ -85,7 +91,7 @@ class CodepunkApp :
             .inject(this)
 
         remoteEnvironment = sharedPreferences.getEnvironment(PREF_KEY_REMOTE_ENVIRONMENT)
-                ?: DEFAULT_REMOTE_ENVIRONMENT
+            ?: DEFAULT_REMOTE_ENVIRONMENT
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         PreferenceManager.setDefaultValues(this, R.xml.settings_main, false)
     }
@@ -122,8 +128,8 @@ class CodepunkApp :
         sharedPreferences?.apply {
             when (key) {
                 PREF_KEY_REMOTE_ENVIRONMENT ->
-                    remoteEnvironment = sharedPreferences.getEnvironment(key) ?:
-                            DEFAULT_REMOTE_ENVIRONMENT
+                    remoteEnvironment =
+                        sharedPreferences.getEnvironment(key) ?: DEFAULT_REMOTE_ENVIRONMENT
             }
         }
     }

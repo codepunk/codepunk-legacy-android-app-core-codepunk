@@ -114,7 +114,13 @@ data class NetworkResponse(
          * A constant that corresponds to an attempt to log in to (or get an auth token for) a
          * user account that has never been activated.
          */
-        val INVALID_USER = "codepunk::activatinator.inactive"
+        val INACTIVE_USER = "codepunk::activatinator.inactive"
+
+        /**
+         * A constant that corresponds to a failed log in attempt due to invalid credentials
+         * (i.e. username/password).
+         */
+        val INVALID_CREDENTIALS = "invalid_credentials"
 
         /**
          * A public CREATOR field that generates instances of [NetworkResponse] from a [Parcel].
