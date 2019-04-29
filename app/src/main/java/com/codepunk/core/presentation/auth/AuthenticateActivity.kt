@@ -316,14 +316,9 @@ class AuthenticateActivity :
                         return
                     }
                     is InvalidCredentialsException -> {
-                        val text =
-                            update.e?.localizedMessage
-                                ?: getString(R.string.alert_unknown_error_message)
-                        Snackbar.make(
-                            binding.coordinatorLayout,
-                            text,
-                            Snackbar.LENGTH_LONG
-                        ).apply {
+                        val text = update.e?.localizedMessage
+                            ?: getString(R.string.alert_unknown_error_message)
+                        Snackbar.make(binding.coordinatorLayout, text, Snackbar.LENGTH_LONG).apply {
                             addCallback(object : Snackbar.Callback() {
                                 override fun onDismissed(
                                     transientBottomBar: Snackbar?,
@@ -356,15 +351,15 @@ class AuthenticateActivity :
             builder: AlertDialog.Builder,
             onClickListener: DialogInterface.OnClickListener
         ) {
-            val update =
-                authViewModel.authorizationDataUpdate.value as
-                        FailureUpdate<NetworkResponse, Authorization>?
-            val message =
-                update?.e?.localizedMessage ?: getString(R.string.alert_unknown_error_message)
-            builder
-                .setTitle(R.string.authenticate_label_log_in)
-                .setMessage(message)
-                .setPositiveButton(R.string.app_got_it, onClickListener)
+            (authViewModel.authorizationDataUpdate.value
+                    as? FailureUpdate<NetworkResponse, Authorization>)?.also { update ->
+                val message = update.e?.localizedMessage
+                    ?: getString(R.string.alert_unknown_error_message)
+                builder
+                    .setTitle(R.string.authenticate_label_log_in)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.app_got_it, onClickListener)
+            }
         }
 
         override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
