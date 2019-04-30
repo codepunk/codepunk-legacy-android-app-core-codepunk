@@ -162,8 +162,6 @@ class AuthenticateActivity :
         supportFragmentManager.findFragmentById(R.id.authenticate_nav_fragment) as NavHostFragment
     }
 
-    var authenticateActivityListener: AuthenticateActivityListener? = null
-
     var authenticateResolver: AuthenticateResolver = AuthenticateResolver()
 
     // endregion Properties
@@ -254,7 +252,9 @@ class AuthenticateActivity :
         fragmentDispatchingAndroidInjector
 
     override fun onClick(v: View?) {
-        loginator.i("onClick: v=$v")
+        if (loginator.isLoggable(Log.INFO)) {
+            loginator.i("onClick: v=$v")
+        }
     }
 
     // endregion Implemented methods
@@ -265,18 +265,22 @@ class AuthenticateActivity :
      * Reacts to authorization data changes.
      */
     private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
+        /*
         authenticateResolver
             .with(binding.coordinatorLayout)
             .resolve(update)
+        */
     }
 
     /**
      * Reacts to register data changes.
      */
     private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
+        /*
         if (loginator.isLoggable(Log.INFO)) {
             loginator.i("update=$update")
         }
+        */
     }
 
     // endregion Methods
@@ -301,45 +305,50 @@ class AuthenticateActivity :
             super.resolve(update)
         }
 
-        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>) {
-            update.e?.also { e ->
-                when (e) {
-                    is InactiveUserException -> {
-                        supportFragmentManager.findFragmentByTag(
-                            FRAGMENT_TAG_AUTH_DIALOG
-                        ) ?: AlertDialogFragment.showDialogFragmentForResult(
-                            supportFragmentManager,
-                            FRAGMENT_TAG_AUTH_DIALOG,
-                            AUTH_DIALOG_REQUEST_CODE,
-                            this
-                        )
-                        return
-                    }
-                    is InvalidCredentialsException -> {
-                        val text = update.e?.localizedMessage
-                            ?: getString(R.string.alert_unknown_error_message)
-                        Snackbar.make(binding.coordinatorLayout, text, Snackbar.LENGTH_LONG).apply {
-                            addCallback(object : Snackbar.Callback() {
-                                override fun onDismissed(
-                                    transientBottomBar: Snackbar?,
-                                    event: Int
-                                ) {
-                                    authViewModel.authorizationDataUpdate.reset()
-                                }
-                            })
-                        }.show()
-                        return
+        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>): Boolean {
+            var handled = super.onFailure(update)
+            if (!handled) {
+                update.e?.also { e ->
+                    when (e) {
+                        is InactiveUserException -> {
+                            supportFragmentManager.findFragmentByTag(
+                                FRAGMENT_TAG_AUTH_DIALOG
+                            ) ?: AlertDialogFragment.showDialogFragmentForResult(
+                                supportFragmentManager,
+                                FRAGMENT_TAG_AUTH_DIALOG,
+                                AUTH_DIALOG_REQUEST_CODE,
+                                this
+                            )
+                            handled = true
+                        }
+                        is InvalidCredentialsException -> {
+                            val text = update.e?.localizedMessage
+                                ?: getString(R.string.alert_unknown_error_message)
+                            Snackbar.make(binding.coordinatorLayout, text, Snackbar.LENGTH_LONG)
+                                .apply {
+                                    addCallback(object : Snackbar.Callback() {
+                                        override fun onDismissed(
+                                            transientBottomBar: Snackbar?,
+                                            event: Int
+                                        ) {
+                                            authViewModel.authorizationDataUpdate.reset()
+                                        }
+                                    })
+                                }.show()
+                            handled = true
 
+                        }
                     }
                 }
-            }
 
-            // TODO Should all errors be dialog fragments? Or Snackbars?
-            Toast.makeText(
-                this@AuthenticateActivity,
-                R.string.alert_unknown_error_message,
-                Toast.LENGTH_LONG
-            ).show()
+                // TODO Should all errors be dialog fragments? Or Snackbars?
+                Toast.makeText(
+                    this@AuthenticateActivity,
+                    R.string.alert_unknown_error_message,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            return handled
         }
 
         // endregion Inherited methods
@@ -377,16 +386,6 @@ class AuthenticateActivity :
             (supportFragmentManager.findFragmentByTag(FRAGMENT_TAG_AUTH_DIALOG)
                     as? AlertDialogFragment)?.listener = this
         }
-
-        // endregion Methods
-
-    }
-
-    interface AuthenticateActivityListener {
-
-        // region Methods
-
-        fun onRegisterRetry()
 
         // endregion Methods
 

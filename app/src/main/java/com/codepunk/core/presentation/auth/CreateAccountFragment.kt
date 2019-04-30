@@ -16,26 +16,39 @@
 
 package com.codepunk.core.presentation.auth
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
+import com.codepunk.core.BuildConfig.KEY_NETWORK_RESPONSE
+import com.codepunk.core.BuildConfig.KEY_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentCreateAccountBinding
+import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
+import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 import android.content.DialogInterface.OnClickListener as DialogOnClickListener
@@ -45,9 +58,7 @@ import android.content.DialogInterface.OnClickListener as DialogOnClickListener
  */
 class CreateAccountFragment :
     Fragment(),
-    OnClickListener,
-    AuthenticateActivity.AuthenticateActivityListener /*,
-    AlertDialogFragmentListener */ {
+    OnClickListener {
 
     // region Properties
 
@@ -71,10 +82,10 @@ class CreateAccountFragment :
     lateinit var validatinators: CreateAccountValidatinators
 
     /**
-     * This fragment's activity cast to a [ContentLoadingProgressBarOwner].
+     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
      */
-    private val contentLoadingProgressBarOwner: ContentLoadingProgressBarOwner? by lazy {
-        activity as? ContentLoadingProgressBarOwner
+    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
+        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
     }
 
     /**
@@ -104,9 +115,7 @@ class CreateAccountFragment :
         requestMessage = true
     }
 
-    /*
-    private val registerResolver = RegisterResolver()
-    */
+    private lateinit var registerResolver: RegisterResolver
 
     // endregion Properties
 
@@ -118,7 +127,6 @@ class CreateAccountFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        (activity as? AuthenticateActivity)?.authenticateActivityListener = this
     }
 
     /**
@@ -138,11 +146,6 @@ class CreateAccountFragment :
         return binding.root
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        (activity as? AuthenticateActivity)?.authenticateActivityListener = null
-    }
-
     // endregion Lifecycle methods
 
     // region Inherited methods
@@ -153,7 +156,13 @@ class CreateAccountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.loginBtn.setOnClickListener(this)
-        // authViewModel.registerDataUpdate.observe(this, Observer { onRegisterUpdate(it) })
+
+        registerResolver = RegisterResolver(requireActivity(), view)
+
+        authViewModel.registerDataUpdate.observe(
+            this,
+            Observer { update -> onRegisterUpdate(update) }
+        )
     }
 
     /**
@@ -180,30 +189,6 @@ class CreateAccountFragment :
         }
     }
 
-    /*
-    /**
-     * Implementation of [AlertDialogFragmentListener]. Binds alert dialogs presented by this
-     * fragment.
-     */
-    override fun onBuildAlertDialog(
-        requestCode: Int,
-        builder: AlertDialog.Builder,
-        onClickListener: DialogOnClickListener
-    ) {
-        registerResolver.onBuildAlertDialog(requestCode, builder, onClickListener)
-    }
-
-    /**
-     * Implementation of [AlertDialogFragmentListener]. Processes results produced by
-     * [AlertDialogFragment]s.
-     */
-    override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        registerResolver.onDialogResult(requestCode, resultCode, data)
-    }
-    */
-
-    override fun onRegisterRetry() = register()
-
     // endregion Implemented methods
 
     // region Methods
@@ -229,153 +214,87 @@ class CreateAccountFragment :
      * Validates the form.
      */
     private fun validate(): Boolean {
+        resetErrors()
+        // return validatinators.createAccountValidatinator.validate(binding, options.clear())
+        return true
+    }
+
+    private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
+        registerResolver.resolve(update)
+    }
+
+    private fun disableView() {
+        // TODO disable controls (or at least the button)
+    }
+
+    private fun enableView() {
+        // TODO enable controls
+    }
+
+    private fun resetErrors() {
         binding.usernameLayout.error = null
         binding.emailLayout.error = null
         binding.passwordLayout.error = null
         binding.confirmPasswordLayout.error = null
-        return true
-        // return validatinators.createAccountValidatinator.validate(binding, options.clear())
+    }
+
+    private fun resetView() {
+        binding.usernameEdit.text = null
+        binding.emailEdit.text = null
+        binding.passwordEdit.text = null
+        binding.confirmPasswordEdit.text = null
     }
 
     // endregion Methods
 
-    /*
     // region Nested/inner classes
 
-    private inner class RegisterResolver : DataUpdateResolverOld<Void, NetworkResponse>() {
+    private inner class RegisterResolver(activity: Activity, val requireView: View) :
+        DataUpdateResolver<Void, NetworkResponse>(activity, requireView) {
 
         // region Inherited methods
 
-        override fun onPending(update: PendingUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
-            return super.onPending(update)
-        }
-
-        override fun onProgress(update: ProgressUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.show()
-            return super.onProgress(update)
-        }
-
-        override fun onSuccess(update: SuccessUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
-            return super.onSuccess(update)
-        }
-
-        override fun onFailure(update: FailureUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide()
-            update.result?.firstErrorOrNull()?.also { error ->
-                view?.findViewWithTag<TextInputLayout>(error.first)?.also { layout ->
-                    layout.error = error.second
-                    return REQUEST_NONE
-                }
+        override fun resolve(update: DataUpdate<Void, NetworkResponse>) {
+            val loading = (update is ProgressUpdate)
+            if (loading) {
+                contentLoadingProgressBar?.show()
+                disableView()
+            } else {
+                contentLoadingProgressBar?.hide()
+                enableView()
             }
-            return super.onFailure(update) //REQUEST_REGISTER_FAILURE
+            super.resolve(update)
         }
 
-        override fun onException(e: Exception, update: FailureUpdate<Void, NetworkResponse>): Int {
-            contentLoadingProgressBarOwner?.contentLoadingProgressBar?.hide() // TODO Maybe?
-            return super.onException(e, update)
-        }
-
-        override fun onAction(update: DataUpdate<Void, NetworkResponse>, action: Int) {
-            view?.also {
-                showSnackbar(it, action)
+        override fun onSuccess(update: SuccessUpdate<Void, NetworkResponse>): Boolean {
+            val args = Bundle().apply {
+                putParcelable(KEY_NETWORK_RESPONSE, update.result)
+                putString(KEY_USERNAME, binding.usernameEdit.text.toString())
             }
-            /*
-            showAlertDialog(
-                this@CreateAccountFragment,
-                REGISTER_FRAGMENT_TAG,
-                action
-            )
-            */
+            resetView()
+            authViewModel.registerDataUpdate.reset()
+            Navigation.findNavController(requireView)
+                .navigate(R.id.action_create_account_to_log_in, args)
+            return true
         }
 
-        override fun onBuildSnackbar(requestCode: Int, snackbar: Snackbar) {
-            when (requestCode) {
-                REQUEST_SUCCESS -> {
-                    snackbar.setText(R.string.authenticate_label_create_account)
-                    //    .setPositiveButton(android.R.string.ok, onClickListener)
-                    val message =
-                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
-                    message?.also {
-                        snackbar.setText(it)
-                    } ?: also {
-                        snackbar.setText(R.string.alert_success)
+        override fun onFailure(update: FailureUpdate<Void, NetworkResponse>): Boolean {
+            var handled = super.onFailure(update)
+            if (!handled) {
+                update.result?.firstErrorOrNull()?.also { error ->
+                    view?.findViewWithTag<TextInputLayout>(error.first)?.also { layout ->
+                        layout.error = error.second
+                        handled = true
                     }
                 }
-                else -> super.onBuildSnackbar(requestCode, snackbar)
             }
-        }
-
-        override fun onBuildAlertDialog(
-            requestCode: Int,
-            builder: AlertDialog.Builder,
-            onClickListener: DialogInterface.OnClickListener
-        ) {
-            when (requestCode) {
-                REQUEST_SUCCESS -> {
-                    builder.setTitle(R.string.authenticate_label_create_account)
-                        .setPositiveButton(android.R.string.ok, onClickListener)
-                    val message =
-                        (authViewModel.registerDataUpdate.value as? SuccessUpdate)?.result?.message
-                    message?.also {
-                        builder.setMessage(it)
-                    } ?: also {
-                        builder.setMessage(R.string.alert_success)
-                    }
-                }
-                else -> super.onBuildAlertDialog(requestCode, builder, onClickListener)
-            }
+            return handled
         }
 
         // endregion Inherited methods
 
-        // region Methods
-
-        fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            authViewModel.registerDataUpdate.reset()
-            when (requestCode) {
-                REQUEST_SUCCESS -> view?.also {
-                    // Pop back to log in fragment (or first destination in the graph
-                    // if not found)
-                    val controller = Navigation.findNavController(it)
-                    if (!controller.popBackStack(R.id.fragment_log_in, false)) {
-                        controller.popBackStack(controller.graph.startDestination, false)
-                    }
-                }
-                REQUEST_CONNECT_EXCEPTION,
-                REQUEST_TIMEOUT_EXCEPTION -> {
-                    when (resultCode) {
-                        RESULT_NEUTRAL -> register()
-                    }
-                }
-            }
-        }
-
-        // endregion Methods
-
     }
 
     // endregion Nested/inner classes
-
-    // region Companion object
-
-    companion object {
-
-        // region Properties
-
-        /**
-         * The fragment tag to use for the register result dialog fragment.
-         */
-        @JvmStatic
-        private val REGISTER_FRAGMENT_TAG =
-            LogInFragment::class.java.name + ".REGISTER_RESULT"
-
-        // endregion Properties
-
-    }
-
-    // endregion Companion object
-    */
 
 }

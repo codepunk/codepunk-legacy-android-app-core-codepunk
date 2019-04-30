@@ -21,6 +21,7 @@ import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,20 +29,26 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
-import com.codepunk.core.BuildConfig.EXTRA_USERNAME
+import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
+import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -181,17 +188,32 @@ class LogInFragment :
         binding.createBtn.setOnClickListener(this)
 
         arguments?.apply {
+            // TODO This? Or Bundle Key? (See below)
             if (containsKey(EXTRA_USERNAME)) {
                 binding.usernameOrEmailEdit.setText(getString(EXTRA_USERNAME))
             }
+
+            if (containsKey(KEY_USERNAME)) {
+                binding.usernameOrEmailEdit.setText(getString(KEY_USERNAME))
+            }
         }
 
-        /*
         authViewModel.authorizationDataUpdate.observe(
             this,
-            Observer { onAuthorizationUpdate(it) }
+            Observer { update -> onAuthorizationUpdate(update) }
         )
-        */
+
+        // If we've arrive here from a successful registration and we passed a network response
+        // argument, show a snackbar with the associated message
+        val networkResponse: NetworkResponse? = arguments?.getParcelable(KEY_NETWORK_RESPONSE)
+        networkResponse?.also {
+            val text = it.localizedMessage ?: getString(R.string.alert_success_exclam)
+            Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE).apply {
+                setAction(R.string.app_got_it) {
+                    arguments?.remove(KEY_NETWORK_RESPONSE)
+                }
+            }.show()
+        }
     }
 
     // region Implemented methods
@@ -272,56 +294,38 @@ class LogInFragment :
         }
     }
 
-    /*
     private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
-        /*
-        setControlsEnabled(update !is ProgressUpdate)
-        */
-        // TODO NEXT Move this to AuthenticateActivity?
-        when (update) {
-            is FailureUpdate -> {
-                val remoteNetworkResponse: RemoteNetworkResponse? =
-                    null //  update.data?.getParcelable(KEY_RESPONSE_MESSAGE)
-                if (loginator.isLoggable(Log.DEBUG)) {
-                    loginator.d("remoteResponse=$remoteNetworkResponse")
-                }
-
-                // TODO Make this a snackbar (but only if IOException?)
-                val message: CharSequence = when (update.e) {
-                    is IOException -> "Could not connect to the network."
-                    else -> {
-                        val rawMessage: String? = null //update.result?.errorBody()?.string()
-                        rawMessage?.let {
-                            networkTranslator.translate(it)
-                        } ?: getString(R.string.authenticator_error_invalid_credentials)
-                    }
-                }
-                SimpleDialogFragment.Builder(requireContext())
-                    .setTitle(R.string.authenticate_label_log_in)
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok)
-                    .build()
-                    .show(requireFragmentManager(), AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG)
-            }
+        if (loginator.isLoggable(Log.DEBUG)) {
+            loginator.d("update=$update")
         }
     }
-    */
 
     /**
      * Validates the form.
      */
     private fun validate(): Boolean {
+        return true
+        /*
         return validatinators.logInValidatinator.validate(
             binding,
             options.clear()
         )
+        */
     }
 
     private fun onAccountClick(account: Account) {
-        loginator.d("account=$account")
+        if (loginator.isLoggable(Log.DEBUG)) {
+            loginator.d("account=$account")
+        }
     }
 
     // endregion Methods
+
+    // region Nested/inner classes
+
+    // TODO TEMP
+
+    // endregion Nested/inner classes
 
     // region Companion object
 

@@ -20,7 +20,6 @@ package com.codepunk.core.util
 import android.app.Activity
 import android.content.Context
 import android.view.View
-import android.widget.Toast
 import com.codepunk.core.R
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import com.google.android.material.snackbar.Snackbar
@@ -33,50 +32,45 @@ abstract class DataUpdateResolver<Progress, Result> {
 
     private val context: Context
 
-    private var view: View? = null
+    var view: View?
 
     // endregion Properties
 
     // region Constructors
 
-    constructor(activity: Activity) {
+    constructor(activity: Activity, view: View? = null) {
         context = activity
+        this.view = view
     }
 
     // endregion Constructors
 
     // region Methods
 
+    /*
     fun with(view: View): DataUpdateResolver<Progress, Result> {
         this.view = view
         return this
     }
+    */
 
     open fun resolve(update: DataUpdate<Progress, Result>) {
         when (update) {
             is PendingUpdate -> onPending(update)
             is ProgressUpdate -> onProgress(update)
             is SuccessUpdate -> onSuccess(update)
-            is FailureUpdate -> {
-                when (update.e) {
-                    is ConnectException,
-                    is SocketTimeoutException -> onException(update)
-                    else -> onFailure(update)
-                }
-            }
+            is FailureUpdate -> onFailure(update)
         }
     }
 
-    open fun onPending(update: PendingUpdate<Progress, Result>) {}
+    open fun onPending(update: PendingUpdate<Progress, Result>): Boolean = false
 
-    open fun onProgress(update: ProgressUpdate<Progress, Result>) {}
+    open fun onProgress(update: ProgressUpdate<Progress, Result>): Boolean = false
 
-    open fun onSuccess(update: SuccessUpdate<Progress, Result>) {}
+    open fun onSuccess(update: SuccessUpdate<Progress, Result>): Boolean = false
 
-    open fun onFailure(update: FailureUpdate<Progress, Result>) {}
-
-    open fun onException(update: FailureUpdate<Progress, Result>) {
-        when (update.e) {
+    open fun onFailure(update: FailureUpdate<Progress, Result>): Boolean {
+        return when (update.e) {
             is ConnectException -> {
                 view?.also {
                     Snackbar.make(
@@ -85,6 +79,7 @@ abstract class DataUpdateResolver<Progress, Result> {
                         Snackbar.LENGTH_LONG
                     ).show()
                 }
+                true
             }
             is SocketTimeoutException -> {
                 view?.also {
@@ -94,7 +89,9 @@ abstract class DataUpdateResolver<Progress, Result> {
                         Snackbar.LENGTH_LONG
                     ).show()
                 }
+                true
             }
+            else -> false
         }
     }
 

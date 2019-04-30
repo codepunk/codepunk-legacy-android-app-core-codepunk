@@ -76,18 +76,39 @@ class AuthViewModel @Inject constructor(
     /**
      * A [LiveData] holding the result of attempting to register (i.e. create a new account).
      */
-    val registerDataUpdate =
-        MediatorLiveData<DataUpdate<Void, NetworkResponse>>()
+    val registerDataUpdate = MediatorLiveData<DataUpdate<Void, NetworkResponse>>()
 
     /**
-     * A [LiveData] holding the [RemoteAuthorization] relating to the current authorization attempt.
+     * A private [LiveData] holding the current source supplying the value to [registerDataUpdate].
      */
-    val oldAuthorizationDataUpdate =
-        MediatorLiveData<DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>>()
+    private var registerSource: LiveData<DataUpdate<Void, NetworkResponse>>? = null
+        private set(value) {
+            field?.also { source -> registerDataUpdate.removeSource(source) }
+            field = value?.apply {
+                registerDataUpdate.addSource(this) { value ->
+                    registerDataUpdate.value = value
+                }
+            }
+        }
 
+    /**
+     * A [LiveData] holding the [Authorization] relating to the current authorization attempt.
+     */
+    val authorizationDataUpdate = MediatorLiveData<DataUpdate<NetworkResponse, Authorization>>()
 
-    val authorizationDataUpdate =
-        MediatorLiveData<DataUpdate<NetworkResponse, Authorization>>()
+    /**
+     * A private [LiveData] holding the current source supplying the value to
+     * [authorizationDataUpdate].
+     */
+    private var authSource: LiveData<DataUpdate<NetworkResponse, Authorization>>? = null
+        private set(value) {
+            field?.also { source -> authorizationDataUpdate.removeSource(source) }
+            field = value?.apply {
+                authorizationDataUpdate.addSource(this) { value ->
+                    authorizationDataUpdate.value = value
+                }
+            }
+        }
 
     // endregion Properties
 
@@ -145,30 +166,7 @@ class AuthViewModel @Inject constructor(
      * Authenticates using username (or email) and password.
      */
     fun authenticate(usernameOrEmail: String, password: String) {
-
-        // Also TODO: delete the "old" source first?
-
-        val source: LiveData<DataUpdate<NetworkResponse, Authorization>> =
-            authRepository.authenticate(usernameOrEmail, password)
-        authorizationDataUpdate.addSource(source) {
-            authorizationDataUpdate.value = it
-        }
-
-        /*
-        val task =
-            object : DataTaskinator<Void, RemoteNetworkResponse, Response<RemoteAuthorization>>() {
-                override fun doInBackground(vararg params: Void?):
-                        ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> =
-                    getAuthToken(usernameOrEmail, password)
-            }
-
-        // NEXT NEXT NEXT Need to examine user here
-        // !!!
-
-        authorizationDataUpdate.addSource(task.executeOnExecutorAsLiveData()) {
-            authorizationDataUpdate.value = it
-        }
-        */
+        authSource = authRepository.authenticate(usernameOrEmail, password)
     }
 
     /**
@@ -181,106 +179,9 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
-
-        // TODO NEXT NEXT NEXT
-        // I need to scrap "source" below because I'm calling authRepository here.
-        // HOWEVER - authRepository.register is creating a LiveData<DataUpdate<Void, NetworkResponse>>,
-        // while "task".executeOnExecutorAsLiveData is producing a LiveData<DataUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>>>.
-        // Why??
-
-        // Also TODO: delete the "old" source first?
-
-        // Thoughts:
-        // AuthenticateActivity is doing a ton of work decoding the Response<RemoteAuthorization> etc.
-        // That should probably happen here and return an appropriate DataUpdate with possible failures etc.
-
-        val source: LiveData<DataUpdate<Void, NetworkResponse>> =
-            authRepository.register(
-                username,
-                email,
-                password,
-                passwordConfirmation
-            )
-        registerDataUpdate.addSource(source) {
-            registerDataUpdate.value = it
-        }
-
-        /*
-        val source =
-            object : DataTaskinator<Void, RemoteNetworkResponse, Response<RemoteAuthorization>>() {
-                override fun doInBackground(vararg params: Void?):
-                        ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> {
-                    // Call the register endpoint
-                    val update: ResultUpdate<Void, Response<RemoteNetworkResponse>> =
-                        authWebservice.register(
-                            username,
-                            email,
-                            password,
-                            passwordConfirmation
-                        ).getResultUpdate()
-
-                    // Process the register endpoint result
-                    return when (update) {
-                        is SuccessUpdate -> {
-                            publishProgress(update.result?.body())
-                            getAuthToken(username, password)
-                        }
-                        is FailureUpdate -> {
-                            val text = update.result.toRemoteNetworkResponse(retrofit)
-                            val remoteMessage =
-                                RemoteNetworkResponse("BAD!") // TODO TEMP update.response.toRemoteNetworkResponse(retrofit)
-                            FailureUpdate(
-                                e = update.e,
-                                data = Bundle().apply {
-                                    putParcelable(KEY_RESPONSE_MESSAGE, remoteMessage)
-                                }
-                            )
-                        }
-                        else -> FailureUpdate()
-                    }
-                }
-            }.executeOnExecutorAsLiveData()
-
-        authorizationDataUpdate.addSource(source) {
-            authorizationDataUpdate.value = it
-        }
-        */
+        registerSource = authRepository.register(username, email, password, passwordConfirmation)
     }
 
     // endregion methods
-
-    /*
-    // region Companion object
-
-    companion object {
-
-        // region Methods
-
-        /**
-         * Extracts a [RemoteNetworkResponse] from a [Response], or converts the error body message
-         * to a [RemoteNetworkResponse].
-         */
-        @Suppress("UNUSED")
-        private fun toMessage(
-            response: Response<RemoteNetworkResponse>,
-            retrofit: Retrofit
-        ): RemoteNetworkResponse? {
-            return when {
-                response.isSuccessful -> response.body()
-                else -> response.errorBody()?.run {
-                    retrofit.responseBodyConverter<RemoteNetworkResponse>(
-                        RemoteNetworkResponse::class.java,
-                        arrayOf()
-                    ).convert(this)
-                }
-            }
-        }
-
-        // endregion Methods
-
-    }
-
-    // endregion Companion object
-    */
 
 }

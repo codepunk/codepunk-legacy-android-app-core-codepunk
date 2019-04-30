@@ -46,6 +46,8 @@ android {
             versionNameSuffix "-DEBUG"
 
             ext.defaultRemoteEnvironment = "LOCAL"
+            ext.loggingLevel = 1 // Essentially everything
+            ext.logLevel = "VERBOSE"
         }
 
         release {
@@ -55,6 +57,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             ext.defaultRemoteEnvironment = "PRODUCTION"
+            ext.loggingLevel = 4 // android.util.Log.INFO
+            ext.logLevel = "INFO"
         }
     }
 
@@ -88,6 +92,16 @@ android {
                         "AUTHENTICATOR_ACCOUNT_TYPE",
                         variant.applicationId
                 )
+        )
+
+        /*
+         * Define an additional BuildConfig int variable for the log level.
+         */
+        def logClass = "android.util.Log"
+        variant.buildConfigField(
+                "int",
+                "LOG_LEVEL",
+                "${logClass}.${variant.buildType.ext.logLevel}"
         )
 
         /*
@@ -164,7 +178,8 @@ android {
                 "INTENT",
                 "LISTENER_SOURCE",
                 "NETWORK_RESPONSE",
-                "REQUEST_CODE"
+                "REQUEST_CODE",
+                "USERNAME"
         )
 
         makeFragmentTags(

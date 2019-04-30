@@ -20,6 +20,7 @@ import android.accounts.AccountManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.CodepunkApp
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
@@ -57,7 +58,9 @@ object AppModule {
     @JvmStatic
     @Provides
     @Singleton
-    fun providesLoginator(): FormattingLoginator = FormattingLoginator(LogcatLoginator())
+    fun providesLoginator(): FormattingLoginator = FormattingLoginator(LogcatLoginator()).apply {
+        level = BuildConfig.LOG_LEVEL
+    }
 
     /**
      * Provides an [AccountManager] instance for providing access to a centralized registry of
