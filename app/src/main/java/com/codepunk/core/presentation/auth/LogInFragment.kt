@@ -51,7 +51,6 @@ import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.DataUpdateResolver
-import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
@@ -110,19 +109,6 @@ class LogInFragment :
      */
     private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
         (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
-    }
-
-    /**
-     * An instance of [NetworkTranslator] for translating messages from the network.
-     */
-    @Inject
-    lateinit var networkTranslator: NetworkTranslator
-
-    /**
-     * This fragment's activity cast to a [ContentLoadingProgressBarOwner].
-     */
-    private val contentLoadingProgressBarOwner: ContentLoadingProgressBarOwner? by lazy {
-        activity as? ContentLoadingProgressBarOwner
     }
 
     /**
