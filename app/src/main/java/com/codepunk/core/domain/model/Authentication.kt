@@ -30,6 +30,11 @@ const val UNKNOWN: Long = -1L
 data class Authentication(
 
     /**
+     * The username of the user being authenticated.
+     */
+    val username: String,
+
+    /**
      * The type of auth token, which provides the client with the information required to
      * successfully utilize the auth token to make a protected resource request (along with
      * type-specific attributes).
@@ -60,6 +65,7 @@ data class Authentication(
      */
     override fun toString(): String =
         "Authentication(" +
+                "username=$username, " +
                 "tokenType=$tokenType, " +
                 "authToken='${authToken.ellipsize()}', " +
                 "refreshToken='${refreshToken.ellipsize()}', " +

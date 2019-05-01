@@ -32,6 +32,7 @@ import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
+import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.addOrUpdateAccount
 import com.codepunk.core.presentation.auth.LogInFragment.AuthenticationListener
@@ -199,23 +200,23 @@ class AuthenticateActivity :
     /**
      * Implementation of [AuthenticationListener]. Reacts to a successful authentication.
      */
-    override fun onAuthenticated(result: Bundle) {
-        when (result) {
+    override fun onAuthenticated(authentication: Authentication?) {
+        when (authentication) {
             null -> setResult(RESULT_CANCELED) // TODO ??
             else -> {
-                // Set accountAuthenticatorResult so accountAuthenticatorResponse can
-                // react to it
-                accountAuthenticatorResult = result
+                // Set accountAuthenticatorResult so accountAuthenticatorResponse can react to it
+                accountAuthenticatorResult = Bundle().apply {
+                    putString(KEY_ACCOUNT_NAME, authentication.username)
+                    putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
+                    putString(KEY_AUTHTOKEN, authentication.authToken)
+                    putString(KEY_PASSWORD, authentication.refreshToken)
+                }
 
-                // Update accountManager with the account
-                val accountName = result.getString(KEY_ACCOUNT_NAME)
-                val accountType = result.getString(KEY_ACCOUNT_TYPE)
-                val password = result.getString(KEY_PASSWORD)
-                val account = Account(accountName, accountType)
-                accountManager.addOrUpdateAccount(account, password)
+                val account = Account(authentication.username, AUTHENTICATOR_ACCOUNT_TYPE)
+                accountManager.addOrUpdateAccount(account, authentication.refreshToken)
 
                 sharedPreferences.edit()
-                    .putString(PREF_KEY_CURRENT_ACCOUNT_NAME, accountName)
+                    .putString(PREF_KEY_CURRENT_ACCOUNT_NAME, authentication.username)
                     .apply()
 
                 // Set the result to pass back to the calling activity

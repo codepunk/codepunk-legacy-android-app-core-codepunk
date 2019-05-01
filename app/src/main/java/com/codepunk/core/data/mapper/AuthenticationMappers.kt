@@ -23,8 +23,9 @@ import com.codepunk.core.domain.model.Authentication
 /**
  * Converts a [RemoteAuthentication] to a domain [Authentication].
  */
-fun RemoteAuthentication.toDomain(): Authentication =
+fun RemoteAuthentication.toDomain(username: String): Authentication =
     Authentication(
+        username,
         tokenType,
         authToken,
         refreshToken,
@@ -34,4 +35,5 @@ fun RemoteAuthentication.toDomain(): Authentication =
 /**
  * Converts a nullable [RemoteAuthentication] to a nullable domain [Authentication].
  */
-fun RemoteAuthentication?.toDomainOrNull(): Authentication? = this?.toDomain()
+fun RemoteAuthentication?.toDomainOrNull(username: String): Authentication? =
+    this?.toDomain(username)

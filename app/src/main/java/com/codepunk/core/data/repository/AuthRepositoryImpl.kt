@@ -168,15 +168,13 @@ class AuthRepositoryImpl(
                     FailureUpdate(null, e, data)
                 }
                 else -> {
-                    // TODO instead of passing data bundle back, it's possible we can
-                    // pass a bundle as the result?
                     var username: String? = null
-                    val authentication = update.result?.body().toDomainOrNull()
-                    authentication?.also {
+                    val remoteAuthentication = update.result?.body()
+                    remoteAuthentication?.also {
                         val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
                         if (isEmail) {
                             val response =
-                                userWebservice.getUser(authentication.authToken).execute()
+                                userWebservice.getUser(remoteAuthentication.authToken).execute()
                             if (response.isSuccessful) {
                                 response.body()?.also {
                                     username = it.username
@@ -186,6 +184,8 @@ class AuthRepositoryImpl(
                             username = usernameOrEmail
                         }
                     }
+                    val authentication =
+                        remoteAuthentication.toDomainOrNull(username ?: "")
                     when (username) {
                         null -> FailureUpdate(
                             authentication,
@@ -195,8 +195,8 @@ class AuthRepositoryImpl(
                             val data = Bundle().apply {
                                 putString(KEY_ACCOUNT_NAME, username)
                                 putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
-                                putString(KEY_AUTHTOKEN, authentication?.authToken)
-                                putString(KEY_PASSWORD, authentication?.refreshToken)
+                                putString(KEY_AUTHTOKEN, remoteAuthentication?.authToken)
+                                putString(KEY_PASSWORD, remoteAuthentication?.refreshToken)
                             }
                             SuccessUpdate(authentication, data)
                         }

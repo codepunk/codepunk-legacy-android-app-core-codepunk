@@ -408,19 +408,7 @@ class LogInFragment :
         }
 
         override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authentication>): Boolean {
-            /*
-            val args = Bundle().apply {
-                putParcelable(KEY_NETWORK_RESPONSE, update.result)
-                putString(KEY_USERNAME, binding.usernameEdit.text.toString())
-            }
-            resetView()
-            authViewModel.registerDataUpdate.reset()
-            Navigation.findNavController(requireView)
-                .navigate(R.id.action_register_to_log_in, args)
-            */
-            update.data?.also { result ->
-                authenticationListener?.onAuthenticated(result)
-            }
+            authenticationListener?.onAuthenticated(update.result)
             return true
         }
 
@@ -472,6 +460,7 @@ class LogInFragment :
         ) {
             when (val update = authViewModel.authDataUpdate.value) {
                 is FailureUpdate -> {
+                    // TODO NEXT Add a "send again" button to the dialog
                     val message = update.e?.localizedMessage
                         ?: getString(R.string.alert_unknown_error_message)
                     builder
@@ -493,7 +482,7 @@ class LogInFragment :
 
         // region Methods
 
-        fun onAuthenticated(result: Bundle)
+        fun onAuthenticated(authentication: Authentication?)
 
         // endregion Methods
 
