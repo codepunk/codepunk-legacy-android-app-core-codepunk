@@ -18,7 +18,7 @@
 package com.codepunk.core.domain.contract
 
 import androidx.lifecycle.LiveData
-import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 
@@ -32,7 +32,7 @@ interface AuthRepository {
     fun authenticate(
         username: String,
         password: String
-    ): LiveData<DataUpdate<NetworkResponse, Authorization>>
+    ): LiveData<DataUpdate<NetworkResponse, Authentication>>
 
     fun register(
         username: String,

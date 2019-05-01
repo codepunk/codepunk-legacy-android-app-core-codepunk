@@ -109,7 +109,7 @@ class NetModule {
         .build()
 
     /**
-     * Provides an instance of [AuthWebservice] for making authorization API calls.
+     * Provides an instance of [AuthWebservice] for making authentication API calls.
      */
     @Provides
     @Singleton

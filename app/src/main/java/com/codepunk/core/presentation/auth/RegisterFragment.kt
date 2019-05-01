@@ -76,7 +76,7 @@ class RegisterFragment :
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
-     * A set of authorization [Validatinator]s for validating the form.
+     * A set of [Validatinator]s for validating the form.
      */
     @Inject
     lateinit var validatinators: RegisterValidatinators

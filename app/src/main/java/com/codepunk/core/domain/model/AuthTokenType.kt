@@ -23,17 +23,17 @@ import androidx.annotation.StringRes
 import com.codepunk.core.R
 
 /**
- * Enum class representing authorization token types in accounts managed by Android.
+ * Enum class representing authentication token types in accounts managed by Android.
  */
 enum class AuthTokenType(
 
     /**
-     * The value associated with this authorization token type.
+     * The value associated with this authentication token type.
      */
     val value: String,
 
     /**
-     * A string resource ID pointing to a user-friendly name for the authorization token type.
+     * A string resource ID pointing to a user-friendly name for the authentication token type.
      */
     @StringRes val resId: Int
 
@@ -42,7 +42,7 @@ enum class AuthTokenType(
     // region Values
 
     /**
-     * The default authorization token type.
+     * The default authentication token type.
      */
     DEFAULT("default", R.string.authenticator_token_type_default);
 
@@ -76,7 +76,7 @@ enum class AuthTokenType(
         // region Properties
 
         /**
-         * A lookup map of labels to authorization token types.
+         * A lookup map of labels to authentication token types.
          */
         private val lookupMap by lazy {
             HashMap<String, AuthTokenType>(values().size).apply {
@@ -91,7 +91,7 @@ enum class AuthTokenType(
         // region Methods
 
         /**
-         * Returns the authorization token type associated with the given [value], or
+         * Returns the authentication token type associated with the given [value], or
          * [defaultValue] if no such type is found.
          */
         fun lookup(

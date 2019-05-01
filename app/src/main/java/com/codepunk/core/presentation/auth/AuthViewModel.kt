@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.domain.contract.AuthRepository
-import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import javax.inject.Inject
@@ -40,12 +40,12 @@ class AuthViewModel @Inject constructor(
     */
 
     /**
-     * The authorization repository.
+     * The authentication repository.
      */
     private val authRepository: AuthRepository /*,
 
     /**
-     * The authorization webservice.
+     * The authentication webservice.
      */
     private val authWebservice: AuthWebservice,
 
@@ -78,20 +78,20 @@ class AuthViewModel @Inject constructor(
         }
 
     /**
-     * A [LiveData] holding the [Authorization] relating to the current authorization attempt.
+     * A [LiveData] holding the [Authentication] relating to the current authentication attempt.
      */
-    val authorizationDataUpdate = MediatorLiveData<DataUpdate<NetworkResponse, Authorization>>()
+    val authDataUpdate = MediatorLiveData<DataUpdate<NetworkResponse, Authentication>>()
 
     /**
      * A private [LiveData] holding the current source supplying the value to
-     * [authorizationDataUpdate].
+     * [authDataUpdate].
      */
-    private var authSource: LiveData<DataUpdate<NetworkResponse, Authorization>>? = null
+    private var authSource: LiveData<DataUpdate<NetworkResponse, Authentication>>? = null
         private set(value) {
-            field?.also { source -> authorizationDataUpdate.removeSource(source) }
+            field?.also { source -> authDataUpdate.removeSource(source) }
             field = value?.apply {
-                authorizationDataUpdate.addSource(this) { value ->
-                    authorizationDataUpdate.value = value
+                authDataUpdate.addSource(this) { value ->
+                    authDataUpdate.value = value
                 }
             }
         }
@@ -109,12 +109,12 @@ class AuthViewModel @Inject constructor(
     private fun getAuthToken(
         usernameOrEmail: String,
         password: String
-    ): ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> {
+    ): ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthentication>> {
         // TODO go through AccountAuthenticator somehow? Probably not because I need to create
         // an account
 
         // Call the authorize endpoint
-        val authTokenUpdate: ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthorization>> =
+        val authTokenUpdate: ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthentication>> =
             authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
 
         // Process the authorize endpoint result

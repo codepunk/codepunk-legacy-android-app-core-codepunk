@@ -16,7 +16,7 @@
 
 package com.codepunk.core.data.remote.webservice
 
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.RemoteAuthentication
 import com.codepunk.core.domain.model.GrantType
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
@@ -27,7 +27,7 @@ import retrofit2.http.Headers
 import retrofit2.http.POST
 
 /**
- * Webservice that defines authorization-related calls.
+ * Webservice that defines authentication-related calls.
  */
 @Suppress("UNUSED")
 interface AuthWebservice {
@@ -35,7 +35,7 @@ interface AuthWebservice {
     // region Methods
 
     /**
-     * Gets an authorization token.
+     * Gets an authentication token.
      */
     @POST("oauth/token")
     @FormUrlEncoded
@@ -58,20 +58,20 @@ interface AuthWebservice {
 
         @Field("scope")
         scope: String
-    ): Call<RemoteAuthorization>
+    ): Call<RemoteAuthentication>
 
     /**
-     * Gets an authorization token using default values.
+     * Gets an authentication token using default values.
      */
-    fun authorize(username: String, password: String, scope: String): Call<RemoteAuthorization>
+    fun authorize(username: String, password: String, scope: String): Call<RemoteAuthentication>
 
     /**
-     * Gets an authorization token using default values.
+     * Gets an authentication token using default values.
      */
-    fun authorize(username: String, password: String): Call<RemoteAuthorization>
+    fun authorize(username: String, password: String): Call<RemoteAuthentication>
 
     /**
-     * Gets an authorization token from an existing [refreshToken].
+     * Gets an authentication token from an existing [refreshToken].
      */
     @POST("oauth/token")
     @FormUrlEncoded
@@ -88,12 +88,12 @@ interface AuthWebservice {
 
         @Field("refresh_token")
         refreshToken: String
-    ): Call<RemoteAuthorization>
+    ): Call<RemoteAuthentication>
 
     /**
-     * Gets an authorization token from an existing [refreshToken].
+     * Gets an authentication token from an existing [refreshToken].
      */
-    fun refreshToken(refreshToken: String): Call<RemoteAuthorization>
+    fun refreshToken(refreshToken: String): Call<RemoteAuthentication>
 
     /**
      * Registers a new account. // TODO Move this to an "account" webservice? Hmm. It's not

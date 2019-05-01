@@ -15,42 +15,40 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote.entity
+package com.codepunk.core.domain.model
 
-import com.codepunk.core.domain.model.TokenType
-import com.codepunk.core.domain.model.UNKNOWN
 import com.codepunk.core.util.ellipsize
-import com.squareup.moshi.Json
 
 /**
- * A data class representing an OAuth2 authorization.
+ * A constant indicating an unknown "expires in" value.
  */
-data class RemoteAuthorization(
+const val UNKNOWN: Long = -1L
+
+/**
+ * A data class representing an authentication allowing a user to log in to the application.
+ */
+data class Authentication(
 
     /**
      * The type of auth token, which provides the client with the information required to
      * successfully utilize the auth token to make a protected resource request (along with
      * type-specific attributes).
      */
-    @field:Json(name = "token_type")
     val tokenType: TokenType,
 
     /**
      * A long string of characters that serves as a credential used to access protected resources.
      */
-    @field:Json(name = "access_token")
     val authToken: String,
 
     /**
      * A token which allows the app to fetch a new auth token when the old one expires.
      */
-    @field:Json(name = "refresh_token")
     val refreshToken: String,
 
     /**
      * The number of seconds until the auth token expires.
      */
-    @field:Json(name = "expires_in")
     val expiresIn: Long = UNKNOWN
 
 ) {
@@ -61,7 +59,7 @@ data class RemoteAuthorization(
      * A version of [toString] that ellipsizes [authToken] and [refreshToken].
      */
     override fun toString(): String =
-        "RemoteAuthorization(" +
+        "Authentication(" +
                 "tokenType=$tokenType, " +
                 "authToken='${authToken.ellipsize()}', " +
                 "refreshToken='${refreshToken.ellipsize()}', " +

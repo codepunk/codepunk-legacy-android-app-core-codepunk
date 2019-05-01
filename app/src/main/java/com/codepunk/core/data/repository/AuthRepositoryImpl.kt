@@ -24,12 +24,12 @@ import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
 import com.codepunk.core.data.mapper.toDomainOrNull
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.RemoteAuthentication
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
-import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.exception.InactiveUserException
 import com.codepunk.core.lib.exception.InvalidCredentialsException
@@ -42,7 +42,7 @@ import retrofit2.Retrofit
 import java.lang.IllegalStateException
 
 /**
- * Implementation of [AuthRepository] that authenticates a user and performs other authorization-
+ * Implementation of [AuthRepository] that authenticates a user and performs other authentication-
  * related functions.
  */
 class AuthRepositoryImpl(
@@ -84,7 +84,7 @@ class AuthRepositoryImpl(
     override fun authenticate(
         username: String,
         password: String
-    ): LiveData<DataUpdate<NetworkResponse, Authorization>> {
+    ): LiveData<DataUpdate<NetworkResponse, Authentication>> {
         authenticateTask?.cancel(true)
         return AuthenticateTask(
             authWebservice,
@@ -136,13 +136,13 @@ class AuthRepositoryImpl(
 
         private val password: String
 
-    ) : DataTaskinator<Void, NetworkResponse, Authorization>() {
+    ) : DataTaskinator<Void, NetworkResponse, Authentication>() {
 
         // region Inherited methods
 
         override fun doInBackground(vararg params: Void?):
-                ResultUpdate<NetworkResponse, Authorization> {
-            return when (val update: ResultUpdate<Void, Response<RemoteAuthorization>> =
+                ResultUpdate<NetworkResponse, Authentication> {
+            return when (val update: ResultUpdate<Void, Response<RemoteAuthentication>> =
                 authWebservice.authorize(usernameOrEmail, password).getResultUpdate()) {
                 is FailureUpdate -> {
                     val errorBody = update.result?.errorBody()
@@ -171,12 +171,12 @@ class AuthRepositoryImpl(
                     // TODO instead of passing data bundle back, it's possible we can
                     // pass a bundle as the result?
                     var username: String? = null
-                    val authorization = update.result?.body().toDomainOrNull()
-                    authorization?.also {
+                    val authentication = update.result?.body().toDomainOrNull()
+                    authentication?.also {
                         val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
                         if (isEmail) {
                             val response =
-                                userWebservice.getUser(authorization.authToken).execute()
+                                userWebservice.getUser(authentication.authToken).execute()
                             if (response.isSuccessful) {
                                 response.body()?.also {
                                     username = it.username
@@ -188,17 +188,17 @@ class AuthRepositoryImpl(
                     }
                     when (username) {
                         null -> FailureUpdate(
-                            authorization,
+                            authentication,
                             IllegalStateException("Unable to determine username")
                         )
                         else -> {
                             val data = Bundle().apply {
                                 putString(KEY_ACCOUNT_NAME, username)
                                 putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
-                                putString(KEY_AUTHTOKEN, authorization?.authToken)
-                                putString(KEY_PASSWORD, authorization?.refreshToken)
+                                putString(KEY_AUTHTOKEN, authentication?.authToken)
+                                putString(KEY_PASSWORD, authentication?.refreshToken)
                             }
-                            SuccessUpdate(authorization, data)
+                            SuccessUpdate(authentication, data)
                         }
                     }
                 }

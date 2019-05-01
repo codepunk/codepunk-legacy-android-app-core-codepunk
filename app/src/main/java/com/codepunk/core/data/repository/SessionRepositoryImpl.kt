@@ -287,7 +287,7 @@ class SessionRepositoryImpl(
                 Bundle().apply {
                     putParcelable(
                         BuildConfig.KEY_INTENT,
-                        Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                        Intent(BuildConfig.ACTION_AUTHENTICATION).apply {
                             addCategory(category)
                             account?.name?.also { name ->
                                 putExtra(BuildConfig.EXTRA_USERNAME, name)

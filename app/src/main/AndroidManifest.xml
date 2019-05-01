@@ -46,19 +46,19 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
-                <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
+                <action android:name="${applicationId}.intent.action.AUTHENTICATION"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="${applicationId}.intent.category.MAIN"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
+                <action android:name="${applicationId}.intent.action.AUTHENTICATION"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="${applicationId}.intent.category.REGISTER"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
+                <action android:name="${applicationId}.intent.action.AUTHENTICATION"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="${applicationId}.intent.category.LOG_IN"/>

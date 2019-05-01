@@ -37,7 +37,7 @@ enum class TokenType {
     BEARER,
 
     /**
-     * Message RemoteAuthorization Code: A security token with the property that provides a method for
+     * Message Authorization Code: A security token with the property that provides a method for
      * making authenticated HTTP requests with partial cryptographic verification of the request,
      * covering the HTTP method, request URI, host, and in some cases the request body.
      */

@@ -41,9 +41,8 @@ import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
-import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.NetworkResponse
-import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.exception.InactiveUserException
 import com.codepunk.core.lib.exception.InvalidCredentialsException
 import com.codepunk.core.lib.hideSoftKeyboard
@@ -63,7 +62,6 @@ import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 // region Constants
@@ -102,7 +100,7 @@ class LogInFragment :
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
-     * A set of authorization [Validatinator]s for validating the form.
+     * A set of [Validatinator]s for validating the form.
      */
     @Inject
     lateinit var validatinators: LogInValidatinators
@@ -232,7 +230,7 @@ class LogInFragment :
             }
         }
 
-        authViewModel.authorizationDataUpdate.observe(
+        authViewModel.authDataUpdate.observe(
             this,
             Observer { authResolver.resolve(it) }
         )
@@ -370,7 +368,7 @@ class LogInFragment :
     // region Nested/inner classes
 
     private inner class AuthResolver(activity: Activity, val requireView: View) :
-        DataUpdateResolver<NetworkResponse, Authorization>(activity, requireView),
+        DataUpdateResolver<NetworkResponse, Authentication>(activity, requireView),
         AlertDialogFragment.AlertDialogFragmentListener {
 
         // region Constructors
@@ -389,7 +387,7 @@ class LogInFragment :
 
         val resetCallback = object : Snackbar.Callback() {
             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                authViewModel.authorizationDataUpdate.reset()
+                authViewModel.authDataUpdate.reset()
             }
         }
 
@@ -397,7 +395,7 @@ class LogInFragment :
 
         // region Inherited methods
 
-        override fun resolve(update: DataUpdate<NetworkResponse, Authorization>) {
+        override fun resolve(update: DataUpdate<NetworkResponse, Authentication>) {
             val loading = (update is ProgressUpdate)
             if (loading) {
                 contentLoadingProgressBar?.show()
@@ -409,7 +407,7 @@ class LogInFragment :
             super.resolve(update)
         }
 
-        override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authorization>): Boolean {
+        override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authentication>): Boolean {
             /*
             val args = Bundle().apply {
                 putParcelable(KEY_NETWORK_RESPONSE, update.result)
@@ -426,7 +424,7 @@ class LogInFragment :
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>): Boolean {
+        override fun onFailure(update: FailureUpdate<NetworkResponse, Authentication>): Boolean {
             return if (super.onFailure(update)) {
                 true
             } else when (update.e) {
@@ -472,7 +470,7 @@ class LogInFragment :
             builder: AlertDialog.Builder,
             onClickListener: DialogInterface.OnClickListener
         ) {
-            when (val update = authViewModel.authorizationDataUpdate.value) {
+            when (val update = authViewModel.authDataUpdate.value) {
                 is FailureUpdate -> {
                     val message = update.e?.localizedMessage
                         ?: getString(R.string.alert_unknown_error_message)
@@ -485,7 +483,7 @@ class LogInFragment :
         }
 
         override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) =
-            authViewModel.authorizationDataUpdate.reset()
+            authViewModel.authDataUpdate.reset()
 
         // endregion Implemented methods
 

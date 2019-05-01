@@ -36,7 +36,7 @@ interface UserWebservice {
 
     /**
      * Gets the authenticated user using the supplied [authToken]. Most endpoints that require
-     * authorization will pull the authToken value from the current [Session], but a session
+     * authentication will pull the authToken value from the current [Session], but a session
      * needs a [User] in order to be created.
      */
     @GET("api/user")

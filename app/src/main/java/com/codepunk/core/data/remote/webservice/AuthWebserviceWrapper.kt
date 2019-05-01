@@ -18,7 +18,7 @@
 package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
+import com.codepunk.core.data.remote.entity.RemoteAuthentication
 import com.codepunk.core.domain.model.GrantType
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import retrofit2.Call
@@ -43,7 +43,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
         username: String,
         password: String,
         scope: String
-    ): Call<RemoteAuthorization> = base.authorize(
+    ): Call<RemoteAuthentication> = base.authorize(
         grantType,
         clientId,
         clientSecret,
@@ -53,13 +53,13 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
     )
 
     /**
-     * Gets an authorization token using default values.
+     * Gets an authentication token using default values.
      */
     override fun authorize(
         username: String,
         password: String,
         scope: String
-    ): Call<RemoteAuthorization> {
+    ): Call<RemoteAuthentication> {
         return base.authorize(
             GrantType.PASSWORD,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
@@ -72,9 +72,9 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
 
 
     /**
-     * Gets an authorization token using default values.
+     * Gets an authentication token using default values.
      */
-    override fun authorize(username: String, password: String): Call<RemoteAuthorization> {
+    override fun authorize(username: String, password: String): Call<RemoteAuthentication> {
         return base.authorize(
             GrantType.PASSWORD,
             BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
@@ -90,13 +90,13 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
         clientId: String,
         clientSecret: String,
         refreshToken: String
-    ): Call<RemoteAuthorization> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
+    ): Call<RemoteAuthentication> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
 
     /**
-     * Gets an authorization token from an existing [refreshToken] by passing default arguments to
+     * Gets an authentication token from an existing [refreshToken] by passing default arguments to
      * the base implementation.
      */
-    override fun refreshToken(refreshToken: String): Call<RemoteAuthorization> = base.refreshToken(
+    override fun refreshToken(refreshToken: String): Call<RemoteAuthentication> = base.refreshToken(
         GrantType.REFRESH_TOKEN,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,

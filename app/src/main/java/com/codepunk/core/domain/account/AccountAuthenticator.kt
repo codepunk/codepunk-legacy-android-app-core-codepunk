@@ -79,7 +79,7 @@ class AccountAuthenticator @Inject constructor(
         return Bundle().apply {
             putParcelable(
                 KEY_INTENT,
-                Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                Intent(BuildConfig.ACTION_AUTHENTICATION).apply {
                     addCategory(CATEGORY_REGISTER)
                     putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                     // TODO Anything else here?
@@ -167,7 +167,7 @@ class AccountAuthenticator @Inject constructor(
                     // We were unable to get an auth token. We need the user to log in again.
                     putParcelable(
                         KEY_INTENT,
-                        Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
+                        Intent(BuildConfig.ACTION_AUTHENTICATION).apply {
                             addCategory(CATEGORY_LOG_IN)
                             putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                             putExtra(EXTRA_USERNAME, account.name)

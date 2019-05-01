@@ -17,14 +17,14 @@
 
 package com.codepunk.core.data.mapper
 
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
-import com.codepunk.core.domain.model.Authorization
+import com.codepunk.core.data.remote.entity.RemoteAuthentication
+import com.codepunk.core.domain.model.Authentication
 
 /**
- * Converts a [RemoteAuthorization] to a domain [Authorization].
+ * Converts a [RemoteAuthentication] to a domain [Authentication].
  */
-fun RemoteAuthorization.toDomain(): Authorization =
-    Authorization(
+fun RemoteAuthentication.toDomain(): Authentication =
+    Authentication(
         tokenType,
         authToken,
         refreshToken,
@@ -32,6 +32,6 @@ fun RemoteAuthorization.toDomain(): Authorization =
     )
 
 /**
- * Converts a nullable [RemoteAuthorization] to a nullable domain [Authorization].
+ * Converts a nullable [RemoteAuthentication] to a nullable domain [Authentication].
  */
-fun RemoteAuthorization?.toDomainOrNull(): Authorization? = this?.toDomain()
+fun RemoteAuthentication?.toDomainOrNull(): Authentication? = this?.toDomain()

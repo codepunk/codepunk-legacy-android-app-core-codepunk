@@ -210,7 +210,7 @@ class UserRepositoryImpl(
                 else -> Bundle().apply {
                     putParcelable(
                         KEY_INTENT,
-                        Intent(ACTION_AUTHORIZATION).apply {
+                        Intent(ACTION_AUTHENTICATION).apply {
                             addCategory(category)
                             if (username != null) {
                                 putExtra(EXTRA_USERNAME, username)

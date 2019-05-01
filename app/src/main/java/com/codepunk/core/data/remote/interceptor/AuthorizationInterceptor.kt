@@ -31,7 +31,7 @@ import javax.inject.Singleton
 
 /**
  * Singleton class that intercepts Retrofit requests and looks for a header with a name
- * of [HEADER_NAME_AUTHORIZATION] ("RemoteAuthorization"). If found, any instance in the value matching
+ * of [HEADER_NAME_AUTHORIZATION] ("Authorization"). If found, any instance in the value matching
  * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] will be replaced with the authToken (if any) currently
  * stored in [SessionManager].
  */
@@ -50,7 +50,7 @@ class AuthorizationInterceptor @Inject constructor(
 
     /**
      * Implementation of [Interceptor]. Looks for a header with a name of
-     * [HEADER_NAME_AUTHORIZATION] ("RemoteAuthorization") and replaces any instance of
+     * [HEADER_NAME_AUTHORIZATION] ("Authorization") and replaces any instance of
      * [HEADER_VALUE_AUTH_TOKEN_PLACEHOLDER] in the value with the authToken (if any) currently
      * stored in [SessionManager]. Also looks for a header with a name of
      * [HEADER_NAME_TEMP_AUTH_TOKEN] and converts it into a [HEADER_NAME_AUTHORIZATION] header.
