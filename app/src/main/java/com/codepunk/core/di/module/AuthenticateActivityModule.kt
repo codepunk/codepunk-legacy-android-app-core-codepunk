@@ -38,11 +38,11 @@ abstract class AuthenticateActivityModule {
     abstract fun contributeAuthenticateFragmentInjector(): AuthenticateFragment
 
     /**
-     * Contributes an AndroidInjector to [CreateAccountFragment].
+     * Contributes an AndroidInjector to [RegisterFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector //(modules = [CreateAccountFragmentModule::class])
-    abstract fun contributeCreateAccountFragmentInjector(): CreateAccountFragment
+    @ContributesAndroidInjector //(modules = [RegisterFragmentModule::class])
+    abstract fun contributeRegisterFragmentInjector(): RegisterFragment
 
     /**
      * Contributes an AndroidInjector to [ForgotPasswordFragment].

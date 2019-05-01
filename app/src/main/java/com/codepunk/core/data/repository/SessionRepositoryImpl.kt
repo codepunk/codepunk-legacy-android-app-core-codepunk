@@ -25,6 +25,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.CATEGORY_REGISTER
 import com.codepunk.core.data.local.dao.UserDao
 import com.codepunk.core.data.mapper.toLocal
 import com.codepunk.core.data.mapper.toDomain
@@ -178,7 +179,7 @@ class SessionRepositoryImpl(
                 accounts.isEmpty() -> return makeFailureUpdate(
                     silentMode,
                     AuthenticationException("There are no accounts in the account manager"),
-                    BuildConfig.CATEGORY_CREATE_ACCOUNT
+                    CATEGORY_REGISTER
                 )
                 accounts.size == 1 -> accounts[0]
                 accountName != null -> accountManager.getAccountByNameAndType(accountName, type)

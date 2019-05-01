@@ -16,30 +16,13 @@
 
 package com.codepunk.core.presentation.auth
 
-import android.accounts.AccountManager
-import android.accounts.AccountManager.*
-import android.os.Bundle
-import android.util.Patterns
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
-import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
-import com.codepunk.core.data.remote.entity.RemoteAuthorization
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
-import com.codepunk.core.data.remote.entity.RemoteUser
-import com.codepunk.core.data.remote.webservice.AuthWebservice
-import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
-import com.codepunk.core.lib.getResultUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
-import retrofit2.Response
-import retrofit2.Retrofit
 import javax.inject.Inject
 
 // TODO Convert objects to classes to avoid static field leak warnings
@@ -49,15 +32,17 @@ import javax.inject.Inject
  */
 class AuthViewModel @Inject constructor(
 
+    /*
     /**
      * The [Retrofit] instance.
      */
     private val retrofit: Retrofit,
+    */
 
     /**
      * The authorization repository.
      */
-    private val authRepository: AuthRepository,
+    private val authRepository: AuthRepository /*,
 
     /**
      * The authorization webservice.
@@ -68,6 +53,7 @@ class AuthViewModel @Inject constructor(
      * The user web service.
      */
     private val userWebservice: UserWebservice
+    */
 
 ) : ViewModel() {
 
@@ -114,6 +100,7 @@ class AuthViewModel @Inject constructor(
 
     // region Methods
 
+    /*
     /**
      * Synchronously calls the authorize endpoint and adds a [Bundle] needed by the
      * [AccountManager].
@@ -161,6 +148,7 @@ class AuthViewModel @Inject constructor(
         }
         return authTokenUpdate
     }
+    */
 
     /**
      * Authenticates using username (or email) and password.
@@ -179,6 +167,8 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
+        // TODO NEXT Get LogInFragment up to speed like RegisterFragment; move logic out of AuthenticateActivity
+        // TODO WHERE THE HECK do I add the account to the AccountManager?
         registerSource = authRepository.register(username, email, password, passwordConfirmation)
     }
 

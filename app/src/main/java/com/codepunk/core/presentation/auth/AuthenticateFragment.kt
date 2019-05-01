@@ -149,7 +149,7 @@ class AuthenticateFragment :
     override fun onClick(v: View) {
         when (v) {
             binding.createBtn -> Navigation.findNavController(v).navigate(
-                R.id.action_auth_to_create_account
+                R.id.action_auth_to_register
             )
             binding.loginBtn -> Navigation.findNavController(v).navigate(
                 R.id.action_auth_to_log_in

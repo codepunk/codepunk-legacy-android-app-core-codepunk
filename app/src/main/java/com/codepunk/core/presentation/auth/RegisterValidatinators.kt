@@ -19,14 +19,14 @@ package com.codepunk.core.presentation.auth
 
 import android.content.Context
 import com.codepunk.core.R
-import com.codepunk.core.databinding.FragmentCreateAccountBinding
+import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.di.qualifier.ApplicationContext
 import com.codepunk.punkubator.util.validatinator.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CreateAccountValidatinators @Inject constructor(
+class RegisterValidatinators @Inject constructor(
 
     @ApplicationContext
     val context: Context
@@ -95,10 +95,10 @@ class CreateAccountValidatinators @Inject constructor(
         confirmPasswordValidatinator
     )
 
-    val createAccountValidatinator =
-        object : Validatinator<FragmentCreateAccountBinding>(context) {
+    val registerValidatinator =
+        object : Validatinator<FragmentRegisterBinding>(context) {
 
-            override fun isValid(input: FragmentCreateAccountBinding, options: Options): Boolean {
+            override fun isValid(input: FragmentRegisterBinding, options: Options): Boolean {
                 input.usernameLayout.error = null
                 input.emailLayout.error = null
                 input.passwordLayout.error = null

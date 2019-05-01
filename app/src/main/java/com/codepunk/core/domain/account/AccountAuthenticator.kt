@@ -17,7 +17,10 @@
 
 package com.codepunk.core.domain.account
 
-import android.accounts.*
+import android.accounts.AbstractAccountAuthenticator
+import android.accounts.Account
+import android.accounts.AccountAuthenticatorResponse
+import android.accounts.AccountManager
 import android.accounts.AccountManager.*
 import android.app.Activity
 import android.content.Context
@@ -26,15 +29,15 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import com.codepunk.core.BuildConfig
-import com.codepunk.core.BuildConfig.CATEGORY_CREATE_ACCOUNT
 import com.codepunk.core.BuildConfig.CATEGORY_LOG_IN
+import com.codepunk.core.BuildConfig.CATEGORY_REGISTER
 import com.codepunk.core.BuildConfig.EXTRA_AUTH_TOKEN_TYPE
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
-import com.codepunk.core.domain.model.AuthTokenType
-import com.codepunk.core.domain.model.AuthTokenType.DEFAULT
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.core.domain.model.AuthTokenType
+import com.codepunk.core.domain.model.AuthTokenType.DEFAULT
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -77,7 +80,7 @@ class AccountAuthenticator @Inject constructor(
             putParcelable(
                 KEY_INTENT,
                 Intent(BuildConfig.ACTION_AUTHORIZATION).apply {
-                    addCategory(CATEGORY_CREATE_ACCOUNT)
+                    addCategory(CATEGORY_REGISTER)
                     putExtra(KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
                     // TODO Anything else here?
                 }

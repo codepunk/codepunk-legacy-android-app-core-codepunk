@@ -101,7 +101,7 @@
 
     <string name="authenticator_error_invalid_credentials">The username or password is incorrect.</string>
 
-    <string name="authenticator_error_create_account">Unable to create a new account.</string>
+    <string name="authenticator_error_register">Unable to create a new account.</string>
 
     <!-- endregion Authenticator -->
 
@@ -119,7 +119,7 @@
 
     <string name="authenticate_label_authenticating">Authenticating…</string>
 
-    <string name="authenticate_label_create_account">Create account</string>
+    <string name="authenticate_label_register">Create account</string>
 
     <string name="authenticate_label_forgot_password">Forgot password</string>
 
@@ -198,7 +198,7 @@
 
     <!-- region Alert Dialog messages (maybe move to Doofenschmirtz) -->
 
-    <string name="alert_connect_exception_message">Please check your connection and try again.</string>
+    <string name="alert_connect_exception_message">Unable to connect. Please check your connection and try again.</string>
 
     <string name="alert_connect_exception_title">Could not connect</string>
 

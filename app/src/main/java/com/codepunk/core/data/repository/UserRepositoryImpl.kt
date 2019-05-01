@@ -158,7 +158,7 @@ class UserRepositoryImpl(
             val account: Account = when {
                 accounts.isEmpty() -> return FailureUpdate(
                     e = AuthenticationException("There are no accounts in the account manager"),
-                    data = makeDataBundle(silentMode, CATEGORY_CREATE_ACCOUNT)
+                    data = makeDataBundle(silentMode, CATEGORY_REGISTER)
                 )
                 accounts.size == 1 -> accounts[0]
                 accountName != null -> accountManager.getAccountByNameAndType(accountName, type)

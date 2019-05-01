@@ -17,13 +17,17 @@
 
 package com.codepunk.core.data.repository
 
+import android.accounts.AccountManager.*
 import android.os.Bundle
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
+import com.codepunk.core.BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
 import com.codepunk.core.data.mapper.toDomainOrNull
 import com.codepunk.core.data.remote.entity.RemoteAuthorization
 import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.webservice.AuthWebservice
+import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
@@ -35,6 +39,7 @@ import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import retrofit2.Response
 import retrofit2.Retrofit
+import java.lang.IllegalStateException
 
 /**
  * Implementation of [AuthRepository] that authenticates a user and performs other authorization-
@@ -46,6 +51,11 @@ class AuthRepositoryImpl(
      * An instance of [AuthWebservice] for making auth-related API calls.
      */
     private val authWebservice: AuthWebservice,
+
+    /**
+     * An instance of [UserWebservice] for making user-related API calls.
+     */
+    private val userWebservice: UserWebservice,
 
     /**
      * An instance of [Retrofit] for deserializing errors.
@@ -62,8 +72,10 @@ class AuthRepositoryImpl(
     // region Properties
 
     private var authenticateTask: AuthenticateTask? = null
+    // TODO Do a setter that cancels and resets like AuthViewModel::registerSource
 
     private var registerTask: RegisterTask? = null
+    // TODO Do a setter that cancels and resets like AuthViewModel::registerSource
 
     // endregion Properties
 
@@ -76,6 +88,7 @@ class AuthRepositoryImpl(
         authenticateTask?.cancel(true)
         return AuthenticateTask(
             authWebservice,
+            userWebservice,
             retrofit,
             networkTranslator,
             username,
@@ -113,11 +126,13 @@ class AuthRepositoryImpl(
 
         private val authWebservice: AuthWebservice,
 
+        private val userWebservice: UserWebservice,
+
         private val retrofit: Retrofit,
 
         private val networkTranslator: NetworkTranslator,
 
-        private val username: String,
+        private val usernameOrEmail: String,
 
         private val password: String
 
@@ -127,10 +142,8 @@ class AuthRepositoryImpl(
 
         override fun doInBackground(vararg params: Void?):
                 ResultUpdate<NetworkResponse, Authorization> {
-            val update: ResultUpdate<Void, Response<RemoteAuthorization>> =
-                authWebservice.authorize(username, password).getResultUpdate()
-
-            return when (update) {
+            return when (val update: ResultUpdate<Void, Response<RemoteAuthorization>> =
+                authWebservice.authorize(usernameOrEmail, password).getResultUpdate()) {
                 is FailureUpdate -> {
                     val errorBody = update.result?.errorBody()
                     val networkResponse = errorBody
@@ -155,9 +168,39 @@ class AuthRepositoryImpl(
                     FailureUpdate(null, e, data)
                 }
                 else -> {
-                    val authorization =
-                        update.result?.body().toDomainOrNull()
-                    SuccessUpdate(authorization)
+                    // TODO instead of passing data bundle back, it's possible we can
+                    // pass a bundle as the result?
+                    var username: String? = null
+                    val authorization = update.result?.body().toDomainOrNull()
+                    authorization?.also {
+                        val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
+                        if (isEmail) {
+                            val response =
+                                userWebservice.getUser(authorization.authToken).execute()
+                            if (response.isSuccessful) {
+                                response.body()?.also {
+                                    username = it.username
+                                }
+                            }
+                        } else {
+                            username = usernameOrEmail
+                        }
+                    }
+                    when (username) {
+                        null -> FailureUpdate(
+                            authorization,
+                            IllegalStateException("Unable to determine username")
+                        )
+                        else -> {
+                            val data = Bundle().apply {
+                                putString(KEY_ACCOUNT_NAME, username)
+                                putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
+                                putString(KEY_AUTHTOKEN, authorization?.authToken)
+                                putString(KEY_PASSWORD, authorization?.refreshToken)
+                            }
+                            SuccessUpdate(authorization, data)
+                        }
+                    }
                 }
             }
         }

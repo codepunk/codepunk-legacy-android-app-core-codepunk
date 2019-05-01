@@ -55,7 +55,7 @@
                 <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="${applicationId}.intent.category.CREATE_ACCOUNT"/>
+                <category android:name="${applicationId}.intent.category.REGISTER"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="${applicationId}.intent.action.AUTHORIZATION"/>

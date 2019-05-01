@@ -33,7 +33,7 @@ import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.KEY_NETWORK_RESPONSE
 import com.codepunk.core.BuildConfig.KEY_USERNAME
 import com.codepunk.core.R
-import com.codepunk.core.databinding.FragmentCreateAccountBinding
+import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.NetworkResponse
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.lib.reset
@@ -56,7 +56,7 @@ import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 /**
  * A [Fragment] used to create a new account.
  */
-class CreateAccountFragment :
+class RegisterFragment :
     Fragment(),
     OnClickListener {
 
@@ -79,7 +79,7 @@ class CreateAccountFragment :
      * A set of authorization [Validatinator]s for validating the form.
      */
     @Inject
-    lateinit var validatinators: CreateAccountValidatinators
+    lateinit var validatinators: RegisterValidatinators
 
     /**
      * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
@@ -98,7 +98,7 @@ class CreateAccountFragment :
     /**
      * The binding for this fragment.
      */
-    private lateinit var binding: FragmentCreateAccountBinding
+    private lateinit var binding: FragmentRegisterBinding
 
     /**
      * The [AuthViewModel] instance backing this fragment.
@@ -139,7 +139,7 @@ class CreateAccountFragment :
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_create_account,
+            R.layout.fragment_register,
             container,
             false
         )
@@ -161,7 +161,7 @@ class CreateAccountFragment :
 
         authViewModel.registerDataUpdate.observe(
             this,
-            Observer { update -> onRegisterUpdate(update) }
+            Observer { registerResolver.resolve(it) }
         )
     }
 
@@ -170,7 +170,7 @@ class CreateAccountFragment :
      */
     override fun onResume() {
         super.onResume()
-        setSupportActionBarTitle(R.string.authenticate_label_create_account)
+        setSupportActionBarTitle(R.string.authenticate_label_register)
         floatingActionButtonOwner?.floatingActionButton?.setOnClickListener(this)
     }
 
@@ -185,7 +185,7 @@ class CreateAccountFragment :
         when (v) {
             floatingActionButtonOwner?.floatingActionButton -> register()
             binding.loginBtn -> Navigation.findNavController(v)
-                .navigate(R.id.action_create_account_to_log_in)
+                .navigate(R.id.action_register_to_log_in)
         }
     }
 
@@ -205,22 +205,13 @@ class CreateAccountFragment :
         }
     }
 
-    /*
-    private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) =
-        registerResolver.resolve(update)
-    */
-
     /**
      * Validates the form.
      */
     private fun validate(): Boolean {
         resetErrors()
-        // return validatinators.createAccountValidatinator.validate(binding, options.clear())
+        // return validatinators.registerValidatinator.validate(binding, options.clear())
         return true
-    }
-
-    private fun onRegisterUpdate(update: DataUpdate<Void, NetworkResponse>) {
-        registerResolver.resolve(update)
     }
 
     private fun disableView() {
@@ -274,7 +265,7 @@ class CreateAccountFragment :
             resetView()
             authViewModel.registerDataUpdate.reset()
             Navigation.findNavController(requireView)
-                .navigate(R.id.action_create_account_to_log_in, args)
+                .navigate(R.id.action_register_to_log_in, args)
             return true
         }
 

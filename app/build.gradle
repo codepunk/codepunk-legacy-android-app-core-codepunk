@@ -149,10 +149,10 @@ android {
         makeIntentEntities(
                 variant,
                 IntentEntityType.CATEGORY,
-                "CREATE_ACCOUNT",
                 "DEVELOPER",
                 "LOG_IN",
-                "MAIN"
+                "MAIN",
+                "REGISTER"
         )
 
         /*
@@ -180,11 +180,6 @@ android {
                 "NETWORK_RESPONSE",
                 "REQUEST_CODE",
                 "USERNAME"
-        )
-
-        makeFragmentTags(
-                variant,
-                "AUTH_DIALOG"
         )
 
         /*
@@ -308,14 +303,6 @@ static def makeKeys(BaseVariant variant, String... keys) {
     keys.each { key ->
         def buildConfigName = "KEY_$key"
         def buildConfigValue = "\"${variant.applicationId}.$key\""
-        variant.buildConfigField("String", buildConfigName, buildConfigValue)
-    }
-}
-
-static def makeFragmentTags(BaseVariant variant, String... tags) {
-    tags.each { tag ->
-        def buildConfigName = "FRAGMENT_TAG_$tag"
-        def buildConfigValue = "\"${variant.applicationId}.$tag\""
         variant.buildConfigField("String", buildConfigName, buildConfigValue)
     }
 }

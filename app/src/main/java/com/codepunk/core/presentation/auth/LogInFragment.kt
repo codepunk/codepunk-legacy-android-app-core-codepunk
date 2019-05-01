@@ -19,7 +19,11 @@ package com.codepunk.core.presentation.auth
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,30 +31,46 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
-import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authorization
 import com.codepunk.core.domain.model.NetworkResponse
+import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
+import com.codepunk.core.lib.exception.InactiveUserException
+import com.codepunk.core.lib.exception.InvalidCredentialsException
 import com.codepunk.core.lib.hideSoftKeyboard
+import com.codepunk.core.lib.reset
+import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
+import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
+import java.lang.IllegalStateException
 import javax.inject.Inject
+
+// region Constants
+
+private const val AUTH_DIALOG_REQUEST_CODE = 1
+
+// endregion Constants
 
 /**
  * A [Fragment] used to log into an existing account.
@@ -86,6 +106,13 @@ class LogInFragment :
      */
     @Inject
     lateinit var validatinators: LogInValidatinators
+
+    /**
+     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
+     */
+    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
+        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
+    }
 
     /**
      * An instance of [NetworkTranslator] for translating messages from the network.
@@ -127,6 +154,10 @@ class LogInFragment :
         requestMessage = true
     }
 
+    private lateinit var authResolver: AuthResolver
+
+    private var authenticationListener: AuthenticationListener? = null
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -137,6 +168,7 @@ class LogInFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        authenticationListener = (activity as? AuthenticationListener)
     }
 
     /**
@@ -185,6 +217,8 @@ class LogInFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authResolver = AuthResolver(requireActivity(), view)
+
         binding.createBtn.setOnClickListener(this)
 
         arguments?.apply {
@@ -200,7 +234,7 @@ class LogInFragment :
 
         authViewModel.authorizationDataUpdate.observe(
             this,
-            Observer { update -> onAuthorizationUpdate(update) }
+            Observer { authResolver.resolve(it) }
         )
 
         // If we've arrive here from a successful registration and we passed a network response
@@ -229,7 +263,7 @@ class LogInFragment :
                 binding.chooseAccountLayout.visibility = View.VISIBLE
                 binding.accountLayout.removeAllViews()
                 accounts.sortedWith(
-                    kotlin.Comparator { account1, account2 ->
+                    Comparator { account1, account2 ->
                         when {
                             account1.name < account2.name -> -1
                             account1.name > account2.name -> 1
@@ -268,7 +302,7 @@ class LogInFragment :
         when (v) {
             floatingActionButtonOwner?.floatingActionButton -> login()
             binding.createBtn ->
-                Navigation.findNavController(v).navigate(R.id.action_log_in_to_create_account)
+                Navigation.findNavController(v).navigate(R.id.action_log_in_to_register)
             else -> when (v?.id) {
                 R.id.account_item -> {
                     val account = v.getTag(R.id.account) as? Account
@@ -294,12 +328,6 @@ class LogInFragment :
         }
     }
 
-    private fun onAuthorizationUpdate(update: DataUpdate<NetworkResponse, Authorization>) {
-        if (loginator.isLoggable(Log.DEBUG)) {
-            loginator.d("update=$update")
-        }
-    }
-
     /**
      * Validates the form.
      */
@@ -319,11 +347,159 @@ class LogInFragment :
         }
     }
 
+    private fun disableView() {
+        // TODO disable controls (or at least the button)
+    }
+
+    private fun enableView() {
+        // TODO enable controls
+    }
+
+    private fun resetErrors() {
+        binding.usernameOrEmailLayout.error = null
+        binding.passwordLayout.error = null
+    }
+
+    private fun resetView() {
+        binding.usernameOrEmailEdit.text = null
+        binding.passwordEdit.text = null
+    }
+
     // endregion Methods
 
     // region Nested/inner classes
 
-    // TODO TEMP
+    private inner class AuthResolver(activity: Activity, val requireView: View) :
+        DataUpdateResolver<NetworkResponse, Authorization>(activity, requireView),
+        AlertDialogFragment.AlertDialogFragmentListener {
+
+        // region Constructors
+
+        init {
+            authDialogFragment?.listener = this
+        }
+
+        // endregion Constructors
+
+        // region Properties
+
+        val authDialogFragment: AlertDialogFragment?
+            get() = requireFragmentManager().findFragmentByTag(AUTH_DIALOG_FRAGMENT_TAG)
+                    as AlertDialogFragment?
+
+        val resetCallback = object : Snackbar.Callback() {
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                authViewModel.authorizationDataUpdate.reset()
+            }
+        }
+
+        // endregion Properties
+
+        // region Inherited methods
+
+        override fun resolve(update: DataUpdate<NetworkResponse, Authorization>) {
+            val loading = (update is ProgressUpdate)
+            if (loading) {
+                contentLoadingProgressBar?.show()
+                disableView()
+            } else {
+                contentLoadingProgressBar?.hide()
+                enableView()
+            }
+            super.resolve(update)
+        }
+
+        override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authorization>): Boolean {
+            /*
+            val args = Bundle().apply {
+                putParcelable(KEY_NETWORK_RESPONSE, update.result)
+                putString(KEY_USERNAME, binding.usernameEdit.text.toString())
+            }
+            resetView()
+            authViewModel.registerDataUpdate.reset()
+            Navigation.findNavController(requireView)
+                .navigate(R.id.action_register_to_log_in, args)
+            */
+            update.data?.also { result ->
+                authenticationListener?.onAuthenticated(result)
+            }
+            return true
+        }
+
+        override fun onFailure(update: FailureUpdate<NetworkResponse, Authorization>): Boolean {
+            return if (super.onFailure(update)) {
+                true
+            } else when (update.e) {
+                is InactiveUserException -> {
+                    authDialogFragment ?: AlertDialogFragment.showDialogFragmentForResult(
+                        requireFragmentManager(),
+                        AUTH_DIALOG_FRAGMENT_TAG,
+                        AUTH_DIALOG_REQUEST_CODE,
+                        this
+                    )
+                    true
+                }
+                is InvalidCredentialsException -> {
+                    Snackbar.make(
+                        requireView,
+                        update.e?.localizedMessage
+                            ?: getString(R.string.alert_unknown_error_message),
+                        Snackbar.LENGTH_LONG
+                    ).apply {
+                        addCallback(resetCallback)
+                    }.show()
+                    true
+                }
+                else -> {
+                    Snackbar.make(
+                        requireView,
+                        R.string.alert_unknown_error_message,
+                        Snackbar.LENGTH_LONG
+                    ).apply {
+                        addCallback(resetCallback)
+                    }.show()
+                    false
+                }
+            }
+        }
+
+        // endregion Inherited methods
+
+        // region Implemented methods
+
+        override fun onBuildAlertDialog(
+            requestCode: Int,
+            builder: AlertDialog.Builder,
+            onClickListener: DialogInterface.OnClickListener
+        ) {
+            when (val update = authViewModel.authorizationDataUpdate.value) {
+                is FailureUpdate -> {
+                    val message = update.e?.localizedMessage
+                        ?: getString(R.string.alert_unknown_error_message)
+                    builder
+                        .setTitle(R.string.authenticate_label_log_in)
+                        .setMessage(message)
+                        .setPositiveButton(R.string.app_got_it, onClickListener)
+                }
+            }
+        }
+
+        override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) =
+            authViewModel.authorizationDataUpdate.reset()
+
+        // endregion Implemented methods
+
+    }
+
+    interface AuthenticationListener {
+
+        // region Methods
+
+        fun onAuthenticated(result: Bundle)
+
+        // endregion Methods
+
+    }
 
     // endregion Nested/inner classes
 
@@ -337,8 +513,7 @@ class LogInFragment :
          * The fragment tag to use for the authentication failure dialog fragment.
          */
         @JvmStatic
-        private val AUTHENTICATION_FAILURE_DIALOG_FRAGMENT_TAG =
-            LogInFragment::class.java.name + ".AUTHENTICATION_FAILURE_DIALOG"
+        private val AUTH_DIALOG_FRAGMENT_TAG = LogInFragment::class.java.name + ".AUTH_DIALOG"
 
         // endregion Properties
 

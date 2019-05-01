@@ -33,7 +33,7 @@
             android:paddingEnd="@dimen/margin_horizontal"
             android:paddingRight="@dimen/margin_horizontal"
             android:paddingBottom="@dimen/margin_vertical"
-            tools:context="com.codepunk.core.presentation.auth.CreateAccountFragment">
+            tools:context="com.codepunk.core.presentation.auth.RegisterFragment">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/username_layout"
