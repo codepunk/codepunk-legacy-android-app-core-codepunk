@@ -133,8 +133,7 @@ class AuthenticateActivity :
         // Prevent soft keyboard from auto-popping up
         //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
         if (savedInstanceState == null) {
             // If the supplied intent specifies it, navigate to an alternate destination

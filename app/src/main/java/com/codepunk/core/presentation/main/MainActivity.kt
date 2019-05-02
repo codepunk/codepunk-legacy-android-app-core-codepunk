@@ -19,8 +19,10 @@ package com.codepunk.core.presentation.main
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.codepunk.core.R
+import com.codepunk.core.databinding.ActivityMainBinding
 import com.codepunk.core.di.scope.ActivityScope
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -44,6 +46,11 @@ class MainActivity :
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
+    /**
+     * The binding for this activity.
+     */
+    private lateinit var binding: ActivityMainBinding
+
     // endregion Properties
 
     // region Lifecycle methods
@@ -54,7 +61,8 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setSupportActionBar(binding.toolbar)
     }
 
     // endregion Lifecycle methods
