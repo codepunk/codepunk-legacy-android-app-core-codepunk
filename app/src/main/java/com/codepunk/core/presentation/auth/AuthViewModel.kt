@@ -21,7 +21,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authentication
-import com.codepunk.core.domain.model.NetworkResponse
+import com.codepunk.core.domain.model.Message
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import javax.inject.Inject
 
@@ -32,28 +32,10 @@ import javax.inject.Inject
  */
 class AuthViewModel @Inject constructor(
 
-    /*
-    /**
-     * The [Retrofit] instance.
-     */
-    private val retrofit: Retrofit,
-    */
-
     /**
      * The authentication repository.
      */
-    private val authRepository: AuthRepository /*,
-
-    /**
-     * The authentication webservice.
-     */
-    private val authWebservice: AuthWebservice,
-
-    /**
-     * The user web service.
-     */
-    private val userWebservice: UserWebservice
-    */
+    private val authRepository: AuthRepository
 
 ) : ViewModel() {
 
@@ -62,17 +44,19 @@ class AuthViewModel @Inject constructor(
     /**
      * A [LiveData] holding the result of attempting to register (i.e. create a new account).
      */
-    val registerDataUpdate = MediatorLiveData<DataUpdate<Void, NetworkResponse>>()
+    val registerDataUpdate = MediatorLiveData<DataUpdate<Void, Message>>()
 
     /**
      * A private [LiveData] holding the current source supplying the value to [registerDataUpdate].
      */
-    private var registerSource: LiveData<DataUpdate<Void, NetworkResponse>>? = null
+    private var registerSource: LiveData<DataUpdate<Void, Message>>? = null
         private set(value) {
-            field?.also { source -> registerDataUpdate.removeSource(source) }
-            field = value?.apply {
-                registerDataUpdate.addSource(this) { value ->
-                    registerDataUpdate.value = value
+            if (field != value) {
+                field?.also { source -> registerDataUpdate.removeSource(source) }
+                field = value?.apply {
+                    registerDataUpdate.addSource(this) { value ->
+                        registerDataUpdate.value = value
+                    }
                 }
             }
         }
@@ -80,18 +64,34 @@ class AuthViewModel @Inject constructor(
     /**
      * A [LiveData] holding the [Authentication] relating to the current authentication attempt.
      */
-    val authDataUpdate = MediatorLiveData<DataUpdate<NetworkResponse, Authentication>>()
+    val authDataUpdate = MediatorLiveData<DataUpdate<Void, Authentication>>()
 
     /**
      * A private [LiveData] holding the current source supplying the value to
      * [authDataUpdate].
      */
-    private var authSource: LiveData<DataUpdate<NetworkResponse, Authentication>>? = null
+    private var authSource: LiveData<DataUpdate<Void, Authentication>>? = null
         private set(value) {
-            field?.also { source -> authDataUpdate.removeSource(source) }
-            field = value?.apply {
-                authDataUpdate.addSource(this) { value ->
-                    authDataUpdate.value = value
+            if (field != value) {
+                field?.also { source -> authDataUpdate.removeSource(source) }
+                field = value?.apply {
+                    authDataUpdate.addSource(this) { value ->
+                        authDataUpdate.value = value
+                    }
+                }
+            }
+        }
+
+    val sendActivationDataUpdate = MediatorLiveData<DataUpdate<Void, Message>>()
+
+    private var sendActivationSource: LiveData<DataUpdate<Void, Message>>? = null
+        private set(value) {
+            if (field != value) {
+                field?.also {source -> sendActivationDataUpdate.removeSource(source) }
+                field = value?.apply {
+                    sendActivationDataUpdate.addSource(this) { value ->
+                        sendActivationDataUpdate.value = value
+                    }
                 }
             }
         }
@@ -167,9 +167,11 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirmation: String
     ) {
-        // TODO NEXT Get LogInFragment up to speed like RegisterFragment; move logic out of AuthenticateActivity
-        // TODO WHERE THE HECK do I add the account to the AccountManager?
         registerSource = authRepository.register(username, email, password, passwordConfirmation)
+    }
+
+    fun sendActivationCode(email: String) {
+        sendActivationSource = authRepository.sendActivationEmail(email)
     }
 
     // endregion methods

@@ -17,10 +17,13 @@
 
 package com.codepunk.core.lib
 
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
+import com.codepunk.core.data.remote.entity.RemoteInactiveUserExceptionResponse
+import com.codepunk.core.data.remote.entity.RemoteOAuthServerExceptionResponse
+import com.codepunk.core.data.remote.entity.RemoteValidationExceptionResponse
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 
+/*
 /**
  * Converts a nullable [ResponseBody] into a nullable RemoteNetworkResponse.
  */
@@ -32,4 +35,41 @@ fun ResponseBody?.toRemoteNetworkResponse(retrofit: Retrofit): RemoteNetworkResp
             arrayOf()
         ).convert(this)
     }
+}
+*/
+
+/**
+ * Converts a nullable [ResponseBody] into a nullable RemoteOAuthServerExceptionResponse.
+ */
+fun ResponseBody?.toRemoteInactiveUserExceptionResponse(
+    retrofit: Retrofit
+): RemoteInactiveUserExceptionResponse? = this?.let {
+    retrofit.responseBodyConverter<RemoteInactiveUserExceptionResponse>(
+        RemoteInactiveUserExceptionResponse::class.java,
+        arrayOf()
+    ).convert(it)
+}
+
+/**
+ * Converts a nullable [ResponseBody] into a nullable RemoteOAuthServerExceptionResponse.
+ */
+fun ResponseBody?.toRemoteOAuthServerExceptionResponse(
+    retrofit: Retrofit
+): RemoteOAuthServerExceptionResponse? = this?.let {
+    retrofit.responseBodyConverter<RemoteOAuthServerExceptionResponse>(
+        RemoteOAuthServerExceptionResponse::class.java,
+        arrayOf()
+    ).convert(it)
+}
+
+/**
+ * Converts a nullable [ResponseBody] into a nullable RemoteValidationExceptionResponse.
+ */
+fun ResponseBody?.toRemoteValidationExceptionResponse(
+    retrofit: Retrofit
+): RemoteValidationExceptionResponse? = this?.let {
+    retrofit.responseBodyConverter<RemoteValidationExceptionResponse>(
+        RemoteValidationExceptionResponse::class.java,
+        arrayOf()
+    ).convert(it)
 }

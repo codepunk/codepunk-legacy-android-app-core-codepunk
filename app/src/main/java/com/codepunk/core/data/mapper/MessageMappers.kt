@@ -17,28 +17,21 @@
 
 package com.codepunk.core.data.mapper
 
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
-import com.codepunk.core.domain.model.NetworkResponse
+import com.codepunk.core.data.remote.entity.RemoteMessage
+import com.codepunk.core.domain.model.Message
 import com.codepunk.core.util.NetworkTranslator
 
 /**
- * Converts a [RemoteNetworkResponse] to a domain [NetworkResponse].
+ * Converts a [RemoteMessage] to a domain [Message].
  */
-fun RemoteNetworkResponse.toDomain(networkTranslator: NetworkTranslator? = null): NetworkResponse =
-    NetworkResponse(
+fun RemoteMessage.toDomain(networkTranslator: NetworkTranslator? = null): Message =
+    Message(
         message,
-        networkTranslator?.translate(message) ?: message,
-        error,
-        errorDescription,
-        errors?.mapValues { entry ->
-            entry.value.map {
-                networkTranslator?.translate(it) ?: it
-            }.toTypedArray()
-        }
+        networkTranslator?.translate(message) ?: message
     )
 
 /**
- * Converts a nullable [RemoteNetworkResponse] to a nullable domain [NetworkResponse].
+ * Converts a nullable [RemoteMessage] to a nullable domain [Message].
  */
-fun RemoteNetworkResponse?.toDomainOrNull(networkTranslator: NetworkTranslator): NetworkResponse? =
+fun RemoteMessage?.toDomainOrNull(networkTranslator: NetworkTranslator): Message? =
     this?.toDomain(networkTranslator)

@@ -16,6 +16,7 @@
 
 package com.codepunk.core.presentation.auth
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -30,16 +31,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
-import com.codepunk.core.BuildConfig.KEY_NETWORK_RESPONSE
-import com.codepunk.core.BuildConfig.KEY_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentRegisterBinding
-import com.codepunk.core.domain.model.NetworkResponse
+import com.codepunk.core.domain.model.Message
+import com.codepunk.core.exception.ValidationException
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
@@ -48,6 +49,7 @@ import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -80,6 +82,12 @@ class RegisterFragment :
      */
     @Inject
     lateinit var validatinators: RegisterValidatinators
+
+    /**
+     * The [NetworkTranslator] for translating messages from the network.
+     */
+    @Inject
+    lateinit var networkTranslator: NetworkTranslator
 
     /**
      * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
@@ -241,41 +249,63 @@ class RegisterFragment :
     // region Nested/inner classes
 
     private inner class RegisterResolver(activity: Activity, val requireView: View) :
-        DataUpdateResolver<Void, NetworkResponse>(activity, requireView) {
+        DataUpdateResolver<Void, Message>(activity, requireView) {
+
+        // region Properties
+
+        val resetCallback = object : Snackbar.Callback() {
+            @SuppressLint("SwitchIntDef")
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                when (event) {
+                    DISMISS_EVENT_ACTION, DISMISS_EVENT_TIMEOUT ->
+                        authViewModel.registerDataUpdate.reset()
+                }
+            }
+        }
+
+        // endregion Properties
 
         // region Inherited methods
 
-        override fun resolve(update: DataUpdate<Void, NetworkResponse>) {
-            val loading = (update is ProgressUpdate)
-            if (loading) {
-                contentLoadingProgressBar?.show()
-                disableView()
-            } else {
-                contentLoadingProgressBar?.hide()
-                enableView()
+        override fun resolve(update: DataUpdate<Void, Message>) {
+            when (update) {
+                is ProgressUpdate -> {
+                    contentLoadingProgressBar?.show()
+                    disableView()
+                }
+                else -> {
+                    contentLoadingProgressBar?.hide()
+                    enableView()
+                }
             }
             super.resolve(update)
         }
 
-        override fun onSuccess(update: SuccessUpdate<Void, NetworkResponse>): Boolean {
-            val args = Bundle().apply {
-                putParcelable(KEY_NETWORK_RESPONSE, update.result)
-                putString(KEY_USERNAME, binding.usernameEdit.text.toString())
-            }
+        override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
             resetView()
-            authViewModel.registerDataUpdate.reset()
-            Navigation.findNavController(requireView)
-                .navigate(R.id.action_register_to_log_in, args)
+            Navigation.findNavController(requireView).navigate(R.id.action_register_to_log_in)
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<Void, NetworkResponse>): Boolean {
+        override fun onFailure(update: FailureUpdate<Void, Message>): Boolean {
             var handled = super.onFailure(update)
             if (!handled) {
-                update.result?.firstErrorOrNull()?.also { error ->
-                    view?.findViewWithTag<TextInputLayout>(error.first)?.also { layout ->
-                        layout.error = error.second
-                        handled = true
+                when (val updateException = update.e) {
+                    is ValidationException -> {
+                        updateException.firstErrorOrNull()?.also { pair ->
+                            view?.findViewWithTag<TextInputLayout>(pair.first)?.also { layout ->
+                                layout.error = networkTranslator.translate(pair.second)
+                                handled = true
+                            }
+                        }
+                    }
+                    else -> {
+                        Snackbar.make(
+                            requireView,
+                            R.string.alert_unknown_error_message,
+                            Snackbar.LENGTH_LONG
+                        ).addCallback(resetCallback)
+                            .show()
                     }
                 }
             }

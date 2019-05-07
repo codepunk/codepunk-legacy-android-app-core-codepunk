@@ -18,8 +18,8 @@ package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.data.remote.entity.RemoteAuthentication
 import com.codepunk.core.domain.model.GrantType
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import com.codepunk.core.data.remote.HEADER_ACCEPT_APPLICATION_JSON
+import com.codepunk.core.data.remote.entity.RemoteMessage
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -114,7 +114,18 @@ interface AuthWebservice {
 
         @Field("password_confirmation")
         passwordConfirmation: String
-    ): Call<RemoteNetworkResponse>
+    ): Call<RemoteMessage>
+
+    /**
+     * Sends an activation code to the supplied [email].
+     */
+    @POST("activate/send")
+    @FormUrlEncoded
+    @Headers(HEADER_ACCEPT_APPLICATION_JSON)
+    fun sendActivationCode(
+        @Field("email")
+        email: String
+    ): Call<RemoteMessage>
 
     // endregion Methods
 

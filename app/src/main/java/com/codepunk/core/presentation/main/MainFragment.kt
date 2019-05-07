@@ -18,26 +18,26 @@ package com.codepunk.core.presentation.main
 
 import android.accounts.Account
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
+import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.ACTION_SETTINGS
 import com.codepunk.core.BuildConfig.KEY_INTENT
+import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
-import com.codepunk.core.R
-import com.codepunk.doofenschmirtz.app.AlertDialogFragment
+import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.*
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -52,6 +52,7 @@ const val AUTHENTICATE_REQUEST_CODE = 1
  */
 private const val STATE_LOGGED_OUT = 0
 
+/*
 /**
  * A constant that indicates logging in state.
  */
@@ -66,15 +67,14 @@ private const val STATE_LOGGED_IN = 2
  * A constant that indicates a user that has not been activated.
  */
 private const val STATE_INACTIVE = 3
+*/
 
 /**
  * A simple [Fragment] subclass.
  */
 class MainFragment :
     Fragment(),
-    View.OnClickListener,
-    AlertDialogFragment.OnBuildAlertDialogListener,
-    DialogInterface.OnClickListener {
+    View.OnClickListener {
 
     // region Properties
 
@@ -91,14 +91,31 @@ class MainFragment :
     lateinit var sessionManager: SessionManager
 
     /**
+     * The application [FormattingLoginator].
+     */
+    @Inject
+    lateinit var loginator: FormattingLoginator
+
+    /**
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentMainBinding
 
+    /*
     /**
      * The Requires Validation dialog fragment.
      */
     private var requiresValidationDialogFragment: AlertDialogFragment? = null
+    */
+
+    /**
+     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
+     */
+    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
+        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
+    }
+
+    private lateinit var sessionResolver: SessionResolver
 
     // endregion Properties
 
@@ -118,9 +135,11 @@ class MainFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        /*
         requiresValidationDialogFragment = requireFragmentManager().findFragmentByTag(
             REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG
         ) as? AlertDialogFragment
+        */
     }
 
     /**
@@ -192,6 +211,9 @@ class MainFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        sessionResolver = SessionResolver(requireActivity(), view)
+
         binding.logInOutBtn.setOnClickListener(this)
 
 //        sessionManager2.authenticateUser().observe(this, Observer { onUserUpdate(it) })
@@ -199,7 +221,7 @@ class MainFragment :
 //            Log.d("MainFragment", "update=$it")
 //        }
 
-        sessionManager.observeSession(this, Observer { onSessionUpdate(it) })
+        sessionManager.observeSession(this, Observer { sessionResolver.resolve(it) })
 
         // If we have an account saved, try to silently log into it now
         if (savedInstanceState == null) {
@@ -213,8 +235,6 @@ class MainFragment :
             }
             */
         }
-
-//        sessionManager.observeSession(this, Observer { onSessionUpdate(it) })
     }
 
     // endregion Inherited methods
@@ -250,6 +270,7 @@ class MainFragment :
     }
     */
 
+    /*
     /**
      * Supplies arguments to the Requires Activation dialog.
      */
@@ -262,26 +283,34 @@ class MainFragment :
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.authenticator_send_again, this)
     }
+    */
 
+    /*
     /**
      * Processes result dialog results.
      */
     override fun onAlertDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
         // No op
     }
+    */
 
+    /*
     override fun onClick(dialog: DialogInterface?, which: Int) {
         TODO("not implemented")
     }
+    */
 
     // endregion Implemented methods
 
     // region Methods
 
+    /*
     private fun onUserUpdate(update: DataUpdate<User, User>) {
 
     }
+    */
 
+    /*
     private fun onSessionUpdate(update: DataUpdate<User, Session>) {
         when (update) {
             is PendingUpdate -> updateUI(STATE_LOGGED_OUT)
@@ -308,11 +337,13 @@ class MainFragment :
             }
         }
     }
+    */
 
     /**
      * Updates the UI.
      */
     private fun updateUI(state: Int, user: User? = null) {
+        /*
         when (state) {
             STATE_LOGGING_IN -> {
                 binding.text1.text = null
@@ -348,6 +379,7 @@ class MainFragment :
                 binding.logInOutBtn.visibility = View.VISIBLE
             }
         }
+        */
 
         /*
         with(binding) {
@@ -366,6 +398,67 @@ class MainFragment :
     }
 
     // endregion Methods
+
+    // region Nested/inner classes
+
+    private inner class SessionResolver(activity: Activity, val requireView: View) :
+        DataUpdateResolver<User, Session>(activity, requireView) {
+
+        override fun resolve(update: DataUpdate<User, Session>) {
+            when (update) {
+                is ProgressUpdate -> contentLoadingProgressBar?.show()
+                else -> contentLoadingProgressBar?.hide()
+            }
+            super.resolve(update)
+        }
+
+        override fun onPending(update: PendingUpdate<User, Session>): Boolean {
+            binding.text1.text = null
+            binding.logInOutBtn.isEnabled = true
+            binding.logInOutBtn.setText(R.string.main_log_in)
+            binding.logInOutBtn.visibility = View.VISIBLE
+            return true
+        }
+
+        override fun onProgress(update: ProgressUpdate<User, Session>): Boolean {
+            binding.text1.text = null
+            binding.logInOutBtn.isEnabled = false
+            binding.logInOutBtn.setText(R.string.main_logging_in)
+            binding.logInOutBtn.visibility = View.VISIBLE
+            return true
+        }
+
+        override fun onSuccess(update: SuccessUpdate<User, Session>): Boolean {
+            val user = update.result?.user
+            binding.text1.text = when (user) {
+                null -> getString(R.string.hello)
+                else -> getString(R.string.hello_user, user.givenName)
+            }
+            binding.logInOutBtn.isEnabled = true
+            binding.logInOutBtn.setText(R.string.main_log_out)
+            binding.logInOutBtn.visibility = View.INVISIBLE
+            return true
+        }
+
+        override fun onFailure(update: FailureUpdate<User, Session>): Boolean {
+            var handled = super.onFailure(update)
+            if (!handled) {
+                val intent = update.data?.getParcelable(KEY_INTENT) as Intent?
+                intent?.run {
+                    startActivityForResult(this, AUTHENTICATE_REQUEST_CODE)
+                } ?: run {
+                    binding.text1.text = null
+                    binding.logInOutBtn.isEnabled = true
+                    binding.logInOutBtn.setText(R.string.main_log_in)
+                    binding.logInOutBtn.visibility = View.VISIBLE
+                }
+                handled = true
+            }
+            return handled
+        }
+    }
+
+    // endregion Nested/inner classes
 
     // region Companion object
 

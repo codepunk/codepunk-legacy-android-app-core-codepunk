@@ -25,6 +25,8 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 
+// TODO Kill this class
+
 /*
  * Author(s): Scott Slater
  */

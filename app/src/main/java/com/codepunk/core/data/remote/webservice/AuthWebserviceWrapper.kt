@@ -19,8 +19,8 @@ package com.codepunk.core.data.remote.webservice
 
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.data.remote.entity.RemoteAuthentication
+import com.codepunk.core.data.remote.entity.RemoteMessage
 import com.codepunk.core.domain.model.GrantType
-import com.codepunk.core.data.remote.entity.RemoteNetworkResponse
 import retrofit2.Call
 
 /**
@@ -90,7 +90,8 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
         clientId: String,
         clientSecret: String,
         refreshToken: String
-    ): Call<RemoteAuthentication> = base.refreshToken(grantType, clientId, clientSecret, refreshToken)
+    ): Call<RemoteAuthentication> =
+        base.refreshToken(grantType, clientId, clientSecret, refreshToken)
 
     /**
      * Gets an authentication token from an existing [refreshToken] by passing default arguments to
@@ -108,8 +109,11 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
         email: String,
         password: String,
         passwordConfirmation: String
-    ): Call<RemoteNetworkResponse> =
+    ): Call<RemoteMessage> =
         base.register(username, email, password, passwordConfirmation)
+
+    override fun sendActivationCode(email: String): Call<RemoteMessage> =
+        base.sendActivationCode(email)
 
     // endregion Inherited methods
 

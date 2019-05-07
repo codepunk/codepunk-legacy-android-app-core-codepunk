@@ -19,11 +19,13 @@ package com.codepunk.core.presentation.main
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityMainBinding
 import com.codepunk.core.di.scope.ActivityScope
+import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -36,7 +38,8 @@ import javax.inject.Inject
 @ActivityScope
 class MainActivity :
     AppCompatActivity(),
-    HasSupportFragmentInjector {
+    HasSupportFragmentInjector,
+    ContentLoadingProgressBarOwner {
 
     // region Properties
 
@@ -50,6 +53,13 @@ class MainActivity :
      * The binding for this activity.
      */
     private lateinit var binding: ActivityMainBinding
+
+    /**
+     * Implementation of [ContentLoadingProgressBarOwner]. Returns the content loading progress bar.
+     */
+    override val contentLoadingProgressBar: ContentLoadingProgressBar by lazy {
+        binding.loadingProgress
+    }
 
     // endregion Properties
 

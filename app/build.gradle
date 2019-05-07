@@ -177,7 +177,6 @@ android {
                 "FIRST_TIME",
                 "INTENT",
                 "LISTENER_SOURCE",
-                "NETWORK_RESPONSE",
                 "REQUEST_CODE",
                 "USERNAME"
         )

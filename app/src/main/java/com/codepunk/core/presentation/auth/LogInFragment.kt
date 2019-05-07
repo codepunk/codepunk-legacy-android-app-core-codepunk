@@ -19,6 +19,7 @@ package com.codepunk.core.presentation.auth
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -42,15 +43,17 @@ import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authentication
-import com.codepunk.core.domain.model.NetworkResponse
-import com.codepunk.core.lib.exception.InactiveUserException
-import com.codepunk.core.lib.exception.InvalidCredentialsException
+import com.codepunk.core.domain.model.Message
+import com.codepunk.core.exception.InactiveUserServerException
+import com.codepunk.core.exception.InvalidCredentialsServerException
+import com.codepunk.core.exception.InvalidRequestServerException
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
@@ -65,7 +68,7 @@ import javax.inject.Inject
 
 // region Constants
 
-private const val AUTH_DIALOG_REQUEST_CODE = 1
+private const val INACTIVE_USER_REQUEST_CODE = 1
 
 // endregion Constants
 
@@ -105,6 +108,12 @@ class LogInFragment :
     lateinit var validatinators: LogInValidatinators
 
     /**
+     * The [NetworkTranslator] for translating messages from the network.
+     */
+    @Inject
+    lateinit var networkTranslator: NetworkTranslator
+
+    /**
      * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
      */
     private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
@@ -139,6 +148,8 @@ class LogInFragment :
     }
 
     private lateinit var authResolver: AuthResolver
+
+    private lateinit var registerResolver: RegisterResolver
 
     private var authenticationListener: AuthenticationListener? = null
 
@@ -202,6 +213,7 @@ class LogInFragment :
         super.onViewCreated(view, savedInstanceState)
 
         authResolver = AuthResolver(requireActivity(), view)
+        registerResolver = RegisterResolver(requireActivity(), view)
 
         binding.createBtn.setOnClickListener(this)
 
@@ -221,17 +233,10 @@ class LogInFragment :
             Observer { authResolver.resolve(it) }
         )
 
-        // If we've arrive here from a successful registration and we passed a network response
-        // argument, show a snackbar with the associated message
-        val networkResponse: NetworkResponse? = arguments?.getParcelable(KEY_NETWORK_RESPONSE)
-        networkResponse?.also {
-            val text = it.localizedMessage ?: getString(R.string.alert_success_exclam)
-            Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE).apply {
-                setAction(R.string.app_got_it) {
-                    arguments?.remove(KEY_NETWORK_RESPONSE)
-                }
-            }.show()
-        }
+        authViewModel.registerDataUpdate.observe(
+            this,
+            Observer { registerResolver.resolve(it) }
+        )
     }
 
     // region Implemented methods
@@ -354,7 +359,7 @@ class LogInFragment :
     // region Nested/inner classes
 
     private inner class AuthResolver(activity: Activity, val requireView: View) :
-        DataUpdateResolver<NetworkResponse, Authentication>(activity, requireView),
+        DataUpdateResolver<Void, Authentication>(activity, requireView),
         AlertDialogFragment.AlertDialogFragmentListener {
 
         // region Constructors
@@ -369,11 +374,15 @@ class LogInFragment :
 
         val authDialogFragment: AlertDialogFragment?
             get() = requireFragmentManager().findFragmentByTag(AUTH_DIALOG_FRAGMENT_TAG)
-                    as AlertDialogFragment?
+                as AlertDialogFragment?
 
         val resetCallback = object : Snackbar.Callback() {
+            @SuppressLint("SwitchIntDef")
             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                authViewModel.authDataUpdate.reset()
+                when (event) {
+                    DISMISS_EVENT_ACTION, DISMISS_EVENT_TIMEOUT ->
+                        authViewModel.authDataUpdate.reset()
+                }
             }
         }
 
@@ -381,45 +390,53 @@ class LogInFragment :
 
         // region Inherited methods
 
-        override fun resolve(update: DataUpdate<NetworkResponse, Authentication>) {
-            val loading = (update is ProgressUpdate)
-            if (loading) {
-                contentLoadingProgressBar?.show()
-                disableView()
-            } else {
-                contentLoadingProgressBar?.hide()
-                enableView()
+        override fun resolve(update: DataUpdate<Void, Authentication>) {
+            when (update) {
+                is ProgressUpdate -> {
+                    contentLoadingProgressBar?.show()
+                    disableView()
+                }
+                else -> {
+                    contentLoadingProgressBar?.hide()
+                    enableView()
+                }
             }
             super.resolve(update)
         }
 
-        override fun onSuccess(update: SuccessUpdate<NetworkResponse, Authentication>): Boolean {
+        override fun onSuccess(update: SuccessUpdate<Void, Authentication>): Boolean {
             authenticationListener?.onAuthenticated(update.result)
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<NetworkResponse, Authentication>): Boolean {
+        override fun onFailure(update: FailureUpdate<Void, Authentication>): Boolean {
             return if (super.onFailure(update)) {
                 true
             } else when (update.e) {
-                is InactiveUserException -> {
+                is InactiveUserServerException -> {
                     authDialogFragment ?: AlertDialogFragment.showDialogFragmentForResult(
                         requireFragmentManager(),
                         AUTH_DIALOG_FRAGMENT_TAG,
-                        AUTH_DIALOG_REQUEST_CODE,
+                        INACTIVE_USER_REQUEST_CODE,
                         this
                     )
                     true
                 }
-                is InvalidCredentialsException -> {
+                is InvalidCredentialsServerException -> {
+                    val text = networkTranslator.translate(update.e?.message)
+                        ?: getString(R.string.alert_unknown_error_message)
+                    Snackbar.make(requireView, text, Snackbar.LENGTH_LONG)
+                        .addCallback(resetCallback)
+                        .show()
+                    true
+                }
+                is InvalidRequestServerException -> {
                     Snackbar.make(
                         requireView,
-                        update.e?.localizedMessage
-                            ?: getString(R.string.alert_unknown_error_message),
+                        R.string.translator_string_output_user_credentials_incorrect,
                         Snackbar.LENGTH_LONG
-                    ).apply {
-                        addCallback(resetCallback)
-                    }.show()
+                    ).addCallback(resetCallback)
+                        .show()
                     true
                 }
                 else -> {
@@ -427,10 +444,9 @@ class LogInFragment :
                         requireView,
                         R.string.alert_unknown_error_message,
                         Snackbar.LENGTH_LONG
-                    ).apply {
-                        addCallback(resetCallback)
-                    }.show()
-                    false
+                    ).addCallback(resetCallback)
+                        .show()
+                    true
                 }
             }
         }
@@ -444,23 +460,78 @@ class LogInFragment :
             builder: AlertDialog.Builder,
             onClickListener: DialogInterface.OnClickListener
         ) {
-            when (val update = authViewModel.authDataUpdate.value) {
-                is FailureUpdate -> {
-                    // TODO NEXT Add a "send again" button to the dialog
-                    val message = update.e?.localizedMessage
-                        ?: getString(R.string.alert_unknown_error_message)
-                    builder
-                        .setTitle(R.string.authenticate_label_log_in)
-                        .setMessage(message)
-                        .setPositiveButton(R.string.app_got_it, onClickListener)
+            when (requestCode) {
+                INACTIVE_USER_REQUEST_CODE -> {
+                    when (val update = authViewModel.authDataUpdate.value) {
+                        is FailureUpdate -> {
+                            val message = update.e?.localizedMessage
+                                ?: getString(R.string.alert_unknown_error_message)
+                            builder
+                                .setTitle(R.string.authenticate_label_log_in)
+                                .setMessage(message)
+                                .setPositiveButton(R.string.app_got_it, onClickListener)
+                                .setNeutralButton(
+                                    R.string.authenticator_send_again,
+                                    onClickListener
+                                )
+                        }
+                    }
                 }
             }
         }
 
-        override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) =
-            authViewModel.authDataUpdate.reset()
+        override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            when (requestCode) {
+                INACTIVE_USER_REQUEST_CODE -> {
+                    when (resultCode) {
+                        AlertDialogFragment.RESULT_NEUTRAL -> {
+                            val update: FailureUpdate<Void, Authentication>? =
+                                authViewModel.authDataUpdate.value as? FailureUpdate
+                            val e = update?.e as? InactiveUserServerException
+                            e?.hint?.also {
+                                authViewModel.sendActivationCode(it)
+                            }
+                        }
+                    }
+                    authViewModel.authDataUpdate.reset()
+                }
+            }
+        }
 
         // endregion Implemented methods
+
+    }
+
+    private inner class RegisterResolver(activity: Activity, val requireView: View) :
+        DataUpdateResolver<Void, Message>(activity, requireView) {
+
+        // region Properties
+
+        val resetCallback = object : Snackbar.Callback() {
+            @SuppressLint("SwitchIntDef")
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                when (event) {
+                    DISMISS_EVENT_ACTION, DISMISS_EVENT_TIMEOUT ->
+                        authViewModel.registerDataUpdate.reset()
+                }
+            }
+        }
+
+        // endregion Properties
+
+        // region Inherited methods
+
+        override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
+            update.result?.localizedMessage?.run {
+                Snackbar.make(requireView, this, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.app_got_it) {}
+                    .addCallback(resetCallback)
+                    .show()
+            } ?: authViewModel.registerDataUpdate.reset()
+            return true
+        }
+
+        // endregion Inherited methods
 
     }
 

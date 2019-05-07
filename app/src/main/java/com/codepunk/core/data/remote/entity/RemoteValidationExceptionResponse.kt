@@ -17,29 +17,17 @@
 
 package com.codepunk.core.data.remote.entity
 
-import com.squareup.moshi.Json
-
 /**
- * A response message from the server. This response contains a [message] string and
- * optional [errors] detailing any issues discovered during the request.
+ * A response message from the server indicating a (Laravel) ValidationException occurred. This
+ * response contains a [message] string and optional [errors] detailing any errors encountered
+ * during the request.
  */
-data class RemoteNetworkResponse(
+data class RemoteValidationExceptionResponse(
 
     /**
      * A string message.
      */
     val message: String?,
-
-    /**
-     * An optional error code.
-     */
-    val error: String?,
-
-    /**
-     * An optional error description.
-     */
-    @field:Json(name = "error_description")
-    val errorDescription: String?,
 
     /**
      * Any errors (relating to specific keys) that were discovered during the request.
