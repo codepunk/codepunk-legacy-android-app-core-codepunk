@@ -115,6 +115,9 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
     override fun sendActivationCode(email: String): Call<RemoteMessage> =
         base.sendActivationCode(email)
 
+    override fun sendPasswordResetLink(email: String): Call<RemoteMessage> =
+        base.sendPasswordResetLink(email)
+
     // endregion Inherited methods
 
 }

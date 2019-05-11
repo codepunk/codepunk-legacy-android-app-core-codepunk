@@ -31,6 +31,30 @@ interface FloatingActionButtonOwner {
      */
     val floatingActionButton: FloatingActionButton
 
+    /**
+     * An instance of [FloatingActionButtonListener].
+     */
+    var floatingActionButtonListener: FloatingActionButtonListener?
+
     // endregion Properties
+
+    // region Nested/inner classes
+
+    /**
+     * A listener for events related to a floating action button.
+     */
+    interface FloatingActionButtonListener {
+
+        // region Methods
+
+        /**
+         * Triggered when the floating action button is clicked.
+         */
+        fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner)
+
+        // endregion Methods
+    }
+
+    // endregion Nested/inner classes
 
 }

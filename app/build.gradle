@@ -177,6 +177,7 @@ android {
                 "FIRST_TIME",
                 "INTENT",
                 "LISTENER_SOURCE",
+                "REMOTE_ERROR_BODY",
                 "REQUEST_CODE",
                 "USERNAME"
         )

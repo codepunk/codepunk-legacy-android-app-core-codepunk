@@ -31,17 +31,20 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
+import com.codepunk.core.BuildConfig.KEY_REMOTE_ERROR_BODY
 import com.codepunk.core.R
+import com.codepunk.core.data.remote.entity.RemoteErrorBody
 import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.exception.ValidationException
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
 import com.codepunk.core.util.DataUpdateResolver
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
+import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
 import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
@@ -60,7 +63,8 @@ import android.content.DialogInterface.OnClickListener as DialogOnClickListener
  */
 class RegisterFragment :
     Fragment(),
-    OnClickListener {
+    OnClickListener,
+    FloatingActionButtonListener {
 
     // region Properties
 
@@ -167,6 +171,7 @@ class RegisterFragment :
 
         registerResolver = RegisterResolver(requireActivity(), view)
 
+        authViewModel.registerDataUpdate.removeObservers(this)
         authViewModel.registerDataUpdate.observe(
             this,
             Observer { registerResolver.resolve(it) }
@@ -174,12 +179,22 @@ class RegisterFragment :
     }
 
     /**
-     * Listens for floating action button click events.
+     * Listens for floating action button events.
      */
     override fun onResume() {
         super.onResume()
         setSupportActionBarTitle(R.string.authenticate_label_register)
-        floatingActionButtonOwner?.floatingActionButton?.setOnClickListener(this)
+        floatingActionButtonOwner?.floatingActionButtonListener = this
+    }
+
+    /**
+     * Removes any associated listeners.
+     */
+    override fun onPause() {
+        super.onPause()
+        if (floatingActionButtonOwner?.floatingActionButtonListener == this) {
+            floatingActionButtonOwner?.floatingActionButtonListener = null
+        }
     }
 
     // endregion Inherited methods
@@ -191,17 +206,16 @@ class RegisterFragment :
      */
     override fun onClick(v: View?) {
         when (v) {
-            floatingActionButtonOwner?.floatingActionButton -> register()
-            binding.loginBtn -> Navigation.findNavController(v)
-                .navigate(R.id.action_register_to_log_in)
+            binding.loginBtn -> {
+                authViewModel.registerDataUpdate.reset()
+                resetErrors()
+                Navigation.findNavController(v)
+                    .navigate(R.id.action_register_to_log_in)
+            }
         }
     }
 
-    // endregion Implemented methods
-
-    // region Methods
-
-    private fun register() {
+    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
         view?.hideSoftKeyboard()
         if (validate()) {
             authViewModel.register(
@@ -212,6 +226,10 @@ class RegisterFragment :
             )
         }
     }
+
+    // endregion Implemented methods
+
+    // region Methods
 
     /**
      * Validates the form.
@@ -248,26 +266,13 @@ class RegisterFragment :
 
     // region Nested/inner classes
 
-    private inner class RegisterResolver(activity: Activity, val requireView: View) :
-        DataUpdateResolver<Void, Message>(activity, requireView) {
-
-        // region Properties
-
-        val resetCallback = object : Snackbar.Callback() {
-            @SuppressLint("SwitchIntDef")
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                when (event) {
-                    DISMISS_EVENT_ACTION, DISMISS_EVENT_TIMEOUT ->
-                        authViewModel.registerDataUpdate.reset()
-                }
-            }
-        }
-
-        // endregion Properties
+    private inner class RegisterResolver(activity: Activity, view: View) :
+        DataUpdateResolver<Void, Message>(activity, view) {
 
         // region Inherited methods
 
         override fun resolve(update: DataUpdate<Void, Message>) {
+            // TODO This is exactly the same as the other fragments in this activity
             when (update) {
                 is ProgressUpdate -> {
                     contentLoadingProgressBar?.show()
@@ -281,34 +286,47 @@ class RegisterFragment :
             super.resolve(update)
         }
 
+        @SuppressLint("SwitchIntDef")
+        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+            when (event) {
+                DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
+                    authViewModel.registerDataUpdate.reset()
+            }
+        }
+
         override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
             resetView()
-            Navigation.findNavController(requireView).navigate(R.id.action_register_to_log_in)
+            Navigation.findNavController(view).navigate(R.id.action_register_to_log_in)
             return true
         }
 
         override fun onFailure(update: FailureUpdate<Void, Message>): Boolean {
+            // TODO This is exactly the same as ForgotPasswordFragment
             var handled = super.onFailure(update)
             if (!handled) {
-                when (val updateException = update.e) {
-                    is ValidationException -> {
-                        updateException.firstErrorOrNull()?.also { pair ->
-                            view?.findViewWithTag<TextInputLayout>(pair.first)?.also { layout ->
-                                layout.error = networkTranslator.translate(pair.second)
-                                handled = true
+                val remoteErrorBody =
+                    update.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
+                remoteErrorBody?.errors?.also { errors ->
+                    errors.entries.forEach { error ->
+                        view.findViewWithTag<TextInputLayout>(error.key)?.also { layout ->
+                            layout.post {
+                                layout.error = networkTranslator.translate(error.value.first())
                             }
+                            handled = true
                         }
-                    }
-                    else -> {
-                        Snackbar.make(
-                            requireView,
-                            R.string.alert_unknown_error_message,
-                            Snackbar.LENGTH_LONG
-                        ).addCallback(resetCallback)
-                            .show()
                     }
                 }
             }
+
+            if (!handled) {
+                when (val updateException = update.e) {
+                    is HttpStatusException -> {
+                        // ???
+                        // handled = true
+                    }
+                }
+            }
+
             return handled
         }
 

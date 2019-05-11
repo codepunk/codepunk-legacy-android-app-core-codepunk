@@ -33,7 +33,7 @@ import androidx.databinding.DataBindingUtil
 import com.codepunk.core.BuildConfig.DEVELOPER_OPTIONS_PASSWORD_HASH
 import com.codepunk.core.BuildConfig.EXTRA_DEVELOPER_OPTIONS_PASSWORD_HASH
 import com.codepunk.core.R
-import com.codepunk.core.databinding.FragmentDialogDeveloperOptionsPasswordBinding
+import com.codepunk.core.databinding.DialogDeveloperOptionsPasswordBinding
 import com.codepunk.doofenschmirtz.view.animation.ShakeInterpolator
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
@@ -54,7 +54,7 @@ class DeveloperOptionsPasswordDialogFragment :
     /**
      * The binding for this fragment.
      */
-    private lateinit var binding: FragmentDialogDeveloperOptionsPasswordBinding
+    private lateinit var binding: DialogDeveloperOptionsPasswordBinding
 
     /**
      * The (optional) [Button] that represents a positive response by the user.
@@ -85,10 +85,9 @@ class DeveloperOptionsPasswordDialogFragment :
      * Builds the [Dialog] in which the user will enter the developer password.
      */
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val context = requireContext()
         binding = DataBindingUtil.inflate(
-            LayoutInflater.from(context),
-            R.layout.fragment_dialog_developer_options_password,
+            LayoutInflater.from(requireContext()),
+            R.layout.dialog_developer_options_password,
             null,
             false
         )

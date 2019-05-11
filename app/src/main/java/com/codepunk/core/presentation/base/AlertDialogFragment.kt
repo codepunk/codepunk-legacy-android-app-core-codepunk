@@ -44,7 +44,7 @@ open class AlertDialogFragment :
 
     // region Properties
 
-    private var listenerSource: ListenerSource = ListenerSource.NONE
+    protected var listenerSource: ListenerSource = ListenerSource.NONE
         set(value) {
             if (field != value) {
                 field = value
@@ -70,7 +70,7 @@ open class AlertDialogFragment :
         }
 
     private var _requestCode: Int = 0
-    private var requestCode: Int
+    protected var requestCode: Int
         get() = when (listenerSource) {
             ListenerSource.TARGET_FRAGMENT -> targetRequestCode
             else -> _requestCode
@@ -119,7 +119,7 @@ open class AlertDialogFragment :
 
     override fun onCancel(dialog: DialogInterface?) {
         super.onCancel(dialog)
-        resultCode = Activity.RESULT_CANCELED
+        resultCode = RESULT_CANCELED
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
@@ -148,7 +148,7 @@ open class AlertDialogFragment :
 
     // region Methods
 
-    protected fun defaultAlertDialogBuilder() =
+    protected open fun defaultAlertDialogBuilder() =
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.app_name)
             .setMessage(R.string.alert_unknown_error_message)
@@ -225,7 +225,7 @@ open class AlertDialogFragment :
 
     // region Nested/inner classes
 
-    private enum class ListenerSource {
+    protected enum class ListenerSource {
         NONE,
         ACTIVITY,
         TARGET_FRAGMENT,

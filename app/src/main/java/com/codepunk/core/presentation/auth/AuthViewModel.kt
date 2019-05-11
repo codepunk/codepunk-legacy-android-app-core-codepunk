@@ -16,9 +16,7 @@
 
 package com.codepunk.core.presentation.auth
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
@@ -87,10 +85,24 @@ class AuthViewModel @Inject constructor(
     private var sendActivationSource: LiveData<DataUpdate<Void, Message>>? = null
         private set(value) {
             if (field != value) {
-                field?.also {source -> sendActivationDataUpdate.removeSource(source) }
+                field?.also { source -> sendActivationDataUpdate.removeSource(source) }
                 field = value?.apply {
                     sendActivationDataUpdate.addSource(this) { value ->
                         sendActivationDataUpdate.value = value
+                    }
+                }
+            }
+        }
+
+    val sendPasswordResetLinkDataUpdate = MediatorLiveData<DataUpdate<Void, Message>>()
+
+    private var sendPasswordResetLinkSource: LiveData<DataUpdate<Void, Message>>? = null
+        private set(value) {
+            if (field != value) {
+                field?.also { source -> sendPasswordResetLinkDataUpdate.removeSource(source) }
+                field = value?.apply {
+                    sendPasswordResetLinkDataUpdate.addSource(this) { value ->
+                        sendPasswordResetLinkDataUpdate.value = value
                     }
                 }
             }
@@ -171,7 +183,11 @@ class AuthViewModel @Inject constructor(
     }
 
     fun sendActivationCode(email: String) {
-        sendActivationSource = authRepository.sendActivationEmail(email)
+        sendActivationSource = authRepository.sendActivationCode(email)
+    }
+
+    fun sendPasswordResetLink(email: String) {
+        sendPasswordResetLinkSource = authRepository.sendPasswordResetLink(email)
     }
 
     // endregion methods

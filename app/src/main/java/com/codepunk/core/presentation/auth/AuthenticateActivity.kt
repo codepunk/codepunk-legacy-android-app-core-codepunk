@@ -22,6 +22,8 @@ import android.accounts.AccountManager.*
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
+import android.view.View.OnClickListener
 import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -52,6 +54,7 @@ import javax.inject.Inject
 class AuthenticateActivity :
     AccountAuthenticatorAppCompatActivity(),
     HasSupportFragmentInjector,
+    OnClickListener,
     ContentLoadingProgressBarOwner,
     FloatingActionButtonOwner,
     AuthenticationListener {
@@ -71,6 +74,13 @@ class AuthenticateActivity :
     override val floatingActionButton: FloatingActionButton by lazy {
         binding.fab
     }
+
+    /**
+     * Implementation of [FloatingActionButtonOwner]. An optional listener for
+     * floating action button-related events.
+     */
+    override var floatingActionButtonListener:
+        FloatingActionButtonOwner.FloatingActionButtonListener? = null
 
     // endregion Implemented properties
 
@@ -128,6 +138,8 @@ class AuthenticateActivity :
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
+
+        binding.fab.setOnClickListener(this)
 
         // Prevent soft keyboard from auto-popping up
         //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
@@ -194,6 +206,15 @@ class AuthenticateActivity :
      */
     override fun supportFragmentInjector(): AndroidInjector<Fragment> =
         fragmentDispatchingAndroidInjector
+
+    /**
+     * Responds to click events.
+     */
+    override fun onClick(v: View?) {
+        when (v) {
+            binding.fab -> floatingActionButtonListener?.onFloatingActionButtonClick(this)
+        }
+    }
 
     /**
      * Implementation of [AuthenticationListener]. Reacts to a successful authentication.

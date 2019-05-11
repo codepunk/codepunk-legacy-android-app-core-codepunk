@@ -26,40 +26,40 @@ import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
-abstract class DataUpdateResolver<Progress, Result> {
+abstract class DataUpdateResolver<Progress, Result>(
+
+    activity: Activity,
+
+    /**
+     * A [View] associated with this [DataUpdateResolver] for the purposes of showing [Snackbar]s.
+     */
+    var view: View
+
+) :
+    Snackbar.Callback() {
 
     // region Properties
 
-    private val context: Context
-
-    var view: View?
+    private val context: Context = activity
 
     // endregion Properties
 
-    // region Constructors
+    // region Inherited methods
 
-    constructor(activity: Activity, view: View? = null) {
-        context = activity
-        this.view = view
+    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+        // No op
     }
 
-    // endregion Constructors
+    // endregion Inherited methods
 
     // region Methods
-
-    /*
-    fun with(view: View): DataUpdateResolver<Progress, Result> {
-        this.view = view
-        return this
-    }
-    */
 
     open fun resolve(update: DataUpdate<Progress, Result>) {
         when (update) {
             is PendingUpdate -> onPending(update)
             is ProgressUpdate -> onProgress(update)
             is SuccessUpdate -> onSuccess(update)
-            is FailureUpdate -> onFailure(update)
+            is FailureUpdate -> if (!onFailure(update)) onUnhandledFailure(update)
         }
     }
 
@@ -72,29 +72,37 @@ abstract class DataUpdateResolver<Progress, Result> {
     open fun onFailure(update: FailureUpdate<Progress, Result>): Boolean {
         return when (update.e) {
             is ConnectException -> {
-                view?.also {
-                    Snackbar.make(
-                        it,
-                        R.string.alert_connect_exception_message,
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                Snackbar.make(
+                    view,
+                    R.string.alert_connect_exception_message,
+                    Snackbar.LENGTH_LONG
+                ).addCallback(this)
+                    .show()
                 true
             }
             is SocketTimeoutException -> {
-                view?.also {
-                    Snackbar.make(
-                        it,
-                        R.string.alert_timeout_exception_message,
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                Snackbar.make(
+                    view,
+                    R.string.alert_timeout_exception_message,
+                    Snackbar.LENGTH_LONG
+                ).addCallback(this)
+                    .show()
                 true
             }
             else -> false
         }
     }
 
-    // endregion Methods
+    open fun onUnhandledFailure(update: FailureUpdate<Progress, Result>) {
+        Snackbar.make(
+            view,
+            R.string.alert_unknown_error_message,
+            Snackbar.LENGTH_LONG
+        ).addCallback(this)
+            .show()
+
+        // endregion Methods
+
+    }
 
 }

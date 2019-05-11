@@ -110,6 +110,18 @@
                 app:layout_constraintBaseline_toBaselineOf="@id/new_user_txt"
                 app:layout_constraintStart_toStartOf="@id/new_user_space"/>
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/forgot_password_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_standard"
+                android:background="?android:attr/selectableItemBackground"
+                android:minHeight="48dp"
+                android:text="@string/authenticator_forgot_your_password"
+                android:textAllCaps="false"
+                app:layout_constraintTop_toBottomOf="@id/new_user_txt"
+                app:layout_constraintStart_toStartOf="parent"/>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/choose_account_layout"
                 android:layout_width="0dp"
@@ -117,13 +129,12 @@
                 android:layout_marginTop="@dimen/size_standard"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/create_btn">
+                app:layout_constraintTop_toBottomOf="@id/forgot_password_btn">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/choose_account_txt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/size_standard"
                     android:text="@string/authenticator_choose_account_below_colon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"/>

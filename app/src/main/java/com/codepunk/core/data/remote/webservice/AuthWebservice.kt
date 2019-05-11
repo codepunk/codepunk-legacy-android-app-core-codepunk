@@ -127,6 +127,17 @@ interface AuthWebservice {
         email: String
     ): Call<RemoteMessage>
 
+    /**
+     * Sends a password reset link to the supplied [email].
+     */
+    @POST("password/email")
+    @FormUrlEncoded
+    @Headers(HEADER_ACCEPT_APPLICATION_JSON)
+    fun sendPasswordResetLink(
+        @Field("email")
+        email: String
+    ): Call<RemoteMessage>
+
     // endregion Methods
 
 }

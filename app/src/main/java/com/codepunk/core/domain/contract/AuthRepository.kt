@@ -41,7 +41,11 @@ interface AuthRepository {
         passwordConfirmation: String
     ): LiveData<DataUpdate<Void, Message>>
 
-    fun sendActivationEmail(
+    fun sendActivationCode(
+        email: String
+    ): LiveData<DataUpdate<Void, Message>>
+
+    fun sendPasswordResetLink(
         email: String
     ): LiveData<DataUpdate<Void, Message>>
 

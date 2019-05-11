@@ -39,16 +39,20 @@
     <string name="translator_pattern_output_username_regex">Your %1$s may only contain alphanumeric characters and underscores.</string>
 
     <string name="translator_string_input_email">email</string>
+    <string name="translator_string_input_email_not_found">We can\'t find a user with that e-mail address.</string>
     <string name="translator_string_input_invalid">The given data was invalid.</string>
     <string name="translator_string_input_password">password</string>
+    <string name="translator_string_input_password_reset_link">We have e-mailed your password reset link!</string>
     <string name="translator_string_input_sent_activation_code">An activation code has been sent! Please check your email.</string>
     <string name="translator_string_input_sent_activation_code_when_you_registered">You need to activate your account. We sent you an activation code when you registered. Please check your email.</string>
     <string name="translator_string_input_user_credentials_incorrect">The user credentials were incorrect.</string>
     <string name="translator_string_input_username">username</string>
 
     <string name="translator_string_output_email">email</string>
+    <string name="translator_string_output_email_not_found">We can\'t find a user with that e-mail address.</string>
     <string name="translator_string_output_invalid">The given data was invalid.</string>
     <string name="translator_string_output_password">password</string>
+    <string name="translator_string_output_password_reset_link">We have e-mailed your password reset link!</string>
     <string name="translator_string_output_sent_activation_code">An activation code has been sent! Please check your email.</string>
     <string name="translator_string_output_sent_activation_code_when_you_registered">You need to activate your account. We sent you an activation code when you registered. Please check your email.</string>
     <string name="translator_string_output_user_credentials_incorrect">The user credentials were incorrect.</string>

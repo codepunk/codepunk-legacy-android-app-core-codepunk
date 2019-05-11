@@ -17,59 +17,16 @@
 
 package com.codepunk.core.lib
 
-import com.codepunk.core.data.remote.entity.RemoteInactiveUserExceptionResponse
-import com.codepunk.core.data.remote.entity.RemoteOAuthServerExceptionResponse
-import com.codepunk.core.data.remote.entity.RemoteValidationExceptionResponse
+import com.codepunk.core.data.remote.entity.RemoteErrorBody
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 
-/*
 /**
- * Converts a nullable [ResponseBody] into a nullable RemoteNetworkResponse.
+ * Converts a nullable [ResponseBody] into a nullable [RemoteErrorBody].
  */
-fun ResponseBody?.toRemoteNetworkResponse(retrofit: Retrofit): RemoteNetworkResponse? {
-    return when (this) {
-        null -> null
-        else -> retrofit.responseBodyConverter<RemoteNetworkResponse>(
-            RemoteNetworkResponse::class.java,
-            arrayOf()
-        ).convert(this)
-    }
-}
-*/
-
-/**
- * Converts a nullable [ResponseBody] into a nullable RemoteOAuthServerExceptionResponse.
- */
-fun ResponseBody?.toRemoteInactiveUserExceptionResponse(
-    retrofit: Retrofit
-): RemoteInactiveUserExceptionResponse? = this?.let {
-    retrofit.responseBodyConverter<RemoteInactiveUserExceptionResponse>(
-        RemoteInactiveUserExceptionResponse::class.java,
-        arrayOf()
-    ).convert(it)
-}
-
-/**
- * Converts a nullable [ResponseBody] into a nullable RemoteOAuthServerExceptionResponse.
- */
-fun ResponseBody?.toRemoteOAuthServerExceptionResponse(
-    retrofit: Retrofit
-): RemoteOAuthServerExceptionResponse? = this?.let {
-    retrofit.responseBodyConverter<RemoteOAuthServerExceptionResponse>(
-        RemoteOAuthServerExceptionResponse::class.java,
-        arrayOf()
-    ).convert(it)
-}
-
-/**
- * Converts a nullable [ResponseBody] into a nullable RemoteValidationExceptionResponse.
- */
-fun ResponseBody?.toRemoteValidationExceptionResponse(
-    retrofit: Retrofit
-): RemoteValidationExceptionResponse? = this?.let {
-    retrofit.responseBodyConverter<RemoteValidationExceptionResponse>(
-        RemoteValidationExceptionResponse::class.java,
+fun ResponseBody?.toRemoteErrorBody(retrofit: Retrofit): RemoteErrorBody? = this?.let {
+    retrofit.responseBodyConverter<RemoteErrorBody>(
+        RemoteErrorBody::class.java,
         arrayOf()
     ).convert(it)
 }
