@@ -53,7 +53,13 @@
         android:id="@+id/fragment_forgot_password"
         android:name="com.codepunk.core.presentation.auth.ForgotPasswordFragment"
         android:label="@string/authenticate_label_forgot_password"
-        tools:layout="@layout/fragment_forgot_password" />
+        tools:layout="@layout/fragment_forgot_password">
+
+        <action
+            android:id="@+id/action_forgot_password_to_log_in"
+            app:destination="@id/fragment_log_in" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/fragment_log_in"

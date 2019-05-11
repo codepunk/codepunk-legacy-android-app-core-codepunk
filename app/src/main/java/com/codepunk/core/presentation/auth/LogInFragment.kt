@@ -154,7 +154,7 @@ class LogInFragment :
 
     private lateinit var registerResolver: RegisterResolver
 
-    private lateinit var sendActivationResolver: SendActivationResolver
+    private lateinit var sendEmailResolver: SendEmailResolver
 
     private var authenticationListener: AuthenticationListener? = null
 
@@ -229,7 +229,7 @@ class LogInFragment :
 
         authResolver = AuthResolver(requireActivity(), view)
         registerResolver = RegisterResolver(requireActivity(), view)
-        sendActivationResolver = SendActivationResolver(requireActivity(), view)
+        sendEmailResolver = SendEmailResolver(requireActivity(), view)
 
         binding.createBtn.setOnClickListener(this)
         binding.forgotPasswordBtn.setOnClickListener(this)
@@ -260,7 +260,13 @@ class LogInFragment :
         authViewModel.sendActivationDataUpdate.removeObservers(this)
         authViewModel.sendActivationDataUpdate.observe(
             this,
-            Observer { sendActivationResolver.resolve(it) }
+            Observer { sendEmailResolver.resolve(it) }
+        )
+
+        authViewModel.sendPasswordResetLinkDataUpdate.removeObservers(this)
+        authViewModel.sendPasswordResetLinkDataUpdate.observe(
+            this,
+            Observer { sendEmailResolver.resolve(it) }
         )
     }
 
@@ -542,7 +548,7 @@ class LogInFragment :
 
     }
 
-    private inner class SendActivationResolver(activity: Activity, view: View) :
+    private inner class SendEmailResolver(activity: Activity, view: View) :
         DataUpdateResolver<Void, Message>(activity, view) {
 
         // region Inherited methods
@@ -565,8 +571,10 @@ class LogInFragment :
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             @SuppressLint("SwitchIntDef")
             when (event) {
-                DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
+                DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT -> {
                     authViewModel.sendActivationDataUpdate.reset()
+                    authViewModel.sendPasswordResetLinkDataUpdate.reset()
+                }
             }
         }
 
@@ -574,7 +582,7 @@ class LogInFragment :
             update.result?.localizedMessage?.run {
                 Snackbar.make(view, this, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.app_got_it) {}
-                    .addCallback(this@SendActivationResolver)
+                    .addCallback(this@SendEmailResolver)
                     .show()
             } ?: authViewModel.registerDataUpdate.reset()
             return true

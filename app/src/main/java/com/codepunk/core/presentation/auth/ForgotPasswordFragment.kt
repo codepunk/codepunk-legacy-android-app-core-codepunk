@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.KEY_REMOTE_ERROR_BODY
 import com.codepunk.core.R
 import com.codepunk.core.data.remote.entity.RemoteErrorBody
@@ -203,6 +204,10 @@ class ForgotPasswordFragment :
         binding.emailLayout.error = null
     }
 
+    private fun resetView() {
+        binding.emailEdit.text = null
+    }
+
     // endregion Methods
 
     // region Nested/inner classes
@@ -226,8 +231,9 @@ class ForgotPasswordFragment :
         }
 
         override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
-            // TODO Just go back to LogInFragment and make sure that fragment observes these updates (like it does for Register)
-            return super.onSuccess(update)
+            resetView()
+            Navigation.findNavController(view).navigate(R.id.action_forgot_password_to_log_in)
+            return true
         }
 
         override fun onFailure(update: FailureUpdate<Void, Message>): Boolean {

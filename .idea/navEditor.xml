@@ -114,33 +114,12 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_auth_to_create_account">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                             <entry key="action_auth_to_log_in">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="fragment_create_account">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="500" />
-                            <option name="y" value="368" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_create_account_to_log_in">
+                            <entry key="action_auth_to_register">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -173,12 +152,33 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_log_in_to_create_account">
+                            <entry key="action_log_in_to_forgot_password">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_log_in_to_forgot_password">
+                            <entry key="action_log_in_to_register">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="fragment_register">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_register_to_log_in">
                               <value>
                                 <LayoutPositions />
                               </value>
