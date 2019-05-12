@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-// TODO In general handle when tasks get canceled?
-
 package com.codepunk.core.data.repository
 
 import android.accounts.AccountManager.*
@@ -158,9 +156,36 @@ class AuthRepositoryImpl(
 
     // region Nested/inner classes
 
+    private abstract class AbsAuthTask<Params, Progress, Result, RemoteResult>(
+        protected val retrofit: Retrofit
+    ) : DataTaskinator<Params, Progress, Result>() {
+
+        override fun doInBackground(vararg params: Params): ResultUpdate<Progress, Result> {
+            val update = getResultUpdate(*params)
+            return when (update) {
+                is FailureUpdate -> {
+                    val data = Bundle().apply {
+                        putParcelable(
+                            KEY_REMOTE_ERROR_BODY,
+                            update.result?.errorBody()?.toRemoteErrorBody(retrofit)
+                        )
+                    }
+                    FailureUpdate(null, update.e, data)
+                }
+                else -> onSuccessUpdate(update as SuccessUpdate<Progress, Response<RemoteResult>>)
+            }
+        }
+
+        abstract fun getResultUpdate(vararg params: Params): ResultUpdate<Progress, Response<RemoteResult>>
+
+        abstract fun onSuccessUpdate(update: SuccessUpdate<Progress, Response<RemoteResult>>):
+            ResultUpdate<Progress, Result>
+
+    }
+
     private class AuthenticateTask(
 
-        private val retrofit: Retrofit,
+        retrofit: Retrofit,
 
         private val authWebservice: AuthWebservice,
 
@@ -170,163 +195,56 @@ class AuthRepositoryImpl(
 
         private val password: String
 
-    ) : DataTaskinator<Void, Void, Authentication>() {
+    ) : AbsAuthTask<Void, Void, Authentication, RemoteAuthentication>(retrofit) {
 
-        // region Inherited methods
+        override fun getResultUpdate(vararg params: Void):
+            ResultUpdate<Void, Response<RemoteAuthentication>> =
+            authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
 
-        override fun doInBackground(vararg params: Void?): ResultUpdate<Void, Authentication> {
-            val update: ResultUpdate<Void, Response<RemoteAuthentication>> =
-                authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
-            return when (update) {
-                is FailureUpdate -> {
-                    // TODO This is duplicated in AccountTask (and maybe elsewhere)
-                    val data = Bundle().apply {
-                        putParcelable(
-                            KEY_REMOTE_ERROR_BODY,
-                            update.result?.errorBody()?.toRemoteErrorBody(retrofit)
-                        )
-                    }
-                    FailureUpdate(null, update.e, data)
-                }
-                else -> {
-                    val remoteAuthentication = update.result?.body()
-                    val username: String? =
-                        when (Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()) {
-                            true -> getRemoteUser(
-                                userWebservice,
-                                remoteAuthentication?.authToken
-                            )?.username
-                            else -> usernameOrEmail
-                        }
-                    val authentication =
-                        remoteAuthentication.toDomainOrNull(username ?: "")
-                    when (username) {
-                        null -> FailureUpdate(
-                            authentication,
-                            IllegalStateException("Unable to determine username")
-                        )
-                        else -> {
-                            val data = Bundle().apply {
-                                putString(KEY_ACCOUNT_NAME, username)
-                                putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
-                                putString(KEY_AUTHTOKEN, remoteAuthentication?.authToken)
-                                putString(KEY_PASSWORD, remoteAuthentication?.refreshToken)
-                            }
-                            SuccessUpdate(authentication, data)
-                        }
-                    }
-                }
-            }
-        }
-
-        /*
-        override fun doInBackground(vararg params: Void?):
+        override fun onSuccessUpdate(update: SuccessUpdate<Void, Response<RemoteAuthentication>>):
             ResultUpdate<Void, Authentication> {
-            return when (val update: ResultUpdate<Void, Response<RemoteAuthentication>> =
-                authWebservice.authorize(usernameOrEmail, password).getResultUpdate()) {
-                is FailureUpdate -> {
-                    val errorBody = update.result?.errorBody()
-
-                    // TODO Change this to RemoteException, create new Exception from the RemoteException
-                    val networkResponse = errorBody
-                        .toRemoteNetworkResponse(retrofit)
-                        .toDomainOrNull(networkTranslator)
-                    val e = when (networkResponse?.error) {
-                        NetworkResponse.INVALID_CREDENTIALS -> InvalidCredentialsException(
-                            networkResponse.localizedMessage,
-                            update.e
-                        )
-                        NetworkResponse.INACTIVE_USER -> {
-                            networkResponse.hint?.let {
-                                InactiveUserException(
-                                    it,
-                                    networkResponse.localizedMessage,
-                                    update.e
-                                )
-                            } ?: IllegalStateException("Unable to determine email") // TODO Duplicate this in new setup
-                        }
-                        else -> update.e
-                    }
-
-                    val data = Bundle().apply {
-                        putParcelable(KEY_MESSAGE, networkResponse)
-                    }
-
-                    FailureUpdate(null, e, data)
+            val remoteAuthentication = update.result?.body()
+            val username: String? =
+                when (Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()) {
+                    true -> getRemoteUser(
+                        userWebservice,
+                        remoteAuthentication?.authToken
+                    )?.username
+                    else -> usernameOrEmail
                 }
+            val authentication =
+                remoteAuthentication.toDomainOrNull(username ?: "")
+            return when (username) {
+                null -> FailureUpdate(
+                    authentication,
+                    IllegalStateException("Unable to determine username")
+                )
                 else -> {
-                    val remoteAuthentication = update.result?.body()
-                    val username: String? =
-                        when (Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()) {
-                            true -> getRemoteUser(
-                                userWebservice,
-                                remoteAuthentication?.authToken
-                            )?.username
-                            else -> usernameOrEmail
-                        }
-                    val authentication =
-                        remoteAuthentication.toDomainOrNull(username ?: "")
-                    when (username) {
-                        null -> FailureUpdate(
-                            authentication,
-                            IllegalStateException("Unable to determine username")
-                        )
-                        else -> {
-                            val data = Bundle().apply {
-                                putString(KEY_ACCOUNT_NAME, username)
-                                putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
-                                putString(KEY_AUTHTOKEN, remoteAuthentication?.authToken)
-                                putString(KEY_PASSWORD, remoteAuthentication?.refreshToken)
-                            }
-                            SuccessUpdate(authentication, data)
-                        }
+                    val data = Bundle().apply {
+                        putString(KEY_ACCOUNT_NAME, username)
+                        putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
+                        putString(KEY_AUTHTOKEN, remoteAuthentication?.authToken)
+                        putString(KEY_PASSWORD, remoteAuthentication?.refreshToken)
                     }
+                    SuccessUpdate(authentication, data)
                 }
             }
         }
-        */
-
-        // endregion Inherited methods
 
     }
 
-    private abstract class AccountTask(
+    private abstract class MessageTask(
 
-        protected val retrofit: Retrofit,
+        retrofit: Retrofit,
 
-        protected val networkTranslator: NetworkTranslator
+        private val networkTranslator: NetworkTranslator
 
-    ) : DataTaskinator<Void, Void, Message>() {
+    ) : AbsAuthTask<Void, Void, Message, RemoteMessage>(retrofit) {
 
-        // region Inherited methods
-
-        override fun doInBackground(vararg params: Void?): ResultUpdate<Void, Message> {
-            return when (val update = getResultUpdate()) {
-                is FailureUpdate -> {
-                    // TODO This is duplicated in AuthenticateTask (and maybe elsewhere)
-                    val data = Bundle().apply {
-                        putParcelable(
-                            KEY_REMOTE_ERROR_BODY,
-                            update.result?.errorBody()?.toRemoteErrorBody(retrofit)
-                        )
-                    }
-                    FailureUpdate(null, update.e, data)
-                }
-                else -> {
-                    val networkResponse =
-                        update.result?.body().toDomainOrNull(networkTranslator)
-                    SuccessUpdate(networkResponse)
-                }
-            }
-        }
-
-        // endregion Inherited methods
-
-        // region Methods
-
-        abstract fun getResultUpdate(): ResultUpdate<Void, Response<RemoteMessage>>
-
-        // endregion Methods
+        override fun onSuccessUpdate(update: SuccessUpdate<Void, Response<RemoteMessage>>):
+            ResultUpdate<Void, Message> = SuccessUpdate(
+            update.result?.body().toDomainOrNull(networkTranslator)
+        )
 
     }
 
@@ -346,55 +264,15 @@ class AuthRepositoryImpl(
 
         private val passwordConfirmation: String
 
-    ) : AccountTask(retrofit, networkTranslator) {
+    ) : MessageTask(retrofit, networkTranslator) {
 
-        // region Inherited methods
-
-        override fun getResultUpdate(): ResultUpdate<Void, Response<RemoteMessage>> =
-            authWebservice.register(username, email, password, passwordConfirmation)
-                .getResultUpdate()
-
-        // endregion Inherited methods
-
-    }
-
-    private abstract class OAuthTask(
-
-        protected val retrofit: Retrofit,
-
-        protected val networkTranslator: NetworkTranslator
-
-    ) : DataTaskinator<Void, Void, Message>() {
-
-        // region Inherited methods
-
-        override fun doInBackground(vararg params: Void?): ResultUpdate<Void, Message> {
-            return when (val update = getResultUpdate()) {
-                is FailureUpdate -> {
-                    // TODO This is duplicated in AuthenticateTask (and maybe elsewhere)
-                    val data = Bundle().apply {
-                        putParcelable(
-                            KEY_REMOTE_ERROR_BODY,
-                            update.result?.errorBody()?.toRemoteErrorBody(retrofit)
-                        )
-                    }
-                    FailureUpdate(null, update.e, data)
-                }
-                else -> {
-                    val networkResponse =
-                        update.result?.body().toDomainOrNull(networkTranslator)
-                    SuccessUpdate(networkResponse)
-                }
-            }
-        }
-
-        // endregion Inherited methods
-
-        // region Methods
-
-        abstract fun getResultUpdate(): ResultUpdate<Void, Response<RemoteMessage>>
-
-        // endregion Methods
+        override fun getResultUpdate(vararg params: Void):
+            ResultUpdate<Void, Response<RemoteMessage>> = authWebservice.register(
+            username,
+            email,
+            password,
+            passwordConfirmation
+        ).getResultUpdate()
 
     }
 
@@ -408,14 +286,11 @@ class AuthRepositoryImpl(
 
         private val email: String
 
-    ) : OAuthTask(retrofit, networkTranslator) {
+    ) : MessageTask(retrofit, networkTranslator) {
 
-        // region Inherited methods
-
-        override fun getResultUpdate(): ResultUpdate<Void, Response<RemoteMessage>> =
+        override fun getResultUpdate(vararg params: Void):
+            ResultUpdate<Void, Response<RemoteMessage>> =
             authWebservice.sendActivationCode(email).getResultUpdate()
-
-        // endregion Inherited methods
 
     }
 
@@ -429,14 +304,13 @@ class AuthRepositoryImpl(
 
         private val email: String
 
-    ) : AccountTask(retrofit, networkTranslator) {
+    ) : MessageTask(retrofit, networkTranslator) {
 
-        override fun getResultUpdate(): ResultUpdate<Void, Response<RemoteMessage>> =
+        override fun getResultUpdate(vararg params: Void):
+            ResultUpdate<Void, Response<RemoteMessage>> =
             authWebservice.sendPasswordResetLink(email).getResultUpdate()
 
     }
-
-    // endregion Nested/inner classes
 
     // region Companion object
 
