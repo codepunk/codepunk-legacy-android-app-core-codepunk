@@ -38,27 +38,25 @@ import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
-import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.databinding.FragmentAuthenticateBinding
+import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.lib.CustomDividerItemDecoration
-import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 /**
  * A [Fragment] that shows options for authenticating into the app.
  */
 class AuthenticateFragment :
-    Fragment(),
+    AbsAuthFragment(),
     OnClickListener {
 
-    // region Properties
+    // region Inherited properties
 
-    /**
-     * The application-level [FormattingLoginator].
-     */
-    @Inject
-    lateinit var loginator: FormattingLoginator
+    override val titleResId: Int = R.string.authenticator_choose_account
+
+    // endregion Inherited properties
+
+    // region Properties
 
     /**
      * The [AccountManager] instance.
@@ -79,14 +77,6 @@ class AuthenticateFragment :
     // endregion Properties
 
     // region Lifecycle methods
-
-    /**
-     * Injects dependencies into this fragment.
-     */
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
 
     /**
      * Inflates the view.

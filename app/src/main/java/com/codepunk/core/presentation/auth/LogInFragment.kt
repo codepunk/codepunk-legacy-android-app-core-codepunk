@@ -33,12 +33,9 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
@@ -47,24 +44,15 @@ import com.codepunk.core.data.remote.entity.RemoteErrorBody.Type.*
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
-import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
-import com.codepunk.core.util.ResourceResolver
-import com.codepunk.core.util.NetworkTranslator
-import com.codepunk.core.util.setSupportActionBarTitle
-import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
-import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import com.google.android.material.snackbar.Snackbar
-import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 // region Constants
@@ -77,11 +65,16 @@ private const val INACTIVE_USER_REQUEST_CODE = 1
  * A [Fragment] used to log into an existing account.
  */
 class LogInFragment :
-    Fragment(),
-    OnClickListener,
+    AbsAuthFragment(),
+    AlertDialogFragmentListener,
     OnAccountsUpdateListener,
-    FloatingActionButtonListener,
-    AlertDialogFragment.AlertDialogFragmentListener {
+    OnClickListener {
+
+    // region Inherited properties
+
+    override val titleResId: Int = R.string.authenticate_label_log_in
+
+    // endregion Inherited properties
 
     // region Properties
 
@@ -92,49 +85,15 @@ class LogInFragment :
     lateinit var accountManager: AccountManager
 
     /**
-     * A [FormattingLoginator] for writing log messages.
-     */
-    @Inject
-    lateinit var loginator: FormattingLoginator
-
-    /**
-     * The injected [ViewModelProvider.Factory] that we will use to get an instance of
-     * [AuthViewModel].
-     */
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    /**
      * A set of [Validatinator]s for validating the form.
      */
     @Inject
     lateinit var validatinators: LogInValidatinators
 
     /**
-     * The [NetworkTranslator] for translating messages from the network.
-     */
-    @Inject
-    lateinit var networkTranslator: NetworkTranslator
-
-    /**
-     * This fragment's activity cast to a [FloatingActionButtonOwner].
-     */
-    private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
-        activity as? FloatingActionButtonOwner
-    }
-
-    /**
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentLogInBinding
-
-    /**
-     * The [AuthViewModel] instance backing this fragment.
-     */
-    private val authViewModel: AuthViewModel by lazy {
-        ViewModelProviders.of(requireActivity(), viewModelFactory)
-            .get(AuthViewModel::class.java)
-    }
 
     /**
      * The default [Options] used to validate the form.
@@ -149,6 +108,7 @@ class LogInFragment :
 
     private lateinit var sendEmailResolver: SendEmailResolver
 
+    // TODO Remote this, let activity handle onSuccess on its own
     private var authenticationListener: AuthenticationListener? = null
 
     val authDialogFragment: AlertDialogFragment?
@@ -163,7 +123,9 @@ class LogInFragment :
      * Injects dependencies into this fragment.
      */
     override fun onAttach(context: Context?) {
+        /*
         AndroidSupportInjection.inject(this)
+        */
         super.onAttach(context)
         authenticationListener = (activity as? AuthenticationListener)
     }
@@ -190,8 +152,6 @@ class LogInFragment :
      */
     override fun onResume() {
         super.onResume()
-        setSupportActionBarTitle(R.string.authenticate_label_log_in)
-        floatingActionButtonOwner?.floatingActionButtonListener = this
         accountManager.addOnAccountsUpdatedListener(
             this,
             null,
@@ -205,9 +165,6 @@ class LogInFragment :
     override fun onPause() {
         super.onPause()
         accountManager.removeOnAccountsUpdatedListener(this)
-        if (floatingActionButtonOwner?.floatingActionButtonListener == this) {
-            floatingActionButtonOwner?.floatingActionButtonListener = null
-        }
     }
 
     // endregion Lifecycle methods
@@ -263,6 +220,35 @@ class LogInFragment :
         )
     }
 
+    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
+        super.onFloatingActionButtonClick(owner)
+        if (validate()) {
+            authViewModel.authenticate(
+                binding.usernameOrEmailEdit.text.toString(),
+                binding.passwordEdit.text.toString()
+            )
+        }
+    }
+
+    override fun clearErrors() {
+        binding.usernameOrEmailLayout.error = null
+        binding.passwordLayout.error = null
+    }
+
+    override fun resetView() {
+        binding.usernameOrEmailEdit.text = null
+        binding.passwordEdit.text = null
+    }
+
+    /**
+     * Validates the form.
+     */
+    @Suppress("REDUNDANT_OVERRIDING_METHOD")
+    override fun validate(): Boolean {
+        // return validatinators.logInValidatinator.validate(binding, options.clear())
+        return super.validate()
+    }
+
     // region Implemented methods
 
     /**
@@ -316,13 +302,13 @@ class LogInFragment :
             binding.createBtn -> {
                 authViewModel.authLiveResource.reset()
                 authViewModel.registerLiveResource.reset()
-                resetErrors()
+                clearErrors()
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_register)
             }
             binding.forgotPasswordBtn -> {
                 authViewModel.authLiveResource.reset()
                 authViewModel.registerLiveResource.reset()
-                resetErrors()
+                clearErrors()
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_forgot_password)
             }
             else -> when (v?.id) {
@@ -333,16 +319,6 @@ class LogInFragment :
                     }
                 }
             }
-        }
-    }
-
-    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
-        view?.hideSoftKeyboard()
-        if (validate()) {
-            authViewModel.authenticate(
-                binding.usernameOrEmailEdit.text.toString(),
-                binding.passwordEdit.text.toString()
-            )
         }
     }
 
@@ -397,41 +373,10 @@ class LogInFragment :
 
     // region Methods
 
-    /**
-     * Validates the form.
-     */
-    private fun validate(): Boolean {
-        return true
-        /*
-        return validatinators.logInValidatinator.validate(
-            binding,
-            options.clear()
-        )
-        */
-    }
-
     private fun onAccountClick(account: Account) {
         if (loginator.isLoggable(Log.DEBUG)) {
             loginator.d("account=$account")
         }
-    }
-
-    private fun disableView() {
-        // TODO disable controls (or at least the button)
-    }
-
-    private fun enableView() {
-        // TODO enable controls
-    }
-
-    private fun resetErrors() {
-        binding.usernameOrEmailLayout.error = null
-        binding.passwordLayout.error = null
-    }
-
-    private fun resetView() {
-        binding.usernameOrEmailEdit.text = null
-        binding.passwordEdit.text = null
     }
 
     // endregion Methods
@@ -439,18 +384,9 @@ class LogInFragment :
     // region Nested/inner classes
 
     private inner class AuthResolver(activity: Activity, view: View) :
-        ResourceResolver<Void, Authentication>(activity, view) {
+        AbsAuthResolver<Void, Authentication>(activity, view) {
 
         // region Inherited methods
-
-        override fun resolve(resource: Resource<Void, Authentication>) {
-            // TODO This is exactly the same as the other fragments in this activity
-            when (resource) {
-                is ProgressResource -> disableView()
-                else -> enableView()
-            }
-            super.resolve(resource)
-        }
 
         @SuppressLint("SwitchIntDef")
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
@@ -507,9 +443,7 @@ class LogInFragment :
     }
 
     private inner class RegisterResolver(activity: Activity, view: View) :
-        ResourceResolver<Void, Message>(activity, view) {
-
-        // region Properties
+        AbsAuthResolver<Void, Message>(activity, view) {
 
         // region Inherited methods
 
@@ -536,18 +470,9 @@ class LogInFragment :
     }
 
     private inner class SendEmailResolver(activity: Activity, view: View) :
-        ResourceResolver<Void, Message>(activity, view) {
+        AbsAuthResolver<Void, Message>(activity, view) {
 
         // region Inherited methods
-
-        override fun resolve(resource: Resource<Void, Message>) {
-            // TODO This is exactly the same as the other fragments in this activity
-            when (resource) {
-                is ProgressResource -> disableView()
-                else -> enableView()
-            }
-            super.resolve(resource)
-        }
 
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             @SuppressLint("SwitchIntDef")

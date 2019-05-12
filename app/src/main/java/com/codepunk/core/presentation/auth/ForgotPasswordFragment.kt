@@ -17,101 +17,46 @@
 package com.codepunk.core.presentation.auth
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
-import com.codepunk.core.BuildConfig.KEY_REMOTE_ERROR_BODY
 import com.codepunk.core.R
-import com.codepunk.core.data.remote.entity.RemoteErrorBody
 import com.codepunk.core.databinding.FragmentForgotPasswordBinding
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.hideSoftKeyboard
-import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
-import com.codepunk.core.util.ResourceResolver
-import com.codepunk.core.util.NetworkTranslator
-import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
-import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
-import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
-import com.google.android.material.textfield.TextInputLayout
-import dagger.android.support.AndroidSupportInjection
-import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass. TODO
  */
 class ForgotPasswordFragment :
-    Fragment(),
-    FloatingActionButtonListener {
+    AbsAuthFragment() {
+
+    // region Inherited properties
+
+    override val titleResId: Int = R.string.authenticate_label_forgot_password
+
+    // endregion Inherited properties
 
     // region Properties
-
-    /**
-     * A [FormattingLoginator] for writing log messages.
-     */
-    @Inject
-    lateinit var loginator: FormattingLoginator
-
-    /**
-     * The injected [ViewModelProvider.Factory] that we will use to get an instance of
-     * [AuthViewModel].
-     */
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
      * The binding for this fragment.
      */
     private lateinit var binding: FragmentForgotPasswordBinding
 
-    /**
-     * The [AuthViewModel] instance backing this fragment.
-     */
-    private val authViewModel: AuthViewModel by lazy {
-        ViewModelProviders.of(requireActivity(), viewModelFactory)
-            .get(AuthViewModel::class.java)
-    }
-
-    /**
-     * The [NetworkTranslator] for translating messages from the network.
-     */
-    @Inject
-    lateinit var networkTranslator: NetworkTranslator
-
-    /**
-     * This fragment's activity cast to a [FloatingActionButtonOwner].
-     */
-    private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
-        activity as? FloatingActionButtonOwner
-    }
-
     private lateinit var sendPasswordResetLinkResolver: SendPasswordResetLinkResolver
 
     // endregion Properties
 
     // region Lifecycle methods
-
-    /**
-     * Injects dependencies into this fragment.
-     */
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
 
     /**
      * Inflates the view.
@@ -141,81 +86,43 @@ class ForgotPasswordFragment :
         )
     }
 
-    /**
-     * Listens for floating action button events.
-     */
-    override fun onResume() {
-        super.onResume()
-        setSupportActionBarTitle(R.string.authenticate_label_forgot_password)
-        floatingActionButtonOwner?.floatingActionButtonListener = this
-    }
-
-    /**
-     * Removes any associated listeners.
-     */
-    override fun onPause() {
-        super.onPause()
-        if (floatingActionButtonOwner?.floatingActionButtonListener == this) {
-            floatingActionButtonOwner?.floatingActionButtonListener = null
-        }
-    }
-
     // endregion Lifecycle methods
 
-    // region Implemented methods
+    // region Inherited methods
 
     override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
-        view?.hideSoftKeyboard()
+        super.onFloatingActionButtonClick(owner)
         if (validate()) {
             authViewModel.sendPasswordResetLink(binding.emailEdit.text.toString())
         }
 
     }
 
-    // endregion Implemented methods
+    override fun clearErrors() {
+        binding.emailLayout.error = null
+    }
 
-    // region Methods
+    override fun resetView() {
+        binding.emailEdit.text = null
+    }
 
     /**
      * Validates the form.
      */
-    private fun validate(): Boolean {
-        resetErrors()
+    @Suppress("REDUNDANT_OVERRIDING_METHOD")
+    override fun validate(): Boolean {
         // return validatinators.registerValidatinator.validate(binding, options.clear())
-        return true
+        return super.validate()
     }
 
-    private fun disableView() {
-        // TODO disable controls (or at least the button)
-    }
-
-    private fun enableView() {
-        // TODO enable controls
-    }
-
-    private fun resetErrors() {
-        binding.emailLayout.error = null
-    }
-
-    private fun resetView() {
-        binding.emailEdit.text = null
-    }
-
-    // endregion Methods
+    // endregion Inherited methods
 
     // region Nested/inner classes
 
     private inner class SendPasswordResetLinkResolver(activity: Activity, view: View) :
-        ResourceResolver<Void, Message>(activity, view) {
+        AbsAuthResolver<Void, Message>(activity, view) {
 
-        override fun resolve(resource: Resource<Void, Message>) {
-            // TODO This is exactly the same as the other fragments in this activity
-            when (resource) {
-                is ProgressResource -> disableView()
-                else -> enableView()
-            }
-            super.resolve(resource)
-        }
+        // region Inherited methods
 
         override fun onSuccess(resource: SuccessResource<Void, Message>): Boolean {
             resetView()
@@ -224,22 +131,7 @@ class ForgotPasswordFragment :
         }
 
         override fun onFailure(resource: FailureResource<Void, Message>): Boolean {
-            // TODO This is exactly the same as RegisterFragment
-            var handled = super.onFailure(resource)
-            if (!handled) {
-                val remoteErrorBody =
-                    resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
-                remoteErrorBody?.errors?.also { errors ->
-                    errors.entries.forEach { error ->
-                        view?.findViewWithTag<TextInputLayout>(error.key)?.also { layout ->
-                            layout.post {
-                                layout.error = networkTranslator.translate(error.value.first())
-                            }
-                            handled = true
-                        }
-                    }
-                }
-            }
+            val handled = super.onFailure(resource)
 
             if (!handled) {
                 when (val e = resource.e) {
@@ -252,6 +144,9 @@ class ForgotPasswordFragment :
 
             return handled
         }
+
+        // endregion Inherited methods
+
     }
 
     // endregion Nested/inner classes
