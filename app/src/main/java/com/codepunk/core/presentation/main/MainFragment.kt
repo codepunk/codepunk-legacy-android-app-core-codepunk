@@ -42,32 +42,14 @@ import com.codepunk.doofenschmirtz.util.taskinator.*
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
+// region Constants
+
 /**
  * Request code for manually authenticating the user when [SessionManager] encounters a problem.
  */
-const val AUTHENTICATE_REQUEST_CODE = 1
+private const val AUTHENTICATE_REQUEST_CODE = 1
 
-/**
- * A constant that indicates logged out state.
- */
-private const val STATE_LOGGED_OUT = 0
-
-/*
-/**
- * A constant that indicates logging in state.
- */
-private const val STATE_LOGGING_IN = 1
-
-/**
- * A constant that indicates logged in state.
- */
-private const val STATE_LOGGED_IN = 2
-
-/**
- * A constant that indicates a user that has not been activated.
- */
-private const val STATE_INACTIVE = 3
-*/
+// endregion Constants
 
 /**
  * A simple [Fragment] subclass.
@@ -101,13 +83,6 @@ class MainFragment :
      */
     private lateinit var binding: FragmentMainBinding
 
-    /*
-    /**
-     * The Requires Validation dialog fragment.
-     */
-    private var requiresValidationDialogFragment: AlertDialogFragment? = null
-    */
-
     /**
      * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
      */
@@ -135,11 +110,6 @@ class MainFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        /*
-        requiresValidationDialogFragment = requireFragmentManager().findFragmentByTag(
-            REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG
-        ) as? AlertDialogFragment
-        */
     }
 
     /**
@@ -179,7 +149,10 @@ class MainFragment :
                         else -> sessionManager.getSession(false, true)
                     }
                 }
-                Activity.RESULT_CANCELED -> updateUI(STATE_LOGGED_OUT)
+                Activity.RESULT_CANCELED -> sessionManager.getSession(
+                    true,
+                    false
+                )
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
@@ -216,24 +189,11 @@ class MainFragment :
 
         binding.logInOutBtn.setOnClickListener(this)
 
-//        sessionManager2.authenticateUser().observe(this, Observer { onUserUpdate(it) })
-//        sessionManager2.openSession(false).observeForever {
-//            Log.d("MainFragment", "update=$it")
-//        }
-
         sessionManager.observeSession(this, Observer { sessionResolver.resolve(it) })
 
-        // If we have an account saved, try to silently log into it now
+        // Try to silently obtain a session now
         if (savedInstanceState == null) {
             sessionManager.getSession(true, true)
-            /*
-            if (sharedPreferences.contains(PREF_KEY_CURRENT_ACCOUNT_NAME)) {
-                sessionManager.openSession(true).observe(this, Observer {
-                    onSessionUpdate(it)
-                })
-//                sessionManager.openSession(true, true)
-            }
-            */
         }
     }
 
@@ -255,149 +215,7 @@ class MainFragment :
         }
     }
 
-    /*
-    /**
-     * Supplies arguments to the Requires Activation dialog.
-     */
-    override fun onBuildAlertDialog(fragment: AlertDialogFragment, builder: AlertDialog.Builder) {
-        // TODO Can I somehow figure out the difference between having just registered
-        // ("We sent you an activation code! Please check your e-mail.") and logging in to
-        // inactive account? ("You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.")
-        builder.setTitle(R.string.authenticator_log_in)
-            .setMessage(R.string.authenticator_sent_email)
-            .setPositiveButton(android.R.string.ok, null)
-            .setNeutralButton(R.string.authenticator_send_again, this)
-    }
-    */
-
-    /*
-    /**
-     * Supplies arguments to the Requires Activation dialog.
-     */
-    override fun onBuildAlertDialog(requestCode: Int, builder: AlertDialog.Builder) {
-        // TODO Can I somehow figure out the difference between having just registered
-        // ("We sent you an activation code! Please check your e-mail.") and logging in to
-        // inactive account? ("You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.")
-        builder.setTitle(R.string.authenticator_log_in)
-            .setMessage(R.string.authenticator_sent_email)
-            .setPositiveButton(android.R.string.ok, null)
-            .setNeutralButton(R.string.authenticator_send_again, this)
-    }
-    */
-
-    /*
-    /**
-     * Processes result dialog results.
-     */
-    override fun onAlertDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        // No op
-    }
-    */
-
-    /*
-    override fun onClick(dialog: DialogInterface?, which: Int) {
-        TODO("not implemented")
-    }
-    */
-
     // endregion Implemented methods
-
-    // region Methods
-
-    /*
-    private fun onUserUpdate(update: DataUpdate<User, User>) {
-
-    }
-    */
-
-    /*
-    private fun onSessionUpdate(update: DataUpdate<User, Session>) {
-        when (update) {
-            is PendingUpdate -> updateUI(STATE_LOGGED_OUT)
-            is ProgressUpdate -> updateUI(STATE_LOGGING_IN)
-            is SuccessUpdate -> {
-                val user = update.result?.user
-                when {
-                    user == null -> updateUI(STATE_LOGGED_OUT)
-                    user.active -> updateUI(STATE_LOGGED_IN, user)
-                    else -> {
-                        sessionManager.closeSession(true)
-                        updateUI(STATE_INACTIVE)
-                    }
-                }
-            }
-            is FailureUpdate -> {
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    val intent: Intent? = update.data?.getParcelable(KEY_INTENT) as? Intent
-                    intent?.run {
-                        updateUI(STATE_LOGGING_IN)
-                        startActivityForResult(intent, AUTHENTICATE_REQUEST_CODE)
-                    } ?: updateUI(STATE_LOGGED_OUT)
-                }
-            }
-        }
-    }
-    */
-
-    /**
-     * Updates the UI.
-     */
-    private fun updateUI(state: Int, user: User? = null) {
-        /*
-        when (state) {
-            STATE_LOGGING_IN -> {
-                binding.text1.text = null
-                binding.logInOutBtn.isEnabled = false
-                binding.logInOutBtn.setText(R.string.main_logging_in)
-                binding.logInOutBtn.visibility = View.VISIBLE
-            }
-            STATE_LOGGED_IN -> {
-                binding.text1.text = when (user) {
-                    null -> getString(R.string.hello)
-                    else -> getString(R.string.hello_user, user.givenName)
-                }
-                binding.logInOutBtn.isEnabled = true
-                binding.logInOutBtn.setText(R.string.main_log_out)
-                binding.logInOutBtn.visibility = View.INVISIBLE
-            }
-            STATE_INACTIVE -> {
-                binding.text1.text = null
-                binding.logInOutBtn.isEnabled = true
-                binding.logInOutBtn.setText(R.string.main_log_in)
-                binding.logInOutBtn.visibility = View.VISIBLE
-                if (requiresValidationDialogFragment == null) {
-                    requiresValidationDialogFragment = AlertDialogFragment.show(
-                        this,
-                        REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG
-                    )
-                }
-            }
-            else -> {
-                binding.text1.text = null
-                binding.logInOutBtn.isEnabled = true
-                binding.logInOutBtn.setText(R.string.main_log_in)
-                binding.logInOutBtn.visibility = View.VISIBLE
-            }
-        }
-        */
-
-        /*
-        with(binding) {
-            text1.text = user?.givenName?.let {
-                getString(R.string.hello_user, it)
-            }?.let {
-                getString(R.string.hello)
-            }
-            logInOutBtn.setText(
-                if (state == STATE_LOGGED_IN) R.string.main_log_out else R.string.main_log_in
-            )
-            logInOutBtn.isEnabled = (state != STATE_LOGGING_IN)
-            logInOutBtn.visibility = if (state == STATE_LOGGED_IN) View.INVISIBLE else View.VISIBLE
-        }
-        */
-    }
-
-    // endregion Methods
 
     // region Nested/inner classes
 
@@ -443,7 +261,13 @@ class MainFragment :
         override fun onFailure(update: FailureUpdate<User, Session>): Boolean {
             var handled = super.onFailure(update)
             if (!handled) {
-                val intent = update.data?.getParcelable(KEY_INTENT) as Intent?
+                // Get (and remove) KEY_INTENT from data as we're "consuming" the intent here
+                val intent: Intent? = update.data?.run {
+                    getParcelable<Intent>(KEY_INTENT).also {
+                        remove(KEY_INTENT)
+                    }
+                }
+
                 intent?.run {
                     startActivityForResult(this, AUTHENTICATE_REQUEST_CODE)
                 } ?: run {
@@ -459,20 +283,5 @@ class MainFragment :
     }
 
     // endregion Nested/inner classes
-
-    // region Companion object
-
-    companion object {
-
-        // region Properties
-
-        private val REQUIRES_ACTIVATION_DIALOG_FRAGMENT_TAG =
-            MainFragment::class.java.name + ".REQUIRES_ACTIVATION_DIALOG"
-
-        // endregion Properties
-
-    }
-
-    // endregion Companion object
 
 }

@@ -113,7 +113,6 @@ class AuthRepositoryImpl(
         password: String
     ): LiveData<DataUpdate<Void, Authentication>> = AuthenticateTask(
         retrofit,
-        networkTranslator,
         authWebservice,
         userWebservice,
         username,
@@ -162,8 +161,6 @@ class AuthRepositoryImpl(
     private class AuthenticateTask(
 
         private val retrofit: Retrofit,
-
-        private val networkTranslator: NetworkTranslator,
 
         private val authWebservice: AuthWebservice,
 

@@ -26,6 +26,7 @@ import android.os.Bundle
 import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.CATEGORY_REGISTER
+import com.codepunk.core.BuildConfig.KEY_INTENT
 import com.codepunk.core.data.local.dao.UserDao
 import com.codepunk.core.data.mapper.toLocal
 import com.codepunk.core.data.mapper.toDomain
