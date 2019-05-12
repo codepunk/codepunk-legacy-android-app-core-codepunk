@@ -36,9 +36,9 @@ import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
-import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.resourceinator.*
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -220,17 +220,17 @@ class MainFragment :
     // region Nested/inner classes
 
     private inner class SessionResolver(activity: Activity, val requireView: View) :
-        DataUpdateResolver<User, Session>(activity, requireView) {
+        ResourceResolver<User, Session>(activity, requireView) {
 
-        override fun resolve(update: DataUpdate<User, Session>) {
-            when (update) {
-                is ProgressUpdate -> contentLoadingProgressBar?.show()
+        override fun resolve(resource: Resource<User, Session>) {
+            when (resource) {
+                is ProgressResource -> contentLoadingProgressBar?.show()
                 else -> contentLoadingProgressBar?.hide()
             }
-            super.resolve(update)
+            super.resolve(resource)
         }
 
-        override fun onPending(update: PendingUpdate<User, Session>): Boolean {
+        override fun onPending(resource: PendingResource<User, Session>): Boolean {
             binding.text1.text = null
             binding.logInOutBtn.isEnabled = true
             binding.logInOutBtn.setText(R.string.main_log_in)
@@ -238,7 +238,7 @@ class MainFragment :
             return true
         }
 
-        override fun onProgress(update: ProgressUpdate<User, Session>): Boolean {
+        override fun onProgress(resource: ProgressResource<User, Session>): Boolean {
             binding.text1.text = null
             binding.logInOutBtn.isEnabled = false
             binding.logInOutBtn.setText(R.string.main_logging_in)
@@ -246,8 +246,8 @@ class MainFragment :
             return true
         }
 
-        override fun onSuccess(update: SuccessUpdate<User, Session>): Boolean {
-            val user = update.result?.user
+        override fun onSuccess(resource: SuccessResource<User, Session>): Boolean {
+            val user = resource.result?.user
             binding.text1.text = when (user) {
                 null -> getString(R.string.hello)
                 else -> getString(R.string.hello_user, user.givenName)
@@ -258,11 +258,11 @@ class MainFragment :
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<User, Session>): Boolean {
-            var handled = super.onFailure(update)
+        override fun onFailure(resource: FailureResource<User, Session>): Boolean {
+            var handled = super.onFailure(resource)
             if (!handled) {
                 // Get (and remove) KEY_INTENT from data as we're "consuming" the intent here
-                val intent: Intent? = update.data?.run {
+                val intent: Intent? = resource.data?.run {
                     getParcelable<Intent>(KEY_INTENT).also {
                         remove(KEY_INTENT)
                     }

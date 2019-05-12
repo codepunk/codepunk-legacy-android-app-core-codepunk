@@ -21,22 +21,21 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import com.codepunk.core.R
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.resourceinator.*
 import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
-abstract class DataUpdateResolver<Progress, Result>(
+abstract class ResourceResolver<Progress, Result>(
 
     activity: Activity,
 
     /**
-     * A [View] associated with this [DataUpdateResolver] for the purposes of showing [Snackbar]s.
+     * A [View] associated with this [ResourceResolver] for the purposes of showing [Snackbar]s.
      */
     var view: View
 
-) :
-    Snackbar.Callback() {
+) : Snackbar.Callback() {
 
     // region Properties
 
@@ -54,23 +53,23 @@ abstract class DataUpdateResolver<Progress, Result>(
 
     // region Methods
 
-    open fun resolve(update: DataUpdate<Progress, Result>) {
-        when (update) {
-            is PendingUpdate -> onPending(update)
-            is ProgressUpdate -> onProgress(update)
-            is SuccessUpdate -> onSuccess(update)
-            is FailureUpdate -> if (!onFailure(update)) onUnhandledFailure(update)
+    open fun resolve(resource: Resource<Progress, Result>) {
+        when (resource) {
+            is PendingResource -> onPending(resource)
+            is ProgressResource -> onProgress(resource)
+            is SuccessResource -> onSuccess(resource)
+            is FailureResource -> if (!onFailure(resource)) onUnhandledFailure(resource)
         }
     }
 
-    open fun onPending(update: PendingUpdate<Progress, Result>): Boolean = false
+    open fun onPending(resource: PendingResource<Progress, Result>): Boolean = false
 
-    open fun onProgress(update: ProgressUpdate<Progress, Result>): Boolean = false
+    open fun onProgress(resource: ProgressResource<Progress, Result>): Boolean = false
 
-    open fun onSuccess(update: SuccessUpdate<Progress, Result>): Boolean = false
+    open fun onSuccess(resource: SuccessResource<Progress, Result>): Boolean = false
 
-    open fun onFailure(update: FailureUpdate<Progress, Result>): Boolean {
-        return when (update.e) {
+    open fun onFailure(resource: FailureResource<Progress, Result>): Boolean {
+        return when (resource.e) {
             is ConnectException -> {
                 Snackbar.make(
                     view,
@@ -93,7 +92,7 @@ abstract class DataUpdateResolver<Progress, Result>(
         }
     }
 
-    open fun onUnhandledFailure(update: FailureUpdate<Progress, Result>) {
+    open fun onUnhandledFailure(resource: FailureResource<Progress, Result>) {
         Snackbar.make(
             view,
             R.string.alert_unknown_error_message,

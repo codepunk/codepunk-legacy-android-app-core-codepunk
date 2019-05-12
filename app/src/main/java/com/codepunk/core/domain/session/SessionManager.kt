@@ -27,9 +27,9 @@ import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.PendingUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.PendingResource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -83,18 +83,18 @@ class SessionManager @Inject constructor(
     /**
      * Any currently-running session task.
      */
-    private var sessionTaskinator: DataTaskinator<Void, Void, Session>? = null
+    private var sessionTaskinator: Resourceinator<Void, Void, Session>? = null
     */
 
     /**
-     * An observable [Session] wrapped in a [DataUpdate] so observers can be notified of
+     * An observable [Session] wrapped in a [Resource] so observers can be notified of
      * changes to the status of the current session.
      */
-    private val liveSession = MediatorLiveData<DataUpdate<User, Session>>().apply {
-        value = PendingUpdate()
+    private val liveSession = MediatorLiveData<Resource<User, Session>>().apply {
+        value = PendingResource()
     }
 
-    private var liveSessionSource: LiveData<DataUpdate<User, Session>>? = null
+    private var liveSessionSource: LiveData<Resource<User, Session>>? = null
 
     // endregion Properties
 
@@ -106,12 +106,12 @@ class SessionManager @Inject constructor(
     fun getSession(
         silentMode: Boolean,
         refresh: Boolean = false
-    ): LiveData<DataUpdate<User, Session>> {
+    ): LiveData<Resource<User, Session>> {
         liveSessionSource?.run { liveSession.removeSource(this) }
         liveSessionSource = sessionRepository.getSession(silentMode, refresh).apply {
             liveSession.addSource(this) {
                 session = when (it) {
-                    is SuccessUpdate -> it.result
+                    is SuccessResource -> it.result
                     else -> null
                 }
                 liveSession.value = it
@@ -129,7 +129,7 @@ class SessionManager @Inject constructor(
     fun closeSession(logOut: Boolean): Boolean {
         return session?.let {
             sessionRepository.closeSession(it, logOut)
-            liveSession.value = PendingUpdate()
+            liveSession.value = PendingResource()
             session = null
             true
         } ?: false
@@ -138,7 +138,7 @@ class SessionManager @Inject constructor(
     /**
      * Allows [owner] to observe changes to the state of [session].
      */
-    fun observeSession(owner: LifecycleOwner, observer: Observer<DataUpdate<User, Session>>) {
+    fun observeSession(owner: LifecycleOwner, observer: Observer<Resource<User, Session>>) {
         liveSession.observe(owner, observer)
     }
 

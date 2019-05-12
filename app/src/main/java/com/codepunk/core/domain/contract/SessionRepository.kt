@@ -21,7 +21,7 @@ import android.content.Intent
 import androidx.lifecycle.LiveData
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 
 /**
  * A repository that opens a session (i.e. authenticates a user).
@@ -38,7 +38,7 @@ interface SessionRepository {
     fun getSession(
         silentMode: Boolean,
         refresh: Boolean = false
-    ): LiveData<DataUpdate<User, Session>>
+    ): LiveData<Resource<User, Session>>
 
     /**
      * Closes a session if one is open. Returns true if there was an existing session that was

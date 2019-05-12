@@ -21,12 +21,11 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.AsyncTask
+import android.os.AsyncTask.THREAD_POOL_EXECUTOR
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.CATEGORY_REGISTER
-import com.codepunk.core.BuildConfig.KEY_INTENT
 import com.codepunk.core.data.local.dao.UserDao
 import com.codepunk.core.data.mapper.toLocal
 import com.codepunk.core.data.mapper.toDomain
@@ -40,8 +39,8 @@ import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.lib.exception.AuthenticationException
 import com.codepunk.core.lib.getAccountByNameAndType
-import com.codepunk.core.lib.getResultUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.core.lib.getResultResource
+import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response
 
 /**
@@ -79,7 +78,7 @@ class SessionRepositoryImpl(
 
     // region Properties
 
-    private var sessionTask: SessionTask? = null
+    private var sessionResourceinator: SessionResourceinator? = null
 
     // endregion Properties
 
@@ -95,24 +94,24 @@ class SessionRepositoryImpl(
     override fun getSession(
         silentMode: Boolean,
         refresh: Boolean
-    ): LiveData<DataUpdate<User, Session>> {
-        sessionTask?.run {
+    ): LiveData<Resource<User, Session>> {
+        sessionResourceinator?.run {
             if (refresh) {
                 this.cancel(true)
             } else {
-                return this.liveData
+                return this.liveResource
             }
         }
 
-        return SessionTask(
+        return SessionResourceinator(
             sharedPreferences,
             userDao,
             accountManager,
             userWebservice,
             userComponentBuilder
         ).let {
-            sessionTask = it
-            it.executeOnExecutorAsLiveData(AsyncTask.THREAD_POOL_EXECUTOR, silentMode)
+            sessionResourceinator = it
+            it.executeOnExecutorAsLiveData(THREAD_POOL_EXECUTOR, silentMode)
         }
     }
 
@@ -136,7 +135,7 @@ class SessionRepositoryImpl(
 
     // region Nested/inner classes
 
-    private class SessionTask(
+    private class SessionResourceinator(
 
         private val sharedPreferences: SharedPreferences,
 
@@ -148,11 +147,11 @@ class SessionRepositoryImpl(
 
         private val userComponentBuilder: UserComponent.Builder
 
-    ) : DataTaskinator<Boolean, User, Session>() {
+    ) : Resourceinator<Boolean, User, Session>() {
 
         // region Inherited methods
 
-        override fun doInBackground(vararg params: Boolean?): ResultUpdate<User, Session> {
+        override fun doInBackground(vararg params: Boolean?): ResultResource<User, Session> {
             // TODO Check for isCanceled
 
             val silentMode = params.getOrNull(0) ?: true
@@ -177,7 +176,7 @@ class SessionRepositoryImpl(
             // been saved in shared preferences, or the sole account for the given type if only
             // one account has been stored via the account manager
             val account: Account = when {
-                accounts.isEmpty() -> return makeFailureUpdate(
+                accounts.isEmpty() -> return makeFailureResource(
                     silentMode,
                     AuthenticationException("There are no accounts in the account manager"),
                     CATEGORY_REGISTER
@@ -185,7 +184,7 @@ class SessionRepositoryImpl(
                 accounts.size == 1 -> accounts[0]
                 accountName != null -> accountManager.getAccountByNameAndType(accountName, type)
                 else -> null
-            } ?: return makeFailureUpdate(
+            } ?: return makeFailureResource(
                 silentMode,
                 AuthenticationException("Could not determine the current account"),
                 BuildConfig.CATEGORY_MAIN
@@ -204,14 +203,14 @@ class SessionRepositoryImpl(
                         account,
                         AuthTokenType.DEFAULT.value,
                         false
-                    ) ?: return makeFailureUpdate(
+                    ) ?: return makeFailureResource(
                         silentMode,
                         AuthenticationException("Authentication failed getting auth token"),
                         BuildConfig.CATEGORY_LOG_IN,
                         account
                     )
                 } catch (e: Exception) {
-                    return makeFailureUpdate(
+                    return makeFailureResource(
                         silentMode,
                         AuthenticationException(e),
                         BuildConfig.CATEGORY_LOG_IN,
@@ -220,18 +219,17 @@ class SessionRepositoryImpl(
                 }
 
                 // 5) Get the authenticated user from the network
-                val update: ResultUpdate<Void, Response<RemoteUser>> =
-                    userWebservice.getUser(authToken).getResultUpdate()
-                when (update) {
-                    is SuccessUpdate -> {
-                        update.result?.body()?.run {
+                when (val resource: ResultResource<Void, Response<RemoteUser>> =
+                    userWebservice.getUser(authToken).getResultResource()) {
+                    is SuccessResource -> {
+                        resource.result?.body()?.run {
                             val localUser = toLocal()
                             if (user == null || userDao.update(localUser) == 0) {
                                 userDao.insert(localUser)
                             }
 
                             userDao.retrieveByUsername(account.name)?.run {
-                                return SuccessUpdate(
+                                return SuccessResource(
                                     Session(
                                         account.name,
                                         account.type,
@@ -244,8 +242,8 @@ class SessionRepositoryImpl(
                             }
                         }
                     }
-                    is FailureUpdate -> {
-                        e = update.e
+                    is FailureResource -> {
+                        e = resource.e
                         // TODO NEXT If unauthorized, try with refresh token
                     }
                 }
@@ -253,7 +251,7 @@ class SessionRepositoryImpl(
                 done = true // TODO TEMP
             }
 
-            return makeFailureUpdate(
+            return makeFailureResource(
                 silentMode,
                 AuthenticationException("Authentication failed getting remote user", e),
                 BuildConfig.CATEGORY_LOG_IN,
@@ -274,12 +272,12 @@ class SessionRepositoryImpl(
         // region Methods
 
         @JvmStatic
-        fun makeFailureUpdate(
+        private fun makeFailureResource(
             silentMode: Boolean,
             e: Exception?,
             category: String,
             account: Account? = null
-        ): FailureUpdate<User, Session> = FailureUpdate(
+        ): FailureResource<User, Session> = FailureResource(
             null,
             e,
             if (silentMode) {

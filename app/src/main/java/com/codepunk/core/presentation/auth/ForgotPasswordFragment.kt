@@ -38,15 +38,15 @@ import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
-import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -93,13 +93,6 @@ class ForgotPasswordFragment :
     lateinit var networkTranslator: NetworkTranslator
 
     /**
-     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
-     */
-    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
-        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
-    }
-
-    /**
      * This fragment's activity cast to a [FloatingActionButtonOwner].
      */
     private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
@@ -142,7 +135,7 @@ class ForgotPasswordFragment :
 
         sendPasswordResetLinkResolver = SendPasswordResetLinkResolver(requireActivity(), view)
 
-        authViewModel.sendPasswordResetLinkDataUpdate.observe(
+        authViewModel.sendPasswordResetLiveResource.observe(
             this,
             Observer { sendPasswordResetLinkResolver.resolve(it) }
         )
@@ -213,35 +206,29 @@ class ForgotPasswordFragment :
     // region Nested/inner classes
 
     private inner class SendPasswordResetLinkResolver(activity: Activity, view: View) :
-        DataUpdateResolver<Void, Message>(activity, view) {
+        ResourceResolver<Void, Message>(activity, view) {
 
-        override fun resolve(update: DataUpdate<Void, Message>) {
+        override fun resolve(resource: Resource<Void, Message>) {
             // TODO This is exactly the same as the other fragments in this activity
-            when (update) {
-                is ProgressUpdate -> {
-                    contentLoadingProgressBar?.show()
-                    disableView()
-                }
-                else -> {
-                    contentLoadingProgressBar?.hide()
-                    enableView()
-                }
+            when (resource) {
+                is ProgressResource -> disableView()
+                else -> enableView()
             }
-            super.resolve(update)
+            super.resolve(resource)
         }
 
-        override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
+        override fun onSuccess(resource: SuccessResource<Void, Message>): Boolean {
             resetView()
             Navigation.findNavController(view).navigate(R.id.action_forgot_password_to_log_in)
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<Void, Message>): Boolean {
+        override fun onFailure(resource: FailureResource<Void, Message>): Boolean {
             // TODO This is exactly the same as RegisterFragment
-            var handled = super.onFailure(update)
+            var handled = super.onFailure(resource)
             if (!handled) {
                 val remoteErrorBody =
-                    update.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
+                    resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                 remoteErrorBody?.errors?.also { errors ->
                     errors.entries.forEach { error ->
                         view?.findViewWithTag<TextInputLayout>(error.key)?.also { layout ->
@@ -255,7 +242,7 @@ class ForgotPasswordFragment :
             }
 
             if (!handled) {
-                when (val updateException = update.e) {
+                when (val e = resource.e) {
                     is HttpStatusException -> {
                         // ???
                         // handled = true

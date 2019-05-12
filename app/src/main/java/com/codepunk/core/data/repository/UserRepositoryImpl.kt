@@ -20,7 +20,7 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.AsyncTask
+import android.os.AsyncTask.THREAD_POOL_EXECUTOR
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -33,10 +33,10 @@ import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.lib.exception.AuthenticationException
 import com.codepunk.core.lib.getAccountByNameAndType
-import com.codepunk.doofenschmirtz.util.taskinator.DataTaskinator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resourceinator
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.ResultResource
 
 /**
  * A repository for accessing and manipulating user-related data.
@@ -67,48 +67,45 @@ class UserRepositoryImpl(
 
     // region Properties
 
-    private val userLiveData: MediatorLiveData<DataUpdate<Any, User>> = MediatorLiveData()
+    private val userLiveData: MediatorLiveData<Resource<Any, User>> = MediatorLiveData()
 
-    private var userTask: UserTask? = null
+    private var userResourceinator: UserResourceinator? = null
 
     // endregion Properties
 
     // region Methods
 
     /**
-     * Gets [LiveData] updates related to the current user, if one exists.
+     * Gets [LiveData] [Resource]s related to the current user, if one exists.
      */
     override fun authenticateUser(
         forceRefresh: Boolean,
         silentMode: Boolean
-    ): LiveData<DataUpdate<Any, User>> {
+    ): LiveData<Resource<Any, User>> {
         when {
             forceRefresh -> {
-                userTask?.apply {
-                    userLiveData.removeSource(liveData)
+                userResourceinator?.apply {
+                    userLiveData.removeSource(liveResource)
                     cancel(true)
-                    userTask = null
+                    userResourceinator = null
                 }
             }
-            userTask?.isCancelled == true -> {
-                userTask?.apply {
-                    userLiveData.removeSource(liveData)
-                    userTask = null
+            userResourceinator?.isCancelled == true -> {
+                userResourceinator?.apply {
+                    userLiveData.removeSource(liveResource)
+                    userResourceinator = null
                 }
             }
         }
 
-        if (userTask == null) {
-            userTask = UserTask(
+        if (userResourceinator == null) {
+            userResourceinator = UserResourceinator(
                 userDao,
                 accountManager,
                 sharedPreferences
             ).apply {
-                userLiveData.addSource(liveData) { update ->
-                    // TODO Check cancelled here? Or just let it happen?
-                    userLiveData.value = update
-                }
-                executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, silentMode)
+                userLiveData.addSource(liveResource) { userLiveData.value = it }
+                executeOnExecutor(THREAD_POOL_EXECUTOR, silentMode)
             }
         }
 
@@ -119,7 +116,7 @@ class UserRepositoryImpl(
 
     // region Nested/inner classes
 
-    private class UserTask(
+    private class UserResourceinator(
 
         private val userDao: UserDao,
 
@@ -127,11 +124,11 @@ class UserRepositoryImpl(
 
         private val sharedPreferences: SharedPreferences
 
-    ) : DataTaskinator<Boolean, Any, User>() {
+    ) : Resourceinator<Boolean, Any, User>() {
 
         // region Inherited methods
 
-        override fun doInBackground(vararg params: Boolean?): ResultUpdate<Any, User> {
+        override fun doInBackground(vararg params: Boolean?): ResultResource<Any, User> {
             val silentMode = params.getOrNull(0) ?: true
             val accountName: String? = sharedPreferences.getString(
                 PREF_KEY_CURRENT_ACCOUNT_NAME,
@@ -156,14 +153,14 @@ class UserRepositoryImpl(
             // been saved in shared preferences, or the sole account for the given type if only
             // one account has been stored via the account manager
             val account: Account = when {
-                accounts.isEmpty() -> return FailureUpdate(
+                accounts.isEmpty() -> return FailureResource(
                     e = AuthenticationException("There are no accounts in the account manager"),
                     data = makeDataBundle(silentMode, CATEGORY_REGISTER)
                 )
                 accounts.size == 1 -> accounts[0]
                 accountName != null -> accountManager.getAccountByNameAndType(accountName, type)
                 else -> null
-            } ?: return FailureUpdate(
+            } ?: return FailureResource(
                 e = AuthenticationException("Could not determine the current account"),
                 data = makeDataBundle(silentMode, CATEGORY_MAIN)
             )
@@ -176,12 +173,12 @@ class UserRepositoryImpl(
                     account,
                     AuthTokenType.DEFAULT.value,
                     false
-                ) ?: return FailureUpdate(
+                ) ?: return FailureResource(
                     e = AuthenticationException("Authentication failed getting auth token"),
                     data = makeDataBundle(silentMode, CATEGORY_LOG_IN, account.name)
                 )
             } catch (e: Exception) {
-                return FailureUpdate(
+                return FailureResource(
                     e = AuthenticationException(e),
                     data = makeDataBundle(silentMode, CATEGORY_LOG_IN, account.name)
                 )
@@ -189,7 +186,7 @@ class UserRepositoryImpl(
 
             // 5) Create a temporary session. This will be needed for the getUser call below.
 
-            // TODO This is going to be very similar to SessionTaskinator in SessionManager.
+            // TODO This is going to be very similar to SessionResourceinator in SessionManager.
 
             TODO("not implemented")
         }
@@ -201,7 +198,7 @@ class UserRepositoryImpl(
         companion object {
 
             @JvmStatic
-            fun makeDataBundle(
+            private fun makeDataBundle(
                 silentMode: Boolean,
                 category: String,
                 username: String? = null

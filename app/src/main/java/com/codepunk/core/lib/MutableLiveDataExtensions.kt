@@ -18,13 +18,13 @@
 package com.codepunk.core.lib
 
 import androidx.lifecycle.MutableLiveData
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.PendingUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.PendingResource
 
 /**
- * A convenience method to reset a [MutableLiveData] that wraps a [DataUpdate] back to
- * an instance of [PendingUpdate].
+ * A convenience method to reset a [MutableLiveData] that wraps a [Resource] back to
+ * an instance of [PendingResource].
  */
-fun <Progress, Result> MutableLiveData<DataUpdate<Progress, Result>>.reset() {
-    value = PendingUpdate()
+fun <Progress, Result> MutableLiveData<Resource<Progress, Result>>.reset() {
+    value = PendingResource()
 }

@@ -20,10 +20,8 @@ import androidx.lifecycle.*
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import javax.inject.Inject
-
-// TODO Convert objects to classes to avoid static field leak warnings
 
 /**
  * A [ViewModel] for managing account-related data.
@@ -40,69 +38,84 @@ class AuthViewModel @Inject constructor(
     // region Properties
 
     /**
-     * A [LiveData] holding the result of attempting to register (i.e. create a new account).
+     * A [LiveData] holding the [Authentication] relating to the current authentication attempt.
      */
-    val registerDataUpdate = MediatorLiveData<DataUpdate<Void, Message>>()
+    val authLiveResource = MediatorLiveData<Resource<Void, Authentication>>()
 
     /**
-     * A private [LiveData] holding the current source supplying the value to [registerDataUpdate].
+     * A [LiveData] holding the result of attempting to register (i.e. create a new account).
      */
-    private var registerSource: LiveData<DataUpdate<Void, Message>>? = null
+    val registerLiveResource = MediatorLiveData<Resource<Void, Message>>()
+
+    /**
+     * A [LiveData] holding the [Message] result of an activation request.
+     */
+    val sendActivationLiveResource = MediatorLiveData<Resource<Void, Message>>()
+
+    /**
+     * A [LiveData] holding the [Message] result of a password reset request.
+     */
+    val sendPasswordResetLiveResource = MediatorLiveData<Resource<Void, Message>>()
+
+    /**
+     * A private [LiveData] holding the current source supplying the value to [authLiveResource].
+     */
+    private var authSource: LiveData<Resource<Void, Authentication>>? = null
         private set(value) {
             if (field != value) {
-                field?.also { source -> registerDataUpdate.removeSource(source) }
+                field?.also { source -> authLiveResource.removeSource(source) }
                 field = value?.apply {
-                    registerDataUpdate.addSource(this) { value ->
-                        registerDataUpdate.value = value
+                    authLiveResource.addSource(this) { value ->
+                        authLiveResource.value = value
                     }
                 }
             }
         }
-
-    /**
-     * A [LiveData] holding the [Authentication] relating to the current authentication attempt.
-     */
-    val authDataUpdate = MediatorLiveData<DataUpdate<Void, Authentication>>()
 
     /**
      * A private [LiveData] holding the current source supplying the value to
-     * [authDataUpdate].
+     * [registerLiveResource].
      */
-    private var authSource: LiveData<DataUpdate<Void, Authentication>>? = null
+    private var registerSource: LiveData<Resource<Void, Message>>? = null
         private set(value) {
             if (field != value) {
-                field?.also { source -> authDataUpdate.removeSource(source) }
+                field?.also { source -> registerLiveResource.removeSource(source) }
                 field = value?.apply {
-                    authDataUpdate.addSource(this) { value ->
-                        authDataUpdate.value = value
+                    registerLiveResource.addSource(this) { value ->
+                        registerLiveResource.value = value
                     }
                 }
             }
         }
 
-    val sendActivationDataUpdate = MediatorLiveData<DataUpdate<Void, Message>>()
 
-    private var sendActivationSource: LiveData<DataUpdate<Void, Message>>? = null
+    /**
+     * A private [LiveData] holding the current source supplying the value to
+     * [sendActivationLiveResource].
+     */
+    private var sendActivationSource: LiveData<Resource<Void, Message>>? = null
         private set(value) {
             if (field != value) {
-                field?.also { source -> sendActivationDataUpdate.removeSource(source) }
+                field?.also { source -> sendActivationLiveResource.removeSource(source) }
                 field = value?.apply {
-                    sendActivationDataUpdate.addSource(this) { value ->
-                        sendActivationDataUpdate.value = value
+                    sendActivationLiveResource.addSource(this) { value ->
+                        sendActivationLiveResource.value = value
                     }
                 }
             }
         }
 
-    val sendPasswordResetLinkDataUpdate = MediatorLiveData<DataUpdate<Void, Message>>()
-
-    private var sendPasswordResetLinkSource: LiveData<DataUpdate<Void, Message>>? = null
+    /**
+     * A private [LiveData] holding the current source supplying the value to
+     * [sendPasswordResetLiveResource].
+     */
+    private var sendPasswordResetSource: LiveData<Resource<Void, Message>>? = null
         private set(value) {
             if (field != value) {
-                field?.also { source -> sendPasswordResetLinkDataUpdate.removeSource(source) }
+                field?.also { source -> sendPasswordResetLiveResource.removeSource(source) }
                 field = value?.apply {
-                    sendPasswordResetLinkDataUpdate.addSource(this) { value ->
-                        sendPasswordResetLinkDataUpdate.value = value
+                    sendPasswordResetLiveResource.addSource(this) { value ->
+                        sendPasswordResetLiveResource.value = value
                     }
                 }
             }
@@ -111,56 +124,6 @@ class AuthViewModel @Inject constructor(
     // endregion Properties
 
     // region Methods
-
-    /*
-    /**
-     * Synchronously calls the authorize endpoint and adds a [Bundle] needed by the
-     * [AccountManager].
-     */
-    @WorkerThread
-    private fun getAuthToken(
-        usernameOrEmail: String,
-        password: String
-    ): ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthentication>> {
-        // TODO go through AccountAuthenticator somehow? Probably not because I need to create
-        // an account
-
-        // Call the authorize endpoint
-        val authTokenUpdate: ResultUpdate<RemoteNetworkResponse, Response<RemoteAuthentication>> =
-            authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
-
-        // Process the authorize endpoint result
-        when (authTokenUpdate) {
-            is SuccessUpdate -> {
-                authTokenUpdate.result?.body()?.let {
-                    val isEmail = Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()
-                    val username = when (isEmail) {
-                        true -> {
-                            val userUpdate: ResultUpdate<Void, Response<RemoteUser>> =
-                                userWebservice.getUser(it.authToken).getResultUpdate()
-                            val user = userUpdate.result?.body()
-                            when (userUpdate) {
-                                is SuccessUpdate -> user?.username
-                                    ?: return FailureUpdate() // TODO ??
-                                is FailureUpdate -> return FailureUpdate() // TODO
-                                else -> return FailureUpdate() // TODO
-                            }
-                        }
-                        false -> usernameOrEmail
-                    }
-
-                    authTokenUpdate.data = Bundle().apply {
-                        putString(KEY_ACCOUNT_NAME, username)
-                        putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
-                        putString(KEY_AUTHTOKEN, it.authToken)
-                        putString(KEY_PASSWORD, it.refreshToken)
-                    }
-                }
-            }
-        }
-        return authTokenUpdate
-    }
-    */
 
     /**
      * Authenticates using username (or email) and password.
@@ -182,12 +145,18 @@ class AuthViewModel @Inject constructor(
         registerSource = authRepository.register(username, email, password, passwordConfirmation)
     }
 
+    /**
+     * Requests an activation code to be sent to the supplied [email].
+     */
     fun sendActivationCode(email: String) {
         sendActivationSource = authRepository.sendActivationCode(email)
     }
 
+    /**
+     * Requests a password reset link to be sent to the supplied [email].
+     */
     fun sendPasswordResetLink(email: String) {
-        sendPasswordResetLinkSource = authRepository.sendPasswordResetLink(email)
+        sendPasswordResetSource = authRepository.sendPasswordResetLink(email)
     }
 
     // endregion methods

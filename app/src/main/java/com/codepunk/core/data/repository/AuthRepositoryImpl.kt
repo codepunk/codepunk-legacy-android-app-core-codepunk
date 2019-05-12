@@ -33,10 +33,10 @@ import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.getResultUpdate
+import com.codepunk.core.lib.getResultResource
 import com.codepunk.core.lib.toRemoteErrorBody
 import com.codepunk.core.util.NetworkTranslator
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response
 import retrofit2.Retrofit
 
@@ -70,7 +70,7 @@ class AuthRepositoryImpl(
 
     // region Properties
 
-    private var authenticateTask: AuthenticateTask? = null
+    private var authenticateResourceinator: AuthenticateResourceinator? = null
         set(value) {
             if (field != value) {
                 field?.cancel(true)
@@ -78,7 +78,7 @@ class AuthRepositoryImpl(
             }
         }
 
-    private var registerTask: RegisterTask? = null
+    private var registerResourceinator: RegisterResourceinator? = null
         set(value) {
             if (field != value) {
                 field?.cancel(true)
@@ -86,7 +86,7 @@ class AuthRepositoryImpl(
             }
         }
 
-    private var sendActivationCodeTask: ActivationCodeTask? = null
+    private var sendActivationCodeResourceinator: ActivationCodeResourceinator? = null
         set(value) {
             if (field != value) {
                 field?.cancel(true)
@@ -94,7 +94,7 @@ class AuthRepositoryImpl(
             }
         }
 
-    private var sendPasswordResetLinkTask: PasswordResetLinkTask? = null
+    private var sendPasswordResetLinkResourceinator: PasswordResetLinkResourceinator? = null
         set(value) {
             if (field != value) {
                 field?.cancel(true)
@@ -109,14 +109,14 @@ class AuthRepositoryImpl(
     override fun authenticate(
         username: String,
         password: String
-    ): LiveData<DataUpdate<Void, Authentication>> = AuthenticateTask(
+    ): LiveData<Resource<Void, Authentication>> = AuthenticateResourceinator(
         retrofit,
         authWebservice,
         userWebservice,
         username,
         password
     ).apply {
-        authenticateTask = this
+        authenticateResourceinator = this
     }.executeOnExecutorAsLiveData()
 
     override fun register(
@@ -124,7 +124,7 @@ class AuthRepositoryImpl(
         email: String,
         password: String,
         passwordConfirmation: String
-    ): LiveData<DataUpdate<Void, Message>> = RegisterTask(
+    ): LiveData<Resource<Void, Message>> = RegisterResourceinator(
         retrofit,
         networkTranslator,
         authWebservice,
@@ -133,57 +133,56 @@ class AuthRepositoryImpl(
         password,
         passwordConfirmation
     ).apply {
-        registerTask = this
+        registerResourceinator = this
     }.executeOnExecutorAsLiveData()
 
     override fun sendActivationCode(
         email: String
-    ): LiveData<DataUpdate<Void, Message>> = ActivationCodeTask(
+    ): LiveData<Resource<Void, Message>> = ActivationCodeResourceinator(
         retrofit, networkTranslator, authWebservice, email
     ).apply {
-        sendActivationCodeTask = this
+        sendActivationCodeResourceinator = this
     }.executeOnExecutorAsLiveData()
 
     override fun sendPasswordResetLink(
         email: String
-    ): LiveData<DataUpdate<Void, Message>> = PasswordResetLinkTask(
+    ): LiveData<Resource<Void, Message>> = PasswordResetLinkResourceinator(
         retrofit, networkTranslator, authWebservice, email
     ).apply {
-        sendPasswordResetLinkTask = this
+        sendPasswordResetLinkResourceinator = this
     }.executeOnExecutorAsLiveData()
 
     // endregion Implemented methods
 
     // region Nested/inner classes
 
-    private abstract class AbsAuthTask<Params, Progress, Result, RemoteResult>(
+    private abstract class AbsAuthResourceinator<Params, Progress, Result, RemoteResult>(
         protected val retrofit: Retrofit
-    ) : DataTaskinator<Params, Progress, Result>() {
+    ) : Resourceinator<Params, Progress, Result>() {
 
-        override fun doInBackground(vararg params: Params): ResultUpdate<Progress, Result> {
-            val update = getResultUpdate(*params)
-            return when (update) {
-                is FailureUpdate -> {
+        override fun doInBackground(vararg params: Params): ResultResource<Progress, Result> =
+            when (val resource = getResultResource(*params)) {
+                is FailureResource -> {
                     val data = Bundle().apply {
                         putParcelable(
                             KEY_REMOTE_ERROR_BODY,
-                            update.result?.errorBody()?.toRemoteErrorBody(retrofit)
+                            resource.result?.errorBody()?.toRemoteErrorBody(retrofit)
                         )
                     }
-                    FailureUpdate(null, update.e, data)
+                    FailureResource(null, resource.e, data)
                 }
-                else -> onSuccessUpdate(update as SuccessUpdate<Progress, Response<RemoteResult>>)
+                else -> onSuccess(resource as SuccessResource<Progress, Response<RemoteResult>>)
             }
-        }
 
-        abstract fun getResultUpdate(vararg params: Params): ResultUpdate<Progress, Response<RemoteResult>>
+        abstract fun getResultResource(vararg params: Params):
+            ResultResource<Progress, Response<RemoteResult>>
 
-        abstract fun onSuccessUpdate(update: SuccessUpdate<Progress, Response<RemoteResult>>):
-            ResultUpdate<Progress, Result>
+        abstract fun onSuccess(resource: SuccessResource<Progress, Response<RemoteResult>>):
+            ResultResource<Progress, Result>
 
     }
 
-    private class AuthenticateTask(
+    private class AuthenticateResourceinator(
 
         retrofit: Retrofit,
 
@@ -195,15 +194,15 @@ class AuthRepositoryImpl(
 
         private val password: String
 
-    ) : AbsAuthTask<Void, Void, Authentication, RemoteAuthentication>(retrofit) {
+    ) : AbsAuthResourceinator<Void, Void, Authentication, RemoteAuthentication>(retrofit) {
 
-        override fun getResultUpdate(vararg params: Void):
-            ResultUpdate<Void, Response<RemoteAuthentication>> =
-            authWebservice.authorize(usernameOrEmail, password).getResultUpdate()
+        override fun getResultResource(vararg params: Void):
+            ResultResource<Void, Response<RemoteAuthentication>> =
+            authWebservice.authorize(usernameOrEmail, password).getResultResource()
 
-        override fun onSuccessUpdate(update: SuccessUpdate<Void, Response<RemoteAuthentication>>):
-            ResultUpdate<Void, Authentication> {
-            val remoteAuthentication = update.result?.body()
+        override fun onSuccess(resource: SuccessResource<Void, Response<RemoteAuthentication>>):
+            ResultResource<Void, Authentication> {
+            val remoteAuthentication = resource.result?.body()
             val username: String? =
                 when (Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()) {
                     true -> getRemoteUser(
@@ -215,7 +214,7 @@ class AuthRepositoryImpl(
             val authentication =
                 remoteAuthentication.toDomainOrNull(username ?: "")
             return when (username) {
-                null -> FailureUpdate(
+                null -> FailureResource(
                     authentication,
                     IllegalStateException("Unable to determine username")
                 )
@@ -226,29 +225,29 @@ class AuthRepositoryImpl(
                         putString(KEY_AUTHTOKEN, remoteAuthentication?.authToken)
                         putString(KEY_PASSWORD, remoteAuthentication?.refreshToken)
                     }
-                    SuccessUpdate(authentication, data)
+                    SuccessResource(authentication, data)
                 }
             }
         }
 
     }
 
-    private abstract class MessageTask(
+    private abstract class MessageResourceinator(
 
         retrofit: Retrofit,
 
         private val networkTranslator: NetworkTranslator
 
-    ) : AbsAuthTask<Void, Void, Message, RemoteMessage>(retrofit) {
+    ) : AbsAuthResourceinator<Void, Void, Message, RemoteMessage>(retrofit) {
 
-        override fun onSuccessUpdate(update: SuccessUpdate<Void, Response<RemoteMessage>>):
-            ResultUpdate<Void, Message> = SuccessUpdate(
-            update.result?.body().toDomainOrNull(networkTranslator)
+        override fun onSuccess(resource: SuccessResource<Void, Response<RemoteMessage>>):
+            ResultResource<Void, Message> = SuccessResource(
+            resource.result?.body().toDomainOrNull(networkTranslator)
         )
 
     }
 
-    private class RegisterTask(
+    private class RegisterResourceinator(
 
         retrofit: Retrofit,
 
@@ -264,19 +263,19 @@ class AuthRepositoryImpl(
 
         private val passwordConfirmation: String
 
-    ) : MessageTask(retrofit, networkTranslator) {
+    ) : MessageResourceinator(retrofit, networkTranslator) {
 
-        override fun getResultUpdate(vararg params: Void):
-            ResultUpdate<Void, Response<RemoteMessage>> = authWebservice.register(
+        override fun getResultResource(vararg params: Void):
+            ResultResource<Void, Response<RemoteMessage>> = authWebservice.register(
             username,
             email,
             password,
             passwordConfirmation
-        ).getResultUpdate()
+        ).getResultResource()
 
     }
 
-    private class ActivationCodeTask(
+    private class ActivationCodeResourceinator(
 
         retrofit: Retrofit,
 
@@ -286,15 +285,15 @@ class AuthRepositoryImpl(
 
         private val email: String
 
-    ) : MessageTask(retrofit, networkTranslator) {
+    ) : MessageResourceinator(retrofit, networkTranslator) {
 
-        override fun getResultUpdate(vararg params: Void):
-            ResultUpdate<Void, Response<RemoteMessage>> =
-            authWebservice.sendActivationCode(email).getResultUpdate()
+        override fun getResultResource(vararg params: Void):
+            ResultResource<Void, Response<RemoteMessage>> =
+            authWebservice.sendActivationCode(email).getResultResource()
 
     }
 
-    private class PasswordResetLinkTask(
+    private class PasswordResetLinkResourceinator(
 
         retrofit: Retrofit,
 
@@ -304,11 +303,11 @@ class AuthRepositoryImpl(
 
         private val email: String
 
-    ) : MessageTask(retrofit, networkTranslator) {
+    ) : MessageResourceinator(retrofit, networkTranslator) {
 
-        override fun getResultUpdate(vararg params: Void):
-            ResultUpdate<Void, Response<RemoteMessage>> =
-            authWebservice.sendPasswordResetLink(email).getResultUpdate()
+        override fun getResultResource(vararg params: Void):
+            ResultResource<Void, Response<RemoteMessage>> =
+            authWebservice.sendPasswordResetLink(email).getResultResource()
 
     }
 

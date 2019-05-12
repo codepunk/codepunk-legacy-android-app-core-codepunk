@@ -20,7 +20,7 @@ package com.codepunk.core.domain.contract
 import androidx.lifecycle.LiveData
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 
 /**
  * A data repository that defines auth-related methods.
@@ -32,22 +32,22 @@ interface AuthRepository {
     fun authenticate(
         username: String,
         password: String
-    ): LiveData<DataUpdate<Void, Authentication>>
+    ): LiveData<Resource<Void, Authentication>>
 
     fun register(
         username: String,
         email: String,
         password: String,
         passwordConfirmation: String
-    ): LiveData<DataUpdate<Void, Message>>
+    ): LiveData<Resource<Void, Message>>
 
     fun sendActivationCode(
         email: String
-    ): LiveData<DataUpdate<Void, Message>>
+    ): LiveData<Resource<Void, Message>>
 
     fun sendPasswordResetLink(
         email: String
-    ): LiveData<DataUpdate<Void, Message>>
+    ): LiveData<Resource<Void, Message>>
 
     // endregion Methods
 

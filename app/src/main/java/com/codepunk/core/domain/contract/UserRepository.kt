@@ -19,7 +19,7 @@ package com.codepunk.core.domain.contract
 
 import androidx.lifecycle.LiveData
 import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 
 /**
  * A data repository that defines user-related data access methods.
@@ -29,12 +29,12 @@ interface UserRepository {
     // region Methods
 
     /**
-     * Gets [LiveData] updates related to the current user, if one exists.
+     * Gets [LiveData] [Resource]s related to the current user, if one exists.
      */
     fun authenticateUser(
         forceRefresh: Boolean = true,
         silentMode: Boolean = true
-    ): LiveData<DataUpdate<Any, User>>
+    ): LiveData<Resource<Any, User>>
 
     // endregion Methods
 

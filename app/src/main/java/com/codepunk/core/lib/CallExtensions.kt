@@ -20,40 +20,42 @@ package com.codepunk.core.lib
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ResultUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.Resourceinator
+import com.codepunk.doofenschmirtz.util.resourceinator.ResultResource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
 
 /**
  * Extension function that takes a [Response] from executing a [Call] and converts it into a
- * [ResultUpdate].
+ * [ResultResource].
  *
- * This allows for ultra-concise code, such as the following example in [DataTaskinator.doInBackground]:
+ * This allows for ultra-concise code, such as the following example in
+ * [Resourceinator.doInBackground]:
  *
  * ```kotlin
- * override fun doInBackground(vararg params: Void?): DataUpdate<Void, User>? =
- *     myWebservice.getMyData().getResultUpdate()
+ * override fun doInBackground(vararg params: Void?): Resource<Void, User>? =
+ *     myWebservice.getMyData().getResultResource()
  * ```
  *
  * In the above example, doInBackground will return an appropriate instance of
- * DataUpdate<Void, User>. This value will be stored in the DataTaskinator's [LiveData], which can be
+ * Resource<Void, User>. This value will be stored in the Resourceinator's [LiveData], which can be
  * observed from an Activity or other observer.
  */
-fun <Progress, Result> Call<Result>.getResultUpdate(data: Bundle? = null):
-        ResultUpdate<Progress, Response<Result>> {
+fun <Progress, Result> Call<Result>.getResultResource(data: Bundle? = null):
+    ResultResource<Progress, Response<Result>> {
     return try {
         val response = execute()
         when {
             response.isSuccessful ->
-                SuccessUpdate<Progress, Response<Result>>(
+                SuccessResource<Progress, Response<Result>>(
                     response
                 ).apply {
                     this.data = data
                 }
-            else -> FailureUpdate<Progress, Response<Result>>(
+            else -> FailureResource<Progress, Response<Result>>(
                 // TODO Try to process response.errorBody()?.string()? Or can I just do that in the observer?
                 response,
                 HttpStatusException(response.code())
@@ -62,7 +64,7 @@ fun <Progress, Result> Call<Result>.getResultUpdate(data: Bundle? = null):
             }
         }
     } catch (e: IOException) {
-        FailureUpdate<Progress, Response<Result>>(
+        FailureResource<Progress, Response<Result>>(
             null,
             e
         ).apply {

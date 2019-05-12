@@ -53,14 +53,14 @@ import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
-import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import com.google.android.material.snackbar.Snackbar
@@ -115,13 +115,6 @@ class LogInFragment :
      */
     @Inject
     lateinit var networkTranslator: NetworkTranslator
-
-    /**
-     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
-     */
-    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
-        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
-    }
 
     /**
      * This fragment's activity cast to a [FloatingActionButtonOwner].
@@ -245,26 +238,26 @@ class LogInFragment :
             }
         }
 
-        authViewModel.authDataUpdate.removeObservers(this)
-        authViewModel.authDataUpdate.observe(
+        authViewModel.authLiveResource.removeObservers(this)
+        authViewModel.authLiveResource.observe(
             this,
             Observer { authResolver.resolve(it) }
         )
 
-        authViewModel.registerDataUpdate.removeObservers(this)
-        authViewModel.registerDataUpdate.observe(
+        authViewModel.registerLiveResource.removeObservers(this)
+        authViewModel.registerLiveResource.observe(
             this,
             Observer { registerResolver.resolve(it) }
         )
 
-        authViewModel.sendActivationDataUpdate.removeObservers(this)
-        authViewModel.sendActivationDataUpdate.observe(
+        authViewModel.sendActivationLiveResource.removeObservers(this)
+        authViewModel.sendActivationLiveResource.observe(
             this,
             Observer { sendEmailResolver.resolve(it) }
         )
 
-        authViewModel.sendPasswordResetLinkDataUpdate.removeObservers(this)
-        authViewModel.sendPasswordResetLinkDataUpdate.observe(
+        authViewModel.sendPasswordResetLiveResource.removeObservers(this)
+        authViewModel.sendPasswordResetLiveResource.observe(
             this,
             Observer { sendEmailResolver.resolve(it) }
         )
@@ -321,14 +314,14 @@ class LogInFragment :
     override fun onClick(v: View?) {
         when (v) {
             binding.createBtn -> {
-                authViewModel.authDataUpdate.reset()
-                authViewModel.registerDataUpdate.reset()
+                authViewModel.authLiveResource.reset()
+                authViewModel.registerLiveResource.reset()
                 resetErrors()
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_register)
             }
             binding.forgotPasswordBtn -> {
-                authViewModel.authDataUpdate.reset()
-                authViewModel.registerDataUpdate.reset()
+                authViewModel.authLiveResource.reset()
+                authViewModel.registerLiveResource.reset()
                 resetErrors()
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_forgot_password)
             }
@@ -360,10 +353,10 @@ class LogInFragment :
     ) {
         when (requestCode) {
             INACTIVE_USER_REQUEST_CODE -> {
-                when (val update = authViewModel.authDataUpdate.value) {
-                    is FailureUpdate -> {
+                when (val resource = authViewModel.authLiveResource.value) {
+                    is FailureResource -> {
                         val remoteErrorBody =
-                            update.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
+                            resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                         val message: String = remoteErrorBody?.message?.let {
                             networkTranslator.translate(it)
                         } ?: getString(R.string.alert_unknown_error_message)
@@ -386,16 +379,16 @@ class LogInFragment :
             INACTIVE_USER_REQUEST_CODE -> {
                 when (resultCode) {
                     AlertDialogFragment.RESULT_NEUTRAL -> {
-                        val update: FailureUpdate<Void, Authentication>? =
-                            authViewModel.authDataUpdate.value as? FailureUpdate
+                        val resource: FailureResource<Void, Authentication>? =
+                            authViewModel.authLiveResource.value as? FailureResource
                         val remoteErrorBody=
-                            update?.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
+                            resource?.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                         remoteErrorBody?.hint?.also { email ->
                             authViewModel.sendActivationCode(email)
                         }
                     }
                 }
-                authViewModel.authDataUpdate.reset()
+                authViewModel.authLiveResource.reset()
             }
         }
     }
@@ -446,43 +439,37 @@ class LogInFragment :
     // region Nested/inner classes
 
     private inner class AuthResolver(activity: Activity, view: View) :
-        DataUpdateResolver<Void, Authentication>(activity, view) {
+        ResourceResolver<Void, Authentication>(activity, view) {
 
         // region Inherited methods
 
-        override fun resolve(update: DataUpdate<Void, Authentication>) {
+        override fun resolve(resource: Resource<Void, Authentication>) {
             // TODO This is exactly the same as the other fragments in this activity
-            when (update) {
-                is ProgressUpdate -> {
-                    contentLoadingProgressBar?.show()
-                    disableView()
-                }
-                else -> {
-                    contentLoadingProgressBar?.hide()
-                    enableView()
-                }
+            when (resource) {
+                is ProgressResource -> disableView()
+                else -> enableView()
             }
-            super.resolve(update)
+            super.resolve(resource)
         }
 
         @SuppressLint("SwitchIntDef")
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
-                    authViewModel.authDataUpdate.reset()
+                    authViewModel.authLiveResource.reset()
             }
         }
 
-        override fun onSuccess(update: SuccessUpdate<Void, Authentication>): Boolean {
-            authenticationListener?.onAuthenticated(update.result)
+        override fun onSuccess(resource: SuccessResource<Void, Authentication>): Boolean {
+            authenticationListener?.onAuthenticated(resource.result)
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<Void, Authentication>): Boolean {
-            var handled = super.onFailure(update)
+        override fun onFailure(resource: FailureResource<Void, Authentication>): Boolean {
+            var handled = super.onFailure(resource)
             if (!handled) {
                 val remoteErrorBody =
-                    update.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
+                    resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                 when (remoteErrorBody?.type) {
                     INACTIVE_USER -> {
                         authDialogFragment ?: AlertDialogFragment.showDialogFragmentForResult(
@@ -520,7 +507,7 @@ class LogInFragment :
     }
 
     private inner class RegisterResolver(activity: Activity, view: View) :
-        DataUpdateResolver<Void, Message>(activity, view) {
+        ResourceResolver<Void, Message>(activity, view) {
 
         // region Properties
 
@@ -530,17 +517,17 @@ class LogInFragment :
             @SuppressLint("SwitchIntDef")
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
-                    authViewModel.registerDataUpdate.reset()
+                    authViewModel.registerLiveResource.reset()
             }
         }
 
-        override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
-            update.result?.localizedMessage?.run {
+        override fun onSuccess(resource: SuccessResource<Void, Message>): Boolean {
+            resource.result?.localizedMessage?.run {
                 Snackbar.make(view, this, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.app_got_it) {}
                     .addCallback(this@RegisterResolver)
                     .show()
-            } ?: authViewModel.registerDataUpdate.reset()
+            } ?: authViewModel.registerLiveResource.reset()
             return true
         }
 
@@ -549,42 +536,36 @@ class LogInFragment :
     }
 
     private inner class SendEmailResolver(activity: Activity, view: View) :
-        DataUpdateResolver<Void, Message>(activity, view) {
+        ResourceResolver<Void, Message>(activity, view) {
 
         // region Inherited methods
 
-        override fun resolve(update: DataUpdate<Void, Message>) {
+        override fun resolve(resource: Resource<Void, Message>) {
             // TODO This is exactly the same as the other fragments in this activity
-            when (update) {
-                is ProgressUpdate -> {
-                    contentLoadingProgressBar?.show()
-                    disableView()
-                }
-                else -> {
-                    contentLoadingProgressBar?.hide()
-                    enableView()
-                }
+            when (resource) {
+                is ProgressResource -> disableView()
+                else -> enableView()
             }
-            super.resolve(update)
+            super.resolve(resource)
         }
 
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             @SuppressLint("SwitchIntDef")
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT -> {
-                    authViewModel.sendActivationDataUpdate.reset()
-                    authViewModel.sendPasswordResetLinkDataUpdate.reset()
+                    authViewModel.sendActivationLiveResource.reset()
+                    authViewModel.sendPasswordResetLiveResource.reset()
                 }
             }
         }
 
-        override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
-            update.result?.localizedMessage?.run {
+        override fun onSuccess(resource: SuccessResource<Void, Message>): Boolean {
+            resource.result?.localizedMessage?.run {
                 Snackbar.make(view, this, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.app_got_it) {}
                     .addCallback(this@SendEmailResolver)
                     .show()
-            } ?: authViewModel.registerDataUpdate.reset()
+            } ?: authViewModel.registerLiveResource.reset()
             return true
         }
 

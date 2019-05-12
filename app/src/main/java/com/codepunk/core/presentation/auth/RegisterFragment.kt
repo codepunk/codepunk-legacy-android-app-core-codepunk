@@ -41,15 +41,15 @@ import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
-import com.codepunk.core.util.DataUpdateResolver
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.FailureUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.ProgressUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
 import com.google.android.material.snackbar.Snackbar
@@ -92,13 +92,6 @@ class RegisterFragment :
      */
     @Inject
     lateinit var networkTranslator: NetworkTranslator
-
-    /**
-     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
-     */
-    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
-        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
-    }
 
     /**
      * This fragment's activity cast to a [FloatingActionButtonOwner].
@@ -171,8 +164,8 @@ class RegisterFragment :
 
         registerResolver = RegisterResolver(requireActivity(), view)
 
-        authViewModel.registerDataUpdate.removeObservers(this)
-        authViewModel.registerDataUpdate.observe(
+        authViewModel.registerLiveResource.removeObservers(this)
+        authViewModel.registerLiveResource.observe(
             this,
             Observer { registerResolver.resolve(it) }
         )
@@ -207,7 +200,7 @@ class RegisterFragment :
     override fun onClick(v: View?) {
         when (v) {
             binding.loginBtn -> {
-                authViewModel.registerDataUpdate.reset()
+                authViewModel.registerLiveResource.reset()
                 resetErrors()
                 Navigation.findNavController(v)
                     .navigate(R.id.action_register_to_log_in)
@@ -267,45 +260,39 @@ class RegisterFragment :
     // region Nested/inner classes
 
     private inner class RegisterResolver(activity: Activity, view: View) :
-        DataUpdateResolver<Void, Message>(activity, view) {
+        ResourceResolver<Void, Message>(activity, view) {
 
         // region Inherited methods
 
-        override fun resolve(update: DataUpdate<Void, Message>) {
+        override fun resolve(resource: Resource<Void, Message>) {
             // TODO This is exactly the same as the other fragments in this activity
-            when (update) {
-                is ProgressUpdate -> {
-                    contentLoadingProgressBar?.show()
-                    disableView()
-                }
-                else -> {
-                    contentLoadingProgressBar?.hide()
-                    enableView()
-                }
+            when (resource) {
+                is ProgressResource -> disableView()
+                else -> enableView()
             }
-            super.resolve(update)
+            super.resolve(resource)
         }
 
         @SuppressLint("SwitchIntDef")
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
-                    authViewModel.registerDataUpdate.reset()
+                    authViewModel.registerLiveResource.reset()
             }
         }
 
-        override fun onSuccess(update: SuccessUpdate<Void, Message>): Boolean {
+        override fun onSuccess(resource: SuccessResource<Void, Message>): Boolean {
             resetView()
             Navigation.findNavController(view).navigate(R.id.action_register_to_log_in)
             return true
         }
 
-        override fun onFailure(update: FailureUpdate<Void, Message>): Boolean {
+        override fun onFailure(resource: FailureResource<Void, Message>): Boolean {
             // TODO This is exactly the same as ForgotPasswordFragment
-            var handled = super.onFailure(update)
+            var handled = super.onFailure(resource)
             if (!handled) {
                 val remoteErrorBody =
-                    update.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
+                    resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                 remoteErrorBody?.errors?.also { errors ->
                     errors.entries.forEach { error ->
                         view.findViewWithTag<TextInputLayout>(error.key)?.also { layout ->
@@ -319,7 +306,7 @@ class RegisterFragment :
             }
 
             if (!handled) {
-                when (val updateException = update.e) {
+                when (val e = resource.e) {
                     is HttpStatusException -> {
                         // ???
                         // handled = true

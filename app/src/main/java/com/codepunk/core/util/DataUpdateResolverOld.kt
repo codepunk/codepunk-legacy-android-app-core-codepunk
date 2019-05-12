@@ -24,7 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.codepunk.core.R
 import com.codepunk.core.presentation.base.AlertDialogFragment
-import com.codepunk.doofenschmirtz.util.taskinator.*
+import com.codepunk.doofenschmirtz.util.resourceinator.*
 import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
@@ -33,27 +33,27 @@ abstract class DataUpdateResolverOld<Progress, Result> {
 
     // region Methods
 
-    fun resolve(update: DataUpdate<Progress, Result>) {
+    fun resolve(update: Resource<Progress, Result>) {
         val requestCode = when (update) {
-            is PendingUpdate -> onPending(update).let { request ->
+            is PendingResource -> onPending(update).let { request ->
                 when (request) {
                     REQUEST_DEFAULT -> REQUEST_NONE
                     else -> request
                 }
             }
-            is ProgressUpdate -> onProgress(update).let { request ->
+            is ProgressResource -> onProgress(update).let { request ->
                 when (request) {
                     REQUEST_DEFAULT -> REQUEST_NONE
                     else -> request
                 }
             }
-            is SuccessUpdate -> onSuccess(update).let { request ->
+            is SuccessResource -> onSuccess(update).let { request ->
                 when (request) {
                     REQUEST_DEFAULT -> REQUEST_SUCCESS
                     else -> request
                 }
             }
-            is FailureUpdate -> {
+            is FailureResource -> {
                 val exceptionRequest = update.e?.let { e ->
                     resolveException(e, update)
                 } ?: REQUEST_DEFAULT
@@ -75,7 +75,7 @@ abstract class DataUpdateResolverOld<Progress, Result> {
         }
     }
 
-    private fun resolveException(e: Exception, update: FailureUpdate<Progress, Result>): Int =
+    private fun resolveException(e: Exception, update: FailureResource<Progress, Result>): Int =
         onException(e, update).let { request ->
             when (request) {
                 REQUEST_DEFAULT -> getRequestCode(e)
@@ -83,19 +83,19 @@ abstract class DataUpdateResolverOld<Progress, Result> {
             }
         }
 
-    abstract fun onAction(update: DataUpdate<Progress, Result>, action: Int)
+    abstract fun onAction(update: Resource<Progress, Result>, action: Int)
 
-    open fun onPending(update: PendingUpdate<Progress, Result>): Int = REQUEST_DEFAULT
+    open fun onPending(resource: PendingResource<Progress, Result>): Int = REQUEST_DEFAULT
 
-    open fun onProgress(update: ProgressUpdate<Progress, Result>): Int = REQUEST_DEFAULT
+    open fun onProgress(resource: ProgressResource<Progress, Result>): Int = REQUEST_DEFAULT
 
-    open fun onSuccess(update: SuccessUpdate<Progress, Result>): Int = REQUEST_DEFAULT
+    open fun onSuccess(update: SuccessResource<Progress, Result>): Int = REQUEST_DEFAULT
 
-    open fun onFailure(update: FailureUpdate<Progress, Result>): Int = REQUEST_DEFAULT
+    open fun onFailure(update: FailureResource<Progress, Result>): Int = REQUEST_DEFAULT
 
     open fun onException(
         e: Exception,
-        update: FailureUpdate<Progress, Result>
+        update: FailureResource<Progress, Result>
     ): Int = REQUEST_DEFAULT
 
     open fun showAlertDialog(fragment: Fragment, tag: String, requestCode: Int) =

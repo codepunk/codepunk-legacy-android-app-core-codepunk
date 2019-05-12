@@ -32,12 +32,6 @@ import dagger.android.HasActivityInjector
 import dagger.android.HasServiceInjector
 import javax.inject.Inject
 
-/*
- * TODO Maybe Change "DataUpdate" / "SuccessUpdate" etc.
- * to "Resource", "ResourceSuccess", "ResourceResult", "ResourcePending" etc.?
- * (and also instead of "LiveDataUpdate" it could just be "LiveResource" as a variable name?)
- */
-
 /**
  * The main Codepunk [Application].
  */

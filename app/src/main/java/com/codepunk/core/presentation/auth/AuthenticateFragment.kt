@@ -167,7 +167,7 @@ class AuthenticateFragment :
     private fun onAccountClick(account: Account) {
         // TODO Maybe we have a method in AuthViewModel that is like
         // authenticateWithAccount(account Account). Then we don't need spinner here.
-        // AuthenticateActivity has an observer for DataUpdate<RemoteNetworkResponse????, Bundle>
+        // AuthenticateActivity has an observer for Resource<RemoteNetworkResponse????, Bundle>
 
         // TODO Spinner?
         accountManager.getAuthToken(

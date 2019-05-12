@@ -29,8 +29,8 @@ import androidx.preference.Preference
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.taskinator.DataUpdate
-import com.codepunk.doofenschmirtz.util.taskinator.SuccessUpdate
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
 import com.codepunk.core.lib.SimpleDialogFragment
@@ -233,7 +233,7 @@ class MainSettingsFragment :
             preferenceScreen.removePreference(logOutPreference)
         }
 
-        sessionManager.observeSession(this, Observer { onSessionUpdate(it) })
+        sessionManager.observeSession(this, Observer { onSession(it) })
     }
 
     // endregion Inherited methods
@@ -458,10 +458,10 @@ class MainSettingsFragment :
     /**
      * Adds or removes the log out preference based on session state.
      */
-    private fun onSessionUpdate(update: DataUpdate<User, Session>) {
-        when (update) {
-            is SuccessUpdate -> {
-                logOutPreference.summary = update.result?.accountName
+    private fun onSession(resource: Resource<User, Session>) {
+        when (resource) {
+            is SuccessResource -> {
+                logOutPreference.summary = resource.result?.accountName
                 preferenceScreen.addPreference(logOutPreference)
             }
             else -> preferenceScreen.removePreference(logOutPreference)

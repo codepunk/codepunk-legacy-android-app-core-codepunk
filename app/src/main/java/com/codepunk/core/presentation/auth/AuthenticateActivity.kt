@@ -24,9 +24,11 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
@@ -37,9 +39,10 @@ import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.addOrUpdateAccount
 import com.codepunk.core.presentation.auth.LogInFragment.AuthenticationListener
-import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -55,18 +58,10 @@ class AuthenticateActivity :
     AccountAuthenticatorAppCompatActivity(),
     HasSupportFragmentInjector,
     OnClickListener,
-    ContentLoadingProgressBarOwner,
     FloatingActionButtonOwner,
     AuthenticationListener {
 
     // region Implemented properties
-
-    /**
-     * Implementation of [ContentLoadingProgressBarOwner]. Returns the content loading progress bar.
-     */
-    override val contentLoadingProgressBar: ContentLoadingProgressBar by lazy {
-        binding.loadingProgress
-    }
 
     /**
      * Implementation of [FloatingActionButtonOwner]. Returns the floating action button.
@@ -99,6 +94,13 @@ class AuthenticateActivity :
     lateinit var loginator: FormattingLoginator
 
     /**
+     * The injected [ViewModelProvider.Factory] that we will use to get an instance of
+     * [AuthViewModel].
+     */
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    /**
      * The Android account manager.
      */
     @Inject
@@ -114,6 +116,13 @@ class AuthenticateActivity :
      * The binding for this activity.
      */
     private lateinit var binding: ActivityAuthenticateBinding
+
+    /**
+     * The [AuthViewModel] instance backing this fragment.
+     */
+    private val authViewModel: AuthViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(AuthViewModel::class.java)
+    }
 
     /**
      * The [NavController] for the activity.
@@ -141,8 +150,10 @@ class AuthenticateActivity :
 
         binding.fab.setOnClickListener(this)
 
-        // Prevent soft keyboard from auto-popping up
-        //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+        authViewModel.authLiveResource.observe(this, Observer { onResource(it) })
+        authViewModel.registerLiveResource.observe(this, Observer { onResource(it) })
+        authViewModel.sendActivationLiveResource.observe(this, Observer { onResource(it) })
+        authViewModel.sendPasswordResetLiveResource.observe(this, Observer { onResource(it) })
 
         setSupportActionBar(binding.toolbar)
 
@@ -248,5 +259,16 @@ class AuthenticateActivity :
     }
 
     // endregion Implemented methods
+
+    // region Methods
+
+    fun onResource(resource: Resource<*, *>) {
+        when (resource) {
+            is ProgressResource -> binding.loadingProgress.show()
+            else -> binding.loadingProgress.hide()
+        }
+    }
+
+    // endregion Methods
 
 }
