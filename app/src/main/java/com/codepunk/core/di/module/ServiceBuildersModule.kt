@@ -17,7 +17,7 @@
 package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.ServiceScope
-import com.codepunk.core.domain.account.AuthenticatorService
+import com.codepunk.core.account.AuthenticatorService
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

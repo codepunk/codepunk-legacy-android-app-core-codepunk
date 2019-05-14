@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.domain.account
+package com.codepunk.core.account
 
 import android.accounts.AbstractAccountAuthenticator
 import android.accounts.Account

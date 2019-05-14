@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
  * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.domain.account
+package com.codepunk.core.account
 
 import android.app.Service
 import android.content.Intent
