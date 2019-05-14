@@ -24,11 +24,9 @@ import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.data.repository.AuthRepositoryImpl
 import com.codepunk.core.data.repository.SessionRepositoryImpl
-import com.codepunk.core.data.repository.UserRepositoryImpl
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.contract.SessionRepository
-import com.codepunk.core.domain.contract.UserRepository
 import com.codepunk.core.util.NetworkTranslator
 import dagger.Module
 import dagger.Provides
@@ -77,23 +75,6 @@ class DataModule {
         accountManager,
         userWebservice,
         userComponentBuilder
-    )
-
-    /**
-     * Provides an instance of [UserRepository] for dependency injection.
-     */
-    @Provides
-    @Singleton
-    fun providesUserRepository(
-        userDao: UserDao,
-        accountManager: AccountManager,
-        sharedPreferences: SharedPreferences,
-        userWebservice: UserWebservice
-    ): UserRepository = UserRepositoryImpl(
-        userDao,
-        accountManager,
-        sharedPreferences,
-        userWebservice
     )
 
     // endregion Methods
