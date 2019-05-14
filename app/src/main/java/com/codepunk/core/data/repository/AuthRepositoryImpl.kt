@@ -57,7 +57,7 @@ class AuthRepositoryImpl(
     private val userWebservice: UserWebservice,
 
     /**
-     * An instance of [Retrofit] for deserializing errors.
+     * An instance of [Retrofit] for error deserialization.
      */
     private val retrofit: Retrofit,
 
@@ -70,6 +70,9 @@ class AuthRepositoryImpl(
 
     // region Properties
 
+    /**
+     * An instance of [AuthenticateResourceinator] for authenticating a user.
+     */
     private var authenticateResourceinator: AuthenticateResourceinator? = null
         set(value) {
             if (field != value) {
@@ -78,6 +81,9 @@ class AuthRepositoryImpl(
             }
         }
 
+    /**
+     * An instance of [RegisterResourceinator] for registering a new user account.
+     */
     private var registerResourceinator: RegisterResourceinator? = null
         set(value) {
             if (field != value) {
@@ -86,7 +92,10 @@ class AuthRepositoryImpl(
             }
         }
 
-    private var sendActivationCodeResourceinator: ActivationCodeResourceinator? = null
+    /**
+     * An instance of [ActivationLinkResourceinator] for requesting an activation link.
+     */
+    private var sendActivationLinkResourceinator: ActivationLinkResourceinator? = null
         set(value) {
             if (field != value) {
                 field?.cancel(true)
@@ -94,6 +103,9 @@ class AuthRepositoryImpl(
             }
         }
 
+    /**
+     * An instance of [PasswordResetLinkResourceinator] for requesting a password reset link.
+     */
     private var sendPasswordResetLinkResourceinator: PasswordResetLinkResourceinator? = null
         set(value) {
             if (field != value) {
@@ -106,19 +118,25 @@ class AuthRepositoryImpl(
 
     // region Implemented methods
 
+    /**
+     * Authenticates a user.
+     */
     override fun authenticate(
-        username: String,
+        usernameOrEmail: String,
         password: String
     ): LiveData<Resource<Void, Authentication>> = AuthenticateResourceinator(
         retrofit,
         authWebservice,
         userWebservice,
-        username,
+        usernameOrEmail,
         password
     ).apply {
         authenticateResourceinator = this
     }.executeOnExecutorAsLiveData()
 
+    /**
+     * Registers a new user account.
+     */
     override fun register(
         username: String,
         email: String,
@@ -136,14 +154,20 @@ class AuthRepositoryImpl(
         registerResourceinator = this
     }.executeOnExecutorAsLiveData()
 
-    override fun sendActivationCode(
+    /**
+     * Sends an activation link to the supplied [email].
+     */
+    override fun sendActivationLink(
         email: String
-    ): LiveData<Resource<Void, Message>> = ActivationCodeResourceinator(
+    ): LiveData<Resource<Void, Message>> = ActivationLinkResourceinator(
         retrofit, networkTranslator, authWebservice, email
     ).apply {
-        sendActivationCodeResourceinator = this
+        sendActivationLinkResourceinator = this
     }.executeOnExecutorAsLiveData()
 
+    /**
+     * Sends a password reset link to the supplied [email].
+     */
     override fun sendPasswordResetLink(
         email: String
     ): LiveData<Resource<Void, Message>> = PasswordResetLinkResourceinator(
@@ -156,10 +180,25 @@ class AuthRepositoryImpl(
 
     // region Nested/inner classes
 
+    /**
+     * An abstract [Resourceinator] class that handles user account-related requests (i.e.
+     * authentication, registration, activation links, password reset links, etc.).
+     */
     private abstract class AbsAuthResourceinator<Params, Progress, Result, RemoteResult>(
+
+        /**
+         * A [Retrofit] instance for error deserialization.
+         */
         protected val retrofit: Retrofit
+
     ) : Resourceinator<Params, Progress, Result>() {
 
+        // region Inherited methods
+
+        /**
+         * Gets the [ResultResource] and deserializes any existing error body in the case of an
+         * error.
+         */
         override fun doInBackground(vararg params: Params): ResultResource<Progress, Result> =
             when (val resource = getResultResource(*params)) {
                 is FailureResource -> {
@@ -174,24 +213,52 @@ class AuthRepositoryImpl(
                 else -> onSuccess(resource as SuccessResource<Progress, Response<RemoteResult>>)
             }
 
+        // endregion Inherited methods
+
+        // region Methods
+
+        /**
+         * Gets a result resource by calling a method on the appropriate webservice.
+         */
         abstract fun getResultResource(vararg params: Params):
             ResultResource<Progress, Response<RemoteResult>>
 
+        /**
+         * Handles a successful result resource.
+         */
         abstract fun onSuccess(resource: SuccessResource<Progress, Response<RemoteResult>>):
             ResultResource<Progress, Result>
 
+
+        // endregion Methods
+
     }
 
+    /**
+     * A [Resourceinator] class that handles user authentication.
+     */
     private class AuthenticateResourceinator(
 
         retrofit: Retrofit,
 
+        /**
+         * An instance of [AuthWebservice].
+         */
         private val authWebservice: AuthWebservice,
 
+        /**
+         * An instance of [UserWebservice].
+         */
         private val userWebservice: UserWebservice,
 
+        /**
+         * The user's username or email.
+         */
         private val usernameOrEmail: String,
 
+        /**
+         * The user's password.
+         */
         private val password: String
 
     ) : AbsAuthResourceinator<Void, Void, Authentication, RemoteAuthentication>(retrofit) {
@@ -232,38 +299,68 @@ class AuthRepositoryImpl(
 
     }
 
-    private abstract class MessageResourceinator(
+    /**
+     * An abstract [Resourceinator] class that delivers a simple [Message] result.
+     */
+    private abstract class AbsMessageResourceinator(
 
         retrofit: Retrofit,
 
+        /**
+         * An instance of [NetworkTranslator] for translating messages from the network.
+         */
         private val networkTranslator: NetworkTranslator
 
     ) : AbsAuthResourceinator<Void, Void, Message, RemoteMessage>(retrofit) {
+
+        // region Inherited methods
 
         override fun onSuccess(resource: SuccessResource<Void, Response<RemoteMessage>>):
             ResultResource<Void, Message> = SuccessResource(
             resource.result?.body().toDomainOrNull(networkTranslator)
         )
 
+        // endregion Inherited methods
+
     }
 
+    /**
+     * A [Resourceinator] class that handles new user account creation.
+     */
     private class RegisterResourceinator(
 
         retrofit: Retrofit,
 
         networkTranslator: NetworkTranslator,
 
+        /**
+         * An instance of [AuthWebservice].
+         */
         private val authWebservice: AuthWebservice,
 
+        /**
+         * The user's username.
+         */
         private val username: String,
 
+        /**
+         * The user's email.
+         */
         private val email: String,
 
+        /**
+         * The user's password.
+         */
         private val password: String,
 
+        /**
+         * The user's password again, which the user is required to re-enter for confirmation.
+         */
         private val passwordConfirmation: String
 
-    ) : MessageResourceinator(retrofit, networkTranslator) {
+    ) : AbsMessageResourceinator(retrofit, networkTranslator) {
+
+        // region Inherited methods
 
         override fun getResultResource(vararg params: Void):
             ResultResource<Void, Response<RemoteMessage>> = authWebservice.register(
@@ -273,43 +370,73 @@ class AuthRepositoryImpl(
             passwordConfirmation
         ).getResultResource()
 
+        // endregion Inherited methods
+
     }
 
-    private class ActivationCodeResourceinator(
+    /**
+     * A [Resourceinator] class that handles requesting a user activation link via email.
+     */
+    private class ActivationLinkResourceinator(
 
         retrofit: Retrofit,
 
         networkTranslator: NetworkTranslator,
 
+        /**
+         * An instance of [AuthWebservice].
+         */
         private val authWebservice: AuthWebservice,
 
+        /**
+         * The user's email.
+         */
         private val email: String
 
-    ) : MessageResourceinator(retrofit, networkTranslator) {
+    ) : AbsMessageResourceinator(retrofit, networkTranslator) {
+
+        // region Inherited methods
 
         override fun getResultResource(vararg params: Void):
             ResultResource<Void, Response<RemoteMessage>> =
-            authWebservice.sendActivationCode(email).getResultResource()
+            authWebservice.sendActivationLink(email).getResultResource()
+
+        // endregion Inherited methods
 
     }
 
+    /**
+     * A [Resourceinator] class that handles requesting a password reset link via email.
+     */
     private class PasswordResetLinkResourceinator(
 
         retrofit: Retrofit,
 
         networkTranslator: NetworkTranslator,
 
+        /**
+         * An instance of [AuthWebservice].
+         */
         private val authWebservice: AuthWebservice,
 
+        /**
+         * The user's email.
+         */
         private val email: String
 
-    ) : MessageResourceinator(retrofit, networkTranslator) {
+    ) : AbsMessageResourceinator(retrofit, networkTranslator) {
+
+        // region Inherited methods
 
         override fun getResultResource(vararg params: Void):
             ResultResource<Void, Response<RemoteMessage>> =
             authWebservice.sendPasswordResetLink(email).getResultResource()
 
+        // endregion Inherited methods
+
     }
+
+    // endregion Nested/inner classes
 
     // region Companion object
 

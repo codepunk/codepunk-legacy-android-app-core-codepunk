@@ -20,6 +20,9 @@ package com.codepunk.core.data.local.dao
 import androidx.room.*
 import com.codepunk.core.data.local.entity.LocalUser
 
+/**
+ * A [Dao] for user-related local database operations.
+ */
 @Dao
 abstract class UserDao {
 

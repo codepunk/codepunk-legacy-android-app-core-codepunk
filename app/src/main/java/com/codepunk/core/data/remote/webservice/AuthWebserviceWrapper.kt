@@ -27,6 +27,15 @@ import retrofit2.Call
  * TODO: Replace all CODEPUNK_LOCAL_CLIENT_ID/CODEPUNK_LOCAL_CLIENT_SECRET with current somehow
  */
 
+// region Constants
+
+/**
+ * A default scope for use in auth webservice calls.
+ */
+private const val DEFAULT_SCOPE = "*"
+
+// endregion Constants
+
 /**
  * Implementation of [AuthWebservice] that allows for default arguments by wrapping another
  * instance ([base]) and passing default arguments to its methods where appropriate.
@@ -52,9 +61,6 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
         scope
     )
 
-    /**
-     * Gets an authentication token using default values.
-     */
     override fun authorize(
         username: String,
         password: String,
@@ -70,10 +76,6 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
         )
     }
 
-
-    /**
-     * Gets an authentication token using default values.
-     */
     override fun authorize(username: String, password: String): Call<RemoteAuthentication> {
         return base.authorize(
             GrantType.PASSWORD,
@@ -81,7 +83,7 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
             BuildConfig.CODEPUNK_LOCAL_CLIENT_SECRET,
             username,
             password,
-            "*"
+            DEFAULT_SCOPE
         )
     }
 
@@ -93,10 +95,6 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
     ): Call<RemoteAuthentication> =
         base.refreshToken(grantType, clientId, clientSecret, refreshToken)
 
-    /**
-     * Gets an authentication token from an existing [refreshToken] by passing default arguments to
-     * the base implementation.
-     */
     override fun refreshToken(refreshToken: String): Call<RemoteAuthentication> = base.refreshToken(
         GrantType.REFRESH_TOKEN,
         BuildConfig.CODEPUNK_LOCAL_CLIENT_ID,
@@ -112,8 +110,8 @@ class AuthWebserviceWrapper(private val base: AuthWebservice) :
     ): Call<RemoteMessage> =
         base.register(username, email, password, passwordConfirmation)
 
-    override fun sendActivationCode(email: String): Call<RemoteMessage> =
-        base.sendActivationCode(email)
+    override fun sendActivationLink(email: String): Call<RemoteMessage> =
+        base.sendActivationLink(email)
 
     override fun sendPasswordResetLink(email: String): Call<RemoteMessage> =
         base.sendPasswordResetLink(email)

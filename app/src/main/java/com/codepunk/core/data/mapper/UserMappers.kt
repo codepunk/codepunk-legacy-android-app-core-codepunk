@@ -38,6 +38,7 @@ fun RemoteUser.toLocal(): LocalUser = LocalUser(
 /**
  * Converts a nullable [RemoteUser] to a nullable locally-cached [LocalUser].
  */
+@Suppress("UNUSED")
 fun RemoteUser?.toLocalOrNull(): LocalUser? = this?.toLocal()
 
 /**
@@ -58,6 +59,7 @@ fun RemoteUser.toDomain(): User = User(
 /**
  * Converts a nullable [RemoteUser] to a nullable domain [User].
  */
+@Suppress("UNUSED")
 fun RemoteUser?.toDomainOrNull(): User? = this?.toDomain()
 
 /**

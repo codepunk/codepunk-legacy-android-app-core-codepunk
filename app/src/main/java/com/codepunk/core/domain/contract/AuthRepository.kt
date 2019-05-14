@@ -29,11 +29,18 @@ interface AuthRepository {
 
     // region Methods
 
+    /**
+     * Authenticates a user account using a [usernameOrEmail] and a [password].
+     */
     fun authenticate(
-        username: String,
+        usernameOrEmail: String,
         password: String
     ): LiveData<Resource<Void, Authentication>>
 
+    /**
+     * Registers a new user account using a [username], [email], [password] and
+     * [passwordConfirmation].
+     */
     fun register(
         username: String,
         email: String,
@@ -41,10 +48,16 @@ interface AuthRepository {
         passwordConfirmation: String
     ): LiveData<Resource<Void, Message>>
 
-    fun sendActivationCode(
+    /**
+     * Sends an activation link to the supplied [email].
+     */
+    fun sendActivationLink(
         email: String
     ): LiveData<Resource<Void, Message>>
 
+    /**
+     * Sends a password reset link to the supplied [email].
+     */
     fun sendPasswordResetLink(
         email: String
     ): LiveData<Resource<Void, Message>>

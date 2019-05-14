@@ -62,10 +62,10 @@ data class RemoteAuthentication(
      */
     override fun toString(): String =
         "RemoteAuthentication(" +
-                "tokenType=$tokenType, " +
-                "authToken='${authToken.ellipsize()}', " +
-                "refreshToken='${refreshToken.ellipsize()}', " +
-                "expiresIn=$expiresIn)"
+            "tokenType=$tokenType, " +
+            "authToken='${authToken.ellipsize()}', " +
+            "refreshToken='${refreshToken.ellipsize()}', " +
+            "expiresIn=$expiresIn)"
 
     // endregion Inherited methods
 

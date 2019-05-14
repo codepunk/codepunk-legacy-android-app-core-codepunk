@@ -27,6 +27,7 @@ import androidx.lifecycle.LiveData
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.CATEGORY_REGISTER
 import com.codepunk.core.data.local.dao.UserDao
+import com.codepunk.core.data.local.entity.LocalUser
 import com.codepunk.core.data.mapper.toLocal
 import com.codepunk.core.data.mapper.toDomain
 import com.codepunk.core.data.mapper.toDomainOrNull
@@ -40,6 +41,7 @@ import com.codepunk.core.domain.session.Session
 import com.codepunk.core.lib.exception.AuthenticationException
 import com.codepunk.core.lib.getAccountByNameAndType
 import com.codepunk.core.lib.getResultResource
+import com.codepunk.core.presentation.auth.AuthenticateActivity
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response
 
@@ -78,7 +80,16 @@ class SessionRepositoryImpl(
 
     // region Properties
 
+    /**
+     * An instance of [SessionResourceinator] for establishing a [Session].
+     */
     private var sessionResourceinator: SessionResourceinator? = null
+        set(value) {
+            if (field != value) {
+                field?.cancel(true)
+                field = value
+            }
+        }
 
     // endregion Properties
 
@@ -95,11 +106,9 @@ class SessionRepositoryImpl(
         silentMode: Boolean,
         refresh: Boolean
     ): LiveData<Resource<User, Session>> {
-        sessionResourceinator?.run {
-            if (refresh) {
-                this.cancel(true)
-            } else {
-                return this.liveResource
+        if (!refresh) {
+            sessionResourceinator?.also {
+                return it.liveResource
             }
         }
 
@@ -109,10 +118,9 @@ class SessionRepositoryImpl(
             accountManager,
             userWebservice,
             userComponentBuilder
-        ).let {
-            sessionResourceinator = it
-            it.executeOnExecutorAsLiveData(THREAD_POOL_EXECUTOR, silentMode)
-        }
+        ).apply {
+            sessionResourceinator = this
+        }.executeOnExecutorAsLiveData(THREAD_POOL_EXECUTOR, silentMode)
     }
 
     /**
@@ -137,20 +145,39 @@ class SessionRepositoryImpl(
 
     private class SessionResourceinator(
 
+        /**
+         * The application [SharedPreferences].
+         */
         private val sharedPreferences: SharedPreferences,
 
+        /**
+         * A [UserDao] instance for storing/retrieving a [LocalUser].
+         */
         private val userDao: UserDao,
 
+        /**
+         * The application [AccountManager].
+         */
         private val accountManager: AccountManager,
 
+        /**
+         * An instance of [UserWebservice].
+         */
         private val userWebservice: UserWebservice,
 
+        /**
+         * A [UserComponent.Builder] for building a new instance of [UserComponent] when
+         * establishing a new [Session].
+         */
         private val userComponentBuilder: UserComponent.Builder
 
     ) : Resourceinator<Boolean, User, Session>() {
 
         // region Inherited methods
 
+        /**
+         * Does the heavy lifting in establishing a [Session].
+         */
         override fun doInBackground(vararg params: Boolean?): ResultResource<User, Session> {
             // TODO Check for isCanceled
 
@@ -271,6 +298,10 @@ class SessionRepositoryImpl(
 
         // region Methods
 
+        /**
+         * Creates a [FailureResource] with an optional [Intent] designed to launch
+         * [AuthenticateActivity] if authorization fails and the request was not in [silentMode].
+         */
         @JvmStatic
         private fun makeFailureResource(
             silentMode: Boolean,

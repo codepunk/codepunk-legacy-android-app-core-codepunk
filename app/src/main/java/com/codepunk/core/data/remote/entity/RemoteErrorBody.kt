@@ -59,6 +59,9 @@ data class RemoteErrorBody(
 
     // region Constructors
 
+    /**
+     * Constructs the [RemoteErrorBody] instance from a [Parcel].
+     */
     constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readSerializable() as Type,
@@ -71,6 +74,9 @@ data class RemoteErrorBody(
 
     // region Implemented methods
 
+    /**
+     * Implementation of [Parcelable]. Flattens this object into a [Parcel].
+     */
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(message)
         dest.writeSerializable(type)
@@ -79,12 +85,19 @@ data class RemoteErrorBody(
         dest.writeString(hint)
     }
 
+    /**
+     * Implementation of [Parcelable]. Describes the kinds of special objects contained in this
+     * Parcelable instance's marshaled representation.
+     */
     override fun describeContents(): Int = 0
 
     // endregion Implemented methods
 
     // region Nested/inner classes
 
+    /**
+     * An enumerated class describing the type of error represented in this [RemoteErrorBody].
+     */
     enum class Type(
 
         /**
@@ -94,12 +107,24 @@ data class RemoteErrorBody(
 
     ) {
 
+        /**
+         * An error type that results from attempting to authenticate or log in to a user account
+         * that is currently inactive.
+         */
         @Json(name = "codepunk::activatinator.inactive_user")
         INACTIVE_USER("codepunk::activatinator.inactive_user"),
 
+        /**
+         * An error type that results from attempting to authenticate or log in to a user account
+         * using invalid credentials.
+         */
         @Json(name = "invalid_credentials")
         INVALID_CREDENTIALS("invalid_credentials"),
 
+        /**
+         * An error type that results from attempting to authenticate or log in to a user account
+         * with an invalid request (i.e. not supplying a password, or other required field etc.)
+         */
         @Json(name = "invalid_request")
         INVALID_REQUEST("invalid_request")
 
@@ -123,9 +148,18 @@ data class RemoteErrorBody(
 
                 // region Methods
 
+                /**
+                 * Implementation of [Parcelable.Creator]. Create a new instance of the [Parcelable]
+                 * class, instantiating it from the given [Parcel] whose data had previously been
+                 * written by [Parcelable.writeToParcel].
+                 */
                 override fun createFromParcel(source: Parcel): RemoteErrorBody =
                     RemoteErrorBody(source)
 
+                /**
+                 * Implementation of [Parcelable.Creator]. Create a new array of the [Parcelable]
+                 * class.
+                 */
                 override fun newArray(size: Int): Array<RemoteErrorBody?> = arrayOfNulls(size)
 
                 // endregion methods
@@ -136,6 +170,9 @@ data class RemoteErrorBody(
 
         // region Methods
 
+        /**
+         * Reads the [errors] map from the supplied [parcel].
+         */
         @JvmStatic
         private fun readErrors(parcel: Parcel): Map<String, Array<String>>? {
             val hasErrors = parcel.readByte().toInt() != 0
@@ -153,6 +190,9 @@ data class RemoteErrorBody(
             }
         }
 
+        /**
+         * Writes the [errors] map to the supplied [parcel].
+         */
         @JvmStatic
         private fun writeErrors(parcel: Parcel, errors: Map<String, Array<String>>?) {
             errors?.also {

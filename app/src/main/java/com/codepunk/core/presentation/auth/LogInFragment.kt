@@ -360,7 +360,7 @@ class LogInFragment :
                         val remoteErrorBody=
                             resource?.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                         remoteErrorBody?.hint?.also { email ->
-                            authViewModel.sendActivationCode(email)
+                            authViewModel.sendActivationLink(email)
                         }
                     }
                 }

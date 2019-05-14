@@ -61,6 +61,7 @@ class UserRepositoryImpl(
     /**
      * An instance of [UserWebservice] for making user-related API calls.
      */
+    @Suppress("UNUSED")
     private val userWebservice: UserWebservice
 
 ) : UserRepository {
@@ -168,7 +169,7 @@ class UserRepositoryImpl(
             publishProgress(cachedUser, account)
 
             // 4) Get the auth token associated with the account
-            val authToken = try {
+            /* TODO TEMP val authToken = */ try {
                 accountManager.blockingGetAuthToken(
                     account,
                     AuthTokenType.DEFAULT.value,

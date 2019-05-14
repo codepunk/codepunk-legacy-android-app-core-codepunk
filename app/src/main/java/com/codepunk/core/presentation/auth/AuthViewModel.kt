@@ -146,14 +146,14 @@ class AuthViewModel @Inject constructor(
     }
 
     /**
-     * Requests an activation code to be sent to the supplied [email].
+     * Sends an activation link to the supplied [email].
      */
-    fun sendActivationCode(email: String) {
-        sendActivationSource = authRepository.sendActivationCode(email)
+    fun sendActivationLink(email: String) {
+        sendActivationSource = authRepository.sendActivationLink(email)
     }
 
     /**
-     * Requests a password reset link to be sent to the supplied [email].
+     * Sends a password reset link to the supplied [email].
      */
     fun sendPasswordResetLink(email: String) {
         sendPasswordResetSource = authRepository.sendPasswordResetLink(email)

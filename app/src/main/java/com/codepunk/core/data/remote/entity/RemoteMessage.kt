@@ -17,6 +17,9 @@
 
 package com.codepunk.core.data.remote.entity
 
+/**
+ * An response returned from the network containing a single (optional) [message].
+ */
 data class RemoteMessage(
 
     /**

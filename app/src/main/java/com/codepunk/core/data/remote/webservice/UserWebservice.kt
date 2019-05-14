@@ -48,6 +48,7 @@ interface UserWebservice {
     /**
      * Gets the current (authenticated) user.
      */
+    @Suppress("UNUSED")
     @GET("api/user")
     @Headers(
         HEADER_ACCEPT_APPLICATION_JSON,

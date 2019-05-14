@@ -96,8 +96,7 @@ interface AuthWebservice {
     fun refreshToken(refreshToken: String): Call<RemoteAuthentication>
 
     /**
-     * Registers a new account. // TODO Move this to an "account" webservice? Hmm. It's not
-     * really user, and not really auth.
+     * Registers a new account.
      */
     @POST("register")
     @FormUrlEncoded
@@ -117,12 +116,12 @@ interface AuthWebservice {
     ): Call<RemoteMessage>
 
     /**
-     * Sends an activation code to the supplied [email].
+     * Sends an activation link to the supplied [email].
      */
     @POST("activate/send")
     @FormUrlEncoded
     @Headers(HEADER_ACCEPT_APPLICATION_JSON)
-    fun sendActivationCode(
+    fun sendActivationLink(
         @Field("email")
         email: String
     ): Call<RemoteMessage>
