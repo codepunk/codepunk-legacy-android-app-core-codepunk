@@ -38,11 +38,11 @@ import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
 import com.codepunk.core.lib.addOrUpdateAccount
-import com.codepunk.core.presentation.auth.LogInFragment.AuthenticationListener
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -58,8 +58,7 @@ class AuthenticateActivity :
     AccountAuthenticatorAppCompatActivity(),
     HasSupportFragmentInjector,
     OnClickListener,
-    FloatingActionButtonOwner,
-    AuthenticationListener {
+    FloatingActionButtonOwner {
 
     // region Implemented properties
 
@@ -150,7 +149,7 @@ class AuthenticateActivity :
 
         binding.fab.setOnClickListener(this)
 
-        authViewModel.authLiveResource.observe(this, Observer { onResource(it) })
+        authViewModel.authLiveResource.observe(this, Observer { onAuthResource(it) })
         authViewModel.registerLiveResource.observe(this, Observer { onResource(it) })
         authViewModel.sendActivationLiveResource.observe(this, Observer { onResource(it) })
         authViewModel.sendPasswordResetLiveResource.observe(this, Observer { onResource(it) })
@@ -227,44 +226,54 @@ class AuthenticateActivity :
         }
     }
 
-    /**
-     * Implementation of [AuthenticationListener]. Reacts to a successful authentication.
-     */
-    override fun onAuthenticated(authentication: Authentication?) {
-        when (authentication) {
-            null -> setResult(RESULT_CANCELED) // TODO ??
-            else -> {
-                // Set accountAuthenticatorResult so accountAuthenticatorResponse can react to it
-                accountAuthenticatorResult = Bundle().apply {
-                    putString(KEY_ACCOUNT_NAME, authentication.username)
-                    putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
-                    putString(KEY_AUTHTOKEN, authentication.authToken)
-                    putString(KEY_PASSWORD, authentication.refreshToken)
-                }
-
-                val account = Account(authentication.username, AUTHENTICATOR_ACCOUNT_TYPE)
-                accountManager.addOrUpdateAccount(account, authentication.refreshToken)
-
-                sharedPreferences.edit()
-                    .putString(PREF_KEY_CURRENT_ACCOUNT_NAME, authentication.username)
-                    .apply()
-
-                // Set the result to pass back to the calling activity
-                val data = Intent()
-                data.putExtra(KEY_ACCOUNT, account)
-                setResult(RESULT_OK, data)
-            }
-        }
-        finish()
-    }
-
     // endregion Implemented methods
 
     // region Methods
 
-    fun onResource(resource: Resource<*, *>) {
+    /**
+     * Reacts to the state of the supplied [resource].
+     */
+    private fun onResource(resource: Resource<*, *>) {
         when (resource) {
             is ProgressResource -> binding.loadingProgress.show()
+            else -> binding.loadingProgress.hide()
+        }
+    }
+
+    /**
+     * Reacts to the state of the supplied [resource].
+     */
+    private fun onAuthResource(resource: Resource<Void, Authentication>) {
+        when (resource) {
+            is ProgressResource -> binding.loadingProgress.show()
+            is SuccessResource -> {
+                binding.loadingProgress.hide()
+                when (val authentication = resource.result) {
+                    null -> setResult(RESULT_CANCELED) // TODO ??
+                    else -> {
+                        // Set accountAuthenticatorResult so accountAuthenticatorResponse can react to it
+                        accountAuthenticatorResult = Bundle().apply {
+                            putString(KEY_ACCOUNT_NAME, authentication.username)
+                            putString(KEY_ACCOUNT_TYPE, AUTHENTICATOR_ACCOUNT_TYPE)
+                            putString(KEY_AUTHTOKEN, authentication.authToken)
+                            putString(KEY_PASSWORD, authentication.refreshToken)
+                        }
+
+                        val account = Account(authentication.username, AUTHENTICATOR_ACCOUNT_TYPE)
+                        accountManager.addOrUpdateAccount(account, authentication.refreshToken)
+
+                        sharedPreferences.edit()
+                            .putString(PREF_KEY_CURRENT_ACCOUNT_NAME, authentication.username)
+                            .apply()
+
+                        // Set the result to pass back to the calling activity
+                        val data = Intent()
+                        data.putExtra(KEY_ACCOUNT, account)
+                        setResult(RESULT_OK, data)
+                    }
+                }
+                finish()
+            }
             else -> binding.loadingProgress.hide()
         }
     }

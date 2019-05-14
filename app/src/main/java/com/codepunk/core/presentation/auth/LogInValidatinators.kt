@@ -27,9 +27,15 @@ import com.codepunk.punkubator.util.validatinator.Validatinator
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * A set of [Validatinator]s to validate the login form found in [LogInFragment].
+ */
 @Singleton
 class LogInValidatinators @Inject constructor(
 
+    /**
+     * A [Context] to associate with this [Validatinator].
+     */
     @ApplicationContext
     val context: Context
 
@@ -37,22 +43,50 @@ class LogInValidatinators @Inject constructor(
 
     // region Properties
 
-    val usernameOrEmail = context.getString(R.string.validation_input_name_username_or_email)
-    val usernameOrEmailValidatinator = RequiredCharSequenceValidatinator(context, usernameOrEmail)
+    /**
+     * A user-friendly reference for the "username or email" value.
+     */
+    private val usernameOrEmail: String =
+        context.getString(R.string.validation_input_name_username_or_email)
+
+    /**
+     * The [Validatinator] used to validate the "username or email" value.
+     */
+    private val usernameOrEmailValidatinator =
+        RequiredCharSequenceValidatinator(context, usernameOrEmail)
+
+    /**
+     * The [TextInputLayoutValidatinator] used to validate the "username or email" field.
+     */
     val usernameOrEmailInputValidatinator = TextInputLayoutValidatinator(
         context,
         usernameOrEmail,
         usernameOrEmailValidatinator
     )
 
-    val password = context.getString(R.string.validation_input_name_password)
-    val passwordValidatinator = RequiredCharSequenceValidatinator(context, password)
+    /**
+     * A user-friendly reference for the password value.
+     */
+    private val password: String = context.getString(R.string.validation_input_name_password)
+
+    /**
+     * The [Validatinator] used to validate the password value.
+     */
+    private val passwordValidatinator = RequiredCharSequenceValidatinator(context, password)
+
+    /**
+     * The [TextInputLayoutValidatinator] used to validate the password field.
+     */
     val passwordInputValidatinator = TextInputLayoutValidatinator(
         context,
         password,
         passwordValidatinator
     )
 
+    /**
+     * A [Validatinator] that validates an entire [FragmentLogInBinding].
+     */
+    @Suppress("UNUSED")
     val logInValidatinator =
         object : Validatinator<FragmentLogInBinding>(context) {
 

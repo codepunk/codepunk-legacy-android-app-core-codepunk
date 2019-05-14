@@ -17,13 +17,12 @@
 
 package com.codepunk.core.presentation.auth
 
-import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.KEY_REMOTE_ERROR_BODY
 import com.codepunk.core.data.remote.entity.RemoteErrorBody
 import com.codepunk.core.lib.hideSoftKeyboard
@@ -40,6 +39,9 @@ import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
+/**
+ * An abstract Fragment class that handles common authentication-related view-based tasks.
+ */
 abstract class AbsAuthFragment :
     Fragment(),
     FloatingActionButtonListener {
@@ -68,7 +70,7 @@ abstract class AbsAuthFragment :
     /**
      * This fragment's activity cast to a [FloatingActionButtonOwner].
      */
-    protected val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
+    private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
         activity as? FloatingActionButtonOwner
     }
 
@@ -80,6 +82,9 @@ abstract class AbsAuthFragment :
             .get(AuthViewModel::class.java)
     }
 
+    /**
+     * A resource ID containing the title of the fragment.
+     */
     protected abstract val titleResId: Int
 
     // endregion Properties
@@ -119,6 +124,9 @@ abstract class AbsAuthFragment :
 
     // region Implemented methods
 
+    /**
+     * Reacts to the user clicking the activity's floating action button.
+     */
     override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
         view?.hideSoftKeyboard()
     }
@@ -127,18 +135,32 @@ abstract class AbsAuthFragment :
 
     // region Methods
 
+    /**
+     * Clears any errors from any [TextInputLayout] (or other) widgets in this fragment.
+     */
     protected open fun clearErrors() {
         // No op
     }
 
+    /**
+     * Disables any appropriate widgets in this fragment while network- or other-related processes
+     * are in progress.
+     */
     protected open fun disableView() {
         // No op
     }
 
+    /**
+     * Enables any appropriate widgets in this fragment once network- or other-related processes
+     * have completed.
+     */
     protected open fun enableView() {
         // No op
     }
 
+    /**
+     * Resets any [EditText] (or other) widgets in this fragment.
+     */
     protected open fun resetView() {
         // No op
     }
@@ -155,13 +177,14 @@ abstract class AbsAuthFragment :
 
     // region Nested/inner classes
 
-    protected open inner class AbsAuthResolver<Progress, Result>(
-
-        activity: Activity,
-
-        view: View
-
-    ) : ResourceResolver<Progress, Result>(activity, view) {
+    /**
+     * An abstract [ResourceResolver] that parses and possibly responds to [Resource]s supplied to
+     * the [resolve] method.
+     */
+    protected abstract inner class AbsAuthResolver<Progress, Result>(
+        view: View,
+        context: Context = view.context
+    ) : ResourceResolver<Progress, Result>(view, context) {
 
         // region Inherited methods
 

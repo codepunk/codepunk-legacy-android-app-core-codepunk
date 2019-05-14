@@ -34,6 +34,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
@@ -118,7 +119,7 @@ class AuthenticateFragment :
             }
         binding.accountsRecycler.addItemDecoration(itemDecoration)
         binding.accountsRecycler.layoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            LinearLayoutManager(requireContext(), VERTICAL, false)
         adapter = AccountAdapter(binding.accountsRecycler.context, accountManager, this)
         binding.accountsRecycler.adapter = adapter
 
@@ -154,6 +155,9 @@ class AuthenticateFragment :
 
     // region Methods
 
+    /**
+     * Attempts to authenticate using the clicked [account].
+     */
     private fun onAccountClick(account: Account) {
         // TODO Maybe we have a method in AuthViewModel that is like
         // authenticateWithAccount(account Account). Then we don't need spinner here.
@@ -189,7 +193,10 @@ class AuthenticateFragment :
 
     // region Nested/inner classes
 
-    private class AccountViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    /**
+     * A [ViewHolder] used for displaying known [Account]s.
+     */
+    private class AccountViewHolder(itemView: View) : ViewHolder(itemView) {
         @Suppress("UNUSED")
         val accountImage: AppCompatImageView = itemView.findViewById(R.id.account_image)
         val usernameText: AppCompatTextView = itemView.findViewById(R.id.username_text)
@@ -206,6 +213,9 @@ class AuthenticateFragment :
 
         // region Methods
 
+        /**
+         * Binds the supplied [account] to the views in this [ViewHolder].
+         */
         fun bindAccount(account: Account) {
             this.account = account
             usernameText.text = account.name
@@ -221,9 +231,11 @@ class AuthenticateFragment :
 
             // region Methods
 
-            fun of(v: View?): AccountViewHolder? =
-                v?.getTag(R.id.account_view_holder) as? AccountViewHolder
-
+            /**
+             * Returns the [ViewHolder] (if any) associated with the supplied [view].
+             */
+            fun of(view: View?): AccountViewHolder? =
+                view?.getTag(R.id.account_view_holder) as? AccountViewHolder
 
             // endregion Methods
 
@@ -232,14 +244,23 @@ class AuthenticateFragment :
         // endregion Companion object
     }
 
+    /**
+     * A [RecyclerView.Adapter] used for displaying known [Account]s.
+     */
     private class AccountAdapter(
         context: Context,
         val accountManager: AccountManager,
         val onClickListener: OnClickListener? = null
     ) : RecyclerView.Adapter<AccountViewHolder>() {
 
+        /**
+         * A [LayoutInflater] used for inflating views.
+         */
         private val inflater: LayoutInflater = LayoutInflater.from(context)
 
+        /**
+         * An array of [Account]s that have been added to the device.
+         */
         // TODO This should come from a ViewModel and auto-update/refresh
         private val accounts: Array<Account>
             get() = accountManager.getAccountsByType(BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE)

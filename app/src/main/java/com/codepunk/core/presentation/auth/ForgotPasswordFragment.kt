@@ -16,7 +16,6 @@
 
 package com.codepunk.core.presentation.auth
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,12 +28,14 @@ import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentForgotPasswordBinding
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 
 /**
- * A simple [Fragment] subclass. TODO
+ * A [Fragment] that allows the user to request a password reset link in case they have forgotten
+ * their password.
  */
 class ForgotPasswordFragment :
     AbsAuthFragment() {
@@ -52,6 +53,10 @@ class ForgotPasswordFragment :
      */
     private lateinit var binding: FragmentForgotPasswordBinding
 
+    /**
+     * An instance of [SendPasswordResetLinkResolver] for resolving resources related to
+     * requesting a password reset link.
+     */
     private lateinit var sendPasswordResetLinkResolver: SendPasswordResetLinkResolver
 
     // endregion Properties
@@ -65,7 +70,6 @@ class ForgotPasswordFragment :
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_forgot_password,
@@ -75,10 +79,13 @@ class ForgotPasswordFragment :
         return binding.root
     }
 
+    /**
+     * Sets up resolvers and observers.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sendPasswordResetLinkResolver = SendPasswordResetLinkResolver(requireActivity(), view)
+        sendPasswordResetLinkResolver = SendPasswordResetLinkResolver(view)
 
         authViewModel.sendPasswordResetLiveResource.observe(
             this,
@@ -106,9 +113,6 @@ class ForgotPasswordFragment :
         binding.emailEdit.text = null
     }
 
-    /**
-     * Validates the form.
-     */
     @Suppress("REDUNDANT_OVERRIDING_METHOD")
     override fun validate(): Boolean {
         // return validatinators.registerValidatinator.validate(binding, options.clear())
@@ -119,8 +123,11 @@ class ForgotPasswordFragment :
 
     // region Nested/inner classes
 
-    private inner class SendPasswordResetLinkResolver(activity: Activity, view: View) :
-        AbsAuthResolver<Void, Message>(activity, view) {
+    /**
+     * A [ResourceResolver] that resolves the results of requesting a password reset link
+     */
+    private inner class SendPasswordResetLinkResolver(view: View) :
+        AbsAuthResolver<Void, Message>(view) {
 
         // region Inherited methods
 
@@ -134,7 +141,7 @@ class ForgotPasswordFragment :
             val handled = super.onFailure(resource)
 
             if (!handled) {
-                when (val e = resource.e) {
+                when (/* val e = */ resource.e) {
                     is HttpStatusException -> {
                         // ???
                         // handled = true

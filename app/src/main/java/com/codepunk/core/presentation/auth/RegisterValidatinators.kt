@@ -25,9 +25,15 @@ import com.codepunk.punkubator.util.validatinator.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * A set of [Validatinator]s to validate the register form found in [RegisterFragment].
+ */
 @Singleton
 class RegisterValidatinators @Inject constructor(
 
+    /**
+     * A [Context] to associate with this [Validatinator].
+     */
     @ApplicationContext
     val context: Context
 
@@ -35,66 +41,116 @@ class RegisterValidatinators @Inject constructor(
 
     // region Properties
 
-    val username = context.getString(R.string.validation_input_name_username)
-    val usernameValidatinator = ValidatinatorSet<CharSequence?>(
+    /**
+     * A user-friendly reference for the username value.
+     */
+    val username: String = context.getString(R.string.validation_input_name_username)
+
+    /**
+     * The [Validatinator] used to validate the username value.
+     */
+    private val usernameValidatinator = ValidatinatorSet<CharSequence?>(
         context,
         username
     ).add(
         RequiredCharSequenceValidatinator(context, username),
         WordCharacterValidatinator(context, username),
-        com.codepunk.punkubator.util.validatinator.MaxLengthValidatinator(
+        MaxLengthValidatinator(
             context,
             username,
             64
         )
     )
+
+    /**
+     * The [TextInputLayoutValidatinator] used to validate the username field.
+     */
     val usernameInputValidatinator = TextInputLayoutValidatinator(
         context,
         username,
         usernameValidatinator
     )
 
-    val email = context.getString(R.string.validation_input_name_email)
-    val emailValidatinator = ValidatinatorSet<CharSequence?>(
+    /**
+     * A user-friendly reference for the email value.
+     */
+    val email: String = context.getString(R.string.validation_input_name_email)
+
+    /**
+     * The [Validatinator] used to validate the email value.
+     */
+    private val emailValidatinator = ValidatinatorSet<CharSequence?>(
         context,
         email
     ).add(
         RequiredCharSequenceValidatinator(context, email),
         EmailValidatinator(context, email),
-        com.codepunk.punkubator.util.validatinator.MaxLengthValidatinator(
+        MaxLengthValidatinator(
             context,
             email,
             255
         )
     )
+
+    /**
+     * The [TextInputLayoutValidatinator] used to validate the email field.
+     */
     val emailInputValidatinator = TextInputLayoutValidatinator(
         context,
         username,
         emailValidatinator
     )
 
-    val password = context.getString(R.string.validation_input_name_password)
-    val passwordValidatinator = ValidatinatorSet<CharSequence?>(
+    /**
+     * A user-friendly reference for the password value.
+     */
+    val password: String = context.getString(R.string.validation_input_name_password)
+
+    /**
+     * The [Validatinator] used to validate the password value.
+     */
+    private val passwordValidatinator = ValidatinatorSet<CharSequence?>(
         context,
         password
     ).add(
         RequiredCharSequenceValidatinator(context, password),
         MinLengthValidatinator(context, password, 6)
     )
+
+    /**
+     * The [TextInputLayoutValidatinator] used to validate the password field.
+     */
     val passwordInputValidatinator = TextInputLayoutValidatinator(
         context,
         username,
         passwordValidatinator
     )
 
-    val confirmPassword = context.getString(R.string.validation_input_name_confirm_password)
-    val confirmPasswordValidatinator = RequiredCharSequenceValidatinator(context, confirmPassword)
+    /**
+     * A user-friendly reference for the "confirm password" value.
+     */
+    private val confirmPassword: String =
+        context.getString(R.string.validation_input_name_confirm_password)
+
+    /**
+     * The [Validatinator] used to validate the "confirm password" value.
+     */
+    private val confirmPasswordValidatinator =
+        RequiredCharSequenceValidatinator(context, confirmPassword)
+
+    /**
+     * The [TextInputLayoutValidatinator] used to validate the "confirm password" field.
+     */
     val confirmPasswordInputValidatinator = TextInputLayoutMatchValidatinator(
         context,
         confirmPassword,
         confirmPasswordValidatinator
     )
 
+    /**
+     * A [Validatinator] that validates an entire [FragmentRegisterBinding].
+     */
+    @Suppress("UNUSED")
     val registerValidatinator =
         object : Validatinator<FragmentRegisterBinding>(context) {
 

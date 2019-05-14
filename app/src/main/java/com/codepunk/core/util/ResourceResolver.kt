@@ -17,7 +17,6 @@
 
 package com.codepunk.core.util
 
-import android.app.Activity
 import android.content.Context
 import android.view.View
 import com.codepunk.core.R
@@ -26,25 +25,28 @@ import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
+/**
+ * An abstract class that parses and resolves a [Resource], handling common errors when possible.
+ */
 abstract class ResourceResolver<Progress, Result>(
-
-    activity: Activity,
 
     /**
      * A [View] associated with this [ResourceResolver] for the purposes of showing [Snackbar]s.
      */
-    var view: View
+    var view: View,
+
+    /**
+     * A [Context] to associate with this ResourceResolver.
+     */
+    protected val context: Context = view.context
 
 ) : Snackbar.Callback() {
 
-    // region Properties
-
-    private val context: Context = activity
-
-    // endregion Properties
-
     // region Inherited methods
 
+    /**
+     * Implementation of [Snackbar.Callback]. Called when a snackbar is dismissed.
+     */
     override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
         // No op
     }
@@ -53,6 +55,9 @@ abstract class ResourceResolver<Progress, Result>(
 
     // region Methods
 
+    /**
+     * Resolves the supplied [resource] by calling the appropriate method based on its type.
+     */
     open fun resolve(resource: Resource<Progress, Result>) {
         when (resource) {
             is PendingResource -> onPending(resource)
@@ -62,12 +67,24 @@ abstract class ResourceResolver<Progress, Result>(
         }
     }
 
+    /**
+     * Processes a resource of type [PendingResource].
+     */
     open fun onPending(resource: PendingResource<Progress, Result>): Boolean = false
 
+    /**
+     * Processes a resource of type [ProgressResource].
+     */
     open fun onProgress(resource: ProgressResource<Progress, Result>): Boolean = false
 
+    /**
+     * Processes a resource of type [SuccessResource].
+     */
     open fun onSuccess(resource: SuccessResource<Progress, Result>): Boolean = false
 
+    /**
+     * Processes a resource of type [FailureResource].
+     */
     open fun onFailure(resource: FailureResource<Progress, Result>): Boolean {
         return when (resource.e) {
             is ConnectException -> {
@@ -92,6 +109,9 @@ abstract class ResourceResolver<Progress, Result>(
         }
     }
 
+    /**
+     * Handles any [resource] that remains unhandled after calling [onFailure].
+     */
     open fun onUnhandledFailure(resource: FailureResource<Progress, Result>) {
         Snackbar.make(
             view,

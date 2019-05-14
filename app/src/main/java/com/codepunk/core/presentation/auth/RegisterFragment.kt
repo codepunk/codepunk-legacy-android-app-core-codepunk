@@ -17,7 +17,6 @@
 package com.codepunk.core.presentation.auth
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,8 +31,10 @@ import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
@@ -42,7 +43,7 @@ import javax.inject.Inject
 import android.content.DialogInterface.OnClickListener as DialogOnClickListener
 
 /**
- * A [Fragment] used to create a new account.
+ * A [Fragment] used to register (i.e. create) a new account.
  */
 class RegisterFragment :
     AbsAuthFragment(),
@@ -59,6 +60,7 @@ class RegisterFragment :
     /**
      * A set of [Validatinator]s for validating the form.
      */
+    @Suppress("UNUSED")
     @Inject
     lateinit var validatinators: RegisterValidatinators
 
@@ -70,10 +72,14 @@ class RegisterFragment :
     /**
      * The default [Options] used to validate the form.
      */
+    @Suppress("UNUSED")
     private val options = Options().apply {
         requestMessage = true
     }
 
+    /**
+     * An instance of [RegisterResolver] for resolving registration-related resources.
+     */
     private lateinit var registerResolver: RegisterResolver
 
     // endregion Properties
@@ -108,7 +114,7 @@ class RegisterFragment :
         super.onViewCreated(view, savedInstanceState)
         binding.loginBtn.setOnClickListener(this)
 
-        registerResolver = RegisterResolver(requireActivity(), view)
+        registerResolver = RegisterResolver(view)
 
         authViewModel.registerLiveResource.removeObservers(this)
         authViewModel.registerLiveResource.observe(
@@ -174,8 +180,11 @@ class RegisterFragment :
 
     // region Nested/inner classes
 
-    private inner class RegisterResolver(activity: Activity, view: View) :
-        AbsAuthResolver<Void, Message>(activity, view) {
+    /**
+     * A [ResourceResolver] that resolves authorization-related [Resource]s.
+     */
+    private inner class RegisterResolver(view: View) :
+        AbsAuthResolver<Void, Message>(view) {
 
         // region Inherited methods
 
@@ -197,7 +206,7 @@ class RegisterFragment :
             val handled = super.onFailure(resource)
 
             if (!handled) {
-                when (val e = resource.e) {
+                when (/* val e = */ resource.e) {
                     is HttpStatusException -> {
                         // ???
                         // handled = true

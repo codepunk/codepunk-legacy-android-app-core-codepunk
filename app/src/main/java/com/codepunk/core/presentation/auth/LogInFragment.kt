@@ -20,9 +20,7 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -31,7 +29,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -48,7 +45,9 @@ import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.AlertDialogFragment
 import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
@@ -57,6 +56,10 @@ import javax.inject.Inject
 
 // region Constants
 
+/**
+ * A request code for an alert dialog notifying the user that the user account to which they are
+ * attempting to log in is currently inactive.
+ */
 private const val INACTIVE_USER_REQUEST_CODE = 1
 
 // endregion Constants
@@ -87,6 +90,7 @@ class LogInFragment :
     /**
      * A set of [Validatinator]s for validating the form.
      */
+    @Suppress("UNUSED")
     @Inject
     lateinit var validatinators: LogInValidatinators
 
@@ -98,19 +102,30 @@ class LogInFragment :
     /**
      * The default [Options] used to validate the form.
      */
+    @Suppress("UNUSED")
     private val options = Options().apply {
         requestMessage = true
     }
 
+    /**
+     * An instance of [AuthResolver] for resolving authorization-related resources.
+     */
     private lateinit var authResolver: AuthResolver
 
+    /**
+     * An instance of [RegisterResolver] for resolving registration-related resources.
+     */
     private lateinit var registerResolver: RegisterResolver
 
+    /**
+     * An instance of [SendEmailResolver] for resolving resources related to email requests.
+     */
     private lateinit var sendEmailResolver: SendEmailResolver
 
-    // TODO Remote this, let activity handle onSuccess on its own
-    private var authenticationListener: AuthenticationListener? = null
-
+    /**
+     * The current [AlertDialogFragment] instance (if any) showing any authorization-related
+     * messages.
+     */
     val authDialogFragment: AlertDialogFragment?
         get() = requireFragmentManager().findFragmentByTag(AUTH_DIALOG_FRAGMENT_TAG)
             as AlertDialogFragment?
@@ -118,17 +133,6 @@ class LogInFragment :
     // endregion Properties
 
     // region Lifecycle methods
-
-    /**
-     * Injects dependencies into this fragment.
-     */
-    override fun onAttach(context: Context?) {
-        /*
-        AndroidSupportInjection.inject(this)
-        */
-        super.onAttach(context)
-        authenticationListener = (activity as? AuthenticationListener)
-    }
 
     /**
      * Inflates the view.
@@ -177,9 +181,9 @@ class LogInFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        authResolver = AuthResolver(requireActivity(), view)
-        registerResolver = RegisterResolver(requireActivity(), view)
-        sendEmailResolver = SendEmailResolver(requireActivity(), view)
+        authResolver = AuthResolver(view)
+        registerResolver = RegisterResolver(view)
+        sendEmailResolver = SendEmailResolver(view)
 
         binding.createBtn.setOnClickListener(this)
         binding.forgotPasswordBtn.setOnClickListener(this)
@@ -275,7 +279,7 @@ class LogInFragment :
                         binding.accountLayout,
                         false
                     ).apply {
-                        val accountImage: AppCompatImageView = findViewById(R.id.account_image)
+                        // val accountImage: AppCompatImageView = findViewById(R.id.account_image)
                         // TODO Set image
 
                         val usernameText: AppCompatTextView = findViewById(R.id.username_text)
@@ -322,6 +326,10 @@ class LogInFragment :
         }
     }
 
+    /**
+     * Builds the alert dialog associated with [requestCode], using [builder] and [onClickListener]
+     * as appropriate.
+     */
     override fun onBuildAlertDialog(
         requestCode: Int,
         builder: AlertDialog.Builder,
@@ -350,6 +358,9 @@ class LogInFragment :
         }
     }
 
+    /**
+     * Responds to the result of the alert dialog associated with [requestCode].
+     */
     override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             INACTIVE_USER_REQUEST_CODE -> {
@@ -357,7 +368,7 @@ class LogInFragment :
                     AlertDialogFragment.RESULT_NEUTRAL -> {
                         val resource: FailureResource<Void, Authentication>? =
                             authViewModel.authLiveResource.value as? FailureResource
-                        val remoteErrorBody=
+                        val remoteErrorBody =
                             resource?.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                         remoteErrorBody?.hint?.also { email ->
                             authViewModel.sendActivationLink(email)
@@ -373,6 +384,9 @@ class LogInFragment :
 
     // region Methods
 
+    /**
+     * Responds to an account being clicked.
+     */
     private fun onAccountClick(account: Account) {
         if (loginator.isLoggable(Log.DEBUG)) {
             loginator.d("account=$account")
@@ -383,8 +397,11 @@ class LogInFragment :
 
     // region Nested/inner classes
 
-    private inner class AuthResolver(activity: Activity, view: View) :
-        AbsAuthResolver<Void, Authentication>(activity, view) {
+    /**
+     * A [ResourceResolver] that resolves authorization-related [Resource]s.
+     */
+    private inner class AuthResolver(view: View) :
+        AbsAuthResolver<Void, Authentication>(view) {
 
         // region Inherited methods
 
@@ -394,11 +411,6 @@ class LogInFragment :
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
                     authViewModel.authLiveResource.reset()
             }
-        }
-
-        override fun onSuccess(resource: SuccessResource<Void, Authentication>): Boolean {
-            authenticationListener?.onAuthenticated(resource.result)
-            return true
         }
 
         override fun onFailure(resource: FailureResource<Void, Authentication>): Boolean {
@@ -416,7 +428,7 @@ class LogInFragment :
                         handled = true
                     }
                     INVALID_CREDENTIALS -> {
-                        val text: String = remoteErrorBody?.message?.let {
+                        val text: String = remoteErrorBody.message?.let {
                             networkTranslator.translate(it)
                         } ?: getString(R.string.alert_unknown_error_message)
                         Snackbar.make(view, text, Snackbar.LENGTH_LONG)
@@ -442,8 +454,11 @@ class LogInFragment :
 
     }
 
-    private inner class RegisterResolver(activity: Activity, view: View) :
-        AbsAuthResolver<Void, Message>(activity, view) {
+    /**
+     * A [ResourceResolver] that resolves registration-related [Resource]s.
+     */
+    private inner class RegisterResolver(view: View) :
+        AbsAuthResolver<Void, Message>(view) {
 
         // region Inherited methods
 
@@ -469,8 +484,12 @@ class LogInFragment :
 
     }
 
-    private inner class SendEmailResolver(activity: Activity, view: View) :
-        AbsAuthResolver<Void, Message>(activity, view) {
+    /**
+     * A [ResourceResolver] that resolves [Resource]s generated by requests for emails (i.e.
+     * authorization link, password reset link, etc.).
+     */
+    private inner class SendEmailResolver(view: View) :
+        AbsAuthResolver<Void, Message>(view) {
 
         // region Inherited methods
 
@@ -495,16 +514,6 @@ class LogInFragment :
         }
 
         // endregion Inherited methods
-
-    }
-
-    interface AuthenticationListener {
-
-        // region Methods
-
-        fun onAuthenticated(authentication: Authentication?)
-
-        // endregion Methods
 
     }
 
