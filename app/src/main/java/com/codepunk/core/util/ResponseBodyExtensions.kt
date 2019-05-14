@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.lib
+package com.codepunk.core.util
 
 import com.codepunk.core.data.remote.entity.RemoteErrorBody
 import okhttp3.ResponseBody

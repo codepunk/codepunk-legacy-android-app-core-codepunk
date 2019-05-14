@@ -30,7 +30,7 @@ import javax.inject.Singleton
  * A [Module] that provides instances for data persistence (i.e., Room).
  */
 @Module
-class PersistenceModule {
+class LocalModule {
 
     // region Methods
 

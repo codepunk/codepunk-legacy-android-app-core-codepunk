@@ -34,7 +34,7 @@ import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.lib.getResultResource
-import com.codepunk.core.lib.toRemoteErrorBody
+import com.codepunk.core.util.toRemoteErrorBody
 import com.codepunk.core.util.NetworkTranslator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response

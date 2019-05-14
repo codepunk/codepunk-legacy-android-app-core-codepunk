@@ -21,14 +21,27 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
 
+/**
+ * A base Dao for use in creating Dao classes for Room.
+ */
+@Suppress("UNUSED")
 abstract class BaseDao<T> {
 
+    /**
+     * Inserts data into Room based on the supplied [obj] of type [T].
+     */
     @Insert
     abstract fun insert(vararg obj: T)
 
+    /**
+     * Inserts data in Room based on the supplied [obj] of type [T].
+     */
     @Update
     abstract fun update(vararg obj: T)
 
+    /**
+     * Inserts data from Room corresponding to the supplied [obj] of type [T].
+     */
     @Delete
     abstract fun delete(vararg obj: T)
 

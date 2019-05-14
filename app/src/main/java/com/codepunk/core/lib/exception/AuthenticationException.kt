@@ -28,6 +28,7 @@ open class AuthenticationException : RuntimeException {
 
     // region Constructors
 
+    @Suppress("UNUSED")
     constructor() : super()
 
     constructor(message: String?) : super(message)
@@ -36,6 +37,7 @@ open class AuthenticationException : RuntimeException {
 
     constructor(cause: Throwable?) : super(cause)
 
+    @Suppress("UNUSED")
     @TargetApi(Build.VERSION_CODES.N)
     constructor(
         message: String?,

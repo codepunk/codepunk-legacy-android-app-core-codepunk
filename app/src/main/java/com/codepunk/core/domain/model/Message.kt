@@ -20,6 +20,11 @@ package com.codepunk.core.domain.model
 import android.os.Parcel
 import android.os.Parcelable
 
+/**
+ * A class containing a single (optional) [message] (which is typically returned from the network)
+ * as well as a [localizedMessage], which is the localized version of that message (if any
+ * localization was found) or a copy of the original message otherwise.
+ */
 data class Message(
 
     /**
@@ -66,18 +71,29 @@ data class Message(
 
     // region Companion object
 
+    /**
+     * A public CREATOR field that generates instances of [Message] from a [Parcel].
+     */
     companion object CREATOR : Parcelable.Creator<Message> {
 
         // region Inherited methods
 
+        /**
+         * Implementation of [Parcelable.Creator]. Create a new instance of [Message],
+         * instantiating it from the given [Parcel] whose data had previously been written by
+         * [Parcelable.writeToParcel].
+         */
         override fun createFromParcel(parcel: Parcel): Message = Message(parcel)
 
+        /**
+         * Implementation of [Parcelable.Creator]. Create a new array of [Message].
+         */
         override fun newArray(size: Int): Array<Message?> = arrayOfNulls(size)
 
         // endregion Inherited methods
 
     }
 
-    // endreigon Companion object
+    // endregion Companion object
 
 }

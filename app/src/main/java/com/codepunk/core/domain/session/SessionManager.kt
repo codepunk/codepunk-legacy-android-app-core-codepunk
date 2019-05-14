@@ -27,19 +27,13 @@ import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.PendingResource
-import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/* **************************************************
- *  TODO This is in the domain package but SessionTaskinator knows about
- *  data (!) So I need to employ UseCases in there instead of doing it directly (
- ***************************************************/
-
 /**
- * Class that manages any currently-logged in user session.
+ * A manager class that manages any currently-logged in user session.
  */
 @Singleton
 class SessionManager @Inject constructor(
@@ -47,21 +41,25 @@ class SessionManager @Inject constructor(
     /**
      * The account manager.
      */
+    @Suppress("UNUSED")
     private val accountManager: AccountManager,
 
     /**
      * The application [SharedPreferences].
      */
+    @Suppress("UNUSED")
     private val sharedPreferences: SharedPreferences,
 
     /**
      * The user webservice.
      */
+    @Suppress("UNUSED")
     private val userWebservice: UserWebservice,
 
     /**
      * A [UserComponent.Builder] for creating a [UserComponent] instance.
      */
+    @Suppress("UNUSED")
     private val userComponentBuilder: UserComponent.Builder,
 
     /**
@@ -79,22 +77,29 @@ class SessionManager @Inject constructor(
     var session: Session? = null
         private set
 
-    /*
-    /**
-     * Any currently-running session task.
-     */
-    private var sessionTaskinator: Resourceinator<Void, Void, Session>? = null
-    */
-
     /**
      * An observable [Session] wrapped in a [Resource] so observers can be notified of
      * changes to the status of the current session.
      */
-    private val liveSession = MediatorLiveData<Resource<User, Session>>().apply {
-        value = PendingResource()
-    }
+    private val sessionLiveResource: MediatorLiveData<Resource<User, Session>> =
+        MediatorLiveData<Resource<User, Session>>().apply {
+            value = PendingResource()
+        }
 
-    private var liveSessionSource: LiveData<Resource<User, Session>>? = null
+    /**
+     *
+     */
+    private var sessionSource: LiveData<Resource<User, Session>>? = null
+        private set(value) {
+            if (field != value) {
+                field?.also { source -> sessionLiveResource.removeSource(source) }
+                field = value?.apply {
+                    sessionLiveResource.addSource(this) { value ->
+                        sessionLiveResource.value = value
+                    }
+                }
+            }
+        }
 
     // endregion Properties
 
@@ -107,17 +112,8 @@ class SessionManager @Inject constructor(
         silentMode: Boolean,
         refresh: Boolean = false
     ): LiveData<Resource<User, Session>> {
-        liveSessionSource?.run { liveSession.removeSource(this) }
-        liveSessionSource = sessionRepository.getSession(silentMode, refresh).apply {
-            liveSession.addSource(this) {
-                session = when (it) {
-                    is SuccessResource -> it.result
-                    else -> null
-                }
-                liveSession.value = it
-            }
-        }
-        return liveSession
+        sessionSource = sessionRepository.getSession(silentMode, refresh)
+        return sessionLiveResource
     }
 
     /**
@@ -129,7 +125,7 @@ class SessionManager @Inject constructor(
     fun closeSession(logOut: Boolean): Boolean {
         return session?.let {
             sessionRepository.closeSession(it, logOut)
-            liveSession.value = PendingResource()
+            sessionLiveResource.value = PendingResource()
             session = null
             true
         } ?: false
@@ -139,7 +135,7 @@ class SessionManager @Inject constructor(
      * Allows [owner] to observe changes to the state of [session].
      */
     fun observeSession(owner: LifecycleOwner, observer: Observer<Resource<User, Session>>) {
-        liveSession.observe(owner, observer)
+        sessionLiveResource.observe(owner, observer)
     }
 
     // endregion Methods

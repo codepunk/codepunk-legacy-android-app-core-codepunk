@@ -65,11 +65,11 @@ data class Authentication(
      */
     override fun toString(): String =
         "Authentication(" +
-                "username=$username, " +
-                "tokenType=$tokenType, " +
-                "authToken='${authToken.ellipsize()}', " +
-                "refreshToken='${refreshToken.ellipsize()}', " +
-                "expiresIn=$expiresIn)"
+            "username=$username, " +
+            "tokenType=$tokenType, " +
+            "authToken='${authToken.ellipsize()}', " +
+            "refreshToken='${refreshToken.ellipsize()}', " +
+            "expiresIn=$expiresIn)"
 
     // endregion Inherited methods
 

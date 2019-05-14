@@ -149,16 +149,15 @@ data class RemoteErrorBody(
                 // region Methods
 
                 /**
-                 * Implementation of [Parcelable.Creator]. Create a new instance of the [Parcelable]
-                 * class, instantiating it from the given [Parcel] whose data had previously been
-                 * written by [Parcelable.writeToParcel].
+                 * Implementation of [Parcelable.Creator]. Create a new instance of
+                 * [RemoteErrorBody], instantiating it from the given [Parcel] whose data had
+                 * previously been written by [Parcelable.writeToParcel].
                  */
                 override fun createFromParcel(source: Parcel): RemoteErrorBody =
                     RemoteErrorBody(source)
 
                 /**
-                 * Implementation of [Parcelable.Creator]. Create a new array of the [Parcelable]
-                 * class.
+                 * Implementation of [Parcelable.Creator]. Create a new array of [RemoteErrorBody].
                  */
                 override fun newArray(size: Int): Array<RemoteErrorBody?> = arrayOfNulls(size)
 

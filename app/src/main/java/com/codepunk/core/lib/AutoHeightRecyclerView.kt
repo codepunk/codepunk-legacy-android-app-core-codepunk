@@ -19,7 +19,6 @@ package com.codepunk.core.lib
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -84,7 +83,7 @@ class AutoHeightRecyclerView :
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val newHeightSpec = when (maxHeight) {
             Integer.MAX_VALUE -> heightSpec
-            else -> MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST)
+            else -> MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST)
         }
         super.onMeasure(widthSpec, newHeightSpec)
     }
@@ -147,7 +146,7 @@ class AutoHeightRecyclerView :
     @Suppress("WEAKER_ACCESS")
     fun canScrollVertically(): Boolean {
         val linearLayoutManager: LinearLayoutManager? = layoutManager as? LinearLayoutManager
-        val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>? = adapter
+        val adapter: Adapter<ViewHolder>? = adapter
         return when {
             linearLayoutManager == null || adapter == null -> false
             linearLayoutManager.findLastCompletelyVisibleItemPosition() < adapter.itemCount - 1 ->

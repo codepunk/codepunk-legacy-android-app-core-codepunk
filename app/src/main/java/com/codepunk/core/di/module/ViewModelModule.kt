@@ -55,8 +55,6 @@ interface ViewModelModule {
     /**
      * Binds an instance of [InjectingViewModelFactory] to this [Module] for dependency injection.
      */
-    // TODO Should this be @Singleton? Why or why not? Probably not because we WANT this factory
-    // to be created separately for each Activity etc.?
     @Binds
     fun bindViewModelFactory(factory: InjectingViewModelFactory): ViewModelProvider.Factory
 

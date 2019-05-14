@@ -48,7 +48,7 @@ abstract class SettingsActivityModule {
     @FragmentScope
     @ContributesAndroidInjector //(modules = [DeveloperOptionsSettingsFragmentFragmentModule::class])
     abstract fun contributeDeveloperOptionsSettingsFragmentInjector():
-            DeveloperOptionsSettingsFragment
+        DeveloperOptionsSettingsFragment
 
     // endregion Methods
 
