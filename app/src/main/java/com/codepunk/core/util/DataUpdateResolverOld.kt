@@ -23,7 +23,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.codepunk.core.R
-import com.codepunk.core.presentation.base.AlertDialogFragment
+import com.codepunk.core.lib.AlertDialogFragment
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import com.google.android.material.snackbar.Snackbar
 import java.net.ConnectException

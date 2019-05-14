@@ -20,7 +20,6 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -29,6 +28,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -42,8 +42,8 @@ import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.lib.reset
-import com.codepunk.core.presentation.base.AlertDialogFragment
-import com.codepunk.core.presentation.base.AlertDialogFragment.AlertDialogFragmentListener
+import com.codepunk.core.lib.AlertDialogFragment
+import com.codepunk.core.lib.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource

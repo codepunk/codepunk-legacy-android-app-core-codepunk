@@ -185,7 +185,7 @@ class MainFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessionResolver = SessionResolver(requireActivity(), view)
+        sessionResolver = SessionResolver(view)
 
         binding.logInOutBtn.setOnClickListener(this)
 
@@ -219,8 +219,8 @@ class MainFragment :
 
     // region Nested/inner classes
 
-    private inner class SessionResolver(activity: Activity, val requireView: View) :
-        ResourceResolver<User, Session>(activity, requireView) {
+    private inner class SessionResolver(view: View) :
+        ResourceResolver<User, Session>(view) {
 
         override fun resolve(resource: Resource<User, Session>) {
             when (resource) {
