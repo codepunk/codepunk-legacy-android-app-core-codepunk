@@ -18,7 +18,6 @@ package com.codepunk.core.presentation.auth
 
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.OnAccountsUpdateListener
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -28,7 +27,6 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -69,14 +67,7 @@ private const val INACTIVE_USER_REQUEST_CODE = 1
 class LogInFragment :
     AbsAuthFragment(),
     AlertDialogFragmentListener,
-    OnAccountsUpdateListener,
     OnClickListener {
-
-    // region Inherited properties
-
-    override val titleResId: Int = R.string.authenticate_label_log_in
-
-    // endregion Inherited properties
 
     // region Properties
 
@@ -150,6 +141,7 @@ class LogInFragment :
         return binding.root
     }
 
+    /*
     /**
      * Listens for appropriate events.
      */
@@ -169,6 +161,7 @@ class LogInFragment :
         super.onPause()
         accountManager.removeOnAccountsUpdatedListener(this)
     }
+    */
 
     // endregion Lifecycle methods
 
@@ -254,6 +247,7 @@ class LogInFragment :
 
     // region Implemented methods
 
+    /*
     /**
      * Listens to account updates and updates the list accordingly.
      */
@@ -296,6 +290,7 @@ class LogInFragment :
             }
         }
     }
+    */
 
     /**
      * Responds to click events.
@@ -342,12 +337,12 @@ class LogInFragment :
                             resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                         val message: String = remoteErrorBody?.message?.let {
                             translatinator.translate(it)
-                        } ?: getString(R.string.alert_unknown_error_message)
+                        } ?: getString(com.codepunk.doofenschmirtz.R.string.unknown_error_message)
                         builder
-                            .setTitle(R.string.authenticate_label_log_in)
+                            .setTitle(R.string.auth_title_activation_required)
                             .setMessage(message)
                             .setPositiveButton(R.string.app_got_it, fragment)
-                            .setNeutralButton(R.string.authenticator_send_again, fragment)
+                            .setNeutralButton(R.string.auth_label_send_again, fragment)
                     }
                 }
             }
@@ -431,7 +426,7 @@ class LogInFragment :
                     INVALID_CREDENTIALS -> {
                         val text: String = remoteErrorBody.message?.let {
                             translatinator.translate(it)
-                        } ?: getString(R.string.alert_unknown_error_message)
+                        } ?: getString(com.codepunk.doofenschmirtz.R.string.unknown_error_message)
                         Snackbar.make(view, text, Snackbar.LENGTH_LONG)
                             .addCallback(this)
                             .show()

@@ -192,7 +192,7 @@ class AccountAuthenticator @Inject constructor(
      */
     override fun getAuthTokenLabel(authTokenType: String?): String {
         return AuthTokenType.lookup(authTokenType)?.getFriendlyName(context)
-            ?: context.getString(R.string.authenticator_token_type_unknown)
+            ?: context.getString(R.string.auth_token_type_unknown)
     }
 
     /**

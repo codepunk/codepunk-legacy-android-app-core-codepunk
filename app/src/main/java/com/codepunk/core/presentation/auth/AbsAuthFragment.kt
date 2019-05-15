@@ -83,19 +83,6 @@ abstract class AbsAuthFragment :
             .get(AuthViewModel::class.java)
     }
 
-    /**
-     * The support ActionBar, if one exists.
-     */
-    @Suppress("WEAKER_ACCESS")
-    protected val supportActionBar: ActionBar? by lazy {
-        (activity as? AppCompatActivity)?.supportActionBar
-    }
-
-    /**
-     * A resource ID containing the title of the fragment.
-     */
-    protected abstract val titleResId: Int
-
     // endregion Properties
 
     // endregion Properties
@@ -115,7 +102,6 @@ abstract class AbsAuthFragment :
      */
     override fun onResume() {
         super.onResume()
-        supportActionBar?.setTitle(titleResId)
         floatingActionButtonOwner?.floatingActionButtonListener = this
     }
 

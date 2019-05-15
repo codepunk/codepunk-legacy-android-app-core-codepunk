@@ -49,12 +49,6 @@ class RegisterFragment :
     AbsAuthFragment(),
     OnClickListener {
 
-    // region Inherited properties
-
-    override val titleResId: Int = R.string.authenticate_label_register
-
-    // endregion Inherited properties
-
     // region Properties
 
     /**

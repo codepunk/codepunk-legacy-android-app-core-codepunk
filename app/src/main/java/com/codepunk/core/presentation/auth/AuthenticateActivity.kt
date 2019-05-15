@@ -32,6 +32,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
@@ -119,11 +121,14 @@ class AuthenticateActivity :
      * The [NavController] for the activity.
      */
     private val navController: NavController by lazy {
-        Navigation.findNavController(this, R.id.authenticate_nav_fragment).apply {
-            addOnDestinationChangedListener { _, destination, _ ->
-                title = destination.label
-            }
-        }
+        Navigation.findNavController(this, R.id.authenticate_nav_fragment)
+    }
+
+    /**
+     * The app bar configuration for the activity.
+     */
+    private val appBarConfiguration: AppBarConfiguration by lazy {
+        AppBarConfiguration(navController.graph)
     }
 
     // endregion Properties
@@ -138,6 +143,8 @@ class AuthenticateActivity :
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
+        setSupportActionBar(binding.toolbar)
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.fab.setOnClickListener(this)
 
@@ -146,16 +153,12 @@ class AuthenticateActivity :
         authViewModel.sendActivationLiveResource.observe(this, Observer { onResource(it) })
         authViewModel.sendPasswordResetLiveResource.observe(this, Observer { onResource(it) })
 
-        setSupportActionBar(binding.toolbar)
-
         if (savedInstanceState == null) {
             // If the supplied intent specifies it, navigate to an alternate destination
             // and pop up inclusive to that new destination
             val navOptions = NavOptions.Builder()
                 .setPopUpTo(R.id.fragment_authenticate, true)
                 .build()
-            val navController =
-                Navigation.findNavController(this, R.id.authenticate_nav_fragment)
             when {
                 intent.categories.contains(CATEGORY_REGISTER) -> navController.navigate(
                     R.id.action_auth_to_register,
@@ -194,9 +197,8 @@ class AuthenticateActivity :
     /**
      * Reacts to the "up" button being pressed.
      */
-    override fun onSupportNavigateUp(): Boolean {
-        return Navigation.findNavController(this, R.id.authenticate_nav_fragment).navigateUp()
-    }
+    override fun onSupportNavigateUp(): Boolean =
+        navController.navigateUp() || super.onSupportNavigateUp()
 
     // endregion Inherited methods
 

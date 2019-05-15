@@ -19,6 +19,7 @@ package com.codepunk.core.presentation.auth
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.AccountManager.KEY_INTENT
+import android.accounts.OnAccountsUpdateListener
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -49,13 +50,8 @@ import javax.inject.Inject
  */
 class AuthenticateFragment :
     AbsAuthFragment(),
-    OnClickListener {
-
-    // region Inherited properties
-
-    override val titleResId: Int = R.string.authenticator_choose_account
-
-    // endregion Inherited properties
+    OnClickListener,
+    OnAccountsUpdateListener {
 
     // region Properties
 
@@ -94,6 +90,36 @@ class AuthenticateFragment :
             false
         )
         return binding.root
+    }
+
+    /**
+     * Listens for appropriate events.
+     */
+    override fun onResume() {
+        super.onResume()
+        accountManager.addOnAccountsUpdatedListener(
+            this,
+            null,
+            true
+        )
+    }
+
+    /**
+     * Refreshes the adapter. TODO This will happen twice in rapid succession unless I change the logic. Maybe.
+     */
+    override fun onStart() {
+        super.onStart()
+        if (::adapter.isInitialized) {
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    /**
+     * Removes any associated listeners.
+     */
+    override fun onPause() {
+        super.onPause()
+        accountManager.removeOnAccountsUpdatedListener(this)
     }
 
     // endregion Lifecycle methods
@@ -149,6 +175,13 @@ class AuthenticateFragment :
                 onAccountClick(this.account)
             }
         }
+    }
+
+    /**
+     * Called when accounts have been updated.
+     */
+    override fun onAccountsUpdated(accounts: Array<out Account>?) {
+        adapter.notifyDataSetChanged()
     }
 
     // endregion Implemented methods

@@ -45,6 +45,10 @@
 
     <!-- region Main -->
 
+    <string name="main_hello">Hello!</string>
+
+    <string name="main_hello_user">Hello, %1$s!</string>
+
     <string name="main_log_in">Log In</string>
 
     <string name="main_logging_in">Logging In…</string>
@@ -53,65 +57,49 @@
 
     <!-- endregion Main -->
 
-    <!-- region Authenticator -->
+    <!-- region Authentication -->
 
-    <!-- TODO Rename these to auth_ maybe? -->
+    <string name="auth_field_confirm_password">Confirm password</string>
 
-    <string name="authenticator_token_type_default">Default</string>
+    <string name="auth_field_email">Email</string>
 
-    <string name="authenticator_token_type_unknown">Unknown</string>
+    <string name="auth_field_password">Password</string>
 
-    <string name="authenticator_username">Username</string>
+    <string name="auth_field_username">Username</string>
 
-    <string name="authenticator_email">Email</string>
+    <string name="auth_field_username_or_email">Username or email</string>
 
-    <string name="authenticator_family_name">Last name</string>
+    <string name="auth_label_already_have_account">Already have an account?</string>
 
-    <string name="authenticator_given_name">First name</string>
+    <string name="auth_label_choose_account_colon">Choose an account:</string>
 
-    <string name="authenticator_username_or_email">Username or email</string>
+    <string name="auth_label_forgot_password_instructions">Please provide the email address you specified during registration and we\'ll send you a password reset link.</string>
 
-    <string name="authenticator_password">Password</string>
+    <string name="auth_label_forgot_your_password">Forgot your password?</string>
 
-    <string name="authenticator_already_have_account">Already have an account?</string>
+    <string name="auth_label_log_in">Log in</string>
 
-    <string name="authenticator_choose_account">Choose an account</string>
+    <string name="auth_label_new_user">Don\'t have an account?</string>
 
-    <string name="authenticator_choose_account_colon">Choose an account:</string>
+    <string name="auth_label_register">Sign up</string>
 
-    <string name="authenticator_choose_account_below_colon">Or, choose an existing account below:</string>
+    <string name="auth_label_send_again">Send again</string>
 
-    <string name="authenticator_confirm_password">Confirm password</string>
+    <string name="auth_title_activation_required">Activation required</string>
 
-    <string name="authenticator_create">Sign up</string>
+    <string name="auth_title_authenticate">Sign in</string>
 
-    <string name="authenticator_forgot_your_password">Forgot your password?</string>
+    <string name="auth_title_forgot_password">Forgot password</string>
 
-    <string name="authenticator_inactive">You need to activate your account. We sent you an activation code when you registered. Please check your e-mail.</string>
+    <string name="auth_title_register">Sign up</string>
 
-    <string name="authenticator_log_in">Log in</string>
+    <string name="auth_title_log_in">Log in</string>
 
-    <string name="authenticator_new_user">Don\'t have an account?</string>
+    <string name="auth_token_type_default">Default</string>
 
-    <string name="authenticator_forgot_password_instructions">Please provide the email address you specified during registration and we\'ll send you a password reset link.</string>
+    <string name="auth_token_type_unknown">Unknown</string>
 
-    <string name="authenticator_reset_password">Reset password</string>
-
-    <string name="authenticator_send_again">Send again</string>
-
-    <string name="authenticator_send_password_reset_link">Send password reset link</string>
-
-    <string name="authenticator_sent_email">We sent you an activation code! Please check your e-mail.</string>
-
-    <string name="authenticator_error_username_or_email">Enter a valid username or email</string>
-
-    <string name="authenticator_error_password">Enter a valid password</string>
-
-    <string name="authenticator_error_invalid_credentials">The username or password is incorrect.</string>
-
-    <string name="authenticator_error_register">Unable to create a new account.</string>
-
-    <!-- endregion Authenticator -->
+    <!-- endregion Authentication -->
 
     <!-- region Environments -->
 
@@ -122,20 +110,6 @@
     <string name="environment_production">Production</string>
 
     <!-- endregion Environments -->
-
-    <!-- region Authentication -->
-
-    <string name="authenticate_label_authenticating">Authenticating…</string>
-
-    <string name="authenticate_label_register">Create account</string>
-
-    <string name="authenticate_label_forgot_password">Forgot password</string>
-
-    <string name="authenticate_label_log_in">Log in</string>
-
-    <string name="authenticate_label_sign_in">Sign in to Codepunk</string>
-
-    <!-- endregion Authentication -->
 
     <!-- region Settings -->
 
@@ -184,53 +158,12 @@
 
     <string name="validation_input_name_email">The email</string>
 
-    <string name="validation_input_name_family_name">The last name</string>
-
-    <string name="validation_input_name_given_name">The first name</string>
-
     <string name="validation_input_name_password">The password</string>
 
     <string name="validation_input_name_username">The username</string>
 
     <string name="validation_input_name_username_or_email">The username or email</string>
 
-    <!-- NOTE: These validation messages are configured to match those of Laravel. -->
-
-    <string name="validation_invalid_pattern_email">%1$s must be a valid email address.</string>
-
-    <string name="validation_invalid_pattern_word_character">%1$s may only contain alphanumeric characters and underscores.</string>
-
-    <string name="validation_invalid_passwords_do_not_match">The password confirmation does not match.</string>
-
     <!-- endregion Validation -->
-
-    <!-- region Alert Dialog messages (maybe move to Doofenschmirtz) -->
-
-    <string name="alert_connect_exception_message">Unable to connect. Please check your connection and try again.</string>
-
-    <string name="alert_connect_exception_title">Could not connect</string>
-
-    <string name="alert_error">Error</string>
-
-    <string name="alert_retry">Retry</string>
-
-    <string name="alert_success">Success</string>
-
-    <string name="alert_success_exclam">Success!</string>
-
-    <string name="alert_timeout_exception_message">The connection timed out. Please try again later.</string>
-
-    <string name="alert_unknown_error_message">An unknown error occurred.</string>
-
-    <!-- endregion Alert Dialog messages (maybe move to Doofenschmirtz) -->
-
-    <!-- region Temporary -->
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello">Hello!</string>
-    <string name="hello_user">Hello, %1$s!</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <!-- endregion Temporary -->
 
 </resources>

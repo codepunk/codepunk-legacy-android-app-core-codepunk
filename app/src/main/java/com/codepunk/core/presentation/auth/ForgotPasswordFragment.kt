@@ -40,12 +40,6 @@ import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 class ForgotPasswordFragment :
     AbsAuthFragment() {
 
-    // region Inherited properties
-
-    override val titleResId: Int = R.string.authenticate_label_forgot_password
-
-    // endregion Inherited properties
-
     // region Properties
 
     /**

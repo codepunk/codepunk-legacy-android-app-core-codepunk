@@ -53,7 +53,7 @@
                     android:drawableStart="@drawable/ic_person_white_24dp"
                     android:drawableLeft="@drawable/ic_person_white_24dp"
                     android:drawablePadding="@dimen/size_small"
-                    android:hint="@string/authenticator_username"
+                    android:hint="@string/auth_field_username"
                     android:inputType="textVisiblePassword|textNoSuggestions"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -77,7 +77,7 @@
                     android:drawableStart="@drawable/ic_mail_white_24dp"
                     android:drawableLeft="@drawable/ic_mail_white_24dp"
                     android:drawablePadding="@dimen/size_small"
-                    android:hint="@string/authenticator_email"
+                    android:hint="@string/auth_field_email"
                     android:inputType="textEmailAddress"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -102,7 +102,7 @@
                     android:drawableStart="@drawable/ic_lock_white_24dp"
                     android:drawableLeft="@drawable/ic_lock_white_24dp"
                     android:drawablePadding="@dimen/size_small"
-                    android:hint="@string/authenticator_password"
+                    android:hint="@string/auth_field_password"
                     android:inputType="textPassword"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -127,7 +127,7 @@
                     android:drawableStart="@drawable/ic_lock_white_24dp"
                     android:drawableLeft="@drawable/ic_lock_white_24dp"
                     android:drawablePadding="@dimen/size_small"
-                    android:hint="@string/authenticator_confirm_password"
+                    android:hint="@string/auth_field_confirm_password"
                     android:inputType="textPassword"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -137,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/size_large"
-                android:text="@string/authenticator_already_have_account"
+                android:text="@string/auth_label_already_have_account"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/confirm_password_layout"/>
 
@@ -157,7 +157,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:minHeight="48dp"
                 android:padding="@dimen/size_standard"
-                android:text="@string/authenticator_log_in"
+                android:text="@string/auth_label_log_in"
                 android:textAllCaps="false"
                 app:layout_constraintBaseline_toBaselineOf="@id/already_have_account_txt"
                 app:layout_constraintStart_toStartOf="@id/already_have_account_space"/>

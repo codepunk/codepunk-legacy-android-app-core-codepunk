@@ -52,7 +52,7 @@
                     android:drawableStart="@drawable/ic_person_white_24dp"
                     android:drawableLeft="@drawable/ic_person_white_24dp"
                     android:drawablePadding="@dimen/size_small"
-                    android:hint="@string/authenticator_username_or_email"
+                    android:hint="@string/auth_field_username_or_email"
                     android:inputType="textVisiblePassword|textNoSuggestions"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -76,7 +76,7 @@
                     android:drawableStart="@drawable/ic_lock_white_24dp"
                     android:drawableLeft="@drawable/ic_lock_white_24dp"
                     android:drawablePadding="@dimen/size_small"
-                    android:hint="@string/authenticator_password"
+                    android:hint="@string/auth_field_password"
                     android:inputType="textPassword"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -86,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/size_large"
-                android:text="@string/authenticator_new_user"
+                android:text="@string/auth_label_new_user"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/password_layout"/>
 
@@ -105,7 +105,7 @@
                 android:layout_marginTop="@dimen/size_standard"
                 android:background="?android:attr/selectableItemBackground"
                 android:minHeight="48dp"
-                android:text="@string/authenticator_create"
+                android:text="@string/auth_label_register"
                 android:textAllCaps="false"
                 app:layout_constraintBaseline_toBaselineOf="@id/new_user_txt"
                 app:layout_constraintStart_toStartOf="@id/new_user_space"/>
@@ -117,11 +117,12 @@
                 android:layout_marginTop="@dimen/size_standard"
                 android:background="?android:attr/selectableItemBackground"
                 android:minHeight="48dp"
-                android:text="@string/authenticator_forgot_your_password"
+                android:text="@string/auth_label_forgot_your_password"
                 android:textAllCaps="false"
                 app:layout_constraintTop_toBottomOf="@id/new_user_txt"
                 app:layout_constraintStart_toStartOf="parent"/>
 
+            <!--
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/choose_account_layout"
                 android:layout_width="0dp"
@@ -151,6 +152,7 @@
                     tools:layout_height="150dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+            -->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

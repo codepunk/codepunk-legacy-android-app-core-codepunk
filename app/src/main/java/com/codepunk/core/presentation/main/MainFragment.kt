@@ -255,8 +255,8 @@ class MainFragment :
         override fun onSuccess(resource: SuccessResource<User, Session>): Boolean {
             val user = resource.result?.user
             binding.text1.text = when (user) {
-                null -> getString(R.string.hello)
-                else -> getString(R.string.hello_user, user.username)
+                null -> getString(R.string.main_hello)
+                else -> getString(R.string.main_hello_user, user.username)
             }
             binding.logInOutBtn.isEnabled = true
             binding.logInOutBtn.setText(R.string.main_log_out)

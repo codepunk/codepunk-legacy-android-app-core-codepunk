@@ -44,7 +44,7 @@ enum class AuthTokenType(
     /**
      * The default authentication token type.
      */
-    DEFAULT("default", R.string.authenticator_token_type_default);
+    DEFAULT("default", R.string.auth_token_type_default);
 
     // endregion Values
 
