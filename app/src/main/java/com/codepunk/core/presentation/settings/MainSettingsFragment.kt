@@ -233,7 +233,7 @@ class MainSettingsFragment :
             preferenceScreen.removePreference(logOutPreference)
         }
 
-        sessionManager.observeSession(this, Observer { onSession(it) })
+        sessionManager.sessionLiveResource.observe(this, Observer { onSession(it) })
     }
 
     // endregion Inherited methods

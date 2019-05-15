@@ -19,10 +19,8 @@ package com.codepunk.core.domain.session
 
 import android.accounts.AccountManager
 import android.content.SharedPreferences
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Observer
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.SessionRepository
@@ -81,7 +79,7 @@ class SessionManager @Inject constructor(
      * An observable [Session] wrapped in a [Resource] so observers can be notified of
      * changes to the status of the current session.
      */
-    private val sessionLiveResource: MediatorLiveData<Resource<User, Session>> =
+    val sessionLiveResource: MediatorLiveData<Resource<User, Session>> =
         MediatorLiveData<Resource<User, Session>>().apply {
             value = PendingResource()
         }
@@ -129,13 +127,6 @@ class SessionManager @Inject constructor(
             session = null
             true
         } ?: false
-    }
-
-    /**
-     * Allows [owner] to observe changes to the state of [session].
-     */
-    fun observeSession(owner: LifecycleOwner, observer: Observer<Resource<User, Session>>) {
-        sessionLiveResource.observe(owner, observer)
     }
 
     // endregion Methods

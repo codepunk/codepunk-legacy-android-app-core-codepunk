@@ -146,13 +146,18 @@ class MainFragment :
                             // TODO Show error message then finish? OR show the msg in openSession activity dismiss?
                             // requireActivity().finish()
                         }
-                        else -> sessionManager.getSession(false, true)
+                        else -> sessionManager.getSession(silentMode = false, refresh = true)
                     }
                 }
-                Activity.RESULT_CANCELED -> sessionManager.getSession(
-                    true,
-                    false
-                )
+                Activity.RESULT_CANCELED -> {
+                    // TODO Not sure if this is absolutely necessary but without it, resolve
+                    // doesn't seem to be called when coming back from AuthenticateActivity
+                    sessionManager.sessionLiveResource.removeObservers(this)
+                    sessionManager.sessionLiveResource.observe(
+                        this,
+                        Observer { sessionResolver.resolve(it) }
+                    )
+                }
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
@@ -189,7 +194,10 @@ class MainFragment :
 
         binding.logInOutBtn.setOnClickListener(this)
 
-        sessionManager.observeSession(this, Observer { sessionResolver.resolve(it) })
+        sessionManager.sessionLiveResource.observe(
+            this,
+            Observer { sessionResolver.resolve(it) }
+        )
 
         // Try to silently obtain a session now
         if (savedInstanceState == null) {
@@ -262,13 +270,10 @@ class MainFragment :
             var handled = super.onFailure(resource)
             if (!handled) {
                 // Get (and remove) KEY_INTENT from data as we're "consuming" the intent here
-                val intent: Intent? = resource.data?.run {
-                    getParcelable<Intent>(KEY_INTENT).also {
-                        remove(KEY_INTENT)
-                    }
-                }
-
+                val data = resource.data
+                val intent: Intent? = data?.getParcelable(KEY_INTENT)
                 intent?.run {
+                    data.remove(KEY_INTENT)
                     startActivityForResult(this, AUTHENTICATE_REQUEST_CODE)
                 } ?: run {
                     binding.text1.text = null
