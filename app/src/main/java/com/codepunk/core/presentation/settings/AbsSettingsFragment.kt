@@ -30,7 +30,7 @@ import javax.inject.Inject
  * A base settings fragment that registers for shared preference change listeners and initializes
  * persistable preferences.
  */
-abstract class BaseSettingsFragment :
+abstract class AbsSettingsFragment :
     PreferenceFragmentCompat(),
     OnSharedPreferenceChangeListener {
 

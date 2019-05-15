@@ -43,7 +43,6 @@ import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -61,13 +60,6 @@ class AuthenticateActivity :
     FloatingActionButtonOwner {
 
     // region Implemented properties
-
-    /**
-     * Implementation of [FloatingActionButtonOwner]. Returns the floating action button.
-     */
-    override val floatingActionButton: FloatingActionButton by lazy {
-        binding.fab
-    }
 
     /**
      * Implementation of [FloatingActionButtonOwner]. An optional listener for

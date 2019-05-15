@@ -20,6 +20,8 @@ package com.codepunk.core.presentation.auth
 import android.content.Context
 import android.view.View
 import android.widget.EditText
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -29,12 +31,11 @@ import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
 import com.codepunk.core.util.NetworkTranslator
-import com.codepunk.core.util.ResourceResolver
-import com.codepunk.core.util.setSupportActionBarTitle
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -83,6 +84,14 @@ abstract class AbsAuthFragment :
     }
 
     /**
+     * The support ActionBar, if one exists.
+     */
+    @Suppress("WEAKER_ACCESS")
+    protected val supportActionBar: ActionBar? by lazy {
+        (activity as? AppCompatActivity)?.supportActionBar
+    }
+
+    /**
      * A resource ID containing the title of the fragment.
      */
     protected abstract val titleResId: Int
@@ -106,7 +115,7 @@ abstract class AbsAuthFragment :
      */
     override fun onResume() {
         super.onResume()
-        setSupportActionBarTitle(titleResId)
+        supportActionBar?.setTitle(titleResId)
         floatingActionButtonOwner?.floatingActionButtonListener = this
     }
 
@@ -178,13 +187,13 @@ abstract class AbsAuthFragment :
     // region Nested/inner classes
 
     /**
-     * An abstract [ResourceResolver] that parses and possibly responds to [Resource]s supplied to
+     * An abstract [ResourceResolvinator] that parses and possibly responds to [Resource]s supplied to
      * the [resolve] method.
      */
-    protected abstract inner class AbsAuthResolver<Progress, Result>(
+    protected abstract inner class AbsAuthResolvinator<Progress, Result>(
         view: View,
         context: Context = view.context
-    ) : ResourceResolver<Progress, Result>(view, context) {
+    ) : ResourceResolvinator<Progress, Result>(view, context) {
 
         // region Inherited methods
 

@@ -28,9 +28,9 @@ import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentForgotPasswordBinding
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
+import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 
 /**
@@ -54,10 +54,10 @@ class ForgotPasswordFragment :
     private lateinit var binding: FragmentForgotPasswordBinding
 
     /**
-     * An instance of [SendPasswordResetLinkResolver] for resolving resources related to
+     * An instance of [SendPasswordResetLinkResolvinator] for resolving resources related to
      * requesting a password reset link.
      */
-    private lateinit var sendPasswordResetLinkResolver: SendPasswordResetLinkResolver
+    private lateinit var sendPasswordResetLinkResolvinator: SendPasswordResetLinkResolvinator
 
     // endregion Properties
 
@@ -85,11 +85,11 @@ class ForgotPasswordFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sendPasswordResetLinkResolver = SendPasswordResetLinkResolver(view)
+        sendPasswordResetLinkResolvinator = SendPasswordResetLinkResolvinator(view)
 
         authViewModel.sendPasswordResetLiveResource.observe(
             this,
-            Observer { sendPasswordResetLinkResolver.resolve(it) }
+            Observer { sendPasswordResetLinkResolvinator.resolve(it) }
         )
     }
 
@@ -124,10 +124,10 @@ class ForgotPasswordFragment :
     // region Nested/inner classes
 
     /**
-     * A [ResourceResolver] that resolves the results of requesting a password reset link
+     * A [ResourceResolvinator] that resolves the results of requesting a password reset link
      */
-    private inner class SendPasswordResetLinkResolver(view: View) :
-        AbsAuthResolver<Void, Message>(view) {
+    private inner class SendPasswordResetLinkResolvinator(view: View) :
+        AbsAuthResolvinator<Void, Message>(view) {
 
         // region Inherited methods
 

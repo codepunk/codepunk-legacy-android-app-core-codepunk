@@ -27,11 +27,6 @@ interface FloatingActionButtonOwner {
     // region Properties
 
     /**
-     * Returns the [FloatingActionButton].
-     */
-    val floatingActionButton: FloatingActionButton
-
-    /**
      * An instance of [FloatingActionButtonListener].
      */
     var floatingActionButtonListener: FloatingActionButtonListener?

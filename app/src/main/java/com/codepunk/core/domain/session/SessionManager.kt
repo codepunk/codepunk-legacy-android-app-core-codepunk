@@ -27,6 +27,7 @@ import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.model.User
 import com.codepunk.doofenschmirtz.util.resourceinator.PendingResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -92,8 +93,12 @@ class SessionManager @Inject constructor(
             if (field != value) {
                 field?.also { source -> sessionLiveResource.removeSource(source) }
                 field = value?.apply {
-                    sessionLiveResource.addSource(this) { value ->
-                        sessionLiveResource.value = value
+                    sessionLiveResource.addSource(this) { resource ->
+                        session = when (resource) {
+                            is SuccessResource -> resource.result
+                            else -> null
+                        }
+                        sessionLiveResource.value = resource
                     }
                 }
             }

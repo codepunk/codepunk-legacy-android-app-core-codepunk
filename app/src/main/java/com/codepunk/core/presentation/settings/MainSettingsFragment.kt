@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.navigation.Navigation
@@ -29,12 +30,13 @@ import androidx.preference.Preference
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.domain.model.User
-import com.codepunk.doofenschmirtz.util.resourceinator.Resource
-import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
-import com.codepunk.core.lib.SimpleDialogFragment
+import com.codepunk.core.lib.AlertDialogFragment
+import com.codepunk.core.lib.AlertDialogFragment.Companion.RESULT_POSITIVE
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
+import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.doofenschmirtz.util.startLaunchActivity
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -72,9 +74,10 @@ private const val DEV_OPTS_CLICKS_REMAINING_TOAST = 3
  * A preference fragment that displays the main settings available to the user.
  */
 class MainSettingsFragment :
-    BaseSettingsFragment(),
+    AbsSettingsFragment(),
     Preference.OnPreferenceChangeListener,
-    Preference.OnPreferenceClickListener {
+    Preference.OnPreferenceClickListener,
+    AlertDialogFragment.AlertDialogFragmentListener {
 
     // region Properties
 
@@ -156,17 +159,12 @@ class MainSettingsFragment :
         }
     }
 
+    /*
     /**
      * Processes the results of dialogs launched by preferences in this fragment.
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            CONFIRM_LOG_OUT_REQUEST_CODE -> {
-                when (resultCode) {
-                    SimpleDialogFragment.RESULT_POSITIVE ->
-                        sessionManager.closeSession(true)
-                }
-            }
             DEVELOPER_PASSWORD_REQUEST_CODE -> {
                 when (resultCode) {
                     Activity.RESULT_OK -> {
@@ -184,18 +182,10 @@ class MainSettingsFragment :
                     }
                 }
             }
-            DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE -> {
-                when (resultCode) {
-                    SimpleDialogFragment.RESULT_POSITIVE -> {
-                        updateDeveloperOptions(true)
-                        // TODO Set remote environment to "Production"
-                        requireContext().startLaunchActivity()
-                    }
-                }
-            }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
+    */
 
     /**
      * Sets listeners and connects to the [ViewModel].
@@ -252,7 +242,12 @@ class MainSettingsFragment :
                     showDeveloperPasswordDialogFragment()
                     false
                 } else {
-                    showDisableDeveloperOptionsDialogFragment()
+                    requireFragmentManager().findFragmentByTag(CONFIRM_LOG_OUT_FRAGMENT_TAG)
+                        ?: AlertDialogFragment.showDialogFragmentForResult(
+                            this,
+                            DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE,
+                            DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG
+                        )
                     false
                 }
             }
@@ -282,7 +277,12 @@ class MainSettingsFragment :
                 false
             }
             logOutPreference -> {
-                showConfirmLogOutDialogFragment()
+                requireFragmentManager().findFragmentByTag(CONFIRM_LOG_OUT_FRAGMENT_TAG)
+                    ?: AlertDialogFragment.showDialogFragmentForResult(
+                        this,
+                        CONFIRM_LOG_OUT_REQUEST_CODE,
+                        CONFIRM_LOG_OUT_FRAGMENT_TAG
+                    )
                 true
             }
             developerOptionsPreference -> {
@@ -302,6 +302,71 @@ class MainSettingsFragment :
             }
             else -> {
                 false
+            }
+        }
+    }
+
+    override fun onBuildAlertDialog(
+        fragment: AlertDialogFragment,
+        requestCode: Int,
+        builder: AlertDialog.Builder
+    ) {
+        when (requestCode) {
+            CONFIRM_LOG_OUT_REQUEST_CODE -> {
+                val appName = getString(R.string.app_name)
+                builder
+                    .setTitle(R.string.settings_log_out_dialog_title)
+                    .setMessage(getString(R.string.settings_log_out_dialog_message, appName))
+                    .setPositiveButton(android.R.string.ok, fragment)
+                    .setNegativeButton(android.R.string.cancel, fragment)
+            }
+            DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE -> {
+                builder
+                    .setTitle(R.string.settings_developer_options_disable_dialog_title)
+                    .setMessage(R.string.settings_developer_options_disable_dialog_message)
+                    .setPositiveButton(android.R.string.ok, fragment)
+                    .setNegativeButton(android.R.string.cancel, fragment)
+            }
+        }
+    }
+
+    override fun onDialogResult(
+        fragment: AlertDialogFragment,
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        when (requestCode) {
+            CONFIRM_LOG_OUT_REQUEST_CODE -> {
+                when (resultCode) {
+                    RESULT_POSITIVE -> sessionManager.closeSession(true)
+                }
+            }
+            DEVELOPER_PASSWORD_REQUEST_CODE -> {
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        data?.also {
+                            updateDeveloperOptions(
+                                true,
+                                it.getStringExtra(EXTRA_DEVELOPER_OPTIONS_PASSWORD_HASH)
+                            )
+                        }
+                        Toast.makeText(
+                            context,
+                            R.string.settings_developer_options_now_a_developer,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE -> {
+                when (resultCode) {
+                    RESULT_POSITIVE -> {
+                        updateDeveloperOptions(true)
+                        // TODO Set remote environment to "Production"
+                        requireContext().startLaunchActivity()
+                    }
+                }
             }
         }
     }
@@ -342,70 +407,15 @@ class MainSettingsFragment :
     // TODO Consolidate these yes/no dialogs
 
     /**
-     * Shows an OK/Cancel dialog confirming that the user wishes to disable developer options.
-     */
-    private fun showConfirmLogOutDialogFragment() {
-        with(requireFragmentManager()) {
-            if (findFragmentByTag(CONFIRM_LOG_OUT_FRAGMENT_TAG) != null) {
-                return
-            }
-
-            val appName = getString(R.string.app_name)
-            SimpleDialogFragment.Builder(requireContext())
-                .setTitle(R.string.settings_log_out_dialog_title)
-                .setMessage(getString(R.string.settings_log_out_dialog_message, appName))
-                .setPositiveButton(android.R.string.ok)
-                .setNegativeButton(android.R.string.cancel)
-                .build().apply {
-                    setTargetFragment(
-                        this@MainSettingsFragment,
-                        CONFIRM_LOG_OUT_REQUEST_CODE
-                    )
-                }.show(this, CONFIRM_LOG_OUT_FRAGMENT_TAG)
-        }
-    }
-
-    /**
      * Shows the developer password dialog.
      */
     private fun showDeveloperPasswordDialogFragment() {
-        with(requireFragmentManager()) {
-            if (findFragmentByTag(DEVELOPER_PASSWORD_DIALOG_FRAGMENT_TAG) != null) {
-                return
-            }
-
-            DeveloperOptionsPasswordDialogFragment()
-                .apply {
-                    setTargetFragment(
-                        this@MainSettingsFragment,
-                        DEVELOPER_PASSWORD_REQUEST_CODE
-                    )
-                }
-                .show(this, DEVELOPER_PASSWORD_DIALOG_FRAGMENT_TAG)
-        }
-    }
-
-    /**
-     * Shows an OK/Cancel dialog confirming that the user wishes to disable developer options.
-     */
-    private fun showDisableDeveloperOptionsDialogFragment() {
-        with(requireFragmentManager()) {
-            if (findFragmentByTag(DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG) != null) {
-                return
-            }
-
-            SimpleDialogFragment.Builder(requireContext())
-                .setTitle(R.string.settings_developer_options_disable_dialog_title)
-                .setMessage(R.string.settings_developer_options_disable_dialog_message)
-                .setPositiveButton(android.R.string.ok)
-                .setNegativeButton(android.R.string.cancel)
-                .build().apply {
-                    setTargetFragment(
-                        this@MainSettingsFragment,
-                        DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE
-                    )
-                }.show(this, DISABLE_DEVELOPER_OPTIONS_DIALOG_FRAGMENT_TAG)
-        }
+        requireFragmentManager().findFragmentByTag(DEVELOPER_PASSWORD_DIALOG_FRAGMENT_TAG)
+            ?: DeveloperOptionsPasswordDialogFragment.showDialogFragmentForResult(
+                this,
+                DEVELOPER_PASSWORD_REQUEST_CODE,
+                DEVELOPER_PASSWORD_DIALOG_FRAGMENT_TAG
+            )
     }
 
     /**

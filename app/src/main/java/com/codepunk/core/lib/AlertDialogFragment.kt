@@ -40,7 +40,8 @@ import com.codepunk.core.R
  */
 open class AlertDialogFragment :
     DialogFragment(),
-    DialogInterface.OnClickListener {
+    DialogInterface.OnClickListener,
+    DialogInterface.OnMultiChoiceClickListener {
 
     // region Properties
 
@@ -105,7 +106,7 @@ open class AlertDialogFragment :
     /**
      * The result code that will be passed to [listener].
      */
-    private var resultCode: Int = 0
+    protected var resultCode: Int = 0
 
     /**
      * Any data that will be shared with [listener] via
@@ -163,7 +164,7 @@ open class AlertDialogFragment :
      */
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         defaultAlertDialogBuilder().also { builder ->
-            listener?.onBuildAlertDialog(requestCode, builder, this)
+            listener?.onBuildAlertDialog(this, requestCode, builder)
         }.create()
 
     /**
@@ -183,7 +184,7 @@ open class AlertDialogFragment :
         // Don't notify listener if the dialog is not attached. This will catch the
         // difference between a dialog dismissing due to configuration change vs. a user action.
         if (isAdded) {
-            listener?.onDialogResult(requestCode, resultCode, data)
+            listener?.onDialogResult(this, requestCode, resultCode, data)
         }
     }
 
@@ -202,6 +203,13 @@ open class AlertDialogFragment :
             BUTTON_NEUTRAL -> RESULT_NEUTRAL
             else -> return
         }
+    }
+
+    /**
+     * Implementation of [DialogInterface.OnMultiChoiceClickListener].
+     */
+    override fun onClick(dialog: DialogInterface?, which: Int, isChecked: Boolean) {
+        // No op
     }
 
     // endregion Implemented methods
@@ -252,9 +260,9 @@ open class AlertDialogFragment :
         @JvmStatic
         fun showDialogFragmentForResult(
             targetFragment: Fragment,
-            tag: String,
-            requestCode: Int
-        ): AlertDialogFragment = AlertDialogFragment().apply {
+            requestCode: Int,
+            tag: String
+        ) = AlertDialogFragment().apply {
             setTargetFragment(targetFragment, requestCode)
             listenerIdentity = ListenerIdentity.TARGET_FRAGMENT
             show(targetFragment.requireFragmentManager(), tag)
@@ -268,9 +276,9 @@ open class AlertDialogFragment :
         @JvmStatic
         fun showDialogFragmentForResult(
             activity: FragmentActivity,
-            tag: String,
-            requestCode: Int
-        ): AlertDialogFragment = AlertDialogFragment().apply {
+            requestCode: Int,
+            tag: String
+        ) = AlertDialogFragment().apply {
             this.requestCode = requestCode
             listenerIdentity = ListenerIdentity.ACTIVITY
             show(activity.supportFragmentManager, tag)
@@ -287,10 +295,10 @@ open class AlertDialogFragment :
         @JvmStatic
         fun showDialogFragmentForResult(
             fragmentManager: FragmentManager,
-            tag: String,
             requestCode: Int,
+            tag: String,
             listener: AlertDialogFragmentListener? = null
-        ): AlertDialogFragment = AlertDialogFragment().apply {
+        ) = AlertDialogFragment().apply {
             this.requestCode = requestCode
             this.listener = listener
             show(fragmentManager, tag)
@@ -343,14 +351,14 @@ open class AlertDialogFragment :
         /**
          * Called when [AlertDialogFragment] is building its [AlertDialog]. Listeners of this
          * event should use [requestCode] to differentiate what kind of alert dialog should be
-         * built. When creating dialog buttons, it's best to use [onClickListener] as the
+         * built. When creating dialog buttons, it's best to use [fragment] as the
          * [DialogInterface.OnClickListener] for those buttons so the AlertDialogFragment can
          * respond appropriately and call [onDialogResult] with the correct result code.
          */
         fun onBuildAlertDialog(
+            fragment: AlertDialogFragment,
             requestCode: Int,
-            builder: AlertDialog.Builder,
-            onClickListener: DialogInterface.OnClickListener
+            builder: AlertDialog.Builder
         )
 
         /**
@@ -360,7 +368,12 @@ open class AlertDialogFragment :
          * passing along its result. The [data] argument may optionally contain additional
          * information (for example, an item that was selected in a list, etc.)
          */
-        fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?)
+        fun onDialogResult(
+            fragment: AlertDialogFragment,
+            requestCode: Int,
+            resultCode: Int,
+            data: Intent?
+        )
 
         // endregion Methods
 

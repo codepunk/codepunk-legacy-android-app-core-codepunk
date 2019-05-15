@@ -34,7 +34,7 @@ import dagger.android.support.AndroidSupportInjection
  * preference and openSession themselves as a developer.
  */
 class DeveloperOptionsSettingsFragment :
-    BaseSettingsFragment() {
+    AbsSettingsFragment() {
 
     // region Properties
 

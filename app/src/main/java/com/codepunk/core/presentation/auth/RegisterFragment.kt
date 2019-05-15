@@ -31,10 +31,10 @@ import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
@@ -78,9 +78,9 @@ class RegisterFragment :
     }
 
     /**
-     * An instance of [RegisterResolver] for resolving registration-related resources.
+     * An instance of [RegisterResolvinator] for resolving registration-related resources.
      */
-    private lateinit var registerResolver: RegisterResolver
+    private lateinit var registerResolvinator: RegisterResolvinator
 
     // endregion Properties
 
@@ -114,12 +114,12 @@ class RegisterFragment :
         super.onViewCreated(view, savedInstanceState)
         binding.loginBtn.setOnClickListener(this)
 
-        registerResolver = RegisterResolver(view)
+        registerResolvinator = RegisterResolvinator(view)
 
         authViewModel.registerLiveResource.removeObservers(this)
         authViewModel.registerLiveResource.observe(
             this,
-            Observer { registerResolver.resolve(it) }
+            Observer { registerResolvinator.resolve(it) }
         )
     }
 
@@ -181,10 +181,10 @@ class RegisterFragment :
     // region Nested/inner classes
 
     /**
-     * A [ResourceResolver] that resolves authorization-related [Resource]s.
+     * A [ResourceResolvinator] that resolves authorization-related [Resource]s.
      */
-    private inner class RegisterResolver(view: View) :
-        AbsAuthResolver<Void, Message>(view) {
+    private inner class RegisterResolvinator(view: View) :
+        AbsAuthResolvinator<Void, Message>(view) {
 
         // region Inherited methods
 

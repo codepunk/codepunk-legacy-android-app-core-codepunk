@@ -166,7 +166,7 @@ class NetworkTranslator(private val context: Context) {
      */
     private fun format(string: String, translated: Boolean): String = when {
         !DEBUG -> string
-        translated  -> "[[$string]]"
+        translated -> "[[$string]]"
         else -> "<<$string>>"
     }
 

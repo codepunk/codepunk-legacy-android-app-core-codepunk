@@ -36,7 +36,6 @@ import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
-import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import dagger.android.support.AndroidSupportInjection
@@ -52,7 +51,7 @@ private const val AUTHENTICATE_REQUEST_CODE = 1
 // endregion Constants
 
 /**
- * A simple [Fragment] subclass.
+ * The main [Fragment] for the app.
  */
 class MainFragment :
     Fragment(),
@@ -140,8 +139,7 @@ class MainFragment :
         when (requestCode) {
             AUTHENTICATE_REQUEST_CODE -> when (resultCode) {
                 Activity.RESULT_OK -> {
-                    val account: Account? = data?.getParcelableExtra(BuildConfig.KEY_ACCOUNT)
-                    when (account) {
+                    when (data?.getParcelableExtra<Account>(BuildConfig.KEY_ACCOUNT)) {
                         null -> {
                             // TODO Show error message then finish? OR show the msg in openSession activity dismiss?
                             // requireActivity().finish()
@@ -201,7 +199,7 @@ class MainFragment :
 
         // Try to silently obtain a session now
         if (savedInstanceState == null) {
-            sessionManager.getSession(true, true)
+            sessionManager.getSession(silentMode = true, refresh = true)
         }
     }
 
@@ -216,7 +214,7 @@ class MainFragment :
         when (v) {
             binding.logInOutBtn -> {
                 when (sessionManager.session) {
-                    null -> sessionManager.getSession(false, true)
+                    null -> sessionManager.getSession(silentMode = false, refresh = true)
                     else -> sessionManager.closeSession(true)
                 }
             }
@@ -228,7 +226,7 @@ class MainFragment :
     // region Nested/inner classes
 
     private inner class SessionResolver(view: View) :
-        ResourceResolver<User, Session>(view) {
+        ResourceResolvinator<User, Session>(view) {
 
         override fun resolve(resource: Resource<User, Session>) {
             when (resource) {
@@ -258,7 +256,7 @@ class MainFragment :
             val user = resource.result?.user
             binding.text1.text = when (user) {
                 null -> getString(R.string.hello)
-                else -> getString(R.string.hello_user, user.givenName)
+                else -> getString(R.string.hello_user, user.username)
             }
             binding.logInOutBtn.isEnabled = true
             binding.logInOutBtn.setText(R.string.main_log_out)

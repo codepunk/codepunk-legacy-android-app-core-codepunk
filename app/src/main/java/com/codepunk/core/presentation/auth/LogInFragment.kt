@@ -20,7 +20,6 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -41,13 +40,13 @@ import com.codepunk.core.data.remote.entity.RemoteErrorBody.Type.*
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.reset
 import com.codepunk.core.lib.AlertDialogFragment
 import com.codepunk.core.lib.AlertDialogFragment.AlertDialogFragmentListener
+import com.codepunk.core.lib.reset
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.util.ResourceResolver
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
+import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.punkubator.util.validatinator.Validatinator
 import com.codepunk.punkubator.util.validatinator.Validatinator.Options
@@ -108,19 +107,19 @@ class LogInFragment :
     }
 
     /**
-     * An instance of [AuthResolver] for resolving authorization-related resources.
+     * An instance of [AuthResolvinator] for resolving authorization-related resources.
      */
-    private lateinit var authResolver: AuthResolver
+    private lateinit var authResolvinator: AuthResolvinator
 
     /**
-     * An instance of [RegisterResolver] for resolving registration-related resources.
+     * An instance of [RegisterResolvinator] for resolving registration-related resources.
      */
-    private lateinit var registerResolver: RegisterResolver
+    private lateinit var registerResolvinator: RegisterResolvinator
 
     /**
-     * An instance of [SendEmailResolver] for resolving resources related to email requests.
+     * An instance of [SendEmailResolvinator] for resolving resources related to email requests.
      */
-    private lateinit var sendEmailResolver: SendEmailResolver
+    private lateinit var sendEmailResolvinator: SendEmailResolvinator
 
     /**
      * The current [AlertDialogFragment] instance (if any) showing any authorization-related
@@ -181,9 +180,9 @@ class LogInFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        authResolver = AuthResolver(view)
-        registerResolver = RegisterResolver(view)
-        sendEmailResolver = SendEmailResolver(view)
+        authResolvinator = AuthResolvinator(view)
+        registerResolvinator = RegisterResolvinator(view)
+        sendEmailResolvinator = SendEmailResolvinator(view)
 
         binding.createBtn.setOnClickListener(this)
         binding.forgotPasswordBtn.setOnClickListener(this)
@@ -202,25 +201,25 @@ class LogInFragment :
         authViewModel.authLiveResource.removeObservers(this)
         authViewModel.authLiveResource.observe(
             this,
-            Observer { authResolver.resolve(it) }
+            Observer { authResolvinator.resolve(it) }
         )
 
         authViewModel.registerLiveResource.removeObservers(this)
         authViewModel.registerLiveResource.observe(
             this,
-            Observer { registerResolver.resolve(it) }
+            Observer { registerResolvinator.resolve(it) }
         )
 
         authViewModel.sendActivationLiveResource.removeObservers(this)
         authViewModel.sendActivationLiveResource.observe(
             this,
-            Observer { sendEmailResolver.resolve(it) }
+            Observer { sendEmailResolvinator.resolve(it) }
         )
 
         authViewModel.sendPasswordResetLiveResource.removeObservers(this)
         authViewModel.sendPasswordResetLiveResource.observe(
             this,
-            Observer { sendEmailResolver.resolve(it) }
+            Observer { sendEmailResolvinator.resolve(it) }
         )
     }
 
@@ -327,13 +326,13 @@ class LogInFragment :
     }
 
     /**
-     * Builds the alert dialog associated with [requestCode], using [builder] and [onClickListener]
+     * Builds the alert dialog associated with [requestCode], using [fragment] and [builder]
      * as appropriate.
      */
     override fun onBuildAlertDialog(
+        fragment: AlertDialogFragment,
         requestCode: Int,
-        builder: AlertDialog.Builder,
-        onClickListener: DialogInterface.OnClickListener
+        builder: AlertDialog.Builder
     ) {
         when (requestCode) {
             INACTIVE_USER_REQUEST_CODE -> {
@@ -347,11 +346,8 @@ class LogInFragment :
                         builder
                             .setTitle(R.string.authenticate_label_log_in)
                             .setMessage(message)
-                            .setPositiveButton(R.string.app_got_it, onClickListener)
-                            .setNeutralButton(
-                                R.string.authenticator_send_again,
-                                onClickListener
-                            )
+                            .setPositiveButton(R.string.app_got_it, fragment)
+                            .setNeutralButton(R.string.authenticator_send_again, fragment)
                     }
                 }
             }
@@ -361,7 +357,12 @@ class LogInFragment :
     /**
      * Responds to the result of the alert dialog associated with [requestCode].
      */
-    override fun onDialogResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onDialogResult(
+        fragment: AlertDialogFragment,
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
         when (requestCode) {
             INACTIVE_USER_REQUEST_CODE -> {
                 when (resultCode) {
@@ -398,10 +399,10 @@ class LogInFragment :
     // region Nested/inner classes
 
     /**
-     * A [ResourceResolver] that resolves authorization-related [Resource]s.
+     * A [ResourceResolvinator] that resolves authorization-related [Resource]s.
      */
-    private inner class AuthResolver(view: View) :
-        AbsAuthResolver<Void, Authentication>(view) {
+    private inner class AuthResolvinator(view: View) :
+        AbsAuthResolvinator<Void, Authentication>(view) {
 
         // region Inherited methods
 
@@ -422,8 +423,8 @@ class LogInFragment :
                     INACTIVE_USER -> {
                         authDialogFragment ?: AlertDialogFragment.showDialogFragmentForResult(
                             this@LogInFragment,
-                            AUTH_DIALOG_FRAGMENT_TAG,
-                            INACTIVE_USER_REQUEST_CODE
+                            INACTIVE_USER_REQUEST_CODE,
+                            AUTH_DIALOG_FRAGMENT_TAG
                         )
                         handled = true
                     }
@@ -455,10 +456,10 @@ class LogInFragment :
     }
 
     /**
-     * A [ResourceResolver] that resolves registration-related [Resource]s.
+     * A [ResourceResolvinator] that resolves registration-related [Resource]s.
      */
-    private inner class RegisterResolver(view: View) :
-        AbsAuthResolver<Void, Message>(view) {
+    private inner class RegisterResolvinator(view: View) :
+        AbsAuthResolvinator<Void, Message>(view) {
 
         // region Inherited methods
 
@@ -474,7 +475,7 @@ class LogInFragment :
             resource.result?.localizedMessage?.run {
                 Snackbar.make(view, this, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.app_got_it) {}
-                    .addCallback(this@RegisterResolver)
+                    .addCallback(this@RegisterResolvinator)
                     .show()
             } ?: authViewModel.registerLiveResource.reset()
             return true
@@ -485,11 +486,11 @@ class LogInFragment :
     }
 
     /**
-     * A [ResourceResolver] that resolves [Resource]s generated by requests for emails (i.e.
+     * A [ResourceResolvinator] that resolves [Resource]s generated by requests for emails (i.e.
      * authorization link, password reset link, etc.).
      */
-    private inner class SendEmailResolver(view: View) :
-        AbsAuthResolver<Void, Message>(view) {
+    private inner class SendEmailResolvinator(view: View) :
+        AbsAuthResolvinator<Void, Message>(view) {
 
         // region Inherited methods
 
@@ -507,7 +508,7 @@ class LogInFragment :
             resource.result?.localizedMessage?.run {
                 Snackbar.make(view, this, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.app_got_it) {}
-                    .addCallback(this@SendEmailResolver)
+                    .addCallback(this@SendEmailResolvinator)
                     .show()
             } ?: authViewModel.registerLiveResource.reset()
             return true
