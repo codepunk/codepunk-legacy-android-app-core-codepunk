@@ -25,7 +25,6 @@ import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.AuthWebserviceWrapper
 import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.di.qualifier.ApplicationContext
-import com.codepunk.core.util.NetworkTranslator
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -125,14 +124,6 @@ class NetModule {
     fun providesUserWebservice(
         retrofit: Retrofit
     ): UserWebservice = retrofit.create(UserWebservice::class.java)
-
-    /**
-     * Provides an instance of [NetworkTranslator] for translating messages from the network.
-     */
-    @Provides
-    @Singleton
-    fun providesNetworkTranslator(@ApplicationContext context: Context): NetworkTranslator =
-        NetworkTranslator(context)
 
     // endregion Methods
 

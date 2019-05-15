@@ -26,6 +26,7 @@ import com.codepunk.core.BuildConfig.PREF_KEY_REMOTE_ENVIRONMENT
 import com.codepunk.core.data.remote.RemoteEnvironment
 import com.codepunk.core.di.component.DaggerAppComponent
 import com.codepunk.core.util.getEnvironment
+import com.codepunk.doofenschmirtz.util.Translatinator
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -61,6 +62,11 @@ class CodepunkApp :
      */
     @Inject
     lateinit var sharedPreferences: SharedPreferences
+
+    // TODO TEMP
+    @Inject
+    lateinit var translatinator: Translatinator
+    // END TEMP
 
     /**
      * The current [RemoteEnvironment] being used for remote API calls.

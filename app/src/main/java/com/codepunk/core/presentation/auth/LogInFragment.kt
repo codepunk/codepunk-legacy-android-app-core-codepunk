@@ -341,7 +341,7 @@ class LogInFragment :
                         val remoteErrorBody =
                             resource.data?.getParcelable<RemoteErrorBody>(KEY_REMOTE_ERROR_BODY)
                         val message: String = remoteErrorBody?.message?.let {
-                            networkTranslator.translate(it)
+                            translatinator.translate(it)
                         } ?: getString(R.string.alert_unknown_error_message)
                         builder
                             .setTitle(R.string.authenticate_label_log_in)
@@ -430,7 +430,7 @@ class LogInFragment :
                     }
                     INVALID_CREDENTIALS -> {
                         val text: String = remoteErrorBody.message?.let {
-                            networkTranslator.translate(it)
+                            translatinator.translate(it)
                         } ?: getString(R.string.alert_unknown_error_message)
                         Snackbar.make(view, text, Snackbar.LENGTH_LONG)
                             .addCallback(this)
@@ -440,7 +440,7 @@ class LogInFragment :
                     INVALID_REQUEST -> {
                         Snackbar.make(
                             view,
-                            R.string.translator_string_output_user_credentials_incorrect,
+                            R.string.trans_output_user_credentials_incorrect,
                             Snackbar.LENGTH_LONG
                         ).addCallback(this)
                             .show()

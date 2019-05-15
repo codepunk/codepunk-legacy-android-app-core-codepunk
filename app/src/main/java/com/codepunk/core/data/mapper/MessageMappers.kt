@@ -19,19 +19,19 @@ package com.codepunk.core.data.mapper
 
 import com.codepunk.core.data.remote.entity.RemoteMessage
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.util.NetworkTranslator
+import com.codepunk.doofenschmirtz.util.Translatinator
 
 /**
  * Converts a [RemoteMessage] to a domain [Message].
  */
-fun RemoteMessage.toDomain(networkTranslator: NetworkTranslator? = null): Message =
+fun RemoteMessage.toDomain(translatinator: Translatinator? = null): Message =
     Message(
         message,
-        networkTranslator?.translate(message) ?: message
+        translatinator?.translate(message) ?: message
     )
 
 /**
  * Converts a nullable [RemoteMessage] to a nullable domain [Message].
  */
-fun RemoteMessage?.toDomainOrNull(networkTranslator: NetworkTranslator): Message? =
-    this?.toDomain(networkTranslator)
+fun RemoteMessage?.toDomainOrNull(translatinator: Translatinator? = null): Message? =
+    this?.toDomain(translatinator)

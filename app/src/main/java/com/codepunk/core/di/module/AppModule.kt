@@ -22,8 +22,10 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.CodepunkApp
+import com.codepunk.core.R
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.di.qualifier.ApplicationContext
+import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.loginator.LogcatLoginator
 import com.codepunk.doofenschmirtz.util.loginator.Loginator
@@ -80,6 +82,62 @@ object AppModule {
     @Singleton
     fun providesSharedPreferences(app: CodepunkApp): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(app)
+
+    /**
+     * Provides an instance of [Translatinator] for translating messages from the network.
+     */
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun providesNetworkTranslatinator(@ApplicationContext context: Context): Translatinator {
+        val patternInputs: Array<Int> = arrayOf(
+            R.string.trans_regex_input_confirmed,
+            R.string.trans_regex_input_email,
+            R.string.trans_regex_input_min,
+            R.string.trans_regex_input_max,
+            R.string.trans_regex_input_regex,
+            R.string.trans_regex_input_required,
+            R.string.trans_regex_input_string,
+            R.string.trans_regex_input_unique,
+            R.string.trans_regex_input_username_regex
+        )
+        val patternOutputs: Array<Int> = arrayOf(
+            R.string.trans_regex_output_confirmed,
+            R.string.trans_regex_output_email,
+            R.string.trans_regex_output_min,
+            R.string.trans_regex_output_max,
+            R.string.trans_regex_output_regex,
+            R.string.trans_regex_output_required,
+            R.string.trans_regex_output_string,
+            R.string.trans_regex_output_unique,
+            R.string.trans_regex_output_username_regex
+        )
+        val stringInputs: Array<Int> = arrayOf(
+            R.string.trans_input_email,
+            R.string.trans_input_invalid,
+            R.string.trans_input_password,
+            R.string.trans_input_sent_activation_code,
+            R.string.trans_input_sent_activation_code_when_you_registered,
+            R.string.trans_input_username
+        )
+        val stringOutputs: Array<Int> = arrayOf(
+            R.string.trans_output_email,
+            R.string.trans_output_invalid,
+            R.string.trans_output_password,
+            R.string.trans_output_sent_activation_code,
+            R.string.trans_output_sent_activation_code_when_you_registered,
+            R.string.trans_output_username
+        )
+        val builder = Translatinator.Builder(context)
+            .debug(false)
+        patternInputs.forEachIndexed { index, inRegexResId ->
+            builder.mapRegEx(inRegexResId, patternOutputs[index])
+        }
+        stringInputs.forEachIndexed { index, inResId ->
+            builder.map(inResId, stringOutputs[index])
+        }
+        return builder.build()
+    }
 
     // endregion Methods
 

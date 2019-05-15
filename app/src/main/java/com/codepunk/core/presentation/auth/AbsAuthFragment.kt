@@ -30,7 +30,7 @@ import com.codepunk.core.data.remote.entity.RemoteErrorBody
 import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
-import com.codepunk.core.util.NetworkTranslator
+import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
@@ -63,10 +63,10 @@ abstract class AbsAuthFragment :
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     /**
-     * The [NetworkTranslator] for translating messages from the network.
+     * The [Translatinator] for translating messages from the network.
      */
     @Inject
-    lateinit var networkTranslator: NetworkTranslator
+    lateinit var translatinator: Translatinator
 
     /**
      * This fragment's activity cast to a [FloatingActionButtonOwner].
@@ -215,7 +215,7 @@ abstract class AbsAuthFragment :
                         remoteErrorBody?.errors?.also { errors ->
                             errors.entries.forEach { error ->
                                 view.findViewWithTag<TextInputLayout>(error.key)?.also { layout ->
-                                    layout.error = networkTranslator.translate(error.value.first())
+                                    layout.error = translatinator.translate(error.value.first())
                                     handled = true
                                 }
                             }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2019 Codepunk, LLC
+  ~ Author(s): Scott Slater
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="trans_regex_input_confirmed">The (\\w+) confirmation does not match.</string>
+    <string name="trans_regex_input_email">The (\\w+) must be a valid email address.</string>
+    <string name="trans_regex_input_max">The (\\w+) may not be greater than (\\d+) characters.</string>
+    <string name="trans_regex_input_min">The (\\w+) must be at least (\\d+) characters.</string>
+    <string name="trans_regex_input_regex">The (\\w+) format is invalid.</string>
+    <string name="trans_regex_input_required">The (\\w+) field is required.</string>
+    <string name="trans_regex_input_string">The (\\w+) must be a string.</string>
+    <string name="trans_regex_input_unique">The (\\w+) has already been taken.</string>
+    <string name="trans_regex_input_username_regex">Your (\\w+) may only contain alphanumeric characters and underscores.</string>
+
+    <string name="trans_regex_output_confirmed">The %1$s confirmation does not match.</string>
+    <string name="trans_regex_output_email">The %1$s must be a valid email address.</string>
+    <string name="trans_regex_output_max">The %1$s may not be greater than %2$s characters.</string>
+    <string name="trans_regex_output_min">The %1$s must be at least %2$s characters.</string>
+    <string name="trans_regex_output_regex">The %1$s format is invalid.</string>
+    <string name="trans_regex_output_required">The %1$s field is required.</string>
+    <string name="trans_regex_output_string">The %1$s must be a string.</string>
+    <string name="trans_regex_output_unique">The %1$s has already been taken.</string>
+    <string name="trans_regex_output_username_regex">Your %1$s may only contain alphanumeric characters and underscores.</string>
+
+    <string name="trans_input_email">email</string>
+    <string name="trans_input_email_not_found">We can\'t find a user with that e-mail address.</string>
+    <string name="trans_input_invalid">The given data was invalid.</string>
+    <string name="trans_input_password">password</string>
+    <string name="trans_input_password_reset_link">We have e-mailed your password reset link!</string>
+    <string name="trans_input_sent_activation_code">An activation code has been sent! Please check your email.</string>
+    <string name="trans_input_sent_activation_code_when_you_registered">You need to activate your account. We sent you an activation code when you registered. Please check your email.</string>
+    <string name="trans_input_user_credentials_incorrect">The user credentials were incorrect.</string>
+    <string name="trans_input_username">username</string>
+
+    <string name="trans_output_email">email</string>
+    <string name="trans_output_email_not_found">We can\'t find a user with that e-mail address.</string>
+    <string name="trans_output_invalid">The given data was invalid.</string>
+    <string name="trans_output_password">password</string>
+    <string name="trans_output_password_reset_link">We have e-mailed your password reset link!</string>
+    <string name="trans_output_sent_activation_code">An activation code has been sent! Please check your email.</string>
+    <string name="trans_output_sent_activation_code_when_you_registered">You need to activate your account. We sent you an activation code when you registered. Please check your email.</string>
+    <string name="trans_output_user_credentials_incorrect">The user credentials were incorrect.</string>
+    <string name="trans_output_username">username</string>
+
+</resources>

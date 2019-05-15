@@ -27,7 +27,7 @@ import com.codepunk.core.data.repository.SessionRepositoryImpl
 import com.codepunk.core.di.component.UserComponent
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.contract.SessionRepository
-import com.codepunk.core.util.NetworkTranslator
+import com.codepunk.doofenschmirtz.util.Translatinator
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
@@ -50,12 +50,12 @@ class DataModule {
         authWebservice: AuthWebservice,
         userWebservice: UserWebservice,
         retrofit: Retrofit,
-        networkTranslator: NetworkTranslator
+        translatinator: Translatinator
     ): AuthRepository = AuthRepositoryImpl(
         authWebservice,
         userWebservice,
         retrofit,
-        networkTranslator
+        translatinator
     )
 
     /**

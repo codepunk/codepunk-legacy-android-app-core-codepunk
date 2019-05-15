@@ -35,7 +35,7 @@ import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.lib.getResultResource
 import com.codepunk.core.util.toRemoteErrorBody
-import com.codepunk.core.util.NetworkTranslator
+import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -62,9 +62,9 @@ class AuthRepositoryImpl(
     private val retrofit: Retrofit,
 
     /**
-     * An instance of [NetworkTranslator] for translating network messages.
+     * An instance of [Translatinator] for translating network messages.
      */
-    private val networkTranslator: NetworkTranslator
+    private val translatinator: Translatinator
 
 ) : AuthRepository {
 
@@ -144,7 +144,7 @@ class AuthRepositoryImpl(
         passwordConfirmation: String
     ): LiveData<Resource<Void, Message>> = RegisterResourceinator(
         retrofit,
-        networkTranslator,
+        translatinator,
         authWebservice,
         username,
         email,
@@ -160,7 +160,7 @@ class AuthRepositoryImpl(
     override fun sendActivationLink(
         email: String
     ): LiveData<Resource<Void, Message>> = ActivationLinkResourceinator(
-        retrofit, networkTranslator, authWebservice, email
+        retrofit, translatinator, authWebservice, email
     ).apply {
         sendActivationLinkResourceinator = this
     }.executeOnExecutorAsLiveData()
@@ -171,7 +171,7 @@ class AuthRepositoryImpl(
     override fun sendPasswordResetLink(
         email: String
     ): LiveData<Resource<Void, Message>> = PasswordResetLinkResourceinator(
-        retrofit, networkTranslator, authWebservice, email
+        retrofit, translatinator, authWebservice, email
     ).apply {
         sendPasswordResetLinkResourceinator = this
     }.executeOnExecutorAsLiveData()
@@ -307,9 +307,9 @@ class AuthRepositoryImpl(
         retrofit: Retrofit,
 
         /**
-         * An instance of [NetworkTranslator] for translating messages from the network.
+         * An instance of [Translatinator] for translating messages from the network.
          */
-        private val networkTranslator: NetworkTranslator
+        private val translatinator: Translatinator
 
     ) : AbsAuthResourceinator<Void, Void, Message, RemoteMessage>(retrofit) {
 
@@ -317,7 +317,7 @@ class AuthRepositoryImpl(
 
         override fun onSuccess(resource: SuccessResource<Void, Response<RemoteMessage>>):
             ResultResource<Void, Message> = SuccessResource(
-            resource.result?.body().toDomainOrNull(networkTranslator)
+            resource.result?.body().toDomainOrNull(translatinator)
         )
 
         // endregion Inherited methods
@@ -331,7 +331,7 @@ class AuthRepositoryImpl(
 
         retrofit: Retrofit,
 
-        networkTranslator: NetworkTranslator,
+        translatinator: Translatinator,
 
         /**
          * An instance of [AuthWebservice].
@@ -358,7 +358,7 @@ class AuthRepositoryImpl(
          */
         private val passwordConfirmation: String
 
-    ) : AbsMessageResourceinator(retrofit, networkTranslator) {
+    ) : AbsMessageResourceinator(retrofit, translatinator) {
 
         // region Inherited methods
 
@@ -381,7 +381,7 @@ class AuthRepositoryImpl(
 
         retrofit: Retrofit,
 
-        networkTranslator: NetworkTranslator,
+        translatinator: Translatinator,
 
         /**
          * An instance of [AuthWebservice].
@@ -393,7 +393,7 @@ class AuthRepositoryImpl(
          */
         private val email: String
 
-    ) : AbsMessageResourceinator(retrofit, networkTranslator) {
+    ) : AbsMessageResourceinator(retrofit, translatinator) {
 
         // region Inherited methods
 
@@ -412,7 +412,7 @@ class AuthRepositoryImpl(
 
         retrofit: Retrofit,
 
-        networkTranslator: NetworkTranslator,
+        translatinator: Translatinator,
 
         /**
          * An instance of [AuthWebservice].
@@ -424,7 +424,7 @@ class AuthRepositoryImpl(
          */
         private val email: String
 
-    ) : AbsMessageResourceinator(retrofit, networkTranslator) {
+    ) : AbsMessageResourceinator(retrofit, translatinator) {
 
         // region Inherited methods
 

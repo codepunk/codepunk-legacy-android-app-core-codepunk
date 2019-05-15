@@ -17,7 +17,7 @@
 
 package com.codepunk.core.domain.model
 
-import com.codepunk.core.util.ellipsize
+import com.codepunk.doofenschmirtz.util.ellipsize
 
 /**
  * A constant indicating an unknown "expires in" value.

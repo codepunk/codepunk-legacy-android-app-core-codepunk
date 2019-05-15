@@ -19,7 +19,7 @@ package com.codepunk.core.data.remote.entity
 
 import com.codepunk.core.domain.model.TokenType
 import com.codepunk.core.domain.model.UNKNOWN
-import com.codepunk.core.util.ellipsize
+import com.codepunk.doofenschmirtz.util.ellipsize
 import com.squareup.moshi.Json
 
 /**
