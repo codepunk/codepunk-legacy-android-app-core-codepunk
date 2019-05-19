@@ -22,9 +22,9 @@ import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.PendingResource
 
 /**
- * A convenience method to reset a [MutableLiveData] that wraps a [Resource] back to
+ * A convenience method to consume a [MutableLiveData] that wraps a [Resource] back to
  * an instance of [PendingResource].
  */
-fun <Progress, Result> MutableLiveData<Resource<Progress, Result>>.reset() {
+fun <Progress, Result> MutableLiveData<Resource<Progress, Result>>.consume() {
     value = PendingResource()
 }

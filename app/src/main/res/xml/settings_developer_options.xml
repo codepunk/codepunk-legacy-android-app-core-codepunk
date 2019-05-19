@@ -19,14 +19,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_label_developer_options">
 
-    <!--suppress AndroidDomInspection -->
     <ListPreference
-        android:key="@string/pref_key_remote_environment"
-        android:title="@string/settings_remote_environment_title"
-        android:icon="@drawable/ic_preference_database"
-        android:selectable="true"
+        android:defaultValue="@string/default_remote_environment_value"
         android:enabled="true"
+        android:icon="@drawable/ic_preference_database"
+        android:key="@string/pref_key_remote_environment"
         android:order="100"
-        android:defaultValue="@string/default_remote_environment_value"/>
+        android:selectable="true"
+        android:title="@string/settings_remote_environment_title"/>
+
+    <!--suppress AndroidElementNotAllowed -->
+    <com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:icon="@drawable/ic_link_gray_24dp"
+        android:key="@string/pref_key_override_remote_url"
+        android:order="200"
+        android:persistent="false"
+        android:selectable="true"
+        android:title="@string/settings_override_remote_url_title"/>
 
 </PreferenceScreen>

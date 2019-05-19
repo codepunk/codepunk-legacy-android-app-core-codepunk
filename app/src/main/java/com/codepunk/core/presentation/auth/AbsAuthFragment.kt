@@ -20,8 +20,6 @@ package com.codepunk.core.presentation.auth
 import android.content.Context
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -183,6 +181,9 @@ abstract class AbsAuthFragment :
 
         // region Inherited methods
 
+        /**
+         * Enables or disables the view depending on the type of the [resource].
+         */
         override fun resolve(resource: Resource<Progress, Result>) {
             when (resource) {
                 is ProgressResource -> disableView()
@@ -191,6 +192,10 @@ abstract class AbsAuthFragment :
             super.resolve(resource)
         }
 
+        /**
+         * Attempts to display an error in a [RemoteErrorBody] if a [TextInputLayout] exists
+         * with the given key.
+         */
         override fun onFailure(resource: FailureResource<Progress, Result>): Boolean {
             var handled = super.onFailure(resource)
             if (!handled) {

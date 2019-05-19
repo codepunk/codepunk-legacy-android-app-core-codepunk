@@ -17,6 +17,7 @@
 package com.codepunk.core.di.module
 
 import com.codepunk.core.di.scope.FragmentScope
+import com.codepunk.core.presentation.settings.DeveloperOptionsRemoteUrlDialogFragment
 import com.codepunk.core.presentation.settings.DeveloperOptionsSettingsFragment
 import com.codepunk.core.presentation.settings.MainSettingsFragment
 import com.codepunk.core.presentation.settings.SettingsActivity
@@ -46,9 +47,17 @@ abstract class SettingsActivityModule {
      * Contributes an AndroidInjector to [DeveloperOptionsSettingsFragment].
      */
     @FragmentScope
-    @ContributesAndroidInjector //(modules = [DeveloperOptionsSettingsFragmentFragmentModule::class])
+    @ContributesAndroidInjector //(modules = [DeveloperOptionsSettingsFragmentModule::class])
     abstract fun contributeDeveloperOptionsSettingsFragmentInjector():
         DeveloperOptionsSettingsFragment
+
+    /**
+     * Contributes an AndroidInjector to [DeveloperOptionsRemoteUrlDialogFragment].
+     */
+    @FragmentScope
+    @ContributesAndroidInjector //(modules = [DeveloperOptionsRemoteUrlDialogFragmentModule::class])
+    abstract fun contributeDeveloperOptionsRemoteUrlDialogFragment():
+        DeveloperOptionsRemoteUrlDialogFragment
 
     // endregion Methods
 

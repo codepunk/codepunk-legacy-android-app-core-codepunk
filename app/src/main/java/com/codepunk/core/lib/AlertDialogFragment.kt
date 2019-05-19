@@ -40,8 +40,7 @@ import com.codepunk.core.R
  */
 open class AlertDialogFragment :
     DialogFragment(),
-    DialogInterface.OnClickListener,
-    DialogInterface.OnMultiChoiceClickListener {
+    DialogInterface.OnClickListener {
 
     // region Properties
 
@@ -118,18 +117,6 @@ open class AlertDialogFragment :
 
     // region Lifecycle methods
 
-    /*
-    /**
-     * If the listener identity is this fragment's activity, capture it here.
-     */
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (listenerIdentity == ListenerIdentity.ACTIVITY) {
-            _listener = activity as? AlertDialogFragmentListener
-        }
-    }
-    */
-
     /**
      * Restores [listenerIdentity] and [requestCode] from [savedInstanceState] as appropriate.
      */
@@ -163,8 +150,8 @@ open class AlertDialogFragment :
      * [AlertDialogFragmentListener.onBuildAlertDialog] on [listener] if one exists.
      */
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        defaultAlertDialogBuilder().also { builder ->
-            listener?.onBuildAlertDialog(this, requestCode, builder)
+        newBuilder(savedInstanceState).also { builder ->
+            listener?.onBuildAlertDialog(this, requestCode, builder, savedInstanceState)
         }.create()
 
     /**
@@ -205,13 +192,6 @@ open class AlertDialogFragment :
         }
     }
 
-    /**
-     * Implementation of [DialogInterface.OnMultiChoiceClickListener].
-     */
-    override fun onClick(dialog: DialogInterface?, which: Int, isChecked: Boolean) {
-        // No op
-    }
-
     // endregion Implemented methods
 
     // region Methods
@@ -220,7 +200,7 @@ open class AlertDialogFragment :
      * A default [AlertDialog.Builder] that displays a simple "An unknown error occurred"
      * dialog with a single "OK" button.
      */
-    protected open fun defaultAlertDialogBuilder(): AlertDialog.Builder =
+    protected open fun newBuilder(savedInstanceState: Bundle?): AlertDialog.Builder =
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.app_name)
             .setMessage(com.codepunk.doofenschmirtz.R.string.unknown_error_message)
@@ -338,6 +318,7 @@ open class AlertDialogFragment :
          * set via [showDialogFragmentForResult].
          */
         CUSTOM
+
     }
 
     /**
@@ -358,7 +339,8 @@ open class AlertDialogFragment :
         fun onBuildAlertDialog(
             fragment: AlertDialogFragment,
             requestCode: Int,
-            builder: AlertDialog.Builder
+            builder: AlertDialog.Builder,
+            savedInstanceState: Bundle?
         )
 
         /**

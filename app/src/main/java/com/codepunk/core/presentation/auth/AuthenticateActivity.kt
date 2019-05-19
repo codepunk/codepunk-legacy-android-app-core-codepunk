@@ -156,20 +156,22 @@ class AuthenticateActivity :
         if (savedInstanceState == null) {
             // If the supplied intent specifies it, navigate to an alternate destination
             // and pop up inclusive to that new destination
-            val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.fragment_authenticate, true)
-                .build()
-            when {
-                intent.categories.contains(CATEGORY_REGISTER) -> navController.navigate(
-                    R.id.action_auth_to_register,
-                    intent.extras,
-                    navOptions
-                )
-                intent.categories.contains(CATEGORY_LOG_IN) -> navController.navigate(
-                    R.id.action_auth_to_log_in,
-                    intent.extras,
-                    navOptions
-                )
+            intent.categories?.apply {
+                val navOptions = NavOptions.Builder()
+                    .setPopUpTo(R.id.fragment_authenticate, true)
+                    .build()
+                when {
+                    contains(CATEGORY_REGISTER) -> navController.navigate(
+                        R.id.action_auth_to_register,
+                        intent.extras,
+                        navOptions
+                    )
+                    contains(CATEGORY_LOG_IN) -> navController.navigate(
+                        R.id.action_auth_to_log_in,
+                        intent.extras,
+                        navOptions
+                    )
+                }
             }
         }
     }

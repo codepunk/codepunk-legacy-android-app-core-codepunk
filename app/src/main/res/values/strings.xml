@@ -119,6 +119,12 @@
 
     <string name="settings_developer_options_disable_dialog_title">Disable developer options?</string>
 
+    <string name="settings_developer_options_remote_url_hint">e.g., http://newurl.com</string>
+
+    <string name="settings_developer_options_remote_url_dialog_title">Set remote URL</string>
+
+    <string name="settings_developer_options_remote_url_dialog_message">Enter a URL to use for remote API calls:</string>
+
     <string name="settings_developer_options_incorrect_password">Incorrect password</string>
 
     <string name="settings_developer_options_password_dialog_message">Enter the password to enable developer options:</string>
@@ -149,6 +155,12 @@
     <string name="settings_log_out_dialog_title">Are you sure?</string>
 
     <string name="settings_remote_environment_title">Remote environment</string>
+
+    <string name="settings_override_remote_url_title">Override remote URL</string>
+
+    <string name="settings_override_remote_url_summary_default">Use default URL</string>
+
+    <string name="settings_override_remote_url_valid_url">Must be a valid URL.</string>
 
     <!-- endregion Settings -->
 

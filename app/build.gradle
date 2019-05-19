@@ -133,7 +133,9 @@ android {
                 "DEVELOPER_OPTIONS_ENABLED",
                 "DEVELOPER_OPTIONS_UNLOCKED",
                 "LOG_OUT",
-                "REMOTE_ENVIRONMENT"
+                "OVERRIDE_REMOTE_URL",
+                "REMOTE_ENVIRONMENT",
+                "REMOTE_URL"
         )
 
         /*
@@ -184,6 +186,7 @@ android {
                 "INTENT",
                 "LISTENER_SOURCE",
                 "REMOTE_ERROR_BODY",
+                "REMOTE_HOST",
                 "REQUEST_CODE",
                 "USERNAME"
         )

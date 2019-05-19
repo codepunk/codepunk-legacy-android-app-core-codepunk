@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2018 Codepunk, LLC
+ * Copyright (C) 2019 Codepunk, LLC
+ * Author(s): Scott Slater
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +15,10 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.data.remote.interceptor
+package com.codepunk.core.util
 
-import retrofit2.Retrofit
+import kotlin.reflect.KClass
 
-/**
- * An interceptor that will allow the [Retrofit] base URL to be overridden.
- */
-@Suppress("UNUSED")
-class HostOverrideInterceptor
+fun Class<*>.makeKey(name: String): String = "${this.name}.$name"
+
+fun KClass<*>.makeKey(name: String): String = "${this.java.name}.$name"

@@ -21,6 +21,7 @@ import com.codepunk.core.data.remote.adapter.BooleanIntAdapter
 import com.codepunk.core.data.remote.adapter.DateJsonAdapter
 import com.codepunk.core.data.remote.converter.MoshiEnumConverterFactory
 import com.codepunk.core.data.remote.interceptor.AuthorizationInterceptor
+import com.codepunk.core.data.remote.interceptor.UrlOverrideInterceptor
 import com.codepunk.core.data.remote.webservice.AuthWebservice
 import com.codepunk.core.data.remote.webservice.AuthWebserviceWrapper
 import com.codepunk.core.data.remote.webservice.UserWebservice
@@ -35,11 +36,19 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.*
 import javax.inject.Singleton
 
+// region Constants
+
+/**
+ * The size of the [OkHttpClient] cache.
+ */
 private const val CACHE_SIZE: Long = 10 * 1024 * 1024
 
-//private const val BASE_URL: String = "https://d5357798.ngrok.io"
+/**
+ * The default base URL for [Retrofit] calls.
+ */
 private const val BASE_URL: String = "http://192.168.12.10"
-//private const val BASE_URL: String = "https://codepunk.test"
+
+// endregion Constants
 
 /**
  * A [Module] that provides network-specific instances for dependency injection.
@@ -64,9 +73,11 @@ class NetModule {
     @Singleton
     fun providesOkHttpClient(
         cache: Cache,
+        urlOverrideInterceptor: UrlOverrideInterceptor,
         authorizationInterceptor: AuthorizationInterceptor
     ): OkHttpClient = OkHttpClient.Builder()
         .cache(cache)
+        .addInterceptor(urlOverrideInterceptor)
         .addInterceptor(authorizationInterceptor)
         .build()
 

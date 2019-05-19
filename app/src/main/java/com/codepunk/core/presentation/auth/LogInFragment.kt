@@ -40,7 +40,7 @@ import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
 import com.codepunk.core.lib.AlertDialogFragment
 import com.codepunk.core.lib.AlertDialogFragment.AlertDialogFragmentListener
-import com.codepunk.core.lib.reset
+import com.codepunk.core.lib.consume
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
@@ -141,28 +141,6 @@ class LogInFragment :
         return binding.root
     }
 
-    /*
-    /**
-     * Listens for appropriate events.
-     */
-    override fun onResume() {
-        super.onResume()
-        accountManager.addOnAccountsUpdatedListener(
-            this,
-            null,
-            true
-        )
-    }
-
-    /**
-     * Removes any associated listeners.
-     */
-    override fun onPause() {
-        super.onPause()
-        accountManager.removeOnAccountsUpdatedListener(this)
-    }
-    */
-
     // endregion Lifecycle methods
 
     // region Inherited methods
@@ -240,10 +218,7 @@ class LogInFragment :
      * Validates the form.
      */
     @Suppress("REDUNDANT_OVERRIDING_METHOD")
-    override fun validate(): Boolean {
-        // return validatinators.logInValidatinator.validate(binding, options.clear())
-        return super.validate()
-    }
+    override fun validate(): Boolean = super.validate()
 
     // region Implemented methods
 
@@ -298,14 +273,14 @@ class LogInFragment :
     override fun onClick(v: View?) {
         when (v) {
             binding.createBtn -> {
-                authViewModel.authLiveResource.reset()
-                authViewModel.registerLiveResource.reset()
+                authViewModel.authLiveResource.consume()
+                authViewModel.registerLiveResource.consume()
                 clearErrors()
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_register)
             }
             binding.forgotPasswordBtn -> {
-                authViewModel.authLiveResource.reset()
-                authViewModel.registerLiveResource.reset()
+                authViewModel.authLiveResource.consume()
+                authViewModel.registerLiveResource.consume()
                 clearErrors()
                 Navigation.findNavController(v).navigate(R.id.action_log_in_to_forgot_password)
             }
@@ -327,7 +302,8 @@ class LogInFragment :
     override fun onBuildAlertDialog(
         fragment: AlertDialogFragment,
         requestCode: Int,
-        builder: AlertDialog.Builder
+        builder: AlertDialog.Builder,
+        savedInstanceState: Bundle?
     ) {
         when (requestCode) {
             INACTIVE_USER_REQUEST_CODE -> {
@@ -371,7 +347,7 @@ class LogInFragment :
                         }
                     }
                 }
-                authViewModel.authLiveResource.reset()
+                authViewModel.authLiveResource.consume()
             }
         }
     }
@@ -405,7 +381,7 @@ class LogInFragment :
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
-                    authViewModel.authLiveResource.reset()
+                    authViewModel.authLiveResource.consume()
             }
         }
 
@@ -462,7 +438,7 @@ class LogInFragment :
             @SuppressLint("SwitchIntDef")
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
-                    authViewModel.registerLiveResource.reset()
+                    authViewModel.registerLiveResource.consume()
             }
         }
 
@@ -472,7 +448,7 @@ class LogInFragment :
                     .setAction(R.string.app_got_it) {}
                     .addCallback(this@RegisterResolvinator)
                     .show()
-            } ?: authViewModel.registerLiveResource.reset()
+            } ?: authViewModel.registerLiveResource.consume()
             return true
         }
 
@@ -493,8 +469,8 @@ class LogInFragment :
             @SuppressLint("SwitchIntDef")
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT -> {
-                    authViewModel.sendActivationLiveResource.reset()
-                    authViewModel.sendPasswordResetLiveResource.reset()
+                    authViewModel.sendActivationLiveResource.consume()
+                    authViewModel.sendPasswordResetLiveResource.consume()
                 }
             }
         }
@@ -505,7 +481,7 @@ class LogInFragment :
                     .setAction(R.string.app_got_it) {}
                     .addCallback(this@SendEmailResolvinator)
                     .show()
-            } ?: authViewModel.registerLiveResource.reset()
+            } ?: authViewModel.registerLiveResource.consume()
             return true
         }
 

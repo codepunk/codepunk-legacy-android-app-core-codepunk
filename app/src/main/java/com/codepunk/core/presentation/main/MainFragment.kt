@@ -35,6 +35,7 @@ import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
+import com.codepunk.core.lib.consume
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
@@ -148,6 +149,7 @@ class MainFragment :
                     }
                 }
                 Activity.RESULT_CANCELED -> {
+                    sessionManager.sessionLiveResource.consume()
                     // TODO Not sure if this is absolutely necessary but without it, resolve
                     // doesn't seem to be called when coming back from AuthenticateActivity
                     sessionManager.sessionLiveResource.removeObservers(this)

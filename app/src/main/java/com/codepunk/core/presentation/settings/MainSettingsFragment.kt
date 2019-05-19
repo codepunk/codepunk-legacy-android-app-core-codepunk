@@ -17,7 +17,6 @@
 package com.codepunk.core.presentation.settings
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -38,7 +37,6 @@ import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
 import com.codepunk.doofenschmirtz.util.startLaunchActivity
-import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 // region Constants
@@ -129,14 +127,6 @@ class MainSettingsFragment :
     // region Lifecycle methods
 
     /**
-     * Injects dependencies into this fragment.
-     */
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
-
-    /**
      * Saves this fragment's instance state.
      */
     override fun onSaveInstanceState(outState: Bundle) {
@@ -158,34 +148,6 @@ class MainSettingsFragment :
             PREF_KEY_CURRENT_ACCOUNT_NAME -> updatePreferenceScreen()
         }
     }
-
-    /*
-    /**
-     * Processes the results of dialogs launched by preferences in this fragment.
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            DEVELOPER_PASSWORD_REQUEST_CODE -> {
-                when (resultCode) {
-                    Activity.RESULT_OK -> {
-                        data?.run {
-                            updateDeveloperOptions(
-                                true,
-                                getStringExtra(EXTRA_DEVELOPER_OPTIONS_PASSWORD_HASH)
-                            )
-                        }
-                        Toast.makeText(
-                            context,
-                            R.string.settings_developer_options_now_a_developer,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-            else -> super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
-    */
 
     /**
      * Sets listeners and connects to the [ViewModel].
@@ -300,16 +262,15 @@ class MainSettingsFragment :
                 }
                 true
             }
-            else -> {
-                false
-            }
+            else -> false
         }
     }
 
     override fun onBuildAlertDialog(
         fragment: AlertDialogFragment,
         requestCode: Int,
-        builder: AlertDialog.Builder
+        builder: AlertDialog.Builder,
+        savedInstanceState: Bundle?
     ) {
         when (requestCode) {
             CONFIRM_LOG_OUT_REQUEST_CODE -> {

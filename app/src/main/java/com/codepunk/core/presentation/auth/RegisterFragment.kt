@@ -29,7 +29,7 @@ import androidx.navigation.Navigation
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.reset
+import com.codepunk.core.lib.consume
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
@@ -162,7 +162,7 @@ class RegisterFragment :
     override fun onClick(v: View?) {
         when (v) {
             binding.loginBtn -> {
-                authViewModel.registerLiveResource.reset()
+                authViewModel.registerLiveResource.consume()
                 clearErrors()
                 Navigation.findNavController(v)
                     .navigate(R.id.action_register_to_log_in)
@@ -186,7 +186,7 @@ class RegisterFragment :
         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
             when (event) {
                 DISMISS_EVENT_ACTION, DISMISS_EVENT_SWIPE, DISMISS_EVENT_TIMEOUT ->
-                    authViewModel.registerLiveResource.reset()
+                    authViewModel.registerLiveResource.consume()
             }
         }
 

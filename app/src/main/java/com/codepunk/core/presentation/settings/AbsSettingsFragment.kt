@@ -16,10 +16,12 @@
 
 package com.codepunk.core.presentation.settings
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
+import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 /*
@@ -40,11 +42,19 @@ abstract class AbsSettingsFragment :
      * The application [SharedPreferences].
      */
     @Inject
-    open lateinit var sharedPreferences: SharedPreferences
+    lateinit var sharedPreferences: SharedPreferences
 
     // endregion Properties
 
     // region Lifecycle methods
+
+    /**
+     * Injects dependencies into this fragment.
+     */
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     /**
      * Registers to listen for shared preference changes.

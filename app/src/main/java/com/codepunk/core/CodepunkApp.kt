@@ -21,15 +21,17 @@ import android.app.Application
 import android.app.Service
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.codepunk.core.BuildConfig.DEFAULT_REMOTE_ENVIRONMENT
-import com.codepunk.core.BuildConfig.PREF_KEY_REMOTE_ENVIRONMENT
+import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.data.remote.RemoteEnvironment
+import com.codepunk.core.data.remote.interceptor.UrlOverrideInterceptor
 import com.codepunk.core.di.component.DaggerAppComponent
 import com.codepunk.core.util.getEnvironment
+import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import dagger.android.HasServiceInjector
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 /**
@@ -63,6 +65,24 @@ class CodepunkApp :
     lateinit var sharedPreferences: SharedPreferences
 
     /**
+     * The application [Retrofit] instance.
+     */
+    @Inject
+    lateinit var retrofit: Retrofit
+
+    /**
+     * The host selection interceptor for overriding the retrofit base URL.
+     */
+    @Inject
+    lateinit var urlOverrideInterceptor: UrlOverrideInterceptor
+
+    /**
+     * A [FormattingLoginator] for logging system events.
+     */
+    @Inject
+    lateinit var loginator: FormattingLoginator
+
+    /**
      * The current [RemoteEnvironment] being used for remote API calls.
      */
     @Suppress("WEAKER_ACCESS")
@@ -88,6 +108,7 @@ class CodepunkApp :
             ?: DEFAULT_REMOTE_ENVIRONMENT
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         PreferenceManager.setDefaultValues(this, R.xml.settings_main, false)
+        onSharedPreferenceChanged(sharedPreferences, PREF_KEY_REMOTE_URL)
     }
 
     /**
@@ -122,17 +143,15 @@ class CodepunkApp :
         sharedPreferences?.apply {
             when (key) {
                 PREF_KEY_REMOTE_ENVIRONMENT ->
-                    remoteEnvironment =
-                        sharedPreferences.getEnvironment(key) ?: DEFAULT_REMOTE_ENVIRONMENT
+                    remoteEnvironment = getEnvironment(key) ?: DEFAULT_REMOTE_ENVIRONMENT
+                PREF_KEY_REMOTE_URL -> getString(key, null)?.also { newValue ->
+                    val oldValue = retrofit.baseUrl().toString()
+                    urlOverrideInterceptor.override(oldValue, newValue)
+                } ?: urlOverrideInterceptor.clear()
             }
         }
     }
 
     // endregion Implemented methods
-
-    // region Methods
-
-
-    // endregion Methods
 
 }
