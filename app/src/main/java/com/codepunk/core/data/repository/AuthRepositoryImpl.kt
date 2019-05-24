@@ -37,6 +37,7 @@ import com.codepunk.core.lib.retrofit.getResultResource
 import com.codepunk.core.lib.retrofit.toRemoteErrorBody
 import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
+import com.squareup.moshi.JsonEncodingException
 import retrofit2.Response
 import retrofit2.Retrofit
 
@@ -202,11 +203,15 @@ class AuthRepositoryImpl(
         override fun doInBackground(vararg params: Params): ResultResource<Progress, Result> =
             when (val resource = getResultResource(*params)) {
                 is FailureResource -> {
-                    val data = Bundle().apply {
-                        putParcelable(
-                            KEY_REMOTE_ERROR_BODY,
-                            resource.result?.errorBody()?.toRemoteErrorBody(retrofit)
-                        )
+                    val data = try {
+                        Bundle().apply {
+                            putParcelable(
+                                KEY_REMOTE_ERROR_BODY,
+                                resource.result?.errorBody()?.toRemoteErrorBody(retrofit)
+                            )
+                        }
+                    } catch (e: Exception) {
+                        null
                     }
                     FailureResource(null, resource.e, data)
                 }

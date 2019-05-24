@@ -35,7 +35,6 @@ import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
-import com.codepunk.core.presentation.auth.AuthenticateActivity
 import com.codepunk.doofenschmirtz.util.consume
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
@@ -87,7 +86,9 @@ class MainFragment :
      * The [ContentLoadingProgressBar] that belongs to the [MainActivity] that owns this
      * fragment.
      */
-    private lateinit var loadingProgressBar: ContentLoadingProgressBar
+    private val loadingProgressBar: ContentLoadingProgressBar by lazy {
+        (requireActivity() as MainActivity).loadingProgressBar
+    }
 
     /**
      * An instance of [SessionResolvinator] for resolving authorization-related resources.
@@ -104,13 +105,11 @@ class MainFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        when (context) {
-            is MainActivity -> loadingProgressBar = context.loadingProgressBar
-            else -> throw IllegalStateException(
-                "${javaClass.simpleName} must be attached to " +
-                    AuthenticateActivity::class.java.simpleName
+        if (activity !is MainActivity)
+            throw IllegalStateException(
+                "${MainFragment::class.java.simpleName} must be attached to " +
+                    MainActivity::class.java.simpleName
             )
-        }
     }
 
     /**
@@ -198,7 +197,6 @@ class MainFragment :
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.logInOutBtn.setOnClickListener(this)
 
         sessionResolvinator = SessionResolvinator(view)

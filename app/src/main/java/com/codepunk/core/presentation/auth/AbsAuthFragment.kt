@@ -18,6 +18,7 @@
 package com.codepunk.core.presentation.auth
 
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.Fragment
@@ -35,7 +36,6 @@ import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 /**
@@ -70,7 +70,9 @@ abstract class AbsAuthFragment :
      * The [FloatingActionButton] that belongs to the [AuthenticateActivity] that owns this
      * fragment.
      */
-    protected lateinit var floatingActionButton: FloatingActionButton
+    protected val floatingActionButton: FloatingActionButton by lazy {
+        (requireActivity() as AuthenticateActivity).floatingActionButton
+    }
 
     /**
      * The [AuthViewModel] instance backing this fragment.
@@ -92,13 +94,11 @@ abstract class AbsAuthFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        when (context) {
-            is AuthenticateActivity -> floatingActionButton = context.floatingActionButton
-            else -> throw IllegalStateException(
+        if (activity !is AuthenticateActivity)
+            throw IllegalStateException(
                 "${javaClass.simpleName} must be attached to " +
                     AuthenticateActivity::class.java.simpleName
             )
-        }
     }
 
     /**

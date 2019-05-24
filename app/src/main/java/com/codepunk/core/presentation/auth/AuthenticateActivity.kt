@@ -98,9 +98,8 @@ class AuthenticateActivity :
     /**
      * The activity's [FloatingActionButton].
      */
-    val floatingActionButton: FloatingActionButton by lazy {
-        binding.fab
-    }
+    lateinit var floatingActionButton: FloatingActionButton
+        private set
 
     /**
      * The [AuthViewModel] instance backing this fragment.
@@ -135,6 +134,8 @@ class AuthenticateActivity :
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
+        floatingActionButton = binding.fab
+
         setSupportActionBar(binding.toolbar)
         setupActionBarWithNavController(navController, appBarConfiguration)
 

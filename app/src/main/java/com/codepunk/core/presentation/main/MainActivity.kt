@@ -55,9 +55,8 @@ class MainActivity :
     /**
      * The activity's [ContentLoadingProgressBar].
      */
-    val loadingProgressBar: ContentLoadingProgressBar by lazy {
-        binding.loadingProgress
-    }
+    lateinit var loadingProgressBar: ContentLoadingProgressBar
+        private set
 
     // endregion Properties
 
@@ -70,6 +69,7 @@ class MainActivity :
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        loadingProgressBar = binding.loadingProgress
         setSupportActionBar(binding.toolbar)
     }
 
