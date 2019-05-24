@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.lib
+package com.codepunk.core.util
 
 import android.accounts.Account
 import android.accounts.AccountManager

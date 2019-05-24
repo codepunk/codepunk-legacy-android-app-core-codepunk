@@ -25,10 +25,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig.KEY_REMOTE_ERROR_BODY
 import com.codepunk.core.data.remote.entity.RemoteErrorBody
-import com.codepunk.core.lib.hideSoftKeyboard
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
 import com.codepunk.doofenschmirtz.util.Translatinator
+import com.codepunk.doofenschmirtz.util.hideSoftKeyboard
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource

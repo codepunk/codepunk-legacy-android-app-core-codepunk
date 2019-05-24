@@ -31,8 +31,8 @@ import com.codepunk.core.R
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
-import com.codepunk.core.lib.AlertDialogFragment
-import com.codepunk.core.lib.AlertDialogFragment.Companion.RESULT_POSITIVE
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment.Companion.RESULT_POSITIVE
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource

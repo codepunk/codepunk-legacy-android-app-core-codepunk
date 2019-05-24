@@ -35,14 +35,14 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.EXTRA_USERNAME
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentAuthenticateBinding
 import com.codepunk.core.domain.model.AuthTokenType
-import com.codepunk.core.lib.CustomDividerItemDecoration
+import com.codepunk.doofenschmirtz.util.CustomDividerItemDecoration
 import javax.inject.Inject
 
 /**

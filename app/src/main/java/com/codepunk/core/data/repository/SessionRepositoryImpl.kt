@@ -19,6 +19,8 @@ package com.codepunk.core.data.repository
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.accounts.AccountsException
+import android.accounts.AuthenticatorException
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.AsyncTask.THREAD_POOL_EXECUTOR
@@ -38,9 +40,8 @@ import com.codepunk.core.domain.contract.SessionRepository
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.model.AuthTokenType
 import com.codepunk.core.domain.session.Session
-import com.codepunk.core.lib.exception.AuthenticationException
-import com.codepunk.core.lib.getAccountByNameAndType
-import com.codepunk.core.lib.getResultResource
+import com.codepunk.core.util.getAccountByNameAndType
+import com.codepunk.core.lib.retrofit.getResultResource
 import com.codepunk.core.presentation.auth.AuthenticateActivity
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response
@@ -205,7 +206,7 @@ class SessionRepositoryImpl(
             val account: Account = when {
                 accounts.isEmpty() -> return makeFailureResource(
                     silentMode,
-                    AuthenticationException("There are no accounts in the account manager"),
+                    AccountsException("There are no accounts in the account manager"),
                     CATEGORY_REGISTER
                 )
                 accounts.size == 1 -> accounts[0]
@@ -213,7 +214,7 @@ class SessionRepositoryImpl(
                 else -> null
             } ?: return makeFailureResource(
                 silentMode,
-                AuthenticationException("Could not determine the current account"),
+                AccountsException("Could not determine the current account"),
                 BuildConfig.CATEGORY_MAIN
             )
 
@@ -232,14 +233,14 @@ class SessionRepositoryImpl(
                         false
                     ) ?: return makeFailureResource(
                         silentMode,
-                        AuthenticationException("Authentication failed getting auth token"),
+                        AuthenticatorException("Authentication failed getting auth token"),
                         BuildConfig.CATEGORY_LOG_IN,
                         account
                     )
                 } catch (e: Exception) {
                     return makeFailureResource(
                         silentMode,
-                        AuthenticationException(e),
+                        e,
                         BuildConfig.CATEGORY_LOG_IN,
                         account
                     )
@@ -280,7 +281,7 @@ class SessionRepositoryImpl(
 
             return makeFailureResource(
                 silentMode,
-                AuthenticationException("Authentication failed getting remote user", e),
+                AuthenticatorException("Authentication failed getting remote user", e),
                 BuildConfig.CATEGORY_LOG_IN,
                 account
             )

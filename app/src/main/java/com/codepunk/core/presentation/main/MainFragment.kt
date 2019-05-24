@@ -35,8 +35,8 @@ import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
-import com.codepunk.core.lib.consume
 import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.doofenschmirtz.util.consume
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import dagger.android.support.AndroidSupportInjection

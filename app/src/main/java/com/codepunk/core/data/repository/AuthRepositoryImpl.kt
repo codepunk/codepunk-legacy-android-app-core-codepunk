@@ -33,8 +33,8 @@ import com.codepunk.core.data.remote.webservice.UserWebservice
 import com.codepunk.core.domain.contract.AuthRepository
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.getResultResource
-import com.codepunk.core.util.toRemoteErrorBody
+import com.codepunk.core.lib.retrofit.getResultResource
+import com.codepunk.core.lib.retrofit.toRemoteErrorBody
 import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
 import retrofit2.Response

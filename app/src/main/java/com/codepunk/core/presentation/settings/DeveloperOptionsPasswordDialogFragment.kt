@@ -34,7 +34,7 @@ import androidx.fragment.app.FragmentManager
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 import com.codepunk.core.databinding.DialogDeveloperOptionsPasswordBinding
-import com.codepunk.core.lib.AlertDialogFragment
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment
 import com.codepunk.doofenschmirtz.view.animation.ShakeInterpolator
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils

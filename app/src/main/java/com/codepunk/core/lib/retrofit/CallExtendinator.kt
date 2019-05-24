@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.lib
+package com.codepunk.core.lib.retrofit
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData

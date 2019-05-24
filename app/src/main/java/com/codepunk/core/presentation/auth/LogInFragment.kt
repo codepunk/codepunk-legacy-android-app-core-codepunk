@@ -38,10 +38,10 @@ import com.codepunk.core.data.remote.entity.RemoteErrorBody.Type.*
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.AlertDialogFragment
-import com.codepunk.core.lib.AlertDialogFragment.AlertDialogFragmentListener
-import com.codepunk.core.lib.consume
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment.AlertDialogFragmentListener
+import com.codepunk.doofenschmirtz.util.consume
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator

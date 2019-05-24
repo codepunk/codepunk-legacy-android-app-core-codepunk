@@ -29,8 +29,8 @@ import androidx.navigation.Navigation
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.lib.consume
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.doofenschmirtz.util.consume
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource

@@ -17,7 +17,4 @@
 
 <resources>
 
-    <style name="AutoHeightRecyclerView" parent="@android:style/Widget">
-    </style>
-
 </resources>

@@ -27,12 +27,12 @@ import androidx.preference.Preference.OnPreferenceClickListener
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.data.remote.RemoteEnvironment
-import com.codepunk.core.lib.AlertDialogFragment
-import com.codepunk.core.lib.AlertDialogFragment.Companion.RESULT_POSITIVE
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment.Companion.RESULT_POSITIVE
 import com.codepunk.core.util.getEnvironment
-import com.codepunk.core.util.makeKey
 import com.codepunk.doofenschmirtz.preference.TwoTargetSwitchPreference
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
+import com.codepunk.doofenschmirtz.util.makeKey
 import com.codepunk.doofenschmirtz.util.populate
 import javax.inject.Inject
 

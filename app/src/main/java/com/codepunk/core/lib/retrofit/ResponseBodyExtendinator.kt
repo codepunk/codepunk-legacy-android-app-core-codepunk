@@ -15,16 +15,18 @@
  * limitations under the License.
  */
 
-package com.codepunk.core.lib
+package com.codepunk.core.lib.retrofit
 
-import androidx.lifecycle.MutableLiveData
-import com.codepunk.doofenschmirtz.util.resourceinator.Resource
-import com.codepunk.doofenschmirtz.util.resourceinator.PendingResource
+import com.codepunk.core.data.remote.entity.RemoteErrorBody
+import okhttp3.ResponseBody
+import retrofit2.Retrofit
 
 /**
- * A convenience method to consume a [MutableLiveData] that wraps a [Resource] back to
- * an instance of [PendingResource].
+ * Converts a nullable [ResponseBody] into a nullable [RemoteErrorBody].
  */
-fun <Progress, Result> MutableLiveData<Resource<Progress, Result>>.consume() {
-    value = PendingResource()
+fun ResponseBody?.toRemoteErrorBody(retrofit: Retrofit): RemoteErrorBody? = this?.let {
+    retrofit.responseBodyConverter<RemoteErrorBody>(
+        RemoteErrorBody::class.java,
+        arrayOf()
+    ).convert(it)
 }

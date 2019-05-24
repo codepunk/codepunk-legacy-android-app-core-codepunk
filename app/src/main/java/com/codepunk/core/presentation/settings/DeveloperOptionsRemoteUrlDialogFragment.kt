@@ -34,9 +34,9 @@ import androidx.fragment.app.FragmentManager
 import com.codepunk.core.BuildConfig
 import com.codepunk.core.R
 import com.codepunk.core.databinding.DialogDeveloperOptionsRemoteUrlBinding
-import com.codepunk.core.lib.AlertDialogFragment
-import com.codepunk.core.util.addClearButton
-import com.codepunk.core.util.makeKey
+import com.codepunk.doofenschmirtz.app.AlertDialogFragment
+import com.codepunk.doofenschmirtz.util.addClearButton
+import com.codepunk.doofenschmirtz.util.makeKey
 import dagger.android.support.AndroidSupportInjection
 import retrofit2.Retrofit
 import javax.inject.Inject

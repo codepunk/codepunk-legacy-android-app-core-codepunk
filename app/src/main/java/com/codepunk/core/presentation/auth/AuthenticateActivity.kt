@@ -38,9 +38,9 @@ import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authentication
-import com.codepunk.core.lib.AccountAuthenticatorAppCompatActivity
-import com.codepunk.core.lib.addOrUpdateAccount
+import com.codepunk.core.util.addOrUpdateAccount
 import com.codepunk.core.presentation.base.FloatingActionButtonOwner
+import com.codepunk.doofenschmirtz.app.AccountAuthenticatorAppCompatActivity
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
