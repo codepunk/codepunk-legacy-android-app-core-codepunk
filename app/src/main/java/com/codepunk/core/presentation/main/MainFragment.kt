@@ -35,7 +35,7 @@ import com.codepunk.core.databinding.FragmentMainBinding
 import com.codepunk.core.domain.model.User
 import com.codepunk.core.domain.session.Session
 import com.codepunk.core.domain.session.SessionManager
-import com.codepunk.core.presentation.base.ContentLoadingProgressBarOwner
+import com.codepunk.core.presentation.auth.AuthenticateActivity
 import com.codepunk.doofenschmirtz.util.consume
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
@@ -84,13 +84,15 @@ class MainFragment :
     private lateinit var binding: FragmentMainBinding
 
     /**
-     * The content loading [ContentLoadingProgressBar] belonging to this fragment's activity.
+     * The [ContentLoadingProgressBar] that belongs to the [MainActivity] that owns this
+     * fragment.
      */
-    private val contentLoadingProgressBar: ContentLoadingProgressBar? by lazy {
-        (activity as? ContentLoadingProgressBarOwner)?.contentLoadingProgressBar
-    }
+    private lateinit var loadingProgressBar: ContentLoadingProgressBar
 
-    private lateinit var sessionResolver: SessionResolver
+    /**
+     * An instance of [SessionResolvinator] for resolving authorization-related resources.
+     */
+    private lateinit var sessionResolvinator: SessionResolvinator
 
     // endregion Properties
 
@@ -102,6 +104,13 @@ class MainFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        when (context) {
+            is MainActivity -> loadingProgressBar = context.loadingProgressBar
+            else -> throw IllegalStateException(
+                "${javaClass.simpleName} must be attached to " +
+                    AuthenticateActivity::class.java.simpleName
+            )
+        }
     }
 
     /**
@@ -155,7 +164,7 @@ class MainFragment :
                     sessionManager.sessionLiveResource.removeObservers(this)
                     sessionManager.sessionLiveResource.observe(
                         this,
-                        Observer { sessionResolver.resolve(it) }
+                        Observer { sessionResolvinator.resolve(it) }
                     )
                 }
             }
@@ -190,13 +199,12 @@ class MainFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessionResolver = SessionResolver(view)
-
         binding.logInOutBtn.setOnClickListener(this)
 
+        sessionResolvinator = SessionResolvinator(view)
         sessionManager.sessionLiveResource.observe(
             this,
-            Observer { sessionResolver.resolve(it) }
+            Observer { sessionResolvinator.resolve(it) }
         )
 
         // Try to silently obtain a session now
@@ -227,13 +235,13 @@ class MainFragment :
 
     // region Nested/inner classes
 
-    private inner class SessionResolver(view: View) :
+    private inner class SessionResolvinator(view: View) :
         ResourceResolvinator<User, Session>(view) {
 
         override fun resolve(resource: Resource<User, Session>) {
             when (resource) {
-                is ProgressResource -> contentLoadingProgressBar?.show()
-                else -> contentLoadingProgressBar?.hide()
+                is ProgressResource -> loadingProgressBar.show()
+                else -> loadingProgressBar.hide()
             }
             super.resolve(resource)
         }

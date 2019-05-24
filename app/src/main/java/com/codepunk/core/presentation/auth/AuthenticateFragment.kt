@@ -163,7 +163,7 @@ class AuthenticateFragment :
     /**
      * Handles click events.
      */
-    override fun onClick(v: View) {
+    override fun onClick(v: View?) {
         when (v) {
             binding.createBtn -> Navigation.findNavController(v).navigate(
                 R.id.action_auth_to_register

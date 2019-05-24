@@ -27,7 +27,6 @@ import androidx.navigation.Navigation
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentForgotPasswordBinding
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
@@ -91,12 +90,13 @@ class ForgotPasswordFragment :
 
     // region Inherited methods
 
-    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
-        super.onFloatingActionButtonClick(owner)
-        if (validate()) {
-            authViewModel.sendPasswordResetLink(binding.emailEdit.text.toString())
+    override fun onClick(v: View?) {
+        super.onClick(v)
+        when (v) {
+            floatingActionButton -> if (validate()) {
+                authViewModel.sendPasswordResetLink(binding.emailEdit.text.toString())
+            }
         }
-
     }
 
     override fun clearErrors() {

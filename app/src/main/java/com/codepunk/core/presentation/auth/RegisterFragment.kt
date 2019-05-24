@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -29,7 +28,6 @@ import androidx.navigation.Navigation
 import com.codepunk.core.R
 import com.codepunk.core.databinding.FragmentRegisterBinding
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.util.consume
 import com.codepunk.doofenschmirtz.util.http.HttpStatusException
 import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
@@ -46,8 +44,7 @@ import android.content.DialogInterface.OnClickListener as DialogOnClickListener
  * A [Fragment] used to register (i.e. create) a new account.
  */
 class RegisterFragment :
-    AbsAuthFragment(),
-    OnClickListener {
+    AbsAuthFragment() {
 
     // region Properties
 
@@ -117,15 +114,23 @@ class RegisterFragment :
         )
     }
 
-    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
-        super.onFloatingActionButtonClick(owner)
-        if (validate()) {
-            authViewModel.register(
-                binding.usernameEdit.text.toString(),
-                binding.emailEdit.text.toString(),
-                binding.passwordEdit.text.toString(),
-                binding.confirmPasswordEdit.text.toString()
-            )
+    override fun onClick(v: View?) {
+        super.onClick(v)
+        when (v) {
+            binding.loginBtn -> {
+                authViewModel.registerLiveResource.consume()
+                clearErrors()
+                Navigation.findNavController(v)
+                    .navigate(R.id.action_register_to_log_in)
+            }
+            floatingActionButton -> if (validate()) {
+                authViewModel.register(
+                    binding.usernameEdit.text.toString(),
+                    binding.emailEdit.text.toString(),
+                    binding.passwordEdit.text.toString(),
+                    binding.confirmPasswordEdit.text.toString()
+                )
+            }
         }
     }
 
@@ -153,24 +158,6 @@ class RegisterFragment :
     }
 
     // endregion Inherited methods
-
-    // region Implemented methods
-
-    /**
-     * Implementation of [OnClickListener]. Submits the new account.
-     */
-    override fun onClick(v: View?) {
-        when (v) {
-            binding.loginBtn -> {
-                authViewModel.registerLiveResource.consume()
-                clearErrors()
-                Navigation.findNavController(v)
-                    .navigate(R.id.action_register_to_log_in)
-            }
-        }
-    }
-
-    // endregion Implemented methods
 
     // region Nested/inner classes
 

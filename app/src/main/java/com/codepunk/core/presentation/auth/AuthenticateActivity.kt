@@ -22,8 +22,6 @@ import android.accounts.AccountManager.*
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
-import android.view.View.OnClickListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -39,12 +37,12 @@ import com.codepunk.core.R
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.util.addOrUpdateAccount
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.app.AccountAuthenticatorAppCompatActivity
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.SuccessResource
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -57,20 +55,7 @@ import javax.inject.Inject
  */
 class AuthenticateActivity :
     AccountAuthenticatorAppCompatActivity(),
-    HasSupportFragmentInjector,
-    OnClickListener,
-    FloatingActionButtonOwner {
-
-    // region Implemented properties
-
-    /**
-     * Implementation of [FloatingActionButtonOwner]. An optional listener for
-     * floating action button-related events.
-     */
-    override var floatingActionButtonListener:
-        FloatingActionButtonOwner.FloatingActionButtonListener? = null
-
-    // endregion Implemented properties
+    HasSupportFragmentInjector {
 
     // region Properties
 
@@ -111,6 +96,13 @@ class AuthenticateActivity :
     private lateinit var binding: ActivityAuthenticateBinding
 
     /**
+     * The activity's [FloatingActionButton].
+     */
+    val floatingActionButton: FloatingActionButton by lazy {
+        binding.fab
+    }
+
+    /**
      * The [AuthViewModel] instance backing this fragment.
      */
     private val authViewModel: AuthViewModel by lazy {
@@ -145,8 +137,6 @@ class AuthenticateActivity :
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authenticate)
         setSupportActionBar(binding.toolbar)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener(this)
 
         authViewModel.authLiveResource.observe(this, Observer { onAuthResource(it) })
         authViewModel.registerLiveResource.observe(this, Observer { onResource(it) })
@@ -212,15 +202,6 @@ class AuthenticateActivity :
      */
     override fun supportFragmentInjector(): AndroidInjector<Fragment> =
         fragmentDispatchingAndroidInjector
-
-    /**
-     * Responds to click events.
-     */
-    override fun onClick(v: View?) {
-        when (v) {
-            binding.fab -> floatingActionButtonListener?.onFloatingActionButtonClick(this)
-        }
-    }
 
     // endregion Implemented methods
 

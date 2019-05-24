@@ -25,8 +25,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.codepunk.core.BuildConfig.KEY_REMOTE_ERROR_BODY
 import com.codepunk.core.data.remote.entity.RemoteErrorBody
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner.FloatingActionButtonListener
 import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.hideSoftKeyboard
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
@@ -34,8 +32,10 @@ import com.codepunk.doofenschmirtz.util.resourceinator.FailureResource
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
 import com.codepunk.doofenschmirtz.util.resourceinator.Resource
 import com.codepunk.doofenschmirtz.util.resourceinator.ResourceResolvinator
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.AndroidSupportInjection
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 /**
@@ -43,7 +43,7 @@ import javax.inject.Inject
  */
 abstract class AbsAuthFragment :
     Fragment(),
-    FloatingActionButtonListener {
+    View.OnClickListener {
 
     // region Properties
 
@@ -67,11 +67,10 @@ abstract class AbsAuthFragment :
     lateinit var translatinator: Translatinator
 
     /**
-     * This fragment's activity cast to a [FloatingActionButtonOwner].
+     * The [FloatingActionButton] that belongs to the [AuthenticateActivity] that owns this
+     * fragment.
      */
-    private val floatingActionButtonOwner: FloatingActionButtonOwner? by lazy {
-        activity as? FloatingActionButtonOwner
-    }
+    protected lateinit var floatingActionButton: FloatingActionButton
 
     /**
      * The [AuthViewModel] instance backing this fragment.
@@ -93,6 +92,13 @@ abstract class AbsAuthFragment :
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        when (context) {
+            is AuthenticateActivity -> floatingActionButton = context.floatingActionButton
+            else -> throw IllegalStateException(
+                "${javaClass.simpleName} must be attached to " +
+                    AuthenticateActivity::class.java.simpleName
+            )
+        }
     }
 
     /**
@@ -100,7 +106,7 @@ abstract class AbsAuthFragment :
      */
     override fun onResume() {
         super.onResume()
-        floatingActionButtonOwner?.floatingActionButtonListener = this
+        view?.post { floatingActionButton.setOnClickListener(this) }
     }
 
     /**
@@ -108,9 +114,7 @@ abstract class AbsAuthFragment :
      */
     override fun onPause() {
         super.onPause()
-        if (floatingActionButtonOwner?.floatingActionButtonListener == this) {
-            floatingActionButtonOwner?.floatingActionButtonListener = null
-        }
+        floatingActionButton.setOnClickListener(null)
     }
 
     // endregion Lifecycle methods
@@ -120,8 +124,10 @@ abstract class AbsAuthFragment :
     /**
      * Reacts to the user clicking the activity's floating action button.
      */
-    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
-        view?.hideSoftKeyboard()
+    override fun onClick(v: View?) {
+        when (v) {
+            floatingActionButton -> view?.hideSoftKeyboard()
+        }
     }
 
     // endregion Implemented methods

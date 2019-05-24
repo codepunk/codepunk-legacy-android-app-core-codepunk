@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
@@ -38,7 +37,6 @@ import com.codepunk.core.data.remote.entity.RemoteErrorBody.Type.*
 import com.codepunk.core.databinding.FragmentLogInBinding
 import com.codepunk.core.domain.model.Authentication
 import com.codepunk.core.domain.model.Message
-import com.codepunk.core.presentation.base.FloatingActionButtonOwner
 import com.codepunk.doofenschmirtz.app.AlertDialogFragment
 import com.codepunk.doofenschmirtz.app.AlertDialogFragment.AlertDialogFragmentListener
 import com.codepunk.doofenschmirtz.util.consume
@@ -66,8 +64,7 @@ private const val INACTIVE_USER_REQUEST_CODE = 1
  */
 class LogInFragment :
     AbsAuthFragment(),
-    AlertDialogFragmentListener,
-    OnClickListener {
+    AlertDialogFragmentListener {
 
     // region Properties
 
@@ -194,13 +191,38 @@ class LogInFragment :
         )
     }
 
-    override fun onFloatingActionButtonClick(owner: FloatingActionButtonOwner) {
-        super.onFloatingActionButtonClick(owner)
-        if (validate()) {
-            authViewModel.authenticate(
-                binding.usernameOrEmailEdit.text.toString(),
-                binding.passwordEdit.text.toString()
-            )
+    /**
+     * Responds to click events.
+     */
+    override fun onClick(v: View?) {
+        super.onClick(v)
+        when (v) {
+            binding.createBtn -> {
+                authViewModel.authLiveResource.consume()
+                authViewModel.registerLiveResource.consume()
+                clearErrors()
+                Navigation.findNavController(v).navigate(R.id.action_log_in_to_register)
+            }
+            binding.forgotPasswordBtn -> {
+                authViewModel.authLiveResource.consume()
+                authViewModel.registerLiveResource.consume()
+                clearErrors()
+                Navigation.findNavController(v).navigate(R.id.action_log_in_to_forgot_password)
+            }
+            floatingActionButton -> if (validate()) {
+                authViewModel.authenticate(
+                    binding.usernameOrEmailEdit.text.toString(),
+                    binding.passwordEdit.text.toString()
+                )
+            }
+            else -> when (v?.id) {
+                R.id.account_item -> {
+                    val account = v.getTag(R.id.account) as? Account
+                    account?.also {
+                        onAccountClick(it)
+                    }
+                }
+            }
         }
     }
 
@@ -266,34 +288,6 @@ class LogInFragment :
         }
     }
     */
-
-    /**
-     * Responds to click events.
-     */
-    override fun onClick(v: View?) {
-        when (v) {
-            binding.createBtn -> {
-                authViewModel.authLiveResource.consume()
-                authViewModel.registerLiveResource.consume()
-                clearErrors()
-                Navigation.findNavController(v).navigate(R.id.action_log_in_to_register)
-            }
-            binding.forgotPasswordBtn -> {
-                authViewModel.authLiveResource.consume()
-                authViewModel.registerLiveResource.consume()
-                clearErrors()
-                Navigation.findNavController(v).navigate(R.id.action_log_in_to_forgot_password)
-            }
-            else -> when (v?.id) {
-                R.id.account_item -> {
-                    val account = v.getTag(R.id.account) as? Account
-                    account?.also {
-                        onAccountClick(it)
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Builds the alert dialog associated with [requestCode], using [fragment] and [builder]
