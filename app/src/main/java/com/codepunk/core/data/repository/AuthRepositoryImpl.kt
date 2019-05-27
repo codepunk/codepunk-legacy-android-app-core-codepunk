@@ -37,7 +37,6 @@ import com.codepunk.core.lib.retrofit.getResultResource
 import com.codepunk.core.lib.retrofit.toRemoteErrorBody
 import com.codepunk.doofenschmirtz.util.Translatinator
 import com.codepunk.doofenschmirtz.util.resourceinator.*
-import com.squareup.moshi.JsonEncodingException
 import retrofit2.Response
 import retrofit2.Retrofit
 
