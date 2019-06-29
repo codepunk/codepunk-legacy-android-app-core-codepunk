@@ -282,10 +282,6 @@ class MainSettingsFragment :
                 false
             }
             addOrChangeAccountPreference -> {
-                // TODO NEXT (!!!) Either start activity for result or maybe listen
-                // for session change in SessionManager so we can react appropriately to
-                // session change
-                // So the thing is, onSession doesn't fire after logging in via the next screen
                 startActivityForResult(Intent(ACTION_AUTHENTICATION).apply {
                     addCategory(CATEGORY_CHOOSE)
                 }, AUTHENTICATE_REQUEST_CODE)
