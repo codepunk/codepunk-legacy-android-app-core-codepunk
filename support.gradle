@@ -33,14 +33,8 @@ versions.androidx_appcompat = "1.0.2"
 versions.androidx_constraint = "1.1.3"
 versions.androidx_legacy = "1.0.0"
 versions.apache_codec = "1.11"
-/* TODO Fabric/Crashlytics
-versions.crashlytics = "2.9.6@aar"
-*/
 versions.dagger = "2.16"
 versions.dokka = "0.9.17"
-/* TODO Fabric/Crashlytics
-versions.fabric = "1.+"
-*/
 versions.findbugs = "3.0.2"
 versions.junit = "4.12"
 versions.kotlin = "1.3.20"

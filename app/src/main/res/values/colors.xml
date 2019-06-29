@@ -29,4 +29,6 @@
 
     <color name="colorIconForeground">@android:color/white</color>
     <color name="colorIconBackground">@color/colorPrimary</color>
+
+    <color name="colorPreferenceIcon">#737373</color>
 </resources>

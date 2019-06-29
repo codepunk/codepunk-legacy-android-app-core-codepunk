@@ -16,6 +16,7 @@
 
 package com.codepunk.core.presentation.settings
 
+import android.accounts.Account
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
@@ -26,6 +27,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.navigation.Navigation
 import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
 import com.codepunk.core.domain.model.User
@@ -55,6 +58,11 @@ private const val CONFIRM_LOG_OUT_REQUEST_CODE = 1
  * The request code used by the disable developer options dialog fragment.
  */
 private const val DISABLE_DEVELOPER_OPTIONS_REQUEST_CODE = 2
+
+/**
+ * Request code for manually authenticating the user when [SessionManager] encounters a problem.
+ */
+private const val AUTHENTICATE_REQUEST_CODE = 3
 
 /**
  * The total number of clicks required to unlock developer options.
@@ -87,6 +95,27 @@ class MainSettingsFragment :
     lateinit var sessionManager: SessionManager
 
     /**
+     * The accounts preference category.
+     */
+    private val accountsPreferenceCategory by lazy {
+        findPreference(PREF_KEY_CATEGORY_ACCOUNTS) as PreferenceCategory
+    }
+
+    /**
+     * The about preference.
+     */
+    private val aboutPreference by lazy {
+        findPreference(PREF_KEY_ABOUT)
+    }
+
+    /**
+     * The "add or change account" preference.
+     */
+    private val addOrChangeAccountPreference by lazy {
+        findPreference(PREF_KEY_ADD_OR_CHANGE_ACCOUNT)
+    }
+
+    /**
      * The developer options preference.
      */
     private val developerOptionsPreference by lazy {
@@ -98,13 +127,6 @@ class MainSettingsFragment :
      */
     private val logOutPreference by lazy {
         findPreference(PREF_KEY_LOG_OUT)
-    }
-
-    /**
-     * The about preference.
-     */
-    private val aboutPreference by lazy {
-        findPreference(PREF_KEY_ABOUT)
     }
 
     /**
@@ -156,6 +178,7 @@ class MainSettingsFragment :
         setPreferencesFromResource(R.xml.settings_main, rootKey)
         requireActivity().title = preferenceScreen.title
         aboutPreference.onPreferenceClickListener = this
+        addOrChangeAccountPreference.onPreferenceClickListener = this
         logOutPreference.onPreferenceClickListener = this
         developerOptionsPreference.onPreferenceClickListener = this
         developerOptionsPreference.onPreferenceChangeListener = this
@@ -186,6 +209,26 @@ class MainSettingsFragment :
         }
 
         sessionManager.sessionLiveResource.observe(this, Observer { onSession(it) })
+    }
+
+    /**
+     * Listens for the authentication results.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            AUTHENTICATE_REQUEST_CODE -> when (resultCode) {
+                Activity.RESULT_OK -> {
+                    when (data?.getParcelableExtra<Account>(BuildConfig.KEY_ACCOUNT)) {
+                        null -> {
+                            // TODO Show error message then finish? OR show the msg in openSession activity dismiss?
+                            // requireActivity().finish()
+                        }
+                        else -> sessionManager.getSession(silentMode = false, refresh = true)
+                    }
+                }
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     // endregion Inherited methods
@@ -238,13 +281,14 @@ class MainSettingsFragment :
                 }
                 false
             }
-            logOutPreference -> {
-                requireFragmentManager().findFragmentByTag(CONFIRM_LOG_OUT_FRAGMENT_TAG)
-                    ?: AlertDialogFragment.showDialogFragmentForResult(
-                        this,
-                        CONFIRM_LOG_OUT_REQUEST_CODE,
-                        CONFIRM_LOG_OUT_FRAGMENT_TAG
-                    )
+            addOrChangeAccountPreference -> {
+                // TODO NEXT (!!!) Either start activity for result or maybe listen
+                // for session change in SessionManager so we can react appropriately to
+                // session change
+                // So the thing is, onSession doesn't fire after logging in via the next screen
+                startActivityForResult(Intent(ACTION_AUTHENTICATION).apply {
+                    addCategory(CATEGORY_CHOOSE)
+                }, AUTHENTICATE_REQUEST_CODE)
                 true
             }
             developerOptionsPreference -> {
@@ -260,6 +304,15 @@ class MainSettingsFragment :
                     else -> { /* No action */
                     }
                 }
+                true
+            }
+            logOutPreference -> {
+                requireFragmentManager().findFragmentByTag(CONFIRM_LOG_OUT_FRAGMENT_TAG)
+                    ?: AlertDialogFragment.showDialogFragmentForResult(
+                        this,
+                        CONFIRM_LOG_OUT_REQUEST_CODE,
+                        CONFIRM_LOG_OUT_FRAGMENT_TAG
+                    )
                 true
             }
             else -> false
@@ -422,8 +475,8 @@ class MainSettingsFragment :
 
         sessionManager.session?.run {
             logOutPreference.summary = accountName
-            preferenceScreen.addPreference(logOutPreference)
-        } ?: preferenceScreen.removePreference(logOutPreference)
+            accountsPreferenceCategory.addPreference(logOutPreference)
+        } ?: accountsPreferenceCategory.removePreference(logOutPreference)
     }
 
     /**
@@ -433,9 +486,9 @@ class MainSettingsFragment :
         when (resource) {
             is SuccessResource -> {
                 logOutPreference.summary = resource.result?.accountName
-                preferenceScreen.addPreference(logOutPreference)
+                accountsPreferenceCategory.addPreference(logOutPreference)
             }
-            else -> preferenceScreen.removePreference(logOutPreference)
+            else -> accountsPreferenceCategory.removePreference(logOutPreference)
         }
     }
 

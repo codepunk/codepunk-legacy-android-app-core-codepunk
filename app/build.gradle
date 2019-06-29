@@ -38,6 +38,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary true
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -128,6 +129,8 @@ android {
         makePreferenceKeys(
                 variant,
                 "ABOUT",
+                "ADD_OR_CHANGE_ACCOUNT",
+                "CATEGORY_ACCOUNTS",
                 "CURRENT_ACCOUNT_NAME",
                 "DEVELOPER_OPTIONS_AUTHENTICATED_HASH",
                 "DEVELOPER_OPTIONS_ENABLED",
@@ -157,6 +160,7 @@ android {
         makeIntentEntities(
                 variant,
                 IntentEntityType.CATEGORY,
+                "CHOOSE",
                 "DEVELOPER",
                 "LOG_IN",
                 "MAIN",

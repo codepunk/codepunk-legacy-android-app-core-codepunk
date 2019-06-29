@@ -16,12 +16,10 @@
 
 package com.codepunk.core.presentation.auth
 
-import android.accounts.Account
 import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -215,6 +213,7 @@ class LogInFragment :
                     binding.passwordEdit.text.toString()
                 )
             }
+            /*
             else -> when (v?.id) {
                 R.id.account_item -> {
                     val account = v.getTag(R.id.account) as? Account
@@ -223,6 +222,7 @@ class LogInFragment :
                     }
                 }
             }
+            */
         }
     }
 
@@ -350,6 +350,7 @@ class LogInFragment :
 
     // region Methods
 
+    /*
     /**
      * Responds to an account being clicked.
      */
@@ -358,6 +359,7 @@ class LogInFragment :
             loginator.d("account=$account")
         }
     }
+    */
 
     // endregion Methods
 

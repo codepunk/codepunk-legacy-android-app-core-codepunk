@@ -19,6 +19,7 @@ package com.codepunk.core.presentation.auth
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.AccountManager.*
+import android.accounts.AccountsException
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -29,14 +30,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.codepunk.core.BuildConfig
 import com.codepunk.core.BuildConfig.*
 import com.codepunk.core.R
+import com.codepunk.core.data.mapper.toDomainOrNull
+import com.codepunk.core.data.repository.SessionRepositoryImpl
 import com.codepunk.core.databinding.ActivityAuthenticateBinding
 import com.codepunk.core.domain.model.Authentication
+import com.codepunk.core.domain.model.User
 import com.codepunk.core.util.addOrUpdateAccount
+import com.codepunk.core.util.getAccountByNameAndType
 import com.codepunk.doofenschmirtz.app.AccountAuthenticatorAppCompatActivity
 import com.codepunk.doofenschmirtz.util.loginator.FormattingLoginator
 import com.codepunk.doofenschmirtz.util.resourceinator.ProgressResource
@@ -152,6 +159,7 @@ class AuthenticateActivity :
                     .setPopUpTo(R.id.fragment_authenticate, true)
                     .build()
                 when {
+                    contains(CATEGORY_CHOOSE) -> resolveIntent(intent, true)
                     contains(CATEGORY_REGISTER) -> navController.navigate(
                         R.id.action_auth_to_register,
                         intent.extras,
@@ -179,6 +187,7 @@ class AuthenticateActivity :
         super.onNewIntent(intent)
         intent?.categories?.apply {
             when {
+                contains(CATEGORY_CHOOSE) -> resolveIntent(intent)
                 contains(CATEGORY_REGISTER) ->
                     navController.navigate(R.id.action_auth_to_register, intent.extras)
                 contains(CATEGORY_LOG_IN) ->
@@ -207,6 +216,40 @@ class AuthenticateActivity :
     // endregion Implemented methods
 
     // region Methods
+
+    private fun resolveIntent(intent: Intent, popUp: Boolean = false) {
+        intent.categories?.apply {
+            var action: Int = -1
+            val navOptions = NavOptions.Builder().apply {
+                if (popUp) {
+                    setPopUpTo(R.id.fragment_authenticate, true)
+                }
+            }.build()
+            when {
+                contains(CATEGORY_CHOOSE) -> {
+
+                    // TODO Clean up
+                    // TODO If there's only one account and it's the current one,
+                    // then change action to R.id.action_auth_to_register
+
+                    // 2) Get all saved accounts for type AUTHENTICATOR_ACCOUNT_TYPE
+                    val type: String = AUTHENTICATOR_ACCOUNT_TYPE
+                    val accounts = accountManager.getAccountsByType(type)
+
+                    // 3) Get the "current" account. The current account is either the account whose name has
+                    // been saved in shared preferences, or the sole account for the given type if only
+                    // one account has been stored via the account manager
+                    if (accounts.isEmpty()) {
+                        action = R.id.action_auth_to_register
+                    }
+
+                    if (action > 0) {
+                        navController.navigate(action, intent.extras, navOptions)
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Reacts to the state of the supplied [resource].
