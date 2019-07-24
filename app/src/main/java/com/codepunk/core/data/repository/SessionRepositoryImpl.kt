@@ -200,8 +200,8 @@ class SessionRepositoryImpl(
             val type: String = BuildConfig.AUTHENTICATOR_ACCOUNT_TYPE
             val accounts = accountManager.getAccountsByType(type)
 
-            // 3) Get the "current" account. The current account is either the account whose name has
-            // been saved in shared preferences, or the sole account for the given type if only
+            // 3) Get the "current" account. The current account is either the account whose name
+            // has been saved in shared preferences, or the sole account for the given type if only
             // one account has been stored via the account manager
             val account: Account = when {
                 accounts.isEmpty() -> return makeFailureResource(

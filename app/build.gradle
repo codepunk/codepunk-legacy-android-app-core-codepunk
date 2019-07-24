@@ -23,9 +23,6 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jetbrains.dokka-android'
 
-import com.android.utils.Pair
-import com.android.build.gradle.api.BaseVariant
-
 android {
     compileSdkVersion rootProject.build_versions.target_sdk
     buildToolsVersion rootProject.build_versions.build_tools
@@ -37,6 +34,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         multiDexEnabled true
         vectorDrawables.useSupportLibrary true
 
@@ -291,6 +289,9 @@ dependencies {
 }
 
 // region Methods
+
+import com.android.utils.Pair
+import com.android.build.gradle.api.BaseVariant
 
 static def makeIntConstantValues(BaseVariant variant, Pair<String, Integer>... pairs) {
     pairs.each { pair ->

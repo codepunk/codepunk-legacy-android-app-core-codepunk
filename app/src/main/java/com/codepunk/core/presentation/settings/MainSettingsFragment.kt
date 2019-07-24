@@ -218,7 +218,7 @@ class MainSettingsFragment :
         when (requestCode) {
             AUTHENTICATE_REQUEST_CODE -> when (resultCode) {
                 Activity.RESULT_OK -> {
-                    when (data?.getParcelableExtra<Account>(BuildConfig.KEY_ACCOUNT)) {
+                    when (data?.getParcelableExtra<Account>(KEY_ACCOUNT)) {
                         null -> {
                             // TODO Show error message then finish? OR show the msg in openSession activity dismiss?
                             // requireActivity().finish()

@@ -88,7 +88,7 @@
             android:layout_margin="@dimen/fab_margin"
             android:clickable="true"
             android:focusable="true"
-            android:src="@drawable/ic_done_white_24dp"
+            app:srcCompat="@drawable/ic_done_white_24dp"
             app:layout_anchor="@android:id/content"
             app:layout_anchorGravity="end|bottom"/>
 
