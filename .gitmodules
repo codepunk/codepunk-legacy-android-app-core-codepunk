@@ -1,6 +1,6 @@
 [submodule "libraries/codepunk/doofenschmirtz"]
 	path = libraries/codepunk/doofenschmirtz
-	url = git@github.com:codepunk/codepunk-android-lib-core-doofenschmirtz.git
+	url = git@github.com:codepunk/codepunk-legacy-android-lib-core-doofenschmirtz.git
 [submodule "libraries/codepunk/punkubator"]
 	path = libraries/codepunk/punkubator
-	url = git@github.com:codepunk/codepunk-android-lib-core-punkubator.git
+	url = git@github.com:codepunk/codepunk-legacy-android-lib-core-punkubator.git
